@@ -135,7 +135,12 @@
 .carte img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; display: block; }
 .carte.paysage { width: var(--carte-h); height: var(--carte-l); }
 .carte.epuisee { transform: rotate(90deg); }
+/* Jetons posés là où la carte imprime la valeur correspondante : indices en bas à droite des lieux,
+   doom en bas à gauche des agendas, dégâts/horreur en bas à droite des enquêteurs ; ailleurs en haut à gauche. */
 .carte .jetons { position: absolute; left: 3px; top: 3px; display: flex; flex-wrap: wrap; gap: 2px; max-width: calc(100% - 6px); }
+.carte.kind-location .jetons { left: auto; top: auto; right: 3px; bottom: 3px; justify-content: flex-end; }
+.carte.kind-agenda .jetons { top: auto; bottom: 3px; }
+.carte.kind-investigator .jetons { left: auto; top: auto; right: 3px; bottom: 3px; justify-content: flex-end; }
 .jeton { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background-size: cover; font-size: 0.75rem; font-weight: 700; color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000; }
 .jeton-generic { background: var(--dorure); color: var(--nuit); text-shadow: none; }
 
@@ -179,8 +184,14 @@
 .plateau .carte { position: absolute; width: 126px; height: 178px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); }
 .plateau .carte.paysage { width: 178px; height: 126px; }
 .plateau .carte .jetons { left: 6px; top: 6px; }
+.plateau .carte.kind-location .jetons { left: auto; top: auto; right: 8px; bottom: 8px; }
+.plateau .carte.kind-agenda .jetons { top: auto; bottom: 6px; }
 .plateau .jeton { width: 30px; height: 30px; font-size: 1rem; }
-.mini { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: var(--faction, var(--prevu)); border: 2px solid var(--papier); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6); display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; color: #fff; text-shadow: 0 0 2px #000; }
+.mini { position: absolute; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: var(--faction, var(--prevu)); border: 3px solid var(--faction, var(--prevu)); outline: 2px solid var(--papier); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7); display: grid; place-items: center; }
+.mini img { position: absolute; left: 0; top: 0; width: 250%; height: auto; margin: -23% 0 0 -9%; max-width: none; pointer-events: none; }
+.mini span { position: relative; font-size: 0.85rem; font-weight: 700; color: #fff; text-shadow: 0 0 3px #000; display: none; }
+.mini.sans-image img { display: none; }
+.mini.sans-image span { display: block; }
 .zoom { position: absolute; right: 0.75rem; bottom: 0.75rem; display: flex; gap: 0.25rem; }
 .zoom button { font: inherit; font-size: 0.9rem; min-width: 2rem; padding: 0.25rem 0.5rem; background: var(--nuit); color: var(--papier); border: 1px solid var(--filet); border-radius: 2px; cursor: pointer; }
 .zoom button:hover { border-color: var(--dorure); }
@@ -209,7 +220,7 @@
 .compteurs { display: grid; gap: 0.25rem; margin: 0; font-size: 0.9rem; align-content: start; }
 .compteur { display: grid; grid-template-columns: 5.2rem auto; column-gap: 0.4rem; align-items: center; }
 .compteur dt { display: flex; align-items: center; gap: 0.35rem; color: var(--papier-2); }
-.compteur dt img { width: 1.1rem; height: 1.1rem; }
+.compteur dt img { width: 1.35rem; height: 1.35rem; }
 .compteur dd { margin: 0; font-weight: 500; }
 .compteur dd.detail { grid-column: 2; font-weight: 400; color: var(--wip); font-size: 0.8rem; }
 .actions-pips { display: flex; gap: 0.3rem; align-items: center; margin-top: 0.2rem; }
@@ -225,7 +236,7 @@
 .encart.erreur { border-left-color: var(--wip); }
 .encart.info { border-left-color: var(--ok); }
 .encart .fermer { margin-left: auto; font: inherit; font-size: 1.2rem; line-height: 1; background: none; border: 0; cursor: pointer; color: var(--nuit); }
-.loupe { position: fixed; right: 1rem; top: 4rem; z-index: 40; pointer-events: none; width: 19rem; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.75); }
+.loupe { position: absolute; left: 0.75rem; top: 0.75rem; z-index: 40; pointer-events: none; width: 19rem; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.75); }
 .loupe.paysage { width: 27rem; }
 .loupe img { display: block; width: 100%; }
 

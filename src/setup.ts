@@ -12,6 +12,7 @@ export type Rng = () => number;
 export const SEAT_ZONES: ZoneId[] = ["seat0", "seat1", "seat2", "seat3"];
 export const CARD_W = 126;
 export const CARD_H = 178;
+export const MINI = 44;
 const ASIDE_GAP = 10;
 
 export function shuffle<T>(arr: T[], rng: Rng): T[] {
@@ -126,8 +127,8 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
     seated.forEach((s, i) => {
       state.cards[`mini-${s.index}`] = {
         id: `mini-${s.index}`, code: s.investigatorCode!, kind: "mini", storyBack: false,
-        // Rangée de pions à cheval sur le bord bas du lieu ; les jetons du lieu restent visibles en haut à gauche.
-        loc: { zone: "board", x: (lieu.loc as { x: number }).x + 6 + i * 32, y: (lieu.loc as { y: number }).y + CARD_H - 18, z: z++ },
+        // Rangée de pions (44 px) à cheval sur le bord haut du lieu ; les indices restent visibles en bas à droite.
+        loc: { zone: "board", x: (lieu.loc as { x: number }).x + 4 + i * MINI + i * 2, y: (lieu.loc as { y: number }).y - MINI / 2, z: z++ },
         faceUp: true, exhausted: false, side: "a", tokens: {}, ownerSeat: s.index,
       };
     });

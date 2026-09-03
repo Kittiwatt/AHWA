@@ -36,6 +36,13 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **retours de l'utilisateur sur l'étape 1** appliqués :
+  jetons PNG recadrés sur leur disque et rendus transparents (les
+  originaux avaient un fond blanc), pions d'enquêteur 44 px avec
+  portrait recadré de la carte, loupe dans le coin haut gauche de la
+  zone des lieux, indices posés en bas à droite des lieux (sur la
+  valeur imprimée), doom en bas à gauche des agendas, dégâts/horreur en
+  bas à droite des enquêteurs ; règle « rien n'est jamais bloqué » (§2).
 - 2026-09-03 : **première table, étape 1 (lobby + mise en place + tapis
   affiché)** livrée pour *Night of the Zealot I — The Gathering*.
   Pipeline `scripts/build.mjs` (ArkhamDB → `public/scenarios/<id>.json`,
@@ -219,9 +226,12 @@ prévu. Pas de liste publique des rooms actives.
 - **Première manche** : la mise en place enchaîne directement sur la
   phase des enquêteurs (le mythe est sauté à la manche 1, règle générale).
 - **Carte de scénario** posée côté « b » (référence des jetons du chaos).
-- **Jetons** sur les cartes en haut à gauche (les seuils imprimés des
-  agendas sont en bas à gauche) ; pions d'enquêteur en rangée à cheval
-  sur le bord bas du lieu.
+- **Jetons** posés là où la carte imprime la valeur correspondante :
+  indices en bas à droite des lieux, doom en bas à gauche des agendas,
+  dégâts/horreur en bas à droite de l'enquêteur, sinon en haut à
+  gauche. **Pions** d'enquêteur (44 px, portrait recadré, cercle de la
+  couleur de classe) en rangée à cheval sur le bord haut du lieu.
+- **Loupe** (survol) dans le coin haut gauche de la zone des lieux.
 - **Statuts du catalogue** : `available` = définition présente dans le
   registre ; les 10 scénarios importés de PCIO sont `wip` tant qu'ils
   n'ont pas de `*.src.json` (le Worker refuse de créer une table pour un
@@ -296,6 +306,15 @@ Commandes : `npm run dev`, `npm run check` (tsc + dry-run),
 - Rooms de **1 à 4 joueurs** (nombre figé au setup). Ce qui dépend du journal de campagne ou d'un choix des joueurs
   reste MANUEL, mais l'app doit le RAPPELER au bon moment (message de
   setup, encart sur le tapis).
+- **Rien n'est jamais bloqué** (règle posée le 2026-09-03) : les
+  automatisations exécutent des actions, mais les joueurs peuvent tout
+  modifier à la main, tout le temps, en plus. Le serveur ne refuse une
+  action que pour une raison de rôle (hôte) ou d'intégrité (siège pris,
+  carte inconnue), jamais parce que « ce n'est pas le moment » :
+  « Phase suivante » reste cliquable même si tout le monde n'a pas
+  joué, un compteur se modifie dans les deux sens, une carte se
+  retourne ou se déplace à tout moment. Les états « tour en cours /
+  a joué » sont des indications visuelles, pas des verrous.
 - Ordre de mise en place = ordre du diagramme « Suggested Location
   Placement » du guide. Les lieux entrent en jeu face cachée (non
   révélés) sauf mention contraire du Setup.

@@ -1,7 +1,7 @@
 // Tapis : rendu de l'état de jeu (zones fixes + zone des lieux zoomable). Étape 1 : affichage seul.
 
 import { el, pluriel } from "./dom.js";
-import { majCarte, majMini, urlImage, loupePermise, CARTE_L, CARTE_H, JETONS_CHAOS, FACTIONS } from "./cartes.js";
+import { majCarte, majMini, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 
 export const PHASES = {
@@ -130,7 +130,7 @@ export function ajusterVue(ctx) {
   if (!cartes.length || !W) { vue.k = Math.min(W / 1600, H / 1000) || 1; vue.tx = 0; vue.ty = 0; appliquerVue(); return; }
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const c of cartes) {
-    const w = c.kind === "mini" ? 30 : CARTE_L, h = c.kind === "mini" ? 30 : CARTE_H;
+    const w = c.kind === "mini" ? MINI : CARTE_L, h = c.kind === "mini" ? MINI : CARTE_H;
     x0 = Math.min(x0, c.loc.x); y0 = Math.min(y0, c.loc.y); x1 = Math.max(x1, c.loc.x + w); y1 = Math.max(y1, c.loc.y + h);
   }
   const marge = 160;

@@ -355,6 +355,13 @@ l'avancement reste au clic.
 
 ## 8. Contraintes transverses
 
+- **Rien n'est jamais bloqué** : les automatisations agissent, les
+  joueurs peuvent tout modifier à la main à tout moment. Un refus
+  (`nack`) n'a que deux motifs : rôle (action d'hôte) ou intégrité
+  (siège pris, carte ou pile inconnue). Aucune action n'est refusée au
+  motif de la phase ou du tour ; les indications « tour en cours »,
+  « a joué », « seuil atteint » sont visuelles.
+
 - Français partout, typographie française (espaces insécables).
 - Images `cdn.arkham.build` sondées avec `new Image()` ; bandeau si
   le CDN est injoignable.

@@ -96,17 +96,26 @@ export function majCarte(el, carte, ctx) {
   return el;
 }
 
-/** Pion d'enquêteur : disque aux couleurs de la classe, initiales du nom. */
+export const MINI = 44;
+
+/** Pion d'enquêteur : portrait recadré dans un disque cerclé de la couleur de classe ; initiales si l'image manque. */
 export function majMini(el, carte, ctx) {
   const inv = ctx.investigateurs.get(carte.code);
   if (!el) {
     el = document.createElement("div");
     el.dataset.id = carte.id;
+    const img = document.createElement("img");
+    img.alt = "";
+    img.draggable = false;
+    img.addEventListener("error", () => el.classList.add("sans-image"));
+    el.append(img, document.createElement("span"));
   }
   const faction = FACTIONS[inv?.faction] ?? FACTIONS.neutral;
   el.className = "mini";
   el.style.setProperty("--faction", faction.couleur);
-  el.textContent = initiales(inv?.name ?? "?");
+  const src = `${CDN}${carte.code}.webp`;
+  if (el.firstChild.getAttribute("src") !== src) el.firstChild.src = src;
+  el.lastChild.textContent = initiales(inv?.name ?? "?");
   el.title = inv ? `${inv.name} — siège ${carte.ownerSeat + 1}` : carte.code;
   return el;
 }
