@@ -36,6 +36,11 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **carte disparue à la défausse** (tapis → défausse) :
+  l'élément DOM d'une carte est réutilisé d'une zone à l'autre et
+  gardait la position absolue (`left/top/zIndex`) posée sur le tapis →
+  décalée hors de sa pile. `carteEl` efface ces styles hors du tapis.
+  Cas ajouté aux captures (tapis → défausse, carte visible dans la pile).
 - 2026-09-03 : **troisième salve** : les lieux forment la couche du bas
   du tapis (z-index par kind : un pion ou une carte ne passe jamais sous
   un lieu, même déplacé après) ; défausse : tout le bloc (dos, compte,
@@ -476,6 +481,9 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   le tracé et 400 ms après.
 - Les cartes du tapis peuvent passer sous l'overlay pioche/sac (bas
   gauche) : elles restent accessibles en déplaçant la vue.
+- Éléments de carte réutilisés entre zones : toute propriété de style
+  posée par un rendu (position absolue du tapis) doit être effacée par
+  les autres rendus, sinon elle « fuit » (carte décalée, invisible).
 - Menu contextuel : ne pas fermer le menu dans un `pointerdown` global
   sans vérifier `menu.contains(target)` — le bouton est détaché avant
   que son `click` ne parte.

@@ -27,6 +27,9 @@ let plateau = null, zoneBoard = null;
 export function carteEl(carte, ctx) {
   const existant = els.get(carte.id);
   const e = carte.kind === "mini" ? majMini(existant, carte, ctx) : majCarte(existant, carte, ctx);
+  // L'élément est réutilisé d'une zone à l'autre : hors du tapis, la position absolue posée par
+  // rendrePlateau doit être effacée (sinon la carte est décalée hors de sa pile ou de sa zone).
+  if (carte.loc.zone !== "board") { e.style.left = ""; e.style.top = ""; e.style.zIndex = ""; }
   els.set(carte.id, e);
   return e;
 }

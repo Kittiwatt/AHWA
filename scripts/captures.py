@@ -223,6 +223,25 @@ with sync_playwright() as p:
     alice.wait_for_timeout(400)
     assert alice.locator("#sieges .siege").nth(0).locator(".menace .carte").count() == 1, "dépôt sur l'encart annulé"
 
+    # Depuis le tapis vers la défausse (ennemi sorti de la pioche) : la carte doit rester visible dans la défausse.
+    alice.locator("#pioches .pioche-rencontre .dos-bouton").click()
+    alice.wait_for_selector("#pioches .pioche-rencontre.revelee .carte")
+    src = alice.locator("#pioches .pioche-rencontre .carte").first.bounding_box()
+    board = alice.locator("#board").bounding_box()
+    alice.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); alice.mouse.down()
+    alice.mouse.move(board["x"] + board["width"] * 0.55, board["y"] + board["height"] * 0.25, steps=10); alice.mouse.up()
+    alice.wait_for_timeout(400)
+    tapis_cartes = alice.locator("#plateau .carte:not(.kind-location)")
+    assert tapis_cartes.count() == 1, "carte de rencontre posée sur le tapis"
+    src = tapis_cartes.first.bounding_box(); dst = alice.locator("#pioches .pile").nth(1).bounding_box()
+    alice.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); alice.mouse.down()
+    alice.mouse.move(dst["x"] + dst["width"] / 2, dst["y"] + 40, steps=10); alice.mouse.up()
+    alice.wait_for_timeout(400)
+    dessus = alice.locator("#pioches .defausse-rencontre .carte").first
+    bb = dessus.bounding_box(); pile_bb = alice.locator("#pioches .defausse-rencontre").bounding_box()
+    assert bb and abs(bb["x"] - pile_bb["x"]) < 3 and abs(bb["y"] - pile_bb["y"]) < 3, f"carte visible dans la défausse ({bb} vs {pile_bb})"
+    assert alice.locator("#pioches .defausse-rencontre .carte").first.get_attribute("style") in (None, ""), "pas de position résiduelle du tapis"
+
     # Rechargement : Alice retrouve son siège automatiquement.
     alice.reload()
     alice.wait_for_selector("#tapis:not([hidden])", timeout=8000)
