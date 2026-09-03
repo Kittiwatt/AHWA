@@ -500,7 +500,8 @@ token fine-grained (Contents : Read and write, ce seul dépôt, expiration
 n'est jamais conservé ni écrit dans le dépôt. Commande :
 `git push https://x-access-token:<TOKEN>@github.com/Kittiwatt/AHWA.git main`
 (filtrer la sortie pour ne pas afficher le token). Un commit par
-livraison, message en français.
+livraison, message en français, auteur `Claude (Anofelis)
+<claude@anofelis.local>` (même identité pour tous les commits).
 
 ### Structure du dépôt (2026-09-03)
 
