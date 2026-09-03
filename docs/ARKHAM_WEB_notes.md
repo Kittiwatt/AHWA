@@ -197,6 +197,16 @@ prévu. Pas de liste publique des rooms actives.
 - État = un objet `RoomState` versionné (`rev`), 1 snapshot SQLite par
   action, deltas JSON Patch, état complet au `welcome` seulement.
 
+### Dépôt GitHub et push (2026-09-03)
+
+Dépôt `github.com/Kittiwatt/AHWA`, branche `main`. Claude pousse avec un
+token fine-grained (Contents : Read and write, ce seul dépôt, expiration
+≈ 1 mois) que l'utilisateur colle **au début de chaque session** ; il
+n'est jamais conservé ni écrit dans le dépôt. Commande :
+`git push https://x-access-token:<TOKEN>@github.com/Kittiwatt/AHWA.git main`
+(filtrer la sortie pour ne pas afficher le token). Un commit par
+livraison, message en français.
+
 ### Structure du dépôt (2026-09-03)
 
 `public/` (front statique + `data/library.json`), `src/` (`index.ts`
