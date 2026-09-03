@@ -232,7 +232,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `reset` | H | retour lobby |
 | `close` / `deleteRoom` | H | résolution / suppression |
 | `kick {seat}` | H | libère un siège (au lobby : retire aussi son enquêteur) |
-| `moveCard {id, zone, x, y}` | J | drop sur le tapis (au lâcher uniquement) |
+| `moveCard {id, zone, x, y}` | J | drop sur le tapis (au lâcher uniquement) ; une carte sortie d'une pile entre en jeu face visible, sauf un lieu, qui entre non révélé (clic = révélation + indices) |
 | `toPile {id, pile, top?}` | J | met une carte dans une pile |
 | `flipCard {id}` | J | retourne (refusé si `storyBack && !faceUp` — seul le setup/scénario peut révéler) |
 | `revealLocation {id}` | J | face visible + indices auto (`clueValue × joueurs` ou `clueValue` si « per investigator » absent) |
@@ -241,7 +241,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `addToken {id, token, delta}` | J | jetons ± sur une carte |
 | `setSeatCounter {seat, key, delta}` | J | vie, santé mentale, indices, actions, spécifiques |
 | `setCounter {key, delta}` | J | compteur de table |
-| `drawEncounter {seat?}` | J | retourne la première carte de la pioche (elle y reste, le joueur la glisse ensuite) ; refusé tant qu'une carte révélée est dessus ; défausse remélangée si pioche vide |
+| `drawEncounter {seat?, pile?}` | J | retourne la première carte de la pioche ou d'une pile déclarée (elle y reste, le joueur la glisse ensuite) ; un lieu tiré montre son côté non révélé ; refusé tant qu'une carte révélée est dessus ; défausse remélangée si pioche vide |
 | `reshuffleDiscard` | J | toute la défausse de rencontre retourne dans la pioche, mélangée, face cachée |
 | `takeClue {id, n?}` | J | déplace `n` (1) indice d'un lieu vers la réserve du siège (double-clic sur les indices) |
 | `linkLocations {a, b}` / `unlink {id?}` | J | chemin entre deux lieux (`state.links`, bascule) / efface les chemins d'un lieu ou tous |
@@ -251,7 +251,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `nextPhase` | J | enchaîne les phases (§6) |
 | `setPhase {phase}` | J | saut direct à une phase, sans automatisation |
 | `takeTurn {seat?}` / `endTurn {seat?}` | J | tour en cours (`turn.seat`) / a joué (`turn.done`) ; indications, jamais des verrous |
-| `advanceAgenda` / `advanceAct` | J | la carte courante part de côté (hors jeu), la suivante de `agendaDeck`/`actDeck` entre dans l'histoire ; agenda : retire tout le doom en jeu. Même effet quand la carte courante est mise de côté, en victoire ou en pile (`sortieHistoire`) ; posée sur le tapis, elle reste courante |
+| `advanceAgenda` / `advanceAct` | J | la carte courante part de côté (hors jeu), la suivante de `agendaDeck`/`actDeck` entre dans l'histoire ; agenda : retire tout le doom en jeu. Même effet quand la carte courante est mise de côté, en victoire ou en pile (`sortieHistoire`) ; posée sur le tapis, elle reste courante. **Verso-lieu** (carte liée dont le dos est un lieu, ex. acte 3 de The Witching Hour) : au lieu de partir de côté, la carte devient un lieu (`kind`), face visible côté `b`, posée sur le tapis à `backPlacement` (défaut : centre) avec les indices de son verso (`backClue` × enquêteurs) |
 | `spendClues {n, from: {seat,n}[]}` | J | prélève sur les sièges ; le client demande la répartition si nécessaire |
 | `chaosDraw` / `chaosReturn` | J | tirage (le jeton sort du sac vers `drawn`, cumulable) / tout remettre ; `onChaosDraw` (v1.1) pourra sceller |
 | `chaosAdjust {token, delta}` | J | panneau du sac |
@@ -326,10 +326,19 @@ choisis sont retirés), `branch {on: questionId | "players", cases}`,
 at}`, `setStart {code}`, `log {text}` (The Midnight Masks) ;
 `pickRandom {positions}`, `pickRandomSet {from: sets, n}` (sans révéler
 le set retenu), `addDoom {n}`, `chaosAdd {tokens}`, `reminder {text}`
-(The Devourer Below). Une
+(The Devourer Below) ; `dealToSeats {from, n, rows, start}` (n cartes
+tirées au hasard, distribuées une à une dans l'ordre des joueurs —
+principal d'abord —, une rangée du tapis par enquêteur servi, le reste
+retiré ; `start` : chacun commence sur l'une de ses cartes, tirée au
+hasard, révélée, pion posé), `aside {sets}` (sets entiers de côté), le
+tout pour The Witching Hour. Une
 référence `slot:<nom>` désigne la carte choisie par `pickRandom` ou
 `setStart` (`slot:start`). `extraCards` ajoute des codes hors sets ;
-`piles` déclare des piles supplémentaires. Tout ce qui n'est ni posé ni
+`packs` (liste) remplace `pack` quand les sets viennent de plusieurs
+packs ArkhamDB ; `piles` déclare des piles supplémentaires ;
+`backPlacement {code: {x, y}}` dit où entre en jeu le verso-lieu d'un
+acte ou d'un agenda (voir `advanceAct`). Une carte liée dont le verso
+est un lieu reçoit `backClue` au build. Tout ce qui n'est ni posé ni
 mélangé va dans `removed`. Après la mise en place, `round = 1` et `phase =
 "investigation"` (la phase du mythe est sautée à la première manche).
 La source déclarative est `data/scenarios/<id>.src.json` ; le build y
@@ -391,8 +400,10 @@ l'avancement reste au clic.
 1. **Dos histoire** : `scenarios_data.json` ne les marque pas
    uniformément (WOS hérétiques, FGG `FGG_STORY`, TDE Nasht/Kaman‑Thah,
    ADD/UAD Josef) → recensement manuel → champ `storyBack`.
-2. **Sac par difficulté** : à saisir pour TCU, TDC, TDE‑A et Film
-   Fatale (section Setup / encart du guide).
+2. **Sac par difficulté** : TCU saisi (p. 4 du guide, 13 jetons en
+   standard ; les jetons ajoutés au fil de la campagne restent à
+   reporter par les joueurs — question au lobby ou panneau du sac) ;
+   reste TDC, TDE‑A et Film Fatale.
 3. **Compteurs spécifiques** : recensement dans les 10 scénarios (ex.
    clés FGG = proxys, pas compteurs).
 4. **Texte des rappels** : granularité retenue = 1 rappel par étape de

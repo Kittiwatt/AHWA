@@ -3,11 +3,13 @@
 import s0 from "../public/scenarios/notz_the_devourer_below.json";
 import s1 from "../public/scenarios/notz_the_gathering.json";
 import s2 from "../public/scenarios/notz_the_midnight_masks.json";
+import s3 from "../public/scenarios/tcu_witching_hour.json";
 
 export const SCENARIOS = {
   "notz_the_devourer_below": s0,
   "notz_the_gathering": s1,
   "notz_the_midnight_masks": s2,
+  "tcu_witching_hour": s3,
 } as const;
 
 export type ScenarioId = keyof typeof SCENARIOS;

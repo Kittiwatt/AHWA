@@ -1,0 +1,58 @@
+{
+  "_source": "Guide de campagne The Circle Undone (FFG, 2019) : Scenario I, section « Setup » p. 8 et encadré « Lost and Separated » ; sac du chaos p. 4 (« Campaign Setup ») ; choix de l'introduction p. 8 (jetons ajoutés au sac). Pas de diagramme de placement pour ce scénario : une rangée du tapis par enquêteur (principal en haut), la droite du tapis libre pour ce qui entre en jeu plus tard. Aucun texte de carte ; les rappels paraphrasent le guide. La question reprend uniquement la formulation du journal.",
+  "id": "tcu_witching_hour",
+  "title": "The Witching Hour",
+  "campaign": "The Circle Undone",
+  "campaignId": "tcu",
+  "order": 1,
+  "packs": ["tcu", "core"],
+  "encounterSets": ["the_witching_hour", "anettes_coven", "city_of_sins", "witchcraft", "ancient_evils", "striking_fear", "agents_of_azathoth", "agents_of_shub"],
+  "extraCards": ["01150", "01151", "01152", "01153", "01154", "01155"],
+  "scenarioCard": "05050",
+  "agendaDeck": ["05051", "05052"],
+  "actDeck": ["05053", "05054", "05055", "05056"],
+  "piles": [{ "id": "arkham_woods", "label": "Arkham Woods" }],
+  "backPlacement": { "05055": { "x": 1290, "y": 411 } },
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-2", "-3", "skull", "skull", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "-1", "-1", "-2", "-2", "-3", "-4", "-5", "skull", "skull", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-4", "-6", "-8", "skull", "skull", "auto_fail", "elder_sign"]
+  },
+  "layout": [],
+  "questions": [
+    { "id": "fate", "text": "Introduction du guide (à lire avant la mise en place) — l'enquêteur principal :", "options": [
+      { "id": "accepted", "label": "a accepté son destin" },
+      { "id": "rejected", "label": "a rejeté son destin" } ] }
+  ],
+  "setup": [
+    { "op": "dealToSeats", "from": ["05058", "05059", "05060", "05061", "05062", "05063", "05064"], "n": 5, "start": true,
+      "rows": [ { "x": 120, "y": 40, "dx": 190 }, { "x": 120, "y": 280, "dx": 190 }, { "x": 120, "y": 520, "dx": 190 }, { "x": 120, "y": 760, "dx": 190 } ],
+      "log": "Witch-Haunted Woods : 5 des 7 bois sont tirés au hasard et placés devant les enquêteurs, un à un dans l'ordre des joueurs (une rangée du tapis par enquêteur, l'enquêteur principal en haut) ; les 2 autres sont retirés de la partie." },
+    { "op": "toPile", "codes": ["01150", "01151", "01152", "01153", "01154", "01155"], "pile": "arkham_woods", "shuffle": true,
+      "log": "Les 6 Arkham Woods sont mis de côté en pile séparée « Arkham Woods », mélangée, face cachée : un clic y tire un bois au hasard." },
+    { "op": "aside", "codes": ["05057"], "faceUp": true,
+      "log": "Anette Mason est mise de côté, hors jeu." },
+    { "op": "aside", "sets": ["agents_of_azathoth", "agents_of_shub"], "faceUp": true,
+      "log": "Les sets Agents of Azathoth et Agents of Shub-Niggurath sont mis de côté, hors jeu, face visible." },
+    { "op": "story" },
+    { "op": "branch", "on": "fate", "cases": {
+      "accepted": [
+        { "op": "chaosAdd", "tokens": ["tablet", "tablet"], "log": "Destin accepté : 2 jetons Tablette sont ajoutés au sac du chaos, pour le reste de la campagne." },
+        { "op": "reminder", "text": "Hors application — destin accepté : avant de piocher sa main de départ, l'enquêteur principal ajoute à son deck les deux cartes indiquées par l'introduction du guide (elles ne comptent pas dans la taille du deck), s'il en dispose." } ],
+      "rejected": [
+        { "op": "chaosAdd", "tokens": ["elder_thing", "elder_thing"], "log": "Destin rejeté : 2 jetons Ancien sont ajoutés au sac du chaos, pour le reste de la campagne." } ] } },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée." },
+    { "when": "setup", "text": "Perdus et séparés (guide) : les lieux devant un enquêteur sont reliés entre eux, en plus de leurs symboles de connexion ; l'acte en cours dit si l'on peut entrer dans les lieux devant un autre enquêteur — les ennemis, eux, se déplacent librement." },
+    { "when": "setup", "text": "La pile « Arkham Woods » (à côté de la pioche) sert à tirer un bois au hasard quand une carte le demande : cliquez pour tirer, glissez-le sur le tapis devant l'enquêteur concerné, puis cliquez-le pour le révéler. Anette Mason et les sets Agents attendent dans la zone de côté." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

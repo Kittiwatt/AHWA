@@ -17,6 +17,44 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-04 : **The Witching Hour (TCU I) livré** — première table de
+  The Circle Undone (le prologue viendra plus tard, à la demande de
+  l'utilisateur ; choix structurels laissés à Claude, à valider par ses
+  retours). Guide TCU lu en entier (Setup p. 8, « Lost and Separated »,
+  sac p. 4, choix de l'introduction p. 8) ; pas de diagramme de
+  placement pour ce scénario. Nouveau dans le moteur : **`dealToSeats`**
+  (5 bois hantés tirés au hasard, distribués un à un dans l'ordre des
+  joueurs — principal d'abord, puis les sièges en boucle —, une rangée
+  du tapis par enquêteur servi : x = 120 + 190 j, y = 40 / 280 / 520 /
+  760 ; les 2 autres retirés ; chacun commence sur l'un de ses bois tiré
+  au hasard, révélé, pion posé), **`aside {sets}`** (sets Agents of
+  Azathoth et Agents of Shub-Niggurath de côté, face visible : face
+  cachée ils seraient indistinguables), **pile « Arkham Woods »**
+  (`toPile` des 6 bois du Core, mélangée : clic = tirer un bois au
+  hasard), **lieux sortis d'une pile** : `drawEncounter` montre le côté
+  non révélé d'un lieu (`side: "b"`, rien de dévoilé), `moveCard` d'une
+  pile au tapis le fait entrer **non révélé** (clic = révélation +
+  indices ; les autres cartes entrent toujours face visible),
+  **verso-lieu** : quand l'acte courant est une carte liée dont le dos
+  est un lieu (acte 3, 05055 → 05055b), « Avancer » ne le met pas de
+  côté : il devient un lieu (`kind`), face visible côté `b`, posé sur le
+  tapis à `backPlacement` (ici x 1290, y 411, droite du tapis) avec les
+  indices de son verso (`backClue` × enquêteurs, lu au build depuis
+  `linked_card`), puis l'acte suivant sort ; le client **recadre la vue**
+  quand un lieu entre en jeu hors du cadre (pas pendant un glisser).
+  **Question au lobby** « l'enquêteur principal a accepté / rejeté son
+  destin » (formulation du journal) → 2 jetons Tablette ou 2 jetons
+  Ancien ajoutés au sac (vérifié sur les icônes du PDF, pdftotext les
+  perd) + rappel deck hors application dans le premier cas. Sac TCU
+  saisi (13 jetons en standard, sans cultiste ni tablette). Build :
+  **`packs: ["tcu", "core"]`** (sets Ancient Evils, Striking Fear,
+  Agents of Shub-Niggurath et les 6 Arkham Woods en `extraCards` — seuls
+  ces 6 lieux sont pris dans le set Devourer Below, comme le demande le
+  guide). Lien du guide TCU (ahc75) dans le catalogue. Tests : 139
+  messages, quatre scénarios (2, 1 et 4 joueurs avec principal au siège
+  3 pour l'ordre de distribution ; le test « scénario sans définition »
+  utilise désormais `tcu_prologue`) ; captures 21-24 (lobby, tapis à
+  deux, bois tiré, verso-lieu). Régression NotZ au vert.
 - 2026-09-03 : projet créé par migration. Hébergement décidé (§1).
   Kit importé : ce mémo, `scenarios_data.json` (10 scénarios extraits
   du pipeline PCIO), `AHLCG_livrets_regles_FFG.md`, jetons PNG.
@@ -223,13 +261,20 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : au choix de l'utilisateur — retours de jeu sur
-  les trois tables NotZ, ou nouvelle campagne (les 10 scénarios PCIO :
-  transcrire `scenarios_data.json` en `*.src.json`, saisir le sac par
-  difficulté et le lien du guide, marquer les dos histoire). À faire
-  au fil de l'eau : pincer pour zoomer sur tablette, chemins pré-tracés
-  depuis les connexions imprimées (saisie manuelle par scénario), hook
-  `onChaosDraw` (jetons scellés), pioches multiples (v2).
+- **Prochaine étape** : retours de l'utilisateur sur The Witching Hour
+  (choix faits par Claude : rangées par enquêteur, pile Arkham Woods,
+  sets de côté face visible, question d'introduction, verso-lieu
+  automatique), puis TCU II At Death's Doorstep (dépend du prologue :
+  section « Missing Persons » du journal → questions au lobby ; lieux
+  double face normal/Spectral 05071‑84 ; Josef 05085 dos histoire) et
+  le prologue. Pour TCU II et la suite : les jetons ajoutés au sac au
+  fil de la campagne (tablette/ancien de l'introduction, cultistes…)
+  doivent être reportés — question au lobby « jetons de campagne » ou
+  ajustement dans le panneau du sac, à trancher. À faire au fil de
+  l'eau : étiquette de rangée sur le tapis (« devant X »), pincer pour
+  zoomer sur tablette, chemins pré-tracés depuis les connexions
+  imprimées, hook `onChaosDraw` (jetons scellés), pioches multiples
+  (v2), boutons scénario (`actions`, cahier §5, non implémentés).
 
 ## 1. Décisions d'architecture (prises, ne pas rouvrir sans raison)
 
@@ -529,6 +574,16 @@ Commandes : `npm run dev`, `npm run check` (tsc + dry-run),
   depuis `back_text` (« 2 copies of X (Core 16 / TCU 21) ») — totaux
   attendus Gavriella 9, Jerome 10, Valentino 8, Penny 11.
 - TCU : lieux Spectral 05078‑84 (trait « Spectral. »), normaux 05071‑77.
+- Codes des sets TCU sur ArkhamDB (pack `tcu`, vérifiés le 2026-09-04) :
+  `the_witching_hour` (05050‑64), `disappearance_at_the_twilight_estate`
+  (05043‑49), `at_deaths_doorstep` (05065‑85), `the_watcher`,
+  `agents_of_azathoth` (05088‑89), `anettes_coven` (05090‑91),
+  `witchcraft` (05092‑94), `silver_twilight_lodge` (05095‑97),
+  `city_of_sins` (05098‑99), `spectral_predators`, `trapped_spirits`,
+  `realm_of_death` ; sets du Core : `ancient_evils`, `striking_fear`,
+  `agents_of_shub` (01179‑80), Arkham Woods 01150‑55 (set `tentacles`).
+  L'acte 05055 a une `linked_card` 05055b de type location (verso-lieu) ;
+  05085b (Josef's Plan) est listé comme carte à part.
 
 ## 4. Savoir métier déjà encodé (voir `scenarios_data.json`)
 
@@ -614,6 +669,19 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   système ou des SVG.
 - Compter les messages WebSocket dès le premier prototype (plan gratuit
   = 100 k/jour tous joueurs confondus).
+- `pdftotext` perd les icônes des jetons du chaos dans les guides FFG
+  (« +1, 0, …, , , , . ») : rendre la page en image (`pdftoppm -r
+  220`) et lire les glyphes avant de saisir un sac ou un ajout de jeton.
+- Un scénario qui mélange plusieurs packs ArkhamDB (TCU + sets du Core)
+  déclare `packs` ; `extraCards` sert à ne prendre que quelques cartes
+  d'un set (les 6 Arkham Woods sans le reste de Devourer Below).
+- Le test `test_room.mjs` utilise un scénario **hors registre** pour
+  vérifier le refus 400 : le changer quand ce scénario est livré (fait
+  pour `tcu_witching_hour` → `tcu_prologue`).
+- Cartes liées : le front rend le verso d'après `backKind` ; un verso-lieu
+  ne devient un lieu pour le moteur (couche, pions emportés, chemins)
+  que par le changement de `kind` fait dans `avancer` — retourner l'acte
+  à la main le laisse « acte » (lisible, sans indices automatiques).
 
 ## 6. Questionnaire des fonctionnalités — thèmes couverts
 
@@ -656,8 +724,12 @@ par phase (`reminders[]` du `*.src.json`).
   TDE Nasht/Kaman-Thah, Josef dans ADD/UAD) → recensement manuel →
   champ `storyBack: [codes]` du `*.src.json` (déjà pris en charge par
   le build).
-- **Composition du sac par difficulté** : reste à saisir pour TCU, TDC,
-  TDE‑A et Film Fatale (section Setup / encart du guide).
+- **Composition du sac par difficulté** : TCU saisi (2026-09-04) ; reste
+  TDC, TDE‑A et Film Fatale (section Setup / encart du guide).
+- **Jetons de campagne** (TCU II et suivants) : les jetons ajoutés au sac
+  par les scénarios précédents ne sont pas connus d'une table isolée →
+  question au lobby ou rappel « ajustez le sac », à trancher avec
+  l'utilisateur.
 - **Compteurs spécifiques par scénario** : `seatCounters` /
   `tableCounters` du `*.src.json` (vides pour NotZ I) — recenser ceux
   des 10 scénarios PCIO à leur migration.

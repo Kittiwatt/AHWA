@@ -41,6 +41,10 @@ function nomDe(def: ScenarioDef, code: string): string {
   return def.cards.find((c) => c.code === code)?.name ?? code;
 }
 
+function nomSiege(state: RoomState, index: number): string {
+  return state.seats[index].name ?? `Siège ${index + 1}`;
+}
+
 export function clueValue(card: ScenarioCard | undefined, playerCount: number): number {
   if (!card?.clue) return 0;
   return card.clue.perInvestigator ? card.clue.value * playerCount : card.clue.value;
@@ -150,16 +154,23 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
     };
   }
 
+  // Pion d'un siège sur un lieu : rangée de pions (44 px) à cheval sur le bord haut du lieu, i-ème position ;
+  // les indices restent visibles en bas à droite.
+  const placeMini = (s: (typeof seated)[number], lieu: CardState, i: number) => {
+    state.cards[`mini-${s.index}`] = {
+      id: `mini-${s.index}`, code: s.investigatorCode!, kind: "mini", storyBack: false,
+      loc: { zone: "board", x: (lieu.loc as { x: number }).x + 4 + i * MINI + i * 2, y: (lieu.loc as { y: number }).y - MINI / 2, z: z++ },
+      faceUp: true, exhausted: false, side: "a", tokens: {}, ownerSeat: s.index,
+    };
+  };
   const placeMinis = (ref: string) => {
     const lieu = enJeu(ref);
-    seated.forEach((s, i) => {
-      state.cards[`mini-${s.index}`] = {
-        id: `mini-${s.index}`, code: s.investigatorCode!, kind: "mini", storyBack: false,
-        // Rangée de pions (44 px) à cheval sur le bord haut du lieu ; les indices restent visibles en bas à droite.
-        loc: { zone: "board", x: (lieu.loc as { x: number }).x + 4 + i * MINI + i * 2, y: (lieu.loc as { y: number }).y - MINI / 2, z: z++ },
-        faceUp: true, exhausted: false, side: "a", tokens: {}, ownerSeat: s.index,
-      };
-    });
+    seated.forEach((s, i) => placeMini(s, lieu, i));
+  };
+  // Ordre des joueurs : l'enquêteur principal d'abord, puis les sièges dans l'ordre, en boucle.
+  const ordreJoueurs = (): typeof seated => {
+    const k = Math.max(0, seated.findIndex((s) => s.index === state.lead));
+    return [...seated.slice(k), ...seated.slice(0, k)];
   };
 
   const poser = (code: string, zone: ZoneId, x: number, y: number, faceUp: boolean, reveal: boolean | undefined, log: string | undefined) => {
@@ -278,11 +289,48 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       }
       case "aside": {
         const deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
-        step.codes.forEach((code, i) => {
+        // Sets entiers : chaque carte autant de fois que sa quantité.
+        const codes = step.codes ?? def.cards.filter((c) => step.sets?.includes(c.set)).flatMap((c) => Array.from({ length: c.qty }, () => c.code));
+        codes.forEach((code, i) => {
           const id = pool.take(code);
           state.cards[id] = newCard(pool, code, id, { zone: "aside", x: (deja + i) * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, step.faceUp ?? false);
         });
-        addLog(state, "setup", step.log ?? `${step.codes.map((c) => pool.def(c).name).join(", ")} : de côté, hors jeu.`);
+        addLog(state, "setup", step.log ?? `${[...new Set(codes)].map((c) => pool.def(c).name).join(", ")} : de côté, hors jeu.`);
+        break;
+      }
+      case "dealToSeats": {
+        // Distribution « devant » chaque enquêteur (Lost and Separated) : n cartes tirées au hasard, données une à une
+        // dans l'ordre des joueurs ; une rangée du tapis par enquêteur servi ; le reste est retiré de la partie.
+        const ordre = ordreJoueurs();
+        const choix = shuffle([...step.from], rng).slice(0, step.n);
+        for (const code of step.from) if (!choix.includes(code)) retirer(code);
+        const parSiege = new Map<number, CardState[]>();
+        choix.forEach((code, i) => {
+          const s = ordre[i % ordre.length];
+          const r = ordre.indexOf(s);
+          const row = step.rows[r % step.rows.length];
+          const j = parSiege.get(s.index)?.length ?? 0;
+          const id = pool.take(code);
+          const card = newCard(pool, code, id, { zone: "board", x: row.x + j * (row.dx ?? CARD_W + 64), y: row.y, z: z++ }, false);
+          state.cards[id] = card;
+          parSiege.set(s.index, [...(parSiege.get(s.index) ?? []), card]);
+        });
+        const details = ordre.filter((s) => parSiege.has(s.index)).map((s, r) => {
+          const cartes = parSiege.get(s.index)!;
+          return `rangée ${r + 1} = ${nomSiege(state, s.index)} (${cartes.length})`;
+        });
+        const retirees = step.from.length - choix.length;
+        addLog(state, "setup", `${step.log ?? `${choix.length} cartes tirées au hasard parmi ${step.from.length} sont réparties devant les enquêteurs, une à une dans l'ordre des joueurs${retirees > 0 ? ` ; ${retirees === 1 ? "l'autre est retirée" : `les ${retirees} autres sont retirées`} de la partie` : ""}.`} Sur le tapis : ${details.join(", ")}.`);
+        if (step.start) {
+          for (const s of ordre) {
+            const cartes = parSiege.get(s.index);
+            if (!cartes?.length) continue;
+            const depart = cartes[Math.floor(rng() * cartes.length)];
+            const n = revealLocation(state, def, depart);
+            placeMini(s, depart, 0);
+            addLog(state, "setup", `${nomSiege(state, s.index)} commence sur ${pool.def(depart.code).name} (rangée ${ordre.indexOf(s) + 1}), tiré au hasard parmi ses lieux et révélé${n > 0 ? ` : ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}.`);
+          }
+        }
         break;
       }
       case "story": {

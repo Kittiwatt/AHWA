@@ -59,6 +59,10 @@ function carte(c, src) {
     // clues_fixed absent/false = valeur « par enquêteur » ; true = valeur fixe.
     out.clue = { value: c.clues ?? 0, perInvestigator: !c.clues_fixed };
   }
+  // Verso = lieu (ex. acte dont le dos est un lieu) : ses indices, posés quand l'acte avance.
+  if (c.linked_card?.type_code === "location") {
+    out.backClue = { value: c.linked_card.clues ?? 0, perInvestigator: !c.linked_card.clues_fixed };
+  }
   // Carte liée (ex. agenda dont le verso est un ennemi) : le verso est une autre carte ArkhamDB.
   if (c.linked_card) {
     out.back = "b";
@@ -82,7 +86,9 @@ function carte(c, src) {
 
 async function buildScenario(fichierSrc) {
   const src = JSON.parse(await readFile(fichierSrc, "utf8"));
-  const cartesPack = await json(`${ARKHAMDB}/cards/${src.pack}.json?encounter=1`, `${src.pack}.json`);
+  // Un pack ArkhamDB (`pack`) ou plusieurs (`packs`, ex. TCU + sets du Core).
+  const packs = src.packs ?? [src.pack];
+  const cartesPack = (await Promise.all(packs.map((p) => json(`${ARKHAMDB}/cards/${p}.json?encounter=1`, `${p}.json`)))).flat();
   const sets = new Set(src.encounterSets);
   const extra = new Set(src.extraCards ?? []);
   const cards = cartesPack
@@ -99,7 +105,10 @@ async function buildScenario(fichierSrc) {
     ...(s.cases ? Object.values(s.cases).flatMap(citesDe) : [])]).filter((c) => c && !String(c).startsWith("slot:"));
   for (const s of src.setup.flatMap(function aplat(x) { return [x, ...(x.cases ? Object.values(x.cases).flat().flatMap(aplat) : [])]; })) {
     if (s.op === "pickRandomSet") for (const set of s.from) if (!src.encounterSets.includes(set)) throw new Error(`${src.id} : set ${set} absent de encounterSets`);
+    if (s.op === "aside" || s.op === "toPile") for (const set of [...(s.sets ?? []), ...(s.set ? [s.set] : [])]) if (!src.encounterSets.includes(set)) throw new Error(`${src.id} : set ${set} absent de encounterSets`);
+    if (s.op === "dealToSeats" && (!Array.isArray(s.rows) || !s.rows.length)) throw new Error(`${src.id} : dealToSeats sans rows`);
   }
+  for (const code of Object.keys(src.backPlacement ?? {})) if (!cartesPack.some((c) => c.code === code && c.linked_card)) throw new Error(`${src.id} : backPlacement ${code} n'est pas une carte liée`);
   const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup)].filter(Boolean);
   for (const code of cites) if (!codes.has(code)) throw new Error(`${src.id} : code ${code} absent des sets de rencontre`);
 

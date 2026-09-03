@@ -25,6 +25,7 @@ export type ScenarioCard = {
   backHealth?: number;
   backHealthPerInvestigator?: boolean;
   backVictory?: number;
+  backClue?: { value: number; perInvestigator: boolean };   // verso = lieu (ex. acte → lieu) : ses indices
 };
 
 // Les références « slot:<nom> » désignent une carte choisie plus tôt (pickRandom, setStart).
@@ -41,7 +42,11 @@ export type SetupStep =
   | { op: "spawn"; code: string; at: string; log?: string }
   | { op: "setStart"; code: string; log?: string }
   | { op: "minis"; code: string; log?: string }
-  | { op: "aside"; codes: string[]; faceUp?: boolean; log?: string }
+  | { op: "aside"; codes?: string[]; sets?: string[]; faceUp?: boolean; log?: string }   // codes (répétés selon la quantité) ou sets entiers
+  | { op: "dealToSeats"; from: string[]; n: number; rows: { x: number; y: number; dx?: number }[]; start?: boolean; log?: string }
+    // n cartes tirées au hasard dans from, distribuées une à une aux enquêteurs dans l'ordre des joueurs
+    // (principal d'abord) ; rangée i = i-ème enquêteur servi ; le reste est retiré ; start : chacun commence
+    // sur l'une de ses cartes, tirée au hasard, révélée, avec son pion dessus
   | { op: "story"; log?: string }
   | { op: "buildEncounter"; log?: string }
   | { op: "log"; text: string }
@@ -55,7 +60,8 @@ export type ScenarioDef = {
   campaign: string;
   campaignId: string;
   order: number;
-  pack: string;
+  pack?: string;            // pack ArkhamDB unique…
+  packs?: string[];         // …ou plusieurs (ex. tcu + core)
   encounterSets: string[];
   encounterSetNames: Record<string, string>;
   scenarioCard: string;
@@ -64,6 +70,7 @@ export type ScenarioDef = {
   startLocation?: string;
   extraCards?: string[];
   piles?: { id: string; label: string }[];   // piles supplémentaires (ex. « Cultist deck »)
+  backPlacement?: Record<string, { x: number; y: number }>;   // où un verso-lieu entre en jeu quand l'acte/agenda avance (défaut : centre)
   chaosBag: Record<Difficulty, Token[]>;
   layout: { code: string; x: number; y: number }[];
   setup: SetupStep[];

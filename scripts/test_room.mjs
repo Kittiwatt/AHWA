@@ -50,7 +50,7 @@ assert.equal(r.status, 200);
 const { code, hostToken } = await r.json();
 console.log("room", code);
 
-const refus = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tcu_witching_hour" }) });
+const refus = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tcu_prologue" }) });
 assert.equal(refus.status, 400, "scénario sans définition refusé");
 
 // Hôte : spectateur d'abord, puis prend le siège 1.
@@ -484,6 +484,120 @@ async function tableDevourer({ joueurs, answers }) {
   assert.equal(s.cards[s.agendaId].tokens.doom, 0);
   assert.equal(Object.values(s.cards).find((c) => c.code === "01116").loc.pile, "removed");
   assert.equal(s.chaos.bag.length, 17);
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
+// ============ The Witching Hour (TCU I) : bois distribués devant les enquêteurs, pile Arkham Woods, sets de côté, verso-lieu ============
+async function tableWitching({ joueurs, answers, lead }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tcu_witching_hour" }) });
+  assert.equal(r.status, 200, "The Witching Hour est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  let d = await h.action({ t: "chooseInvestigator", code: "05001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    d = await c.action({ t: "chooseInvestigator", code: ["05001", "05002", "05003", "05004"][i] });
+    autres.push(c);
+  }
+  let rev = joueurs;
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === rev);
+  if (lead !== undefined) { await h.action({ t: "setLead", seat: lead }); rev++; }
+  h.envoyer({ t: "startSetup", answers });
+  await h.attendre((m) => m.t === "delta" && m.rev === rev + 1);
+  await new Promise((r) => setTimeout(r, 200));
+  return { code, h, autres };
+}
+const ROWS_Y = [40, 280, 520, 760];
+function verifWitching(s, joueurs, attendu) {
+  const cartes = Object.values(s.cards);
+  const bois = cartes.filter((c) => c.loc.zone === "board" && c.kind === "location" && c.code >= "05058" && c.code <= "05064");
+  assert.equal(bois.length, 5, "5 Witch-Haunted Woods en jeu");
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed" && c.code >= "05058" && c.code <= "05064").length, 2, "2 bois retirés");
+  const parRangee = ROWS_Y.map((y) => bois.filter((b) => b.loc.y === y).length);
+  assert.deepEqual(parRangee.filter(Boolean), attendu, `répartition ${attendu.join("/")} (principal en haut)`);
+  const minis = cartes.filter((c) => c.kind === "mini");
+  assert.equal(minis.length, joueurs);
+  for (const m of minis) {
+    const dessous = bois.find((b) => m.loc.y === b.loc.y - 22 && m.loc.x === b.loc.x + 4);
+    assert.ok(dessous, "chaque pion est sur un bois");
+    assert.ok(dessous.faceUp, "le bois de départ est révélé");
+    assert.ok((dessous.tokens.clue ?? 0) >= joueurs, "indices posés sur le bois de départ");
+  }
+  assert.equal(new Set(minis.map((m) => m.loc.y)).size, joueurs, "un pion par rangée");
+  assert.equal(bois.filter((b) => b.faceUp).length, joueurs, "seuls les bois de départ sont révélés");
+  const woods = s.piles.arkham_woods;
+  assert.equal(woods.length, 6, "6 Arkham Woods dans la pile");
+  assert.ok(woods.every((id) => !s.cards[id].faceUp), "pile face cachée");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["01179", "01180", "01180", "01180", "05057", "05088", "05089", "05089", "05089"], "Anette et les deux sets Agents de côté");
+  assert.ok(cote.every((c) => c.faceUp), "de côté face visible");
+  assert.equal(s.piles.encounter.length, 26, "pioche de rencontre : 26 cartes");
+  assert.equal(s.cards[s.agendaId].code, "05051");
+  assert.equal(s.cards[s.actId].code, "05053");
+  assert.equal(s.piles.actDeck.length, 3);
+  assert.ok(cartes.find((c) => c.code === "05050").side === "b", "carte de scénario côté b");
+}
+{
+  const { h, autres } = await tableWitching({ joueurs: 2, answers: { fate: "accepted" } });
+  const s = h.state;
+  verifWitching(s, 2, [3, 2]);
+  assert.equal(s.chaos.bag.length, 15, "sac standard TCU 13 + 2");
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 2, "destin accepté : 2 tablettes");
+  assert.ok(h.recus.filter((m) => m.t === "reminder").some((m) => m.entry.text.includes("destin accepté")), "rappel deck (destin accepté)");
+  assert.ok(s.log.some((e) => e.text.includes("rangée 1 = Hôte (3)") && e.text.includes("rangée 2 = J2 (2)")), "journal : rangées par siège");
+
+  // Pile Arkham Woods : tirer = côté non révélé sur la pile ; sur le tapis = non révélé ; clic = révélation + indices.
+  let d = await h.action({ t: "drawEncounter", pile: "arkham_woods" });
+  assert.equal(d.t, "delta");
+  const dessus = h.state.cards[h.state.piles.arkham_woods[0]];
+  assert.ok(dessus.faceUp && dessus.side === "b", "bois tiré : côté non révélé");
+  d = await h.action({ t: "drawEncounter", pile: "arkham_woods" });
+  assert.equal(d.t, "nack", "un bois tiré attend d'être glissé");
+  d = await h.action({ t: "moveCard", id: dessus.id, zone: "board", x: 1070, y: 40 });
+  const bois = h.state.cards[dessus.id];
+  assert.ok(!bois.faceUp && bois.side === "a" && bois.loc.zone === "board", "sorti de la pile, le lieu entre non révélé");
+  assert.equal(h.state.piles.arkham_woods.length, 5);
+  d = await h.action({ t: "revealLocation", id: dessus.id });
+  assert.ok(h.state.cards[dessus.id].faceUp, "révélé au clic");
+
+  // Acte 3 : son verso est un lieu → « Avancer » le pose sur le tapis avec ses indices, l'acte 4 sort.
+  await h.action({ t: "advanceAct" });
+  await h.action({ t: "advanceAct" });
+  assert.equal(h.state.cards[h.state.actId].code, "05055");
+  const acte3 = h.state.actId;
+  await h.action({ t: "advanceAct" });
+  const cercle = h.state.cards[acte3];
+  assert.equal(cercle.kind, "location", "le verso-lieu devient un lieu");
+  assert.ok(cercle.faceUp && cercle.side === "b" && cercle.loc.zone === "board" && cercle.loc.x === 1290 && cercle.loc.y === 411, "posé à droite du tapis");
+  assert.equal(cercle.tokens.clue, 6, "3 indices par enquêteur");
+  assert.equal(h.state.cards[h.state.actId].code, "05056", "acte 4 courant");
+  assert.equal(h.state.piles.actDeck.length, 0);
+  // Cohérence des clients.
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(autres[0].state.cards[acte3], cercle, "les autres clients voient la même chose");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+{
+  const { h } = await tableWitching({ joueurs: 1, answers: { fate: "rejected" } });
+  verifWitching(h.state, 1, [5]);
+  assert.equal(h.state.chaos.bag.filter((t) => t === "elder_thing").length, 2, "destin rejeté : 2 Anciens");
+  assert.equal(h.state.chaos.bag.length, 15);
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // 4 joueurs, principal = siège 3 : il est servi en premier (rangée du haut), puis les sièges 1, 2, 3 dans l'ordre.
+  const { h } = await tableWitching({ joueurs: 4, answers: { fate: "rejected" }, lead: 2 });
+  verifWitching(h.state, 4, [2, 1, 1, 1]);
+  const s = h.state;
+  const enHaut = Object.values(s.cards).find((c) => c.kind === "mini" && c.loc.y === ROWS_Y[0] - 22);
+  assert.equal(enHaut.ownerSeat, 2, "le principal a la rangée du haut");
+  assert.ok(s.log.some((e) => e.text.includes("rangée 1 = J3 (2)") && e.text.includes("rangée 2 = J4 (1)") && e.text.includes("rangée 3 = Hôte (1)")), "ordre des joueurs à partir du principal");
   h.envoyer({ t: "deleteRoom" });
   await new Promise((r) => setTimeout(r, 300));
 }

@@ -371,6 +371,49 @@ with sync_playwright() as p:
     assert "1" in h3.locator("#histoire .carte.kind-agenda .jeton-doom").first.inner_text(), "1 doom de départ"
     assert h3.locator("#chaos .sac-forme").inner_text().strip() == "17", "sac : 16 + jeton Ancien"
     h3.screenshot(path=f"{OUT}/20_devourer_tapis.png")
+
+    # ---- The Witching Hour (TCU I) : bois devant chaque enquêteur, pile Arkham Woods, verso-lieu ----
+    code4, token4 = creer("tcu_witching_hour")
+    print("room Witching", code4)
+    h4 = page_pour(browser, "Hôte", host=True, code=code4, token=token4)
+    h4.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h4.get_by_role("button", name="Choisir un enquêteur").click(); h4.wait_for_selector("dialog.dialogue-inv[open]")
+    h4.fill("dialog .recherche", "carolyn"); h4.wait_for_timeout(300); h4.locator("dialog .inv").first.click()
+    h4.wait_for_selector(".siege-lobby.moi .fiche")
+    j4 = page_pour(browser, "Bob", code=code4, token=None)
+    j4.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j4.get_by_role("button", name="Choisir un enquêteur").click(); j4.wait_for_selector("dialog.dialogue-inv[open]")
+    j4.fill("dialog .recherche", "rita"); j4.wait_for_timeout(300); j4.locator("dialog .inv").first.click()
+    j4.wait_for_selector(".siege-lobby.moi .fiche")
+    h4.wait_for_timeout(400)
+    h4.get_by_label("a accepté son destin").check()
+    h4.wait_for_timeout(200)
+    h4.screenshot(path=f"{OUT}/21_witching_lobby.png")
+    h4.get_by_role("button", name="Lancer la mise en place").click()
+    h4.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h4.wait_for_load_state("networkidle"); h4.wait_for_timeout(1500)
+    assert h4.locator("#plateau .carte.kind-location").count() == 5, "5 Witch-Haunted Woods"
+    assert h4.locator("#plateau .carte.kind-location.retournee").count() == 3, "2 bois de départ révélés, 3 non révélés"
+    assert h4.locator("#pioches .pile[data-outil='pile:arkham_woods'] .badge").inner_text() == "6", "pile Arkham Woods : 6"
+    assert h4.locator("#aside .carte").count() == 9, "Anette + 8 cartes Agents de côté"
+    assert h4.locator("#chaos .sac-forme").inner_text().strip() == "15", "sac TCU 13 + 2 tablettes"
+    assert "ahc75" in h4.locator("#lien-guide").get_attribute("href"), "lien vers le guide TCU"
+    h4.screenshot(path=f"{OUT}/22_witching_tapis.png")
+    # Pile Arkham Woods : clic = tirer (côté non révélé sur la pile).
+    h4.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h4.locator("#pioches .pile[data-outil='pile:arkham_woods'] .dos-bouton").click()
+    h4.wait_for_selector("#pioches .pile[data-outil='pile:arkham_woods'] .revelee .carte")
+    src_tire = h4.locator("#pioches .pile[data-outil='pile:arkham_woods'] .revelee .carte img").get_attribute("src")
+    assert src_tire.endswith("b.webp"), f"bois tiré montré côté non révélé : {src_tire}"
+    h4.screenshot(path=f"{OUT}/23_witching_arkham_woods_tire.png")
+    # Actes 1 et 2 avancés, puis l'acte 3 : son verso (un lieu) est posé sur le tapis avec ses indices.
+    for _ in range(3):
+        h4.get_by_role("button", name="Avancer l'acte").click(); h4.wait_for_timeout(400)
+    h4.wait_for_timeout(600)
+    assert h4.locator("#plateau .carte.kind-location").count() == 6, "le verso-lieu de l'acte 3 est sur le tapis"
+    cercle = h4.locator("#plateau .carte.kind-location").filter(has_text="6").last
+    h4.wait_for_load_state("networkidle"); h4.wait_for_timeout(800)
+    h4.screenshot(path=f"{OUT}/24_witching_verso_lieu.png")
     browser.close()
 
 if erreurs:

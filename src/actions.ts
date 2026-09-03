@@ -89,9 +89,25 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
   const courantId = agenda ? state.agendaId : state.actId;
   if (courantId && !ancienneDejaSortie) {
     const ancien = state.cards[courantId];
-    ancien.loc = { zone: "aside", x: boutDeCote(state), y: 0, z: nextZ(state) };
-    ancien.tokens = {};
-    ancien.exhausted = false;
+    const d = def.cards.find((k) => k.code === ancien.code);
+    if (d?.backCode && d.backKind === "location") {
+      // Verso = lieu (ex. acte dont le dos est un lieu) : la carte entre en jeu sur le tapis comme un vrai lieu
+      // (couche des lieux, chemins, pions emportés), révélée, avec les indices de son verso.
+      const pos = def.backPlacement?.[ancien.code] ?? { x: 737, y: 411 };
+      ancien.kind = "location";
+      ancien.faceUp = true;
+      ancien.side = "b";
+      ancien.exhausted = false;
+      ancien.tokens = {};
+      ancien.loc = { zone: "board", x: pos.x, y: pos.y, z: nextZ(state) };
+      const n = d.backClue ? (d.backClue.perInvestigator ? d.backClue.value * state.playerCount : d.backClue.value) : 0;
+      if (n > 0) ancien.tokens.clue = n;
+      addLog(state, "action", `${d.backName ?? "Le verso"} entre en jeu sur le tapis (verso de ${agenda ? "l'agenda" : "l'acte"})${n > 0 ? ` : ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}.`);
+    } else {
+      ancien.loc = { zone: "aside", x: boutDeCote(state), y: 0, z: nextZ(state) };
+      ancien.tokens = {};
+      ancien.exhausted = false;
+    }
   }
   if (agenda) for (const k of Object.values(state.cards)) if (k.id !== courantId) delete k.tokens.doom;
   if (!pile.length) {
@@ -234,7 +250,11 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       retirerDesPiles(state, c.id);
       const x = Math.round(Number(msg.x) || 0), y = Math.round(Number(msg.y) || 0);
       c.loc = { zone, x, y, z: nextZ(state) };
-      if (venaitDunePile) c.faceUp = true; // une carte sortie d'une pile entre en jeu face visible
+      if (venaitDunePile) {
+        // Une carte sortie d'une pile entre en jeu face visible ; un lieu, lui, entre non révélé (clic = révélation + indices).
+        c.faceUp = c.kind !== "location";
+        if (c.kind === "location") c.side = "a";
+      }
       sortieHistoire(state, def, c);
       // Un lieu déplacé sur le tapis emmène ce qui est posé dessus : pions (à cheval sur le bord) et cartes dont le centre est sur le lieu.
       if (c.kind === "location" && avant?.zone === "board" && zone === "board") {
@@ -263,6 +283,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       state.links = state.links.filter((l) => l.a !== c.id && l.b !== c.id);
       c.loc = { pile };
       c.faceUp = pile === "encounterDiscard"; // la défausse est consultable, face visible
+      if (c.kind === "location") c.side = "a";
       c.exhausted = false;
       c.tokens = {};
       delete c.ownerSeat;
@@ -300,7 +321,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const pile = String(msg.pile);
       if (!(pile in state.piles)) refuser("pile inconnue");
       shuffle(state.piles[pile], rng);
-      if (pile !== "encounterDiscard") for (const id of state.piles[pile]) state.cards[id].faceUp = false;
+      if (pile !== "encounterDiscard") for (const id of state.piles[pile]) { state.cards[id].faceUp = false; if (state.cards[id].kind === "location") state.cards[id].side = "a"; }
       addLog(state, "action", pile === "encounter" ? "Pioche de rencontre mélangée." : `${nomPile(def, pile)} : mélangée.`);
       return {};
     }
@@ -320,6 +341,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       }
       const c = state.cards[state.piles[pile][0]];
       c.faceUp = true;
+      if (c.kind === "location") c.side = "b"; // un lieu tiré montre son côté non révélé (nom lisible, rien de dévoilé)
       addLog(state, "action", `${nomSiege(state, s, def)} pioche ${nomCarte(def, c)}${pile === "encounter" ? "" : ` (${nomPile(def, pile)})`}.`, s);
       return {};
     }

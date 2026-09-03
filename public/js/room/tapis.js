@@ -56,9 +56,19 @@ export function rendreTapis(ctx) {
   rendreSieges(ctx);
   rendreJournal(ctx);
   if (!vue.ajustee && state.phase !== "lobby") { ajusterVue(ctx); vue.ajustee = true; }
+  // Un lieu qui entre en jeu hors du cadre (verso-lieu d'un acte posé par le serveur, lieu sorti d'une pile…)
+  // recadre la vue ; un lieu posé dans le cadre ne la bouge pas.
+  const lieux = Object.values(state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board");
+  if (vue.lieuxVus) {
+    const W = zoneBoard.clientWidth, H = zoneBoard.clientHeight;
+    const horsCadre = (c) => c.loc.x * vue.k + vue.tx < 0 || c.loc.y * vue.k + vue.ty < 0
+      || (c.loc.x + CARTE_L) * vue.k + vue.tx > W || (c.loc.y + CARTE_H) * vue.k + vue.ty > H;
+    if (lieux.some((c) => !vue.lieuxVus.has(c.id) && horsCadre(c)) && !document.querySelector(".fantome")) ajusterVue(ctx);
+  }
+  vue.lieuxVus = new Set(lieux.map((c) => c.id));
 }
 
-export function oublierVue() { vue.ajustee = false; }
+export function oublierVue() { vue.ajustee = false; vue.lieuxVus = null; }
 
 // ---- Barre de phase ---------------------------------------------------------------
 
