@@ -5,24 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Table — Anofelis</title>
   <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/room.css">
 </head>
-<body>
-  <header class="entete">
+<body class="page-table">
+  <header class="barre">
     <a class="marque" href="/">Anofelis</a>
-    <nav><a href="/scenarios">Bibliothèque</a></nav>
+    <div class="titre-table">
+      <span id="titre-scenario">Table</span>
+      <span class="code-table" id="code">······</span>
+      <button class="lien" id="copier" type="button" title="Copier le lien de la table">Copier le lien</button>
+    </div>
+    <div class="moi" id="moi"></div>
   </header>
 
-  <main class="room">
-    <h1 id="titre">Table</h1>
-    <p class="code" id="code">······</p>
-    <p class="etat" id="etat">Connexion à la table…</p>
-    <div class="journal" id="journal" aria-live="polite"></div>
+  <p class="bandeau" id="bandeau-cdn" hidden>
+    Les images des cartes (cdn.arkham.build) ne répondent pas : la table reste utilisable, mais les cartes apparaîtront sans illustration.
+  </p>
+  <p class="etat" id="etat">Connexion à la table…</p>
+
+  <main id="lobby" class="lobby" hidden></main>
+
+  <main id="tapis" class="tapis" hidden>
+    <div class="barre-phase">
+      <div class="manche-phase"><span id="manche"></span><span id="phase-nom"></span></div>
+      <div class="tour" id="tour"></div>
+      <div class="commandes">
+        <button class="bouton" id="phase-suivante" type="button" disabled title="Arrive à l'étape 2 (interactions)">Phase suivante</button>
+        <div class="hote" id="hote-commandes"></div>
+      </div>
+    </div>
+
+    <aside class="gauche">
+      <section class="histoire" id="histoire"></section>
+    </aside>
+
+    <section class="plateau-zone" id="board" aria-label="Zone des lieux">
+      <div class="plateau" id="plateau"></div>
+      <div class="table-outils">
+        <section class="pioches" id="pioches"></section>
+        <section class="chaos" id="chaos"></section>
+      </div>
+      <div class="zoom">
+        <button type="button" id="zoom-moins" title="Zoom arrière">−</button>
+        <button type="button" id="zoom-recentrer" title="Recadrer sur les lieux">Recentrer</button>
+        <button type="button" id="zoom-plus" title="Zoom avant">+</button>
+      </div>
+    </section>
+
+    <aside class="droite">
+      <section class="cote" id="aside"><h2>De côté, hors jeu</h2><div class="bande"></div></section>
+      <section class="victoire" id="victory"><h2>Zone de victoire</h2><div class="bande"></div></section>
+      <section class="journal" id="journal"><h2>Journal de bord</h2><ol></ol></section>
+    </aside>
+
+    <footer class="sieges" id="sieges"></footer>
   </main>
 
-  <footer class="pied">
-    La page de table (lobby et tapis) est en construction. Cette page vérifie seulement que la salle répond.
-  </footer>
+  <div id="rappels" class="rappels" aria-live="polite"></div>
+  <div id="loupe" class="loupe" hidden><img alt=""></div>
 
-  <script src="/js/room.js"></script>
+  <script type="module" src="/js/room/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,473 @@
+{
+ "id": "notz_the_gathering",
+ "title": "The Gathering",
+ "campaign": "Night of the Zealot",
+ "campaignId": "notz",
+ "order": 1,
+ "pack": "core",
+ "encounterSets": [
+  "torch",
+  "rats",
+  "ghouls",
+  "striking_fear",
+  "ancient_evils",
+  "chilling_cold"
+ ],
+ "scenarioCard": "01104",
+ "agendaDeck": [
+  "01105",
+  "01106",
+  "01107"
+ ],
+ "actDeck": [
+  "01108",
+  "01109",
+  "01110"
+ ],
+ "startLocation": "01111",
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "layout": [
+  {
+   "code": "01111",
+   "x": 737,
+   "y": 411
+  }
+ ],
+ "setup": [
+  {
+   "op": "place",
+   "code": "01111",
+   "zone": "board",
+   "x": 737,
+   "y": 411,
+   "reveal": true,
+   "log": "Le Study est mis en jeu et révélé : chaque enquêteur commence la partie dans cette pièce."
+  },
+  {
+   "op": "minis",
+   "code": "01111"
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "01112",
+    "01113",
+    "01114",
+    "01115"
+   ],
+   "faceUp": false,
+   "log": "Hallway, Attic, Cellar et Parlor sont mis de côté, hors jeu, face non révélée."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "01116",
+    "01117"
+   ],
+   "faceUp": true,
+   "log": "Ghoul Priest et Lita Chantler sont mis de côté, hors jeu."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "questions": [],
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée."
+  },
+  {
+   "when": "setup",
+   "text": "L'enquêteur principal est indiqué par la marque ★ ; les tours de la phase des enquêteurs se jouent dans l'ordre choisi par le groupe."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-03",
+ "encounterSetNames": {
+  "torch": "The Gathering",
+  "rats": "Rats",
+  "ghouls": "Ghouls",
+  "striking_fear": "Striking Fear",
+  "ancient_evils": "Ancient Evils",
+  "chilling_cold": "Chilling Cold"
+ },
+ "cards": [
+  {
+   "code": "01104",
+   "name": "The Gathering",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "01105",
+   "name": "What's Going On?!",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "doom": 3,
+   "stage": 1
+  },
+  {
+   "code": "01106",
+   "name": "Rise of the Ghouls",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "doom": 7,
+   "stage": 2
+  },
+  {
+   "code": "01107",
+   "name": "They're Getting Out!",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "doom": 10,
+   "stage": 3
+  },
+  {
+   "code": "01108",
+   "name": "Trapped",
+   "kind": "act",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "stage": 1
+  },
+  {
+   "code": "01109",
+   "name": "The Barrier",
+   "kind": "act",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "stage": 2
+  },
+  {
+   "code": "01110",
+   "name": "What Have You Done?",
+   "kind": "act",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "stage": 3
+  },
+  {
+   "code": "01111",
+   "name": "Study",
+   "kind": "location",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "01112",
+   "name": "Hallway",
+   "kind": "location",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "01113",
+   "name": "Attic",
+   "kind": "location",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "victory": 1
+  },
+  {
+   "code": "01114",
+   "name": "Cellar",
+   "kind": "location",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "victory": 1
+  },
+  {
+   "code": "01115",
+   "name": "Parlor",
+   "kind": "location",
+   "qty": 1,
+   "set": "torch",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "01116",
+   "name": "Ghoul Priest",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "torch",
+   "back": "encounter",
+   "storyBack": false,
+   "victory": 2
+  },
+  {
+   "code": "01117",
+   "name": "Lita Chantler",
+   "kind": "asset",
+   "qty": 1,
+   "set": "torch",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01118",
+   "name": "Flesh-Eater",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "torch",
+   "back": "encounter",
+   "storyBack": false,
+   "victory": 1
+  },
+  {
+   "code": "01119",
+   "name": "Icy Ghoul",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "torch",
+   "back": "encounter",
+   "storyBack": false,
+   "victory": 1
+  },
+  {
+   "code": "01159",
+   "name": "Swarm of Rats",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "rats",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01160",
+   "name": "Ghoul Minion",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "ghouls",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01161",
+   "name": "Ravenous Ghoul",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "ghouls",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01162",
+   "name": "Grasping Hands",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "ghouls",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01163",
+   "name": "Rotting Remains",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "striking_fear",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01164",
+   "name": "Frozen in Fear",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "striking_fear",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01165",
+   "name": "Dissonant Voices",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "striking_fear",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01166",
+   "name": "Ancient Evils",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "ancient_evils",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01167",
+   "name": "Crypt Chill",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "chilling_cold",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01168",
+   "name": "Obscuring Fog",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "chilling_cold",
+   "back": "encounter",
+   "storyBack": false
+  }
+ ]
+}

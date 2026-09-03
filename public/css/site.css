@@ -227,32 +227,6 @@ main {
 
 .scenario.planned .titre { color: var(--papier-2); }
 
-/* Room (placeholder) ----------------------------------------------- */
-
-.room h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); }
-
-.room .code {
-  font-family: var(--sans);
-  font-weight: 500;
-  font-size: clamp(3rem, 10vw, 5.5rem);
-  letter-spacing: 0.3em;
-  margin: 1rem 0;
-  color: var(--dorure-2);
-}
-
-.room .etat { color: var(--papier-2); max-width: 60ch; }
-.room .etat strong { color: var(--papier); font-weight: 500; }
-
-.room .journal {
-  margin-top: 2rem;
-  padding: 1rem 1.25rem;
-  background: var(--nuit-2);
-  border-left: 2px solid var(--dorure);
-  font-size: 0.95rem;
-  max-width: 60ch;
-}
-.room .journal p { margin: 0.25rem 0; }
-
 .erreur { color: var(--wip); }
 
 /* Réactif ---------------------------------------------------------- */

@@ -8,7 +8,10 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "check": "tsc --noEmit && wrangler deploy --dry-run",
-    "types": "wrangler types"
+    "types": "wrangler types",
+    "build:data": "node scripts/build.mjs",
+    "test": "node scripts/test_room.mjs",
+    "captures": "python3 scripts/captures.py"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260903.1",

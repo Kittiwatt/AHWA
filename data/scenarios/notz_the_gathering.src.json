@@ -1,0 +1,45 @@
+{
+  "_source": "Guide de campagne Night of the Zealot (FFG, 2017) : « Campaign Setup » p. 1 (sac du chaos) et section « Setup » de Part I p. 2. Aucun texte de carte ; les rappels paraphrasent le guide.",
+  "id": "notz_the_gathering",
+  "title": "The Gathering",
+  "campaign": "Night of the Zealot",
+  "campaignId": "notz",
+  "order": 1,
+  "pack": "core",
+  "encounterSets": ["torch", "rats", "ghouls", "striking_fear", "ancient_evils", "chilling_cold"],
+  "scenarioCard": "01104",
+  "agendaDeck": ["01105", "01106", "01107"],
+  "actDeck": ["01108", "01109", "01110"],
+  "startLocation": "01111",
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-5", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "-8", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"]
+  },
+  "layout": [
+    { "code": "01111", "x": 737, "y": 411 }
+  ],
+  "setup": [
+    { "op": "place", "code": "01111", "zone": "board", "x": 737, "y": 411, "reveal": true,
+      "log": "Le Study est mis en jeu et révélé : chaque enquêteur commence la partie dans cette pièce." },
+    { "op": "minis", "code": "01111" },
+    { "op": "aside", "codes": ["01112", "01113", "01114", "01115"], "faceUp": false,
+      "log": "Hallway, Attic, Cellar et Parlor sont mis de côté, hors jeu, face non révélée." },
+    { "op": "aside", "codes": ["01116", "01117"], "faceUp": true,
+      "log": "Ghoul Priest et Lita Chantler sont mis de côté, hors jeu." },
+    { "op": "story" },
+    { "op": "buildEncounter" }
+  ],
+  "questions": [],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée." },
+    { "when": "setup", "text": "L'enquêteur principal est indiqué par la marque ★ ; les tours de la phase des enquêteurs se jouent dans l'ordre choisi par le groupe." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

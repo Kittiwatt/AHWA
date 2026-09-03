@@ -15,11 +15,13 @@ redéployé automatiquement à chaque push sur `main` (Workers Builds).
 
 ## État
 
-Squelette v0 : accueil, bibliothèque (catalogue complet, 8 scénarios marqués
-disponibles), création de table, connexion WebSocket et message `welcome`.
-Aucune action de jeu n'est encore implémentée. Le cahier des charges et le mémo
-de suivi sont dans `docs/` — **`docs/ARKHAM_WEB_notes.md` fait foi**, à lire
-avant toute modification.
+Première table (étape 1) : *Night of the Zealot I — The Gathering*. Lobby
+(sièges, enquêteurs, difficulté, enquêteur principal), mise en place
+automatique par l'hôte, tapis affiché (zone des lieux zoomable, agenda/acte,
+pioche, sac du chaos, cartes de côté, sièges, journal de bord). Les
+interactions de jeu (déplacements, phases, doom, indices, tirages) arrivent à
+l'étape 2. Le cahier des charges et le mémo de suivi sont dans `docs/` —
+**`docs/ARKHAM_WEB_notes.md` fait foi**, à lire avant toute modification.
 
 ## Architecture
 
@@ -33,9 +35,13 @@ Cloudflare Workers, un seul déploiement :
 - `src/room.ts` — Durable Object `Room` (une instance par table) : WebSocket
   hibernant via [partyserver](https://github.com/cloudflare/partykit),
   snapshot d'état en SQLite, purge après 7 jours sans activité.
-- `src/state.ts` — modèle d'état `RoomState` (cahier des charges §3).
-- `data/scenarios_data.json` — savoir métier des 10 premiers scénarios
-  (extrait du pipeline PCIO), source des futurs `scenarios/<id>.json`.
+- `src/state.ts` — modèle d'état `RoomState` (cahier des charges §3) ;
+  `src/setup.ts` mise en place ; `src/patch.ts` deltas JSON Patch.
+- `data/scenarios/<id>.src.json` — source déclarative d'un scénario (sets,
+  setup, sac du chaos, rappels), `scripts/build.mjs` la complète depuis
+  ArkhamDB en `public/scenarios/<id>.json` (commité).
+- `data/scenarios_data.json` — savoir métier des 10 scénarios PCIO, à
+  transcrire en `*.src.json`.
 
 ## Développement
 
@@ -43,6 +49,9 @@ Cloudflare Workers, un seul déploiement :
 npm install
 npm run dev      # http://127.0.0.1:8787
 npm run check    # tsc + wrangler deploy --dry-run
+npm run build:data   # régénère public/scenarios, investigators.json, le registre
+npm test         # bout en bout contre le serveur local (node scripts/test_room.mjs)
+npm run captures # captures Playwright de la page de table
 npm run deploy
 ```
 

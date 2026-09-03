@@ -1,12 +1,29 @@
 // Durable Object « Room » : une instance par table (id = code de room).
-// Squelette v0 : création, connexion WebSocket hibernante, welcome, sièges, purge.
-// Aucune action de jeu n'est encore implémentée (voir cahier des charges §4.2).
+// Étape 1 (2026-09-03) : lobby (sièges, investigateurs, difficulté, enquêteur principal), mise en
+// place automatique, réinitialisation, clôture, transfert du rôle d'hôte. Les actions de jeu sur le
+// tapis (déplacements, phases, doom, indices, rencontre, chaos) arrivent à l'étape 2.
+//
+// Serveur autoritaire : chaque action est validée puis appliquée à `state`, l'état est persisté en
+// un snapshot SQLite et un delta JSON Patch est diffusé (cahier des charges §3, §4).
 
 import { Server, type Connection, type ConnectionContext, type WSMessage } from "partyserver";
-import { initialState, PURGE_DELAY_MS, type ClientMessage, type RoomState, type ServerMessage } from "./state";
+import {
+  DIFFICULTIES, initialState, emptyPiles, PURGE_DELAY_MS,
+  type ClientMessage, type Difficulty, type LogEntry, type RoomState, type ServerMessage,
+} from "./state";
+import { diff, clone } from "./patch";
+import { getScenario } from "./scenario";
+import { addLog, runSetup } from "./setup";
+import { newHostToken } from "./codes";
+import investigatorsIndex from "../public/data/investigators.json";
 
 type Meta = { code: string; scenarioId: string; hostToken: string };
 type Attachment = { seat: number | null; isHost: boolean };
+
+const INVESTIGATORS = new Map(investigatorsIndex.investigators.map((i) => [i.code, i]));
+
+class Refus extends Error {}
+const refuser = (raison: string): never => { throw new Refus(raison); };
 
 export class Room extends Server<Env> {
   // Hibernation : la connexion WebSocket ne maintient pas le DO en mémoire.
@@ -46,6 +63,7 @@ export class Room extends Server<Env> {
     if (req.method === "POST" && url.pathname.endsWith("/init")) {
       if (this.meta) return Response.json({ error: "déjà initialisée" }, { status: 409 });
       const meta = (await req.json()) as Meta;
+      if (!getScenario(meta.scenarioId)) return Response.json({ error: "scénario inconnu" }, { status: 400 });
       this.meta = meta;
       this.state = initialState(meta.code, meta.scenarioId);
       this.persist("meta", meta);
@@ -68,20 +86,19 @@ export class Room extends Server<Env> {
     const url = new URL(ctx.request.url);
     const isHost = url.searchParams.get("hostToken") === this.meta.hostToken;
     const seatParam = url.searchParams.get("seat");
-    const name = (url.searchParams.get("name") ?? "").trim().slice(0, 40) || null;
+    const name = nomPropre(url.searchParams.get("name"));
 
     let seat: number | null = null;
     if (seatParam !== null && seatParam !== "spectator") {
       const n = Number(seatParam);
-      if (!Number.isInteger(n) || n < 0 || n > 3 || this.state.seats[n].occupied) {
+      if (!this.siegePrenable(n)) {
+        conn.setState({ seat: null, isHost });
         this.send(conn, { t: "seatTaken" });
         conn.close(4409, "siège pris");
         return;
       }
       seat = n;
-      this.state.seats[n].occupied = true;
-      this.state.seats[n].name = name;
-      if (isHost) this.state.hostSeat = n;
+      this.asseoir(n, name, isHost);
     }
     if (isHost) this.state.hostConnected = true;
     conn.setState({ seat, isHost });
@@ -99,22 +116,22 @@ export class Room extends Server<Env> {
       this.send(conn, { t: "nack", reason: "message illisible" });
       return;
     }
+    if (!this.state || !this.meta) { conn.close(4404, "room inconnue"); return; }
     if (msg.t === "ping") return;
-    // Squelette : aucune action de jeu n'est encore branchée.
-    this.send(conn, { t: "nack", reason: `action « ${msg.t} » non implémentée` });
+    try {
+      await this.appliquer(conn, msg);
+    } catch (e) {
+      if (e instanceof Refus) this.send(conn, { t: "nack", reason: e.message });
+      else {
+        console.error("room action error", e);
+        this.send(conn, { t: "nack", reason: "erreur interne" });
+      }
+    }
   }
 
   async onClose(conn: Connection<Attachment>) {
     if (!this.state) return;
-    const a = conn.state;
-    if (a?.seat !== null && a?.seat !== undefined) {
-      this.state.seats[a.seat].occupied = false; // siège libéré dès la fermeture (§1)
-      if (this.state.hostSeat === a.seat) this.state.hostSeat = null;
-    }
-    if (a?.isHost) {
-      this.state.hostConnected = [...this.getConnections<Attachment>()]
-        .some((c) => c !== conn && c.state?.isHost);
-    }
+    this.liberer(conn);
     this.broadcastSeats();
     this.touch();
   }
@@ -128,11 +145,253 @@ export class Room extends Server<Env> {
 
   async onAlarm() {
     if (this.state && Date.now() - this.state.lastActivityAt >= PURGE_DELAY_MS) {
-      for (const c of this.getConnections()) c.close(4410, "table purgée");
-      await this.ctx.storage.deleteAll();
-      this.meta = null;
-      this.state = null;
+      await this.detruire(4410, "table purgée");
     }
+  }
+
+  // ---- Actions ------------------------------------------------------------------
+
+  private async appliquer(conn: Connection<Attachment>, msg: ClientMessage) {
+    const state = this.state!;
+    const a = conn.state ?? { seat: null, isHost: false };
+    const seated = () => (a.seat === null ? refuser("il faut être assis pour agir") : a.seat);
+    const host = () => (a.isHost ? true : refuser("réservé à l'hôte"));
+    const lobby = () => (state.phase === "lobby" ? true : refuser("possible seulement au lobby"));
+
+    switch (msg.t) {
+      case "resync":
+        this.send(conn, { t: "welcome", state, you: { seat: a.seat, isHost: a.isHost } });
+        return;
+
+      // ---- Sièges (hors rev : diffusés par le message « seats ») ----
+      case "takeSeat": {
+        if (a.seat !== null) refuser("vous êtes déjà assis");
+        const n = Number(msg.seat);
+        if (!this.siegePrenable(n)) refuser("ce siège n'est pas disponible");
+        this.asseoir(n, nomPropre(msg.name), a.isHost);
+        conn.setState({ seat: n, isHost: a.isHost });
+        this.send(conn, { t: "you", seat: n, isHost: a.isHost });
+        this.broadcastSeats();
+        this.touch();
+        return;
+      }
+      case "leaveSeat": {
+        if (a.seat === null) return;
+        this.liberer(conn);
+        conn.setState({ seat: null, isHost: a.isHost });
+        this.send(conn, { t: "you", seat: null, isHost: a.isHost });
+        this.broadcastSeats();
+        this.touch();
+        return;
+      }
+      case "setName": {
+        const s = seated();
+        state.seats[s].name = nomPropre(msg.name);
+        this.broadcastSeats();
+        this.touch();
+        return;
+      }
+
+      // ---- Lobby ----
+      case "chooseInvestigator": {
+        const s = seated(); lobby();
+        const code = String(msg.code ?? "");
+        const inv = INVESTIGATORS.get(code) ?? refuser("investigateur inconnu");
+        const doublon = state.seats.find((x) => x.index !== s && x.investigatorCode === code);
+        if (doublon) refuser(`${inv.name} est déjà choisi au siège ${doublon.index + 1}`);
+        const before = clone(state);
+        const seat = state.seats[s];
+        seat.investigatorCode = code;
+        seat.counters.health = inv.health;
+        seat.counters.sanity = inv.sanity;
+        if (state.lead === null) state.lead = s;
+        this.commit(before);
+        return;
+      }
+      case "clearInvestigator": {
+        const s = seated(); lobby();
+        const before = clone(state);
+        this.viderSiege(s);
+        this.commit(before);
+        return;
+      }
+      case "setDifficulty": {
+        seated(); lobby();
+        const d = String(msg.d) as Difficulty;
+        if (!DIFFICULTIES.includes(d)) refuser("difficulté inconnue");
+        const before = clone(state);
+        state.difficulty = d;
+        this.commit(before);
+        return;
+      }
+      case "setLead": {
+        seated();
+        const n = Number(msg.seat);
+        if (!Number.isInteger(n) || n < 0 || n > 3 || !state.seats[n].investigatorCode) refuser("ce siège n'a pas d'enquêteur");
+        const before = clone(state);
+        state.lead = n;
+        this.commit(before);
+        return;
+      }
+      case "claimHost": {
+        const s = seated();
+        if (state.hostConnected) refuser("l'hôte est connecté");
+        const before = clone(state);
+        this.meta!.hostToken = newHostToken();
+        this.persist("meta", this.meta);
+        for (const c of this.getConnections<Attachment>()) {
+          if (c.state?.isHost) c.setState({ seat: c.state.seat, isHost: false });
+        }
+        conn.setState({ seat: s, isHost: true });
+        state.hostSeat = s;
+        state.hostConnected = true;
+        addLog(state, "system", `${this.nomSiege(s)} reprend le rôle d'hôte.`);
+        this.send(conn, { t: "hostToken", token: this.meta!.hostToken });
+        this.send(conn, { t: "you", seat: s, isHost: true });
+        this.commit(before);
+        this.broadcastSeats();
+        return;
+      }
+      case "kick": {
+        host();
+        const n = Number(msg.seat);
+        if (!Number.isInteger(n) || n < 0 || n > 3) refuser("siège invalide");
+        const before = clone(state);
+        for (const c of this.getConnections<Attachment>()) {
+          if (c.state?.seat === n && c !== conn) {
+            c.setState({ seat: null, isHost: c.state.isHost });
+            this.send(c, { t: "you", seat: null, isHost: c.state?.isHost ?? false });
+          }
+        }
+        if (a.seat === n) conn.setState({ seat: null, isHost: true });
+        state.seats[n].occupied = false;
+        if (state.hostSeat === n) state.hostSeat = null;
+        if (state.phase === "lobby") this.viderSiege(n);
+        this.commit(before);
+        this.broadcastSeats();
+        return;
+      }
+
+      // ---- Hôte : mise en place, réinitialisation, clôture ----
+      case "startSetup": {
+        host(); lobby();
+        const def = getScenario(state.scenarioId) ?? refuser("scénario indisponible");
+        if (!state.seats.some((s) => s.investigatorCode)) refuser("choisissez au moins un enquêteur");
+        if (def.questions.length) refuser("questions de mise en place non prises en charge (v1)");
+        const before = clone(state);
+        const reminders = runSetup(state, def);
+        this.commit(before, reminders);
+        return;
+      }
+      case "reset": {
+        host();
+        if (state.phase === "lobby") refuser("la table est déjà au lobby");
+        const before = clone(state);
+        state.phase = "lobby";
+        state.round = 0;
+        state.playerCount = 0;
+        state.cards = {};
+        state.piles = emptyPiles();
+        state.chaos = { bag: [], drawn: [], sealed: [] };
+        state.counters = {};
+        state.agendaId = null;
+        state.actId = null;
+        state.turn = { seat: null, done: [] };
+        state.pendingQuestion = null;
+        state.log = [];
+        for (const s of state.seats) { s.counters.clues = 0; s.counters.actions = 3; }
+        addLog(state, "system", "Table réinitialisée : retour au lobby, sièges et enquêteurs conservés.");
+        this.commit(before);
+        return;
+      }
+      case "close": {
+        host();
+        if (state.phase === "lobby") refuser("rien à clôturer");
+        const before = clone(state);
+        state.phase = "resolution";
+        addLog(state, "system", "Partie terminée : le tapis reste consultable.");
+        this.commit(before);
+        return;
+      }
+      case "deleteRoom": {
+        host();
+        await this.detruire(4411, "table supprimée par l'hôte");
+        return;
+      }
+
+      default:
+        refuser(`action « ${msg.t} » : à venir (étape 2 du tapis)`);
+    }
+  }
+
+  /** Incrémente rev, persiste et diffuse le delta calculé par rapport au snapshot `before`. */
+  private commit(before: RoomState, reminders: LogEntry[] = []) {
+    const state = this.state!;
+    state.rev++;
+    state.lastActivityAt = Date.now();
+    const patch = diff(before, state);
+    this.persist("state", state);
+    void this.ctx.storage.setAlarm(Date.now() + PURGE_DELAY_MS);
+    this.broadcast(JSON.stringify({ t: "delta", rev: state.rev, patch } satisfies ServerMessage));
+    for (const entry of reminders) this.broadcast(JSON.stringify({ t: "reminder", entry } satisfies ServerMessage));
+  }
+
+  private async detruire(code: number, raison: string) {
+    // L'état est retiré d'abord : les onClose déclenchés par les fermetures ne doivent plus rien persister.
+    this.meta = null;
+    this.state = null;
+    await this.ctx.storage.deleteAll();
+    // Tableau figé : fermer une connexion pendant l'itération de getConnections() interrompt le parcours.
+    for (const c of [...this.getConnections()]) {
+      try { c.close(code, raison); } catch (e) { console.error("fermeture", e); }
+    }
+  }
+
+  // ---- Sièges -------------------------------------------------------------------
+
+  private siegePrenable(n: number): boolean {
+    const state = this.state!;
+    if (!Number.isInteger(n) || n < 0 || n > 3) return false;
+    const seat = state.seats[n];
+    if (seat.occupied) return false;
+    // Après la mise en place, seul un siège déjà configuré peut être repris (cahier §1).
+    if (state.phase !== "lobby" && !seat.investigatorCode) return false;
+    return true;
+  }
+
+  private asseoir(n: number, name: string | null, isHost: boolean) {
+    const seat = this.state!.seats[n];
+    seat.occupied = true;
+    seat.name = name;
+    if (isHost) this.state!.hostSeat = n;
+  }
+
+  private liberer(conn: Connection<Attachment>) {
+    const state = this.state!;
+    const a = conn.state;
+    if (a?.seat !== null && a?.seat !== undefined) {
+      state.seats[a.seat].occupied = false; // siège libéré dès la fermeture (§1)
+      if (state.hostSeat === a.seat) state.hostSeat = null;
+    }
+    if (a?.isHost) {
+      state.hostConnected = [...this.getConnections<Attachment>()]
+        .some((c) => c !== conn && c.state?.isHost);
+    }
+  }
+
+  private viderSiege(n: number) {
+    const seat = this.state!.seats[n];
+    seat.investigatorCode = null;
+    seat.counters = { health: 0, sanity: 0, clues: 0, actions: 3 };
+    if (this.state!.lead === n) {
+      const autre = this.state!.seats.find((s) => s.investigatorCode);
+      this.state!.lead = autre ? autre.index : null;
+    }
+  }
+
+  private nomSiege(n: number): string {
+    const s = this.state!.seats[n];
+    return s.name ?? INVESTIGATORS.get(s.investigatorCode ?? "")?.name ?? `Siège ${n + 1}`;
   }
 
   // ---- Utilitaires -------------------------------------------------------------
@@ -143,11 +402,20 @@ export class Room extends Server<Env> {
 
   private broadcastSeats() {
     if (!this.state) return;
+    const spectators = [...this.getConnections<Attachment>()].filter((c) => (c.state?.seat ?? null) === null).length;
     const msg: ServerMessage = {
       t: "seats",
       seats: this.state.seats.map(({ index, occupied, name, investigatorCode }) => ({ index, occupied, name, investigatorCode })),
+      hostSeat: this.state.hostSeat,
       hostConnected: this.state.hostConnected,
+      spectators,
     };
     this.broadcast(JSON.stringify(msg));
   }
+}
+
+function nomPropre(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const s = v.replace(/\s+/g, " ").trim().slice(0, 40);
+  return s || null;
 }

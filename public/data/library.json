@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "description": "Catalogue de la bibliothèque : campagnes dans l'ordre de sortie, scénarios dans l'ordre du guide. Statuts : available (jouable), wip (en cours), planned (prévu). Les id des scénarios importés correspondent aux clés de data/scenarios_data.json.",
+    "description": "Catalogue de la bibliothèque : campagnes dans l'ordre de sortie, scénarios dans l'ordre du guide. Statuts : available (jouable : une définition existe dans public/scenarios/), wip (en cours), planned (prévu). Les id des scénarios importés correspondent aux clés de data/scenarios_data.json. Le statut est informatif : le Worker n'accepte que les scénarios du registre src/scenarios.generated.ts.",
     "statuts": ["available", "wip", "planned"],
     "hors_perimetre": "Boîtes « Return to… » et scénarios promotionnels non listés pour l'instant."
   },
@@ -11,7 +11,7 @@
       "box": "Boîte de base (2016)",
       "kind": "campaign",
       "scenarios": [
-        { "id": "notz_the_gathering", "num": "I", "title": "The Gathering", "status": "planned" },
+        { "id": "notz_the_gathering", "num": "I", "title": "The Gathering", "status": "available", "note": "tapis en cours de validation (étape 1)" },
         { "id": "notz_the_midnight_masks", "num": "II", "title": "The Midnight Masks", "status": "planned" },
         { "id": "notz_the_devourer_below", "num": "III", "title": "The Devourer Below", "status": "planned" }
       ]
@@ -71,13 +71,13 @@
       "box": "Cycle 4 (2019)",
       "kind": "campaign",
       "scenarios": [
-        { "id": "tcu_prologue", "num": "Prologue", "title": "Disappearance at the Twilight Estate", "status": "available" },
-        { "id": "tcu_witching_hour", "num": "I", "title": "The Witching Hour", "status": "available" },
-        { "id": "tcu_at_deaths_doorstep", "num": "II", "title": "At Death's Doorstep", "status": "available" },
-        { "id": "tcu_secret_name", "num": "III", "title": "The Secret Name", "status": "available" },
+        { "id": "tcu_prologue", "num": "Prologue", "title": "Disappearance at the Twilight Estate", "status": "wip", "note": "données importées de PCIO, table à venir" },
+        { "id": "tcu_witching_hour", "num": "I", "title": "The Witching Hour", "status": "wip", "note": "données importées de PCIO, table à venir" },
+        { "id": "tcu_at_deaths_doorstep", "num": "II", "title": "At Death's Doorstep", "status": "wip", "note": "données importées de PCIO, table à venir" },
+        { "id": "tcu_secret_name", "num": "III", "title": "The Secret Name", "status": "wip", "note": "données importées de PCIO, table à venir" },
         { "id": "tcu_wages_of_sin", "num": "IV", "title": "The Wages of Sin", "status": "wip", "note": "deux pioches de rencontre (v2)" },
-        { "id": "tcu_for_the_greater_good", "num": "V", "title": "For the Greater Good", "status": "available" },
-        { "id": "tcu_union_and_disillusion", "num": "VI", "title": "Union and Disillusion", "status": "available" },
+        { "id": "tcu_for_the_greater_good", "num": "V", "title": "For the Greater Good", "status": "wip", "note": "données importées de PCIO, table à venir" },
+        { "id": "tcu_union_and_disillusion", "num": "VI", "title": "Union and Disillusion", "status": "wip", "note": "données importées de PCIO, table à venir" },
         { "id": "tcu_in_the_clutches_of_chaos", "num": "VII", "title": "In the Clutches of Chaos", "status": "planned" },
         { "id": "tcu_before_the_black_throne", "num": "VIII", "title": "Before the Black Throne", "status": "planned" }
       ]
@@ -88,7 +88,7 @@
       "box": "Cycle 5 (2019‑2020)",
       "kind": "campaign",
       "scenarios": [
-        { "id": "tde_gates_of_sleep", "num": "1‑A", "title": "Beyond the Gates of Sleep", "status": "available" },
+        { "id": "tde_gates_of_sleep", "num": "1‑A", "title": "Beyond the Gates of Sleep", "status": "wip", "note": "données importées de PCIO, table à venir" },
         { "id": "tde_waking_nightmare", "num": "1‑B", "title": "Waking Nightmare", "status": "planned" },
         { "id": "tde_the_search_for_kadath", "num": "2‑A", "title": "The Search for Kadath", "status": "planned" },
         { "id": "tde_a_thousand_shapes_of_horror", "num": "2‑B", "title": "A Thousand Shapes of Horror", "status": "planned" },
@@ -167,7 +167,7 @@
       "box": "Campagne (2025)",
       "kind": "campaign",
       "scenarios": [
-        { "id": "tdc_prologue", "num": "Prologue", "title": "One Last Job", "status": "available" },
+        { "id": "tdc_prologue", "num": "Prologue", "title": "One Last Job", "status": "wip", "note": "données importées de PCIO, table à venir" },
         { "id": "tdc_the_western_wall", "num": "—", "title": "The Western Wall", "status": "planned" },
         { "id": "tdc_the_drowned_quarter", "num": "—", "title": "The Drowned Quarter", "status": "planned" },
         { "id": "tdc_obsidian_canyons", "num": "—", "title": "Obsidian Canyons", "status": "planned" },

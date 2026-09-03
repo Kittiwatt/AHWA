@@ -1,5 +1,5 @@
 // Modèle d'état d'une room — transcription du cahier des charges §3.
-// Ce fichier ne contient que des types et l'état initial ; aucune logique de jeu.
+// Ce fichier ne contient que des types et l'état initial ; la logique de jeu est dans room.ts / setup.ts.
 
 export type Phase =
   | "lobby"
@@ -12,6 +12,7 @@ export type Phase =
   | "deleted";
 
 export type Difficulty = "easy" | "standard" | "hard" | "expert";
+export const DIFFICULTIES: Difficulty[] = ["easy", "standard", "hard", "expert"];
 
 export type CardId = string;
 export type PileId = string;
@@ -72,6 +73,8 @@ export type RoomState = {
   seats: Seat[];
   hostSeat: number | null;
   hostConnected: boolean;
+  lead: number | null;                       // enquêteur principal (marque ★), choisi au lobby
+  turn: { seat: number | null; done: number[] }; // tour en cours de la phase des enquêteurs (étape 2)
   cards: Record<CardId, CardState>;
   piles: Record<PileId, CardId[]>;
   chaos: ChaosState;
@@ -86,15 +89,15 @@ export type RoomState = {
 export const LOG_MAX = 200;
 export const PURGE_DELAY_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours sans activité
 
+export function emptySeat(index: 0 | 1 | 2 | 3): Seat {
+  return { index, occupied: false, name: null, investigatorCode: null, counters: { health: 0, sanity: 0, clues: 0, actions: 3 }, deck: null };
+}
+
+export function emptyPiles(): Record<PileId, CardId[]> {
+  return { encounter: [], encounterDiscard: [], removed: [], agendaDeck: [], actDeck: [] };
+}
+
 export function initialState(code: string, scenarioId: string, now = Date.now()): RoomState {
-  const seats: Seat[] = ([0, 1, 2, 3] as const).map((index) => ({
-    index,
-    occupied: false,
-    name: null,
-    investigatorCode: null,
-    counters: { health: 0, sanity: 0, clues: 0, actions: 3 },
-    deck: null,
-  }));
   return {
     rev: 0,
     code,
@@ -105,11 +108,13 @@ export function initialState(code: string, scenarioId: string, now = Date.now())
     round: 0,
     difficulty: "standard",
     playerCount: 0,
-    seats,
+    seats: ([0, 1, 2, 3] as const).map(emptySeat),
     hostSeat: null,
     hostConnected: false,
+    lead: null,
+    turn: { seat: null, done: [] },
     cards: {},
-    piles: { encounter: [], encounterDiscard: [], removed: [], agendaDeck: [], actDeck: [] },
+    piles: emptyPiles(),
     chaos: { bag: [], drawn: [], sealed: [] },
     counters: {},
     agendaId: null,
@@ -120,10 +125,19 @@ export function initialState(code: string, scenarioId: string, now = Date.now())
   };
 }
 
-// Messages du protocole (cahier des charges §4) — seuls ceux du squelette sont typés ici.
+// ---- Protocole (cahier des charges §4) ------------------------------------------
+
+export type SeatSummary = Pick<Seat, "index" | "occupied" | "name" | "investigatorCode">;
+
+export type PatchOp = { op: "add" | "remove" | "replace"; path: string; value?: unknown };
+
 export type ServerMessage =
   | { t: "welcome"; state: RoomState; you: { seat: number | null; isHost: boolean } }
-  | { t: "seats"; seats: Pick<Seat, "index" | "occupied" | "name" | "investigatorCode">[]; hostConnected: boolean }
+  | { t: "you"; seat: number | null; isHost: boolean }
+  | { t: "hostToken"; token: string }
+  | { t: "seats"; seats: SeatSummary[]; hostSeat: number | null; hostConnected: boolean; spectators: number }
+  | { t: "delta"; rev: number; patch: PatchOp[] }
+  | { t: "reminder"; entry: LogEntry }
   | { t: "seatTaken" }
   | { t: "nack"; reason: string };
 

@@ -1,0 +1,234 @@
+// Mise en place automatique (cahier des charges §5 « SetupStep » et §1 « Setup »).
+// runSetup() transforme l'état « lobby » en état de jeu : cartes créées, lieux posés, cartes de
+// côté, agenda/acte, pioche de rencontre mélangée, sac du chaos, pions des enquêteurs, journal.
+// Pure : ne dépend que de l'état, de la définition du scénario et d'une source d'aléa.
+
+import type { CardId, CardState, LogEntry, RoomState, ZoneId } from "./state";
+import { LOG_MAX } from "./state";
+import type { ScenarioCard, ScenarioDef, SetupStep } from "./scenario";
+
+export type Rng = () => number;
+
+export const SEAT_ZONES: ZoneId[] = ["seat0", "seat1", "seat2", "seat3"];
+export const CARD_W = 126;
+export const CARD_H = 178;
+const ASIDE_GAP = 10;
+
+export function shuffle<T>(arr: T[], rng: Rng): T[] {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+export function nextZ(state: RoomState): number {
+  let z = 0;
+  for (const c of Object.values(state.cards)) if ("zone" in c.loc && c.loc.z > z) z = c.loc.z;
+  return z + 1;
+}
+
+export function addLog(state: RoomState, kind: LogEntry["kind"], text: string, seat?: number): LogEntry {
+  const entry: LogEntry = { at: Date.now(), kind, text };
+  if (seat !== undefined) entry.seat = seat;
+  state.log.push(entry);
+  if (state.log.length > LOG_MAX) state.log.splice(0, state.log.length - LOG_MAX);
+  return entry;
+}
+
+export function clueValue(card: ScenarioCard | undefined, playerCount: number): number {
+  if (!card?.clue) return 0;
+  return card.clue.perInvestigator ? card.clue.value * playerCount : card.clue.value;
+}
+
+/** Révèle un lieu (face visible) et y pose ses indices selon le nombre d'enquêteurs. */
+export function revealLocation(state: RoomState, def: ScenarioDef, card: CardState): number {
+  card.faceUp = true;
+  const n = clueValue(def.cards.find((c) => c.code === card.code), state.playerCount);
+  if (n > 0) card.tokens.clue = (card.tokens.clue ?? 0) + n;
+  return n;
+}
+
+class Pool {
+  private byCode = new Map<string, CardId[]>();
+  private defs = new Map<string, ScenarioCard>();
+  constructor(def: ScenarioDef) {
+    for (const c of def.cards) {
+      this.defs.set(c.code, c);
+      this.byCode.set(c.code, Array.from({ length: c.qty }, (_, i) => (c.qty === 1 ? c.code : `${c.code}-${i + 1}`)));
+    }
+  }
+  def(code: string): ScenarioCard {
+    const d = this.defs.get(code);
+    if (!d) throw new Error(`setup : code ${code} inconnu du scénario`);
+    return d;
+  }
+  take(code: string): CardId {
+    const ids = this.byCode.get(code);
+    if (!ids?.length) throw new Error(`setup : plus d'exemplaire de ${code}`);
+    return ids.shift()!;
+  }
+  takeAll(code: string): CardId[] {
+    const ids = this.byCode.get(code) ?? [];
+    this.byCode.set(code, []);
+    return ids;
+  }
+  remaining(): { code: string; ids: CardId[] }[] {
+    return [...this.byCode.entries()].filter(([, ids]) => ids.length).map(([code, ids]) => ({ code, ids }));
+  }
+}
+
+function newCard(pool: Pool, code: string, id: CardId, loc: CardState["loc"], faceUp: boolean): CardState {
+  const d = pool.def(code);
+  return { id, code, kind: d.kind, storyBack: d.storyBack, loc, faceUp, exhausted: false, side: "a", tokens: {} };
+}
+
+export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.random): LogEntry[] {
+  const seated = state.seats.filter((s) => s.investigatorCode);
+  if (seated.length === 0) throw new Error("aucun enquêteur choisi");
+
+  // Table vierge (une réinitialisation a pu laisser des cartes).
+  state.cards = {};
+  state.piles = { encounter: [], encounterDiscard: [], removed: [], agendaDeck: [], actDeck: [] };
+  state.chaos = { bag: [...def.chaosBag[state.difficulty]], drawn: [], sealed: [] };
+  state.counters = Object.fromEntries(def.tableCounters.map((c) => [c.key, c.initial]));
+  state.agendaId = null;
+  state.actId = null;
+  state.log = [];
+  state.turn = { seat: null, done: [] };
+  state.playerCount = seated.length;
+  if (state.lead === null || !state.seats[state.lead].investigatorCode) state.lead = seated[0].index;
+
+  for (const s of state.seats) {
+    s.counters.clues = 0;
+    s.counters.actions = 3;
+    for (const c of def.seatCounters) s.counters[c.key] = c.initial;
+  }
+
+  const pool = new Pool(def);
+  let z = 1;
+  const reminders: LogEntry[] = [];
+
+  addLog(state, "setup", `Mise en place de « ${def.title} » pour ${state.playerCount} enquêteur${state.playerCount > 1 ? "s" : ""}, difficulté ${state.difficulty}.`);
+
+  // Cartes et pions des enquêteurs.
+  for (const s of seated) {
+    const zone = SEAT_ZONES[s.index];
+    state.cards[`inv-${s.index}`] = {
+      id: `inv-${s.index}`, code: s.investigatorCode!, kind: "investigator", storyBack: false,
+      loc: { zone, x: 0, y: 0, z: z++ }, faceUp: true, exhausted: false, side: "a", tokens: {}, ownerSeat: s.index,
+    };
+  }
+
+  const placeMinis = (onCode: string) => {
+    const lieu = Object.values(state.cards).find((c) => c.code === onCode && "zone" in c.loc);
+    if (!lieu || !("zone" in lieu.loc)) throw new Error(`setup : lieu ${onCode} non posé`);
+    seated.forEach((s, i) => {
+      state.cards[`mini-${s.index}`] = {
+        id: `mini-${s.index}`, code: s.investigatorCode!, kind: "mini", storyBack: false,
+        // Rangée de pions à cheval sur le bord bas du lieu ; les jetons du lieu restent visibles en haut à gauche.
+        loc: { zone: "board", x: (lieu.loc as { x: number }).x + 6 + i * 32, y: (lieu.loc as { y: number }).y + CARD_H - 18, z: z++ },
+        faceUp: true, exhausted: false, side: "a", tokens: {}, ownerSeat: s.index,
+      };
+    });
+  };
+
+  const run = (step: SetupStep) => {
+    switch (step.op) {
+      case "place": {
+        const id = pool.take(step.code);
+        const card = newCard(pool, step.code, id, { zone: step.zone, x: step.x, y: step.y, z: z++ }, step.faceUp ?? false);
+        state.cards[id] = card;
+        let texte = step.log ?? `${pool.def(step.code).name} est mis en jeu.`;
+        if (step.reveal && card.kind === "location") {
+          const n = revealLocation(state, def, card);
+          if (n > 0) texte += ` ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}.`;
+        }
+        addLog(state, "setup", texte);
+        break;
+      }
+      case "minis": {
+        placeMinis(step.code);
+        addLog(state, "setup", step.log ?? `Les pions des enquêteurs sont posés sur ${pool.def(step.code).name}.`);
+        break;
+      }
+      case "aside": {
+        const deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
+        step.codes.forEach((code, i) => {
+          const id = pool.take(code);
+          state.cards[id] = newCard(pool, code, id, { zone: "aside", x: (deja + i) * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, step.faceUp ?? false);
+        });
+        addLog(state, "setup", step.log ?? `${step.codes.map((c) => pool.def(c).name).join(", ")} : de côté, hors jeu.`);
+        break;
+      }
+      case "story": {
+        const sc = pool.take(def.scenarioCard);
+        const cs = newCard(pool, def.scenarioCard, sc, { zone: "story", x: 0, y: 0, z: z++ }, true);
+        cs.side = "b"; // verso = référence des jetons du chaos, la face utile en jeu
+        state.cards[sc] = cs;
+        def.agendaDeck.forEach((code, i) => {
+          const id = pool.take(code);
+          if (i === 0) {
+            state.cards[id] = newCard(pool, code, id, { zone: "story", x: 0, y: 0, z: z++ }, true);
+            state.cards[id].tokens.doom = 0;
+            state.agendaId = id;
+          } else {
+            state.cards[id] = newCard(pool, code, id, { pile: "agendaDeck" }, false);
+            state.piles.agendaDeck.push(id);
+          }
+        });
+        def.actDeck.forEach((code, i) => {
+          const id = pool.take(code);
+          if (i === 0) {
+            state.cards[id] = newCard(pool, code, id, { zone: "story", x: 0, y: 0, z: z++ }, true);
+            state.actId = id;
+          } else {
+            state.cards[id] = newCard(pool, code, id, { pile: "actDeck" }, false);
+            state.piles.actDeck.push(id);
+          }
+        });
+        addLog(state, "setup", step.log ?? `Agenda 1 et acte 1 sont en place.`);
+        break;
+      }
+      case "buildEncounter": {
+        const ids: CardId[] = [];
+        for (const { code, ids: restants } of pool.remaining()) {
+          const d = pool.def(code);
+          if (d.kind === "enemy" || d.kind === "treachery") {
+            for (const id of pool.takeAll(code)) {
+              state.cards[id] = newCard(pool, code, id, { pile: "encounter" }, false);
+              ids.push(id);
+            }
+          } else {
+            void restants;
+          }
+        }
+        state.piles.encounter = shuffle(ids, rng);
+        addLog(state, "setup", step.log ?? `Pioche de rencontre mélangée : ${ids.length} cartes.`);
+        break;
+      }
+      case "hook":
+        throw new Error(`setup : hook « ${step.name} » non pris en charge en v1`);
+    }
+  };
+
+  for (const step of def.setup) run(step);
+
+  // Tout ce qui n'a pas été posé ni mélangé est retiré de la partie (jamais affiché).
+  for (const { code, ids } of pool.remaining()) {
+    for (const id of pool.takeAll(code)) {
+      state.cards[id] = newCard(pool, code, id, { pile: "removed" }, false);
+      state.piles.removed.push(id);
+    }
+  }
+
+  addLog(state, "setup", `Sac du chaos (${state.difficulty}) : ${state.chaos.bag.length} jetons.`);
+
+  // La partie commence : la phase du mythe est sautée à la première manche.
+  state.round = 1;
+  state.phase = "investigation";
+  addLog(state, "phase", "Manche 1 : la phase du mythe est sautée, la partie commence par la phase des enquêteurs.");
+
+  for (const r of def.reminders) if (r.when === "setup") reminders.push(addLog(state, "reminder", r.text));
+  return reminders;
+}

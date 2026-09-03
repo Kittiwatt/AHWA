@@ -36,9 +36,26 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
-- **Prochaine étape** : traiter les points ouverts de §7 (dos histoire,
-  sac par difficulté, compteurs spécifiques) dans les données, puis
-  maquette du tapis (lobby + tapis de `room.html`).
+- 2026-09-03 : **première table, étape 1 (lobby + mise en place + tapis
+  affiché)** livrée pour *Night of the Zealot I — The Gathering*.
+  Pipeline `scripts/build.mjs` (ArkhamDB → `public/scenarios/<id>.json`,
+  `public/data/investigators.json`, registre `src/scenarios.generated.ts`),
+  source déclarative `data/scenarios/notz_the_gathering.src.json`
+  (Setup p. 2 et sac du chaos p. 1 du guide FFG, rien d'autre lu).
+  DO : sièges, lobby, `startSetup` (setup automatique), `reset`, `close`,
+  `deleteRoom`, `claimHost`, `kick`, deltas JSON Patch. Front : lobby,
+  choix d'enquêteur, tapis (zone des lieux zoomable, agenda/acte,
+  pioche/défausse/sac en overlay, de côté, victoire, sièges, journal,
+  encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
+  messages entrants pour la séquence), `scripts/captures.py` (Playwright).
+  Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
+- **Prochaine étape (étape 2 du tapis)** : interactions — glisser-déposer
+  (message au lâcher), clic sur lieu caché = révélation + indices,
+  double-clic = épuiser/redresser, menu contextuel (retourner, défausser,
+  jetons ±), « prendre mon tour » / fin de tour, `nextPhase` et
+  automatisations de phase, doom/agenda, indices/acte, pioche et recherche
+  rencontre, tirage du sac, compteurs. Puis The Midnight Masks (diagramme,
+  choix de journal) pour éprouver `pickRandom`/`questions`.
 
 ## 1. Décisions d'architecture (prises, ne pas rouvrir sans raison)
 
@@ -185,6 +202,45 @@ scénarios du jeu, groupés par campagne dans l'ordre de sortie,
 scénarios dans l'ordre, chacun avec un état disponible / en cours /
 prévu. Pas de liste publique des rooms actives.
 
+### Choix de la première table (2026-09-03, réponses de l'utilisateur)
+
+- **Livraison en deux temps** : étape 1 = lobby + mise en place + tapis
+  affiché (à valider visuellement) ; étape 2 = interactions.
+- **Ordre des tours libre** : en phase des enquêteurs, le groupe décide
+  qui joue ; pas de vote lourd. Mécanique retenue : bouton « Prendre mon
+  tour » sur chaque siège (premier clic = tour en cours, mis en évidence),
+  « Fin de mon tour » ; les sièges ayant joué sont grisés, `nextPhase`
+  s'allume quand tous ont joué (étape 2). La marque ★ « enquêteur
+  principal » est choisie au lobby (défaut : premier siège avec
+  enquêteur) et n'impose aucun ordre. Réservé dans l'état :
+  `lead`, `turn { seat, done[] }`.
+- **Épuiser / redresser** : double-clic (double-tap) sur la carte, le
+  menu contextuel en plus (étape 2).
+- **Première manche** : la mise en place enchaîne directement sur la
+  phase des enquêteurs (le mythe est sauté à la manche 1, règle générale).
+- **Carte de scénario** posée côté « b » (référence des jetons du chaos).
+- **Jetons** sur les cartes en haut à gauche (les seuils imprimés des
+  agendas sont en bas à gauche) ; pions d'enquêteur en rangée à cheval
+  sur le bord bas du lieu.
+- **Statuts du catalogue** : `available` = définition présente dans le
+  registre ; les 10 scénarios importés de PCIO sont `wip` tant qu'ils
+  n'ont pas de `*.src.json` (le Worker refuse de créer une table pour un
+  scénario hors registre, quel que soit le statut affiché).
+
+### Pipeline de données (2026-09-03)
+
+`node scripts/build.mjs` (option `--refresh` pour ignorer le cache
+`data/cache/`, non commité) : lit `data/scenarios/*.src.json`, filtre le
+pack ArkhamDB par `encounter_code`, écrit `public/scenarios/<id>.json`
+(cartes : code, nom, kind, qty, set, dos `b`/`encounter`, `storyBack`,
+`clue {value, perInvestigator}`, `doom`, `stage`, `victory`), l'index des
+investigateurs (sans `duplicate_of_code` ni `hidden`, parallèles gardés
+avec `parallel: true`) et `src/scenarios.generated.ts`. Les sorties sont
+commitées (Workers Builds ne relance pas le script). Codes des sets du
+Core sur ArkhamDB : The Gathering = `torch`, Midnight Masks = `arkham`,
+Devourer Below = `tentacles`, Dark Cult = `cultists`, Cult of Umôrdhoth =
+`pentagram` (nom d'icône, pas de titre).
+
 ### Choix du cahier des charges (2026-09-03)
 
 - **Identité de siège** : nom optionnel saisi à la connexion ; à défaut
@@ -213,13 +269,24 @@ livraison, message en français.
 
 ### Structure du dépôt (2026-09-03)
 
-`public/` (front statique + `data/library.json`), `src/` (`index.ts`
-Worker, `room.ts` DO, `state.ts` types, `codes.ts`), `data/` (source
-PCIO), `docs/` (ce mémo, cahier des charges, règles). Front sans
-framework ni build : HTML + CSS + JS vanille, polices Google (IM Fell
-English pour les titres, Alegreya Sans pour le texte), palette nuit /
-papier / dorure. Codes de table affichés en sans (les chiffres
-elzéviriens de Fell sont ambigus).
+`public/` (front statique : `index.html`, `scenarios.html`,
+`room.html` + `css/site.css`, `css/room.css`, `js/room/*.js` modules ES,
+`data/library.json`, `data/investigators.json`, `scenarios/<id>.json`,
+`img/dos-rencontre.svg`, `img/tokens/`), `src/` (`index.ts` Worker,
+`room.ts` DO, `state.ts` types, `setup.ts` mise en place, `patch.ts`
+deltas, `scenario.ts` types du contrat, `scenarios.generated.ts`,
+`codes.ts`), `data/` (`scenarios_data.json` source PCIO,
+`scenarios/*.src.json` sources déclaratives, `cache/` ignoré), `scripts/`
+(`build.mjs`, `test_room.mjs`, `captures.py`), `docs/` (ce mémo, cahier
+des charges, règles). Front sans framework ni build : HTML + CSS + JS
+vanille, polices Google (IM Fell English pour les titres, Alegreya Sans
+pour le texte), palette nuit / papier / dorure. Codes de table affichés
+en sans (les chiffres elzéviriens de Fell sont ambigus).
+
+Commandes : `npm run dev`, `npm run check` (tsc + dry-run),
+`npm run build:data`, `npm test` (serveur local requis),
+`npm run captures` (Playwright/Chromium, captures dans
+`/home/claude/captures`).
 
 ## 2. Conventions (héritées, toujours valables)
 
@@ -299,6 +366,25 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   `hostConnected` dans `onClose` ; ne pas se fier à `conn.state` après
   la fermeture ailleurs.
 
+- **workerd local** : un WebSocket fermé côté DO (`conn.close(code)`)
+  n'achève pas sa fermeture TCP en `wrangler dev` — le client reste en
+  `CLOSING` sans événement `close` (Node comme `ws`). En production le
+  code (4404, 4411…) arrive immédiatement (vérifié). Les tests locaux
+  acceptent `readyState ≥ 2` comme fermeture.
+- Fermer une connexion pendant l'itération de `getConnections()`
+  interrompt le parcours : figer la liste (`[...this.getConnections()]`)
+  avant de fermer ; retirer l'état avant les fermetures (les `onClose`
+  ne doivent plus persister).
+- `hostSeat` doit voyager dans le message `seats` (les prises de siège
+  sont hors `rev`), sinon les états divergent entre clients.
+- `hidden` est annulé par un `display: grid` : `[hidden] { display:
+  none !important }` sur la page de table.
+- Bac à sable de test : Chromium refuse le certificat du proxy pour les
+  ressources externes (CDN, polices) → `ignore_https_errors=True`.
+- Attentes de messages dans un test WebSocket : consommer dans l'ordre
+  (curseur) — chercher « le premier message qui correspond » retombe
+  sur d'anciens `seats`, n'attendre que les futurs manque les
+  broadcasts déjà reçus par les autres clients.
 - Le mémo PCIO listait 4 scénarios livrés alors que le script en
   contenait 10 : ne jamais inférer l'avancement, le tenir à jour ici.
 - Étiquettes : DejaVu ne rend pas ①②③ ; en web, préférer les glyphes
@@ -335,22 +421,23 @@ décidées ». Liste conservée pour mémoire :
 Tranchés le 2026-09-03 : identité de siège, pioches multiples (hors
 v1), position des cartes → §1 « Choix du cahier des charges ».
 
+Tranchés le 2026-09-03 (première table) : geste ennemis = double-clic,
+ordre des sièges = libre avec « prendre mon tour », disposition des
+zones = celle de `room.html`/`room.css` (validée sur captures ; à
+ajuster à l'usage), sac par difficulté = champ `chaosBag` du
+`*.src.json` (NotZ saisi), rappels = 1 par étape de setup manuelle + 1
+par phase (`reminders[]` du `*.src.json`).
+
 - **Marquage « dos histoire »** : `scenarios_data.json` ne les marque
   PAS uniformément (WOS hérétiques via patch b/d/f/h/j/l, `FGG_STORY`,
   TDE Nasht/Kaman-Thah, Josef dans ADD/UAD) → recensement manuel →
-  champ `storyBack` du JSON de scénario.
-- **Composition du sac par difficulté** : à saisir par campagne dans
-  les données (section Setup du guide, pas de spoiler) ; vérifier si
-  les sets standalone ont leur propre sac.
-- **Compteurs spécifiques par scénario** : déclarés dans le JSON
-  (nom, icône, valeur initiale) — recenser ceux des 10 scénarios.
-- **Texte des rappels** : paraphrase de la section Setup/Résolution du
-  guide, jamais du texte de carte — décider la granularité (par phase,
-  par étape de setup).
-- **Geste rapide ennemis** : double‑clic vs bouton sur la carte.
-- **Tailles de cartes et disposition des zones** : sur maquette.
-- **Ordre des sièges** pour « au tour de X » : index 0→3 ou joueur
-  principal choisi au lobby.
+  champ `storyBack: [codes]` du `*.src.json` (déjà pris en charge par
+  le build).
+- **Composition du sac par difficulté** : reste à saisir pour TCU, TDC,
+  TDE‑A et Film Fatale (section Setup / encart du guide).
+- **Compteurs spécifiques par scénario** : `seatCounters` /
+  `tableCounters` du `*.src.json` (vides pour NotZ I) — recenser ceux
+  des 10 scénarios PCIO à leur migration.
 - (v2) **Pioches multiples** : `piles` extensible déclaré par le
   scénario (`shuffleable`, `discardPile`) — Wages of Sin, Film Fatale,
   Unknown Places.

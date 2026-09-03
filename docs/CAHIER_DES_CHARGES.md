@@ -71,6 +71,8 @@ type RoomState = {
   seats: Seat[];                     // toujours 4 entrées
   hostSeat: number | null;           // siège de l'hôte s'il est assis
   hostConnected: boolean;
+  lead: number | null;               // enquêteur principal (marque ★), choisi au lobby
+  turn: { seat: number|null; done: number[] };  // tour en cours en phase des enquêteurs (étape 2)
   cards: Record<CardId, CardState>;  // toutes les cartes de la partie
   piles: Record<PileId, CardId[]>;   // ordre = dessus → dessous
   chaos: ChaosState;
@@ -204,8 +206,13 @@ persiste, diffuse.
 `GET /rooms/<code>/ws?seat=<n|spectator>&name=<...>&hostToken=<...>`
 
 Réponse initiale : `{ t:"welcome", state: RoomState, you: { seat, isHost } }`
-(seul message contenant l'état complet). Si le siège demandé n'est plus
-libre : `{ t:"seatTaken" }` et fermeture ; le client repropose.
+(seul message contenant l'état complet ; renvoyé aussi sur `resync`). Si
+le siège demandé n'est plus libre : `{ t:"seatTaken" }` et fermeture ; le
+client repropose. En pratique le client se connecte en spectateur puis
+prend un siège par l'action `takeSeat` (une seule connexion) ; le
+paramètre `seat` sert à la reconnexion automatique sur son ancien siège.
+Un spectateur ne peut prendre un siège après la mise en place que si ce
+siège a déjà un enquêteur (siège libéré par une déconnexion).
 
 ### 4.2 Actions client → DO
 
@@ -213,14 +220,18 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 
 | t | Qui | Effet |
 |---|---|---|
-| `chooseInvestigator {code}` | J (lobby) | fixe l'investigateur du siège, initialise vie/santé mentale |
+| `takeSeat {seat, name?}` / `leaveSeat` / `setName {name}` | spectateur / J | prise et libération d'un siège, nom ; hors `rev` (diffusés par `seats`), réponse `{ t:"you", seat, isHost }` |
+| `chooseInvestigator {code}` | J (lobby) | fixe l'investigateur du siège (refusé si un autre siège l'a déjà), initialise vie/santé mentale |
+| `clearInvestigator` | J (lobby) | retire l'investigateur de son siège |
 | `setDifficulty {d}` | J (lobby) | difficulté |
-| `claimHost` | J si `!hostConnected` | transfert du rôle et du jeton |
+| `setLead {seat}` | J | enquêteur principal (★) |
+| `claimHost` | J si `!hostConnected` | transfert du rôle : nouveau jeton envoyé au demandeur (`{ t:"hostToken", token }`), ancien jeton invalidé |
+| `resync` | tous | redemande un `welcome` |
 | `startSetup` | H (lobby) | passe en `setup_questions` ou exécute le setup |
 | `answerQuestion {id, option}` | H | répond à `pendingQuestion` |
 | `reset` | H | retour lobby |
 | `close` / `deleteRoom` | H | résolution / suppression |
-| `kick {seat}` | H | libère un siège |
+| `kick {seat}` | H | libère un siège (au lobby : retire aussi son enquêteur) |
 | `moveCard {id, zone, x, y}` | J | drop sur le tapis (au lâcher uniquement) |
 | `toPile {id, pile, top?}` | J | met une carte dans une pile |
 | `flipCard {id}` | J | retourne (refusé si `storyBack && !faceUp` — seul le setup/scénario peut révéler) |
@@ -248,8 +259,12 @@ Toute action refusée renvoie `{ t:"nack", reason }` au seul émetteur.
 - `{ t:"delta", rev, patch }` : liste d'opérations JSON Patch (RFC 6902)
   minimales ; le client applique et vérifie `rev = rev+1`, sinon
   demande `{ t:"resync" }` → `welcome`.
-- `{ t:"seats", seats }` : occupation, noms, `hostConnected` (fréquent,
-  hors `rev`).
+- `{ t:"seats", seats, hostSeat, hostConnected, spectators }` :
+  occupation, noms, investigateurs, siège de l'hôte, nombre de
+  spectateurs (fréquent, hors `rev`).
+- `{ t:"you", seat, isHost }` : rôle de la connexion après `takeSeat`,
+  `leaveSeat`, `kick`, `claimHost`.
+- `{ t:"hostToken", token }` : au nouvel hôte seulement.
 - `{ t:"reminder", entry }` : rappel à afficher en encart (déjà dans
   `log` du patch ; message séparé pour la mise en avant).
 - `{ t:"question", question }` : à l'hôte seulement.
@@ -288,13 +303,22 @@ type ScenarioDef = {
   actions?: { id, label, confirm? }[];                         // boutons scénario
 };
 type SetupStep =
-  | { op:"place", code|slot, zone, x, y, faceUp? }
-  | { op:"pickRandom", from: string[], n, then: SetupStep[] }   // lieux au hasard, paires
-  | { op:"branch", on: questionId, cases: Record<optionId, SetupStep[]> }
-  | { op:"toPile", codes, pile, shuffle? }
-  | { op:"removeRest" }                                         // → pile removed
-  | { op:"hook", name };                                        // délègue à hooks.js
+  | { op:"place", code, zone, x, y, reveal?, faceUp?, log? }    // reveal : face visible + indices
+  | { op:"minis", code, log? }                                  // pions des enquêteurs sur le lieu
+  | { op:"aside", codes, faceUp?, log? }                        // cartes de côté, en rangée
+  | { op:"story", log? }                                        // carte de scénario (côté b), agenda 1, acte 1, suites en piles
+  | { op:"buildEncounter", log? }                               // ennemis + traîtrises restants → pioche mélangée
+  | { op:"pickRandom", from: string[], n, then: SetupStep[] }   // (v1.1) lieux au hasard, paires
+  | { op:"branch", on: questionId, cases: Record<optionId, SetupStep[]> }   // (v1.1)
+  | { op:"hook", name };                                        // délègue à hooks.js (v1.1)
 ```
+
+Implémentées à l'étape 1 (The Gathering) : `place`, `minis`, `aside`,
+`story`, `buildEncounter`. Tout ce qui n'est ni posé ni mélangé va dans
+`removed`. Après la mise en place, `round = 1` et `phase =
+"investigation"` (la phase du mythe est sautée à la première manche).
+La source déclarative est `data/scenarios/<id>.src.json` ; le build y
+ajoute `cards[]` et `encounterSetNames` depuis ArkhamDB.
 
 Hooks JS (signature `(state, api, args) => void`) : `onSetup`,
 `onChaosDraw(token)`, `onPhase(phase)`, `onAction(id)`,
@@ -313,7 +337,7 @@ passent en `wip`).
 | Passage vers | Automatique | Rappel |
 |---|---|---|
 | `mythos` | `round++` ; +1 doom sur l'agenda ; calcul du doom total (agenda + cartes en jeu) et alerte si ≥ seuil de l'agenda | « Chaque enquêteur tire une carte rencontre » (bouton dans chaque zone de menace) ; rappels `round:n` |
-| `investigation` | — | tour de chaque siège dans l'ordre (nom du siège) |
+| `investigation` | — | ordre libre : bouton « Prendre mon tour » sur chaque siège (`turn.seat`), « Fin de mon tour » (`turn.done`) ; `nextPhase` proposé quand tous ont joué |
 | `enemy` | — | « Ennemis chasseurs se déplacent, puis attaquent » |
 | `upkeep` | `actions = 3` sur tous les sièges ; redressement de toutes les cartes | « Défausse jusqu'à 8, pioche 1, +1 ressource » (hors app) |
 
@@ -351,6 +375,7 @@ l'avancement reste au clic.
    clés FGG = proxys, pas compteurs).
 4. **Texte des rappels** : granularité retenue = 1 rappel par étape de
    setup manuelle + 1 par phase + rappels ponctuels `round:n`.
-5. **Geste ennemis** et **tailles/disposition** : maquette.
-6. **Ordre des sièges** pour « au tour de X » : ordre d'index (0→3) ou
-   joueur principal choisi au lobby ? (à trancher au lobby.)
+5. ~~Geste ennemis et tailles/disposition~~ : double-clic ; disposition
+   validée sur captures le 2026-09-03 (mémo §1 « Choix de la première
+   table »).
+6. ~~Ordre des sièges~~ : libre, avec « prendre mon tour » (mémo §1).

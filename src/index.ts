@@ -6,13 +6,9 @@
 
 import { getServerByName } from "partyserver";
 import { newCode, newHostToken, normalizeCode } from "./codes";
-import library from "../public/data/library.json";
+import { getScenario } from "./scenario";
 
 export { Room } from "./room";
-
-const AVAILABLE = new Set(
-  library.campaigns.flatMap((c) => c.scenarios.filter((s) => s.status === "available").map((s) => s.id))
-);
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -23,7 +19,9 @@ export default {
     if (path === "/api/rooms" && request.method === "POST") {
       let body: { scenarioId?: string };
       try { body = await request.json(); } catch { return Response.json({ error: "JSON attendu" }, { status: 400 }); }
-      if (!body.scenarioId || !AVAILABLE.has(body.scenarioId)) {
+      // Seuls les scénarios dont la définition est figée dans le registre sont jouables
+      // (le statut affiché dans library.json est purement informatif).
+      if (!body.scenarioId || !getScenario(body.scenarioId)) {
         return Response.json({ error: "scénario inconnu ou indisponible" }, { status: 400 });
       }
       // Tirage d'un code libre (collision improbable : 31^6 ≈ 887 M).
