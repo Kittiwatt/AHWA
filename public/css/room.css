@@ -313,3 +313,42 @@
 .ajust-ligne .libelle { flex: 1; }
 .ajust-ligne .valeur { min-width: 1.6rem; text-align: center; }
 .ajust-ligne input { font: inherit; width: 5rem; padding: 0.2rem 0.4rem; background: var(--nuit-2); color: var(--papier); border: 1px solid var(--filet); border-radius: 2px; }
+
+/* Retours du 2026-09-03 ------------------------------------------------- */
+
+.tapis, .barre { user-select: none; -webkit-user-select: none; }
+.tapis input, .tapis textarea { user-select: text; -webkit-user-select: text; }
+.tapis img { -webkit-user-drag: none; }
+
+/* Zone « de côté » floutée tant qu'on n'y interagit pas (pas de lecture involontaire). */
+#aside .bande { transition: filter 200ms ease; }
+#aside .bande.floue .carte { filter: blur(6px) saturate(0.6); transition: filter 200ms ease; }
+#aside .bande.floue::after { content: "cliquez pour voir"; position: absolute; inset: auto 0.5rem 0.4rem auto; font-size: 0.75rem; color: var(--papier-2); font-style: italic; }
+#aside .bande { position: relative; }
+
+/* Pioche de rencontre : la première carte révélée reste sur la pile */
+.dos-bouton { width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
+.dos-bouton img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; display: block; }
+.dos-bouton:disabled { cursor: default; }
+.dos-pile.revelee { border-color: var(--dorure-2); box-shadow: 0 0 0 2px rgba(224, 192, 122, 0.35); }
+.dos-pile .carte { cursor: grab; }
+
+/* Bouton d'action (flèche) à droite du nom, pendant son tour */
+.bouton-action { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.1rem 0.5rem 0.1rem 0.35rem; font: inherit; font-weight: 700; color: var(--nuit); background: var(--dorure-2); border: 0; border-radius: 999px; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); }
+.bouton-action .fleche { display: inline-grid; width: 1.35rem; height: 1.35rem; }
+.bouton-action .fleche svg { width: 100%; height: 100%; }
+.bouton-action:hover:not(:disabled) { background: var(--papier); }
+.bouton-action:active:not(:disabled) { transform: translateY(1px); }
+.bouton-action:disabled { background: var(--prevu); color: var(--nuit-2); cursor: not-allowed; box-shadow: none; }
+
+/* Compteurs de dégâts et d'horreur sur les ennemis */
+.chips { position: absolute; right: 3px; bottom: 3px; display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+.plateau .chips { right: 6px; bottom: 6px; gap: 4px; }
+.chip { display: inline-flex; align-items: center; gap: 2px; padding: 1px 4px 1px 1px; border-radius: 999px; background: rgba(20, 30, 34, 0.85); color: #fff; font-size: 0.75rem; cursor: pointer; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); }
+.chip img { width: 18px; height: 18px; border-radius: 50%; }
+.plateau .chip img { width: 26px; height: 26px; }
+.plateau .chip { font-size: 0.95rem; }
+.chip .chip-n { min-width: 0.9em; text-align: center; }
+.chip-moins { display: none; font: inherit; line-height: 1; width: 1.1em; height: 1.1em; padding: 0; border: 0; border-radius: 50%; background: var(--papier); color: var(--nuit); cursor: pointer; }
+.chip:hover .chip-moins { display: inline-grid; place-items: center; }
+.carte.epuisee .chips { transform: rotate(-90deg); }

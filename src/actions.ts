@@ -170,9 +170,11 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const c = carte(state, msg.id);
       const zone = String(msg.zone) as ZoneId;
       if (!ZONES.has(zone)) refuser("zone inconnue");
+      const venaitDunePile = "pile" in c.loc;
       retirerDesPiles(state, c.id);
       const x = Math.round(Number(msg.x) || 0), y = Math.round(Number(msg.y) || 0);
       c.loc = { zone, x, y, z: nextZ(state) };
+      if (venaitDunePile) c.faceUp = true; // une carte sortie d'une pile entre en jeu face visible
       const idx = SEAT_ZONES.indexOf(zone);
       if (c.kind === "enemy" || c.kind === "treachery" || c.kind === "asset" || c.kind === "story") {
         if (idx >= 0) c.ownerSeat = idx; else delete c.ownerSeat;
@@ -222,23 +224,44 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const pile = String(msg.pile);
       if (!(pile in state.piles)) refuser("pile inconnue");
       shuffle(state.piles[pile], rng);
+      if (pile === "encounter") for (const id of state.piles.encounter) state.cards[id].faceUp = false;
       addLog(state, "action", pile === "encounter" ? "Pioche de rencontre mélangée." : `Pile ${pile} mélangée.`);
       return {};
     }
     case "drawEncounter": {
+      // Piocher = retourner la première carte de la pioche, qui reste dessus ; le joueur la déplace
+      // ensuite à la main. Si une carte révélée est déjà dessus, elle part dans la zone de menace du
+      // demandeur et la suivante est retournée (rien n'est bloqué).
       const s = msg.seat === undefined ? monSiege() : siege(state, msg.seat);
+      const dessus = state.piles.encounter.length ? state.cards[state.piles.encounter[0]] : null;
+      if (dessus?.faceUp) {
+        state.piles.encounter.shift();
+        const zone = SEAT_ZONES[s];
+        dessus.loc = { zone, x: boutDeMenace(state, zone), y: 0, z: nextZ(state) };
+        if (dessus.kind === "enemy" || dessus.kind === "treachery") dessus.ownerSeat = s;
+      }
       if (!state.piles.encounter.length) {
         if (!state.piles.encounterDiscard.length) refuser("pioche et défausse vides");
         state.piles.encounter = shuffle(state.piles.encounterDiscard.splice(0), rng);
+        for (const id of state.piles.encounter) state.cards[id].faceUp = false;
         addLog(state, "action", "Pioche de rencontre vide : la défausse est remélangée.");
       }
-      const id = state.piles.encounter.shift()!;
-      const c = state.cards[id];
-      const zone = SEAT_ZONES[s];
-      c.loc = { zone, x: boutDeMenace(state, zone), y: 0, z: nextZ(state) };
+      const c = state.cards[state.piles.encounter[0]];
       c.faceUp = true;
-      if (c.kind === "enemy" || c.kind === "treachery") c.ownerSeat = s;
       addLog(state, "action", `${nomSiege(state, s, def)} pioche ${nomCarte(def, c)}.`, s);
+      return {};
+    }
+    case "takeClue": {
+      // Double-clic sur les indices d'un lieu : 1 indice passe du lieu à la réserve du joueur.
+      const s = msg.seat === undefined ? monSiege() : siege(state, msg.seat);
+      const c = carte(state, msg.id);
+      const n = Math.max(1, Math.round(Number(msg.n) || 1));
+      const pris = Math.min(n, c.tokens.clue ?? 0);
+      if (pris <= 0) return {};
+      c.tokens.clue = (c.tokens.clue ?? 0) - pris;
+      if (c.tokens.clue === 0) delete c.tokens.clue;
+      state.seats[s].counters.clues = (state.seats[s].counters.clues ?? 0) + pris;
+      addLog(state, "action", `${nomSiege(state, s, def)} prend ${pris} indice${pris > 1 ? "s" : ""} sur ${nomCarte(def, c)}.`, s);
       return {};
     }
     case "searchEncounter": {

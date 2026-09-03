@@ -1,7 +1,7 @@
 // Interactions sur les cartes : glisser-déposer (message au lâcher), clic, double-clic, menu contextuel.
 
 import { el } from "./dom.js";
-import { vue } from "./tapis.js";
+import { vue, setAsideActif } from "./tapis.js";
 
 const LIBELLES_JETONS = { clue: "Indice", doom: "Doom", damage: "Dégât", horror: "Horreur", resource: "Ressource", generic: "Marqueur" };
 
@@ -17,9 +17,13 @@ export function initInteractions(ctx) {
   // ---- Glisser-déposer ----
   document.addEventListener("pointerdown", (e) => {
     if (menu?.contains(e.target)) return;
+    // Zone « de côté » : nette dès qu'on y touche, floue à nouveau quand on la quitte.
+    if (e.target.closest("#aside")) setAsideActif(true);
     const elem = e.target.closest(".carte, .mini");
-    if (!elem || e.button !== 0 || elem.closest("dialog, .loupe, .dos-pile")) return;
+    if (!elem || e.button !== 0 || elem.closest("dialog, .loupe") || e.target.closest("button, .chips")) return;
     if (!assis() || !carteDe(elem)) return;
+    e.preventDefault(); // pas de sélection de texte ni de glisser natif d'image
+    window.getSelection?.()?.removeAllRanges();
     const r = elem.getBoundingClientRect();
     drag = { elem, id: elem.dataset.id, x0: e.clientX, y0: e.clientY, dx: e.clientX - r.left, dy: e.clientY - r.top, w: r.width, h: r.height, fantome: null };
     if (e.pointerType === "touch") {
@@ -53,7 +57,9 @@ export function initInteractions(ctx) {
     d.fantome.remove();
     d.elem.classList.remove("en-deplacement");
     for (const z of document.querySelectorAll(".depot-ok")) z.classList.remove("depot-ok");
+    window.getSelection?.()?.removeAllRanges();
     dernierLacher = Date.now();
+    if (!document.getElementById("aside").matches(":hover")) setAsideActif(false);
     if (e.type === "pointercancel") return;
     const cible = cibleSous(e.clientX, e.clientY);
     if (cible) deposer(d, cible, e);
@@ -90,21 +96,37 @@ export function initInteractions(ctx) {
     ctx.envoyer({ t: "moveCard", id: carte.id, zone: drop, x: Math.round(x), y: Math.round(y) });
   }
 
-  // ---- Clic : lieu face cachée = révélation ; double-clic : épuiser / redresser ----
+  document.getElementById("aside").addEventListener("pointerleave", () => { if (!drag) setTimeout(() => { if (!drag) setAsideActif(false); }, 300); });
+
+  // ---- Clic : lieu face cachée = révélation ; carte révélée sur la pioche = la prendre ;
+  //      chips d'ennemi = ±1 ; double-clic : épuiser / redresser ; double-clic sur les indices = en prendre un ----
   document.addEventListener("click", (e) => {
     if (Date.now() - dernierLacher < 200) { e.stopPropagation(); return; }
+    if (!assis()) return;
+    const chipMoins = e.target.closest(".chip-moins");
+    const chip = e.target.closest(".chip");
     const elem = e.target.closest(".carte");
-    if (!elem || elem.closest("dialog, .dos-pile, .loupe") || !assis()) return;
+    if (!elem || elem.closest("dialog, .loupe")) return;
     const carte = carteDe(elem);
     if (!carte) return;
+    if (chip) {
+      e.preventDefault();
+      ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: chipMoins ? -1 : 1 });
+      return;
+    }
+    if (elem.closest(".pioche-rencontre")) { ctx.envoyer({ t: "drawEncounter" }); return; }
+    if (elem.closest(".dos-pile")) return;
     if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") ctx.envoyer({ t: "revealLocation", id: carte.id });
   });
   document.addEventListener("dblclick", (e) => {
     const elem = e.target.closest(".carte");
-    if (!elem || elem.closest("dialog, .dos-pile, .loupe") || !assis()) return;
+    if (!elem || elem.closest("dialog, .loupe") || !assis()) return;
     const carte = carteDe(elem);
     if (!carte) return;
     e.preventDefault();
+    if (e.target.closest(".chip")) return;
+    if (e.target.closest(".jeton-clue") && carte.kind === "location") { ctx.envoyer({ t: "takeClue", id: carte.id }); return; }
+    if (elem.closest(".dos-pile")) return;
     ctx.envoyer({ t: "exhaust", id: carte.id });
   });
 
@@ -140,6 +162,7 @@ export function initInteractions(ctx) {
     if (carte.kind !== "mini") {
       items.push(item(carte.exhausted ? "Redresser" : "Épuiser", () => ctx.envoyer({ t: "exhaust", id: carte.id })));
       if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") items.push(item("Révéler (indices automatiques)", () => ctx.envoyer({ t: "revealLocation", id: carte.id })));
+      if (carte.kind === "location" && (carte.tokens.clue ?? 0) > 0) items.push(item("Prendre 1 indice", () => ctx.envoyer({ t: "takeClue", id: carte.id })));
       if (!carte.storyBack && carte.kind !== "investigator") items.push(item("Retourner", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
       if (carte.kind === "scenario" || carte.kind === "story") items.push(item("Autre face", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
       const jetons = carte.kind === "investigator" ? ["damage", "horror", "resource"]

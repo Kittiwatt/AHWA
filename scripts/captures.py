@@ -106,10 +106,33 @@ with sync_playwright() as p:
     alice.wait_for_timeout(300)
     assert alice.locator("#plateau .carte.retournee").count() == 0, "Hallway révélé"
 
-    # Piocher une carte rencontre, la défausser par le menu contextuel.
-    alice.locator("#pioches .dos-pile[data-drop='pile:encounter']").click()
+    # Piocher = retourner la première carte de la pioche ; la glisser en zone de menace ; la défausser par le menu.
+    alice.locator("#pioches .pioche-rencontre .dos-bouton").click()
+    alice.wait_for_selector("#pioches .pioche-rencontre.revelee .carte")
+    revelee = alice.locator("#pioches .pioche-rencontre .carte").first
+    src = revelee.bounding_box()
+    dst = alice.locator("#sieges .siege").nth(0).locator(".menace").bounding_box()
+    alice.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2)
+    alice.mouse.down()
+    alice.mouse.move(dst["x"] + 60, dst["y"] + dst["height"] / 2, steps=12)
+    alice.mouse.up()
     alice.wait_for_timeout(400)
     assert alice.locator("#sieges .siege").nth(0).locator(".menace .carte").count() == 1, "carte piochée en zone de menace"
+    assert alice.locator("#pioches .pioche-rencontre.revelee").count() == 0, "la pioche est de nouveau face cachée"
+    assert alice.evaluate("window.getSelection().toString()") == "", "aucune sélection de texte résiduelle"
+    # Double-clic sur les indices du Study : 1 indice passe à Alice.
+    alice.locator("#plateau .carte .jeton-clue").first.dblclick()
+    alice.wait_for_timeout(400)
+    assert "3" in alice.locator("#plateau .carte .jeton-clue").first.inner_text(), "3 indices restent sur le Study"
+    assert "1" in alice.locator("#sieges .siege").nth(0).locator(".compteur").nth(2).locator(".valeur").inner_text(), "Alice a 1 indice"
+    # Bouton d'action (flèche) : 2 → 1 → 0 puis désactivé.
+    assert alice.locator("#sieges .siege").nth(0).locator(".bouton-action").count() == 1
+    alice.locator("#sieges .siege").nth(0).screenshot(path=f"{OUT}/11_siege_bouton_action.png")
+    alice.locator("#sieges .siege").nth(0).locator(".bouton-action").click()
+    alice.wait_for_timeout(300)
+    alice.locator("#sieges .siege").nth(0).locator(".bouton-action").click()
+    alice.wait_for_timeout(300)
+    assert alice.locator("#sieges .siege").nth(0).locator(".bouton-action").is_disabled(), "plus d'action : bouton désactivé"
     alice.locator("#sieges .siege").nth(0).locator(".menace .carte").first.click(button="right")
     alice.wait_for_selector(".menu-carte")
     alice.screenshot(path=f"{OUT}/07_menu_contextuel.png")
@@ -132,6 +155,32 @@ with sync_playwright() as p:
     alice.wait_for_timeout(300)
     alice.screenshot(path=f"{OUT}/08_tapis_apres_interactions.png")
     alice.locator("#chaos details summary").click()
+
+    # Ennemi : chips dégâts / horreur (clic = +1, − au survol).
+    alice.get_by_role("button", name="Chercher").click()
+    alice.wait_for_selector("dialog.dialogue[open]")
+    ennemi = alice.locator("dialog .carte-peek").filter(has_text="Ghoul").first
+    ennemi.get_by_role("button", name="Prendre").click()
+    alice.get_by_role("button", name="Fermer et mélanger").click()
+    alice.wait_for_timeout(500)
+    chip = alice.locator("#sieges .siege").nth(0).locator(".menace .carte .chip-damage").first
+    chip.click(); alice.wait_for_timeout(200); chip.click(); alice.wait_for_timeout(300)
+    assert "2" in chip.locator(".chip-n").inner_text(), "2 dégâts sur l'ennemi"
+    chip.hover(); chip.locator(".chip-moins").click(); alice.wait_for_timeout(300)
+    assert "1" in chip.locator(".chip-n").inner_text(), "1 dégât après −"
+    alice.screenshot(path=f"{OUT}/10_ennemi_chips.png")
+
+    # Rechargement : Alice retrouve son siège automatiquement.
+    alice.reload()
+    alice.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    alice.wait_for_function("document.querySelector('#moi')?.textContent.includes('Siège 1')", timeout=8000)
+    assert alice.locator("#sieges .siege.moi").count() == 1, "siège repris après rechargement"
+
+    # Zone « de côté » floue, nette au clic.
+    assert alice.locator("#aside .bande.floue").count() == 1
+    alice.locator("#aside .bande").click(position={"x": 5, "y": 5})
+    alice.wait_for_timeout(200)
+    assert alice.locator("#aside .bande.floue").count() == 0, "zone nette après clic"
 
     # Recherche dans la pioche.
     alice.get_by_role("button", name="Chercher").click()

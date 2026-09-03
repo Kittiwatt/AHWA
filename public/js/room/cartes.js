@@ -84,6 +84,21 @@ export function majCarte(el, carte, ctx) {
     el.firstChild.draggable = false;
   }
   el.className = `carte kind-${carte.kind}${estPaysage(carte) ? " paysage" : ""}${carte.exhausted ? " epuisee" : ""}${carte.faceUp ? "" : " retournee"}`;
+  // Ennemis : compteurs de dégâts et d'horreur toujours visibles (clic = +1, − au survol, menu pour le reste).
+  let chips = el.querySelector(".chips");
+  const enJeu = "zone" in carte.loc;
+  if (carte.kind === "enemy" && carte.faceUp && enJeu) {
+    if (!chips) {
+      chips = document.createElement("div");
+      chips.className = "chips";
+      chips.innerHTML = [["damage", "/img/tokens/tok_degats.png", "dégâts"], ["horror", "/img/tokens/tok_horreur.png", "horreur"]].map(([t, img, lib]) =>
+        `<span class="chip chip-${t}" data-token="${t}" title="${lib} : clic +1"><button type="button" class="chip-moins" data-token="${t}" data-delta="-1" title="−1 ${lib}">−</button>` +
+        `<img src="${img}" alt="${lib}" draggable="false"><b class="chip-n"></b></span>`).join("");
+      el.append(chips);
+    }
+    chips.querySelector(".chip-damage .chip-n").textContent = String(carte.tokens.damage ?? 0);
+    chips.querySelector(".chip-horror .chip-n").textContent = String(carte.tokens.horror ?? 0);
+  } else if (chips) chips.remove();
   const img = el.firstChild;
   const src = urlImage(carte, def);
   if (img.getAttribute("src") !== src) img.src = src;
@@ -91,8 +106,9 @@ export function majCarte(el, carte, ctx) {
   img.alt = carte.faceUp || loupePermise(carte, def) ? nom : "carte face cachée";
   el.title = nom;
   el.dataset.loupe = loupePermise(carte, def) ? "1" : "";
-  const jetons = el.lastChild;
-  jetons.replaceChildren(elJetons(carte.tokens));
+  const jetons = el.querySelector(".jetons");
+  const tokens = carte.kind === "enemy" && carte.faceUp && enJeu ? { ...carte.tokens, damage: 0, horror: 0 } : carte.tokens;
+  jetons.replaceChildren(elJetons(tokens));
   return el;
 }
 

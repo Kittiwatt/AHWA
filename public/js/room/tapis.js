@@ -15,8 +15,12 @@ export const PHASES = {
   resolution: "Partie terminée",
 };
 const ORDRE_PHASES = ["mythos", "investigation", "enemy", "upkeep"];
+// Flèche d'action (dessin original inspiré de l'icône du jeu).
+const ICONE_ACTION = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5h9.5V3.5L21 12l-8.5 8.5v-5H3z" fill="currentColor"/></svg>';
 
 const els = new Map();   // id de carte → élément DOM (réutilisé d'un rendu à l'autre)
+let asideActif = false;  // zone « de côté » nette pendant qu'on y interagit
+export function setAsideActif(v) { asideActif = v; document.querySelector("#aside .bande")?.classList.toggle("floue", !v); }
 export const vue = { k: 1, tx: 0, ty: 0, ajustee: false };
 let plateau = null, zoneBoard = null;
 
@@ -42,6 +46,7 @@ export function rendreTapis(ctx) {
   rendrePioches(ctx);
   rendreChaos(ctx);
   rendreBande(document.querySelector("#aside .bande"), "aside", ctx, "Rien de côté.");
+  document.querySelector("#aside .bande").classList.toggle("floue", !asideActif);
   rendreBande(document.querySelector("#victory .bande"), "victory", ctx, "Aucune carte en zone de victoire.");
   rendreSieges(ctx);
   rendreJournal(ctx);
@@ -230,14 +235,18 @@ function rendrePioches(ctx) {
   const pioche = state.piles.encounter;
   const defausse = state.piles.encounterDiscard;
   const dessus = defausse.length ? state.cards[defausse[0]] : null;
+  const premiere = pioche.length ? state.cards[pioche[0]] : null;
   sect.replaceChildren(
     el("div", { class: "pioches-cartes" },
       el("div", { class: "pile" },
-        el("button", { class: `dos-pile${pioche.length ? "" : " vide"}`, type: "button", "data-drop": "pile:encounter", disabled: !peut,
-          title: "Piocher une carte rencontre dans votre zone de menace", onclick: () => ctx.envoyer({ t: "drawEncounter" }) },
-          pioche.length ? el("img", { src: "/img/dos-rencontre.svg", alt: "" }) : el("span", { class: "sous", text: "vide" })),
+        el("div", { class: `dos-pile pioche-rencontre${pioche.length ? "" : " vide"}${premiere?.faceUp ? " revelee" : ""}`, "data-drop": "pile:encounter",
+          title: premiere?.faceUp ? "Carte révélée : glissez-la où il faut (clic = la prendre et retourner la suivante)" : "Piocher = retourner la première carte" },
+          premiere?.faceUp ? carteEl(premiere, ctx)
+            : pioche.length ? el("button", { class: "dos-bouton", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "drawEncounter" }) }, el("img", { src: "/img/dos-rencontre.svg", alt: "pioche de rencontre" }))
+            : el("span", { class: "sous", text: "vide" })),
         el("p", { class: "compte", html: `Pioche <strong>${pioche.length}</strong>` }),
         el("div", { class: "ligne-boutons" },
+          el("button", { class: "lien-outil", type: "button", disabled: !peut || !pioche.length, title: premiere?.faceUp ? "Prendre la carte révélée dans votre zone de menace et retourner la suivante" : "Retourner la première carte", onclick: () => ctx.envoyer({ t: "drawEncounter" }) }, "Piocher"),
           el("button", { class: "lien-outil", type: "button", disabled: !peut, title: "Regarder la pioche puis la mélanger", onclick: () => ctx.envoyer({ t: "searchEncounter", pile: "encounter" }) }, "Chercher"),
           el("button", { class: "lien-outil", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "shufflePile", pile: "encounter" }) }, "Mélanger"))),
       el("div", { class: "pile" },
@@ -336,6 +345,16 @@ function rendreSieges(ctx) {
     const enTour = state.turn.seat === s.index, aJoue = state.turn.done.includes(s.index);
     const jeton = (token, delta) => ctx.envoyer({ t: "addToken", id: `inv-${s.index}`, token, delta });
     const compteur = (key, delta) => ctx.envoyer({ t: "setSeatCounter", seat: s.index, key, delta });
+    const reprendre = !s.occupied && moi.seat === null
+      ? el("button", { class: "bouton petit", type: "button", onclick: () => ctx.envoyer({ t: "takeSeat", seat: s.index, name: localStorage.getItem("ahwa:nom") ?? "" }) }, "Reprendre ce siège")
+      : null;
+    const actionsRestantes = s.counters.actions ?? 0;
+    const boutonAction = enTour && moi.seat === s.index
+      ? el("button", { class: "bouton-action", type: "button", disabled: actionsRestantes <= 0,
+          title: actionsRestantes > 0 ? `Dépenser une action (${actionsRestantes} restante${actionsRestantes > 1 ? "s" : ""})` : "Plus d'action ce tour",
+          onclick: () => compteur("actions", -1) },
+          el("span", { class: "fleche", html: ICONE_ACTION }), el("span", { class: "n", text: String(actionsRestantes) }))
+      : null;
     const boutonTour = state.phase === "resolution" ? null : enTour
       ? el("button", { class: "bouton petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "endTurn", seat: s.index }) }, "Fin de mon tour")
       : el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "takeTurn", seat: s.index }) },
@@ -347,8 +366,10 @@ function rendreSieges(ctx) {
         el("strong", { text: nomSiege(s, ctx) }),
         s.name && inv ? el("span", { class: "sous", text: inv.name }) : null,
         moi.seat === s.index ? el("span", { class: "vous", text: "vous" }) : null,
+        boutonAction,
         aJoue && !enTour ? el("span", { class: "sous", text: "a joué" }) : null,
         el("span", { class: "espace" }),
+        reprendre,
         boutonTour,
       ),
       el("div", { class: "siege-corps" },
@@ -402,7 +423,7 @@ export function initLoupe(ctx) {
   document.addEventListener("pointerover", (e) => {
     if (fixe || e.pointerType === "touch") return;
     const cible = e.target.closest?.(".carte");
-    if (!cible || cible.dataset.loupe !== "1" || cible.closest(".fantome")) return;
+    if (!cible || cible.dataset.loupe !== "1" || cible.closest(".fantome, .bande.floue")) return;
     montrerCarte(cible);
   });
   document.addEventListener("pointerout", (e) => {

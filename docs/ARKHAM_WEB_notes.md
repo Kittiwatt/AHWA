@@ -36,6 +36,23 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **première salve de retours de jeu** appliquée :
+  reprise automatique de son siège au rechargement (siège mémorisé
+  `ahwa:siege:<code>`, repris dès que l'ancienne connexion est fermée,
+  15 s max) + bouton « Reprendre ce siège » sur le tapis ; plus de
+  sélection de texte résiduelle (`user-select: none`, `preventDefault`
+  au début du glisser, sélection effacée au lâcher) ; **piocher =
+  retourner la première carte de la pioche** (elle reste dessus, on la
+  glisse ensuite ; un second clic l'envoie en zone de menace et retourne
+  la suivante ; remise sous la pioche ou mélange = face cachée) ;
+  « mettre de côté » → zone « De côté, hors jeu » (confirmé) ; zone de
+  côté **floutée** (nette au clic, floue en la quittant ; pas de loupe
+  tant qu'elle est floue) ; double-clic sur les indices d'un lieu =
+  `takeClue` (−1 lieu, +1 réserve du joueur ; aussi dans le menu) ;
+  **bouton d'action** (flèche) à droite du nom pendant son tour, −1
+  action par clic, désactivé à 0 ; **compteurs dégâts/horreur sur les
+  ennemis** en jeu (clic = +1, « − » au survol, menu pour le reste) ;
+  une carte sortie d'une pile entre en jeu face visible.
 - 2026-09-03 : **jetons du chaos** : SVG générés depuis la police
   d'icônes `tokens.ttf` d'Arkham Cards (zzorba, dépôt public, recette de
   `ChaosToken.tsx` : dégradé radial + couches fill/overlay/highlight) par

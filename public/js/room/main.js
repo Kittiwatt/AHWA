@@ -69,6 +69,18 @@ async function demarrer() {
 
   const hostToken = () => localStorage.getItem(`ahwa:host:${code}`) ?? "";
   const nom = localStorage.getItem("ahwa:nom") ?? "";
+  // Siège mémorisé : repris automatiquement au rechargement (dès que l'ancienne connexion est fermée).
+  const cleSiege = `ahwa:siege:${code}`;
+  let siegeARependre = /^[0-3]$/.test(localStorage.getItem(cleSiege) ?? "") ? Number(localStorage.getItem(cleSiege)) : null;
+  let limiteReprise = Date.now() + 15000;
+  function tenterReprise() {
+    if (siegeARependre === null || Date.now() > limiteReprise || ctx.etat.moi.seat !== null) return;
+    const s = ctx.etat.state.seats[siegeARependre];
+    if (s.occupied) return;
+    if (ctx.etat.state.phase !== "lobby" && !s.investigatorCode) { siegeARependre = null; return; }
+    ctx.envoyer({ t: "takeSeat", seat: siegeARependre, name: localStorage.getItem("ahwa:nom") ?? "" });
+    siegeARependre = null;
+  }
 
   const cnx = creerConnexion({
     code, hostToken, seat: null, name: nom,
@@ -78,6 +90,11 @@ async function demarrer() {
         await chargerScenario(ctx.etat.state.scenarioId);
         rendre();
         if (genre === "welcome") verifierCdn();
+        if (genre === "welcome" || genre === "seats") tenterReprise();
+        if (genre === "you") {
+          if (ctx.etat.moi.seat === null) localStorage.removeItem(cleSiege);
+          else localStorage.setItem(cleSiege, String(ctx.etat.moi.seat));
+        }
       },
       hostToken(token) { localStorage.setItem(`ahwa:host:${code}`, token); encart("Vous êtes maintenant l'hôte de la table.", "info"); },
       rappel(entry) { encart(entry.text, "rappel"); },
