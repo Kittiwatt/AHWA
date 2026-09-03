@@ -58,6 +58,9 @@ export function rendreLobby(conteneur, ctx) {
       el("p", { class: "aide", text: pret
         ? `${pluriel(avecInv.length, "enquêteur")} — le nombre est figé au lancement ; les lieux, la pioche et le sac du chaos sont préparés automatiquement.`
         : "Il faut au moins un siège avec un enquêteur." }),
+      el("button", { class: "bouton secondaire danger", type: "button", onclick: () => {
+        if (confirm("Supprimer définitivement cette table ?")) ctx.envoyer({ t: "deleteRoom" });
+      } }, "Supprimer la table"),
     );
   } else {
     lancement.append(el("p", { class: "attente", text: state.hostConnected

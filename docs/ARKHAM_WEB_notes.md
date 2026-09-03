@@ -36,6 +36,13 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **remise à zéro des tables de test** par migration DO
+  (`v2` `deleted_classes: ["Room"]` puis `v3` `new_sqlite_classes`) : tout
+  objet Room et son stockage sont effacés au déploiement. Même recette si
+  un jour il faut repartir de zéro (ajouter un couple de tags). Le lobby
+  a maintenant « Supprimer la table » pour l'hôte (avant, seule la barre
+  du tapis l'offrait). Rappel : purge automatique après 7 jours sans
+  activité, et pas d'énumération possible des rooms (pas de registre).
 - 2026-09-03 : **carte disparue à la défausse** (tapis → défausse) :
   l'élément DOM d'une carte est réutilisé d'une zone à l'autre et
   gardait la position absolue (`left/top/zIndex`) posée sur le tapis →
