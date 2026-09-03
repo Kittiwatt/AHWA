@@ -50,13 +50,20 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   le verso), avancer, hors jeu, sur le tapis, ramener dans l'histoire,
   jeton. Le panneau Histoire est une cible de dépôt (`story`) pour
   agenda, acte et carte de scénario.
-- 2026-09-03 : **remise à zéro des tables de test** par migration DO
-  (`v2` `deleted_classes: ["Room"]` puis `v3` `new_sqlite_classes`) : tout
-  objet Room et son stockage sont effacés au déploiement. Même recette si
-  un jour il faut repartir de zéro (ajouter un couple de tags). Le lobby
-  a maintenant « Supprimer la table » pour l'hôte (avant, seule la barre
-  du tapis l'offrait). Rappel : purge automatique après 7 jours sans
-  activité, et pas d'énumération possible des rooms (pas de registre).
+- 2026-09-03 : **remise à zéro des tables : ÉCHEC, annulé.** Deux
+  tentatives de migration DO ont fait échouer Workers Builds (build
+  « failure », site non redéployé) : `v2 deleted_classes: ["Room"]` +
+  `v3 new_sqlite_classes: ["Room"]`, puis `v2 { deleted_classes:
+  ["Room"], new_sqlite_classes: ["RoomV2"] }` avec le binding sur
+  `RoomV2`. Les deux ont été annulées (`1874850`, `b5d1811`), la config
+  reste `v1`. Les journaux d'erreur ne sont visibles que dans le tableau
+  de bord Cloudflare (lien « details » du check GitHub) : à lire avant
+  toute nouvelle tentative. **Les anciennes tables existent toujours** ;
+  elles s'effacent d'elles-mêmes après 7 jours sans activité, ou une à
+  une par « Supprimer » (hôte ; ajouté au lobby). Le contrôle de
+  déploiement se fait avec l'API GitHub `commits/<sha>/check-runs`
+  (jeton requis, le quota anonyme est vite épuisé) — à faire après
+  chaque push, un push n'est pas une livraison.
 - 2026-09-03 : **carte disparue à la défausse** (tapis → défausse) :
   l'élément DOM d'une carte est réutilisé d'une zone à l'autre et
   gardait la position absolue (`left/top/zIndex`) posée sur le tapis →
@@ -505,6 +512,13 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
 - Éléments de carte réutilisés entre zones : toute propriété de style
   posée par un rendu (position absolue du tapis) doit être effacée par
   les autres rendus, sinon elle « fuit » (carte décalée, invisible).
+- **Vérifier le build après chaque push** (check-run GitHub « Workers
+  Builds ») : un push accepté ne veut pas dire un site à jour. Une
+  fausse vérification (tester une table que le test avait lui-même
+  supprimée) a fait croire à tort qu'une migration avait réussi.
+- Cloudflare bloque les clients non-navigateur sans user-agent
+  (403 sur `POST /api/rooms` depuis urllib) : envoyer un user-agent de
+  navigateur ; Chromium headless est aussi filtré sur la page.
 - Menu contextuel : ne pas fermer le menu dans un `pointerdown` global
   sans vérifier `menu.contains(target)` — le bouton est détaché avant
   que son `click` ne parte.
