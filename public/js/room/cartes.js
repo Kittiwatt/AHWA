@@ -87,9 +87,10 @@ export function majCarte(el, carte, ctx) {
   // Ennemis : compteurs de dégâts et d'horreur toujours visibles (clic = +1, − au survol, menu pour le reste).
   let chips = el.querySelector(".chips");
   const enJeu = "zone" in carte.loc;
-  // Ennemis : dégâts et horreur ; soutiens du scénario : selon leurs jauges (vie → dégâts, santé mentale → horreur).
+  // Ennemis : dégâts seulement (pas de santé mentale) ; soutiens du scénario : selon leurs jauges
+  // (vie → dégâts, santé mentale → horreur).
   const jauges = !carte.faceUp || !enJeu ? []
-    : carte.kind === "enemy" ? ["damage", "horror"]
+    : carte.kind === "enemy" ? ["damage"]
     : carte.kind === "asset" ? [def?.health !== undefined ? "damage" : null, def?.sanity !== undefined ? "horror" : null].filter(Boolean)
     : [];
   if (jauges.length) {

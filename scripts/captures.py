@@ -225,6 +225,7 @@ with sync_playwright() as p:
     assert "2" in chip.locator(".chip-n").inner_text(), "2 dégâts sur l'ennemi"
     chip.hover(); chip.locator(".chip-moins").click(); alice.wait_for_timeout(300)
     assert "1" in chip.locator(".chip-n").inner_text(), "1 dégât après −"
+    assert alice.locator("#sieges .siege").nth(0).locator(".menace .carte .chip-horror").count() == 0, "pas de compteur d'horreur sur un ennemi"
     alice.screenshot(path=f"{OUT}/10_ennemi_chips.png")
 
     # Défausse par glisser-déposer sur le bloc de la défausse, puis reprise depuis « Consulter ».

@@ -36,6 +36,10 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **ennemis : compteur de dégâts seulement** (correction
+  de l'utilisateur : pas de jauge de santé mentale sur les ennemis) ; les
+  soutiens du scénario gardent dégâts et horreur selon leurs jauges. Le
+  menu d'un ennemi ne propose plus l'horreur.
 - 2026-09-03 : **encart pioche / défausse / sac compacté** (demande) :
   trois objets alignés à gauche avec badge de compte ; clic sur la
   pioche = piocher ; clic droit sur la pioche = chercher, mélanger ;

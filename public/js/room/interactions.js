@@ -276,6 +276,7 @@ export function initInteractions(ctx) {
       if (carte.kind === "scenario" || carte.kind === "story") items.push(item("Autre face", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
       const jetons = carte.kind === "investigator" ? ["damage", "horror", "resource"]
         : carte.kind === "location" ? ["clue", "doom", "generic"]
+        : carte.kind === "enemy" ? ["damage", "doom", "clue", "generic"]
         : ["damage", "horror", "doom", "clue", "generic"];
       for (const t of jetons) items.push(jeton(t));
       if (rencontre) {
