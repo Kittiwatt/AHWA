@@ -249,7 +249,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `nextPhase` | J | enchaîne les phases (§6) |
 | `setPhase {phase}` | J | saut direct à une phase, sans automatisation |
 | `takeTurn {seat?}` / `endTurn {seat?}` | J | tour en cours (`turn.seat`) / a joué (`turn.done`) ; indications, jamais des verrous |
-| `advanceAgenda` / `advanceAct` | J | carte suivante de `agendaDeck`/`actDeck` ; agenda : retire tout le doom en jeu |
+| `advanceAgenda` / `advanceAct` | J | la carte courante part de côté (hors jeu), la suivante de `agendaDeck`/`actDeck` entre dans l'histoire ; agenda : retire tout le doom en jeu. Même effet quand la carte courante est mise de côté, en victoire ou en pile (`sortieHistoire`) ; posée sur le tapis, elle reste courante |
 | `spendClues {n, from: {seat,n}[]}` | J | prélève sur les sièges ; le client demande la répartition si nécessaire |
 | `chaosDraw` / `chaosReturn` | J | tirage (le jeton sort du sac vers `drawn`, cumulable) / tout remettre ; `onChaosDraw` (v1.1) pourra sceller |
 | `chaosAdjust {token, delta}` | J | panneau du sac |
