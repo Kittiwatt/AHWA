@@ -8,7 +8,11 @@ import { getServerByName } from "partyserver";
 import { newCode, newHostToken, normalizeCode } from "./codes";
 import { getScenario } from "./scenario";
 
-export { Room } from "./room";
+import { Room } from "./room";
+
+// Classe liée au binding ROOM. Le nom change à chaque remise à zéro complète des tables
+// (migration : suppression de l'ancienne classe = suppression de tous ses objets, création de la nouvelle).
+export class RoomV2 extends Room {}
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
