@@ -1,0 +1,213 @@
+{
+  "_meta": {
+    "description": "Catalogue de la bibliothèque : campagnes dans l'ordre de sortie, scénarios dans l'ordre du guide. Statuts : available (jouable), wip (en cours), planned (prévu). Les id des scénarios importés correspondent aux clés de data/scenarios_data.json.",
+    "statuts": ["available", "wip", "planned"],
+    "hors_perimetre": "Boîtes « Return to… » et scénarios promotionnels non listés pour l'instant."
+  },
+  "campaigns": [
+    {
+      "id": "notz",
+      "title": "Night of the Zealot",
+      "box": "Boîte de base (2016)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "notz_the_gathering", "num": "I", "title": "The Gathering", "status": "planned" },
+        { "id": "notz_the_midnight_masks", "num": "II", "title": "The Midnight Masks", "status": "planned" },
+        { "id": "notz_the_devourer_below", "num": "III", "title": "The Devourer Below", "status": "planned" }
+      ]
+    },
+    {
+      "id": "tdl",
+      "title": "The Dunwich Legacy",
+      "box": "Cycle 1 (2016‑2017)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "tdl_extracurricular_activity", "num": "I‑A", "title": "Extracurricular Activity", "status": "planned" },
+        { "id": "tdl_the_house_always_wins", "num": "I‑B", "title": "The House Always Wins", "status": "planned" },
+        { "id": "tdl_the_miskatonic_museum", "num": "II", "title": "The Miskatonic Museum", "status": "planned" },
+        { "id": "tdl_the_essex_county_express", "num": "III", "title": "The Essex County Express", "status": "planned" },
+        { "id": "tdl_blood_on_the_altar", "num": "IV", "title": "Blood on the Altar", "status": "planned" },
+        { "id": "tdl_undimensioned_and_unseen", "num": "V", "title": "Undimensioned and Unseen", "status": "planned" },
+        { "id": "tdl_where_doom_awaits", "num": "VI", "title": "Where Doom Awaits", "status": "planned" },
+        { "id": "tdl_lost_in_time_and_space", "num": "VII", "title": "Lost in Time and Space", "status": "planned" }
+      ]
+    },
+    {
+      "id": "tptc",
+      "title": "The Path to Carcosa",
+      "box": "Cycle 2 (2017‑2018)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "tptc_curtain_call", "num": "I", "title": "Curtain Call", "status": "planned" },
+        { "id": "tptc_the_last_king", "num": "II", "title": "The Last King", "status": "planned" },
+        { "id": "tptc_echoes_of_the_past", "num": "III", "title": "Echoes of the Past", "status": "planned" },
+        { "id": "tptc_the_unspeakable_oath", "num": "IV", "title": "The Unspeakable Oath", "status": "planned" },
+        { "id": "tptc_a_phantom_of_truth", "num": "V", "title": "A Phantom of Truth", "status": "planned" },
+        { "id": "tptc_the_pallid_mask", "num": "VI", "title": "The Pallid Mask", "status": "planned" },
+        { "id": "tptc_black_stars_rise", "num": "VII", "title": "Black Stars Rise", "status": "planned" },
+        { "id": "tptc_dim_carcosa", "num": "VIII", "title": "Dim Carcosa", "status": "planned" }
+      ]
+    },
+    {
+      "id": "tfa",
+      "title": "The Forgotten Age",
+      "box": "Cycle 3 (2018)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "tfa_the_untamed_wilds", "num": "I", "title": "The Untamed Wilds", "status": "planned" },
+        { "id": "tfa_the_doom_of_eztli", "num": "II", "title": "The Doom of Eztli", "status": "planned" },
+        { "id": "tfa_threads_of_fate", "num": "III", "title": "Threads of Fate", "status": "planned" },
+        { "id": "tfa_the_boundary_beyond", "num": "IV", "title": "The Boundary Beyond", "status": "planned" },
+        { "id": "tfa_heart_of_the_elders", "num": "V", "title": "Heart of the Elders", "status": "planned" },
+        { "id": "tfa_the_city_of_archives", "num": "VI", "title": "The City of Archives", "status": "planned" },
+        { "id": "tfa_the_depths_of_yoth", "num": "VII", "title": "The Depths of Yoth", "status": "planned" },
+        { "id": "tfa_shattered_aeons", "num": "VIII", "title": "Shattered Aeons", "status": "planned" },
+        { "id": "tfa_turn_back_time", "num": "—", "title": "Turn Back Time", "status": "planned", "note": "optionnel" }
+      ]
+    },
+    {
+      "id": "tcu",
+      "title": "The Circle Undone",
+      "box": "Cycle 4 (2019)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "tcu_prologue", "num": "Prologue", "title": "Disappearance at the Twilight Estate", "status": "available" },
+        { "id": "tcu_witching_hour", "num": "I", "title": "The Witching Hour", "status": "available" },
+        { "id": "tcu_at_deaths_doorstep", "num": "II", "title": "At Death's Doorstep", "status": "available" },
+        { "id": "tcu_secret_name", "num": "III", "title": "The Secret Name", "status": "available" },
+        { "id": "tcu_wages_of_sin", "num": "IV", "title": "The Wages of Sin", "status": "wip", "note": "deux pioches de rencontre (v2)" },
+        { "id": "tcu_for_the_greater_good", "num": "V", "title": "For the Greater Good", "status": "available" },
+        { "id": "tcu_union_and_disillusion", "num": "VI", "title": "Union and Disillusion", "status": "available" },
+        { "id": "tcu_in_the_clutches_of_chaos", "num": "VII", "title": "In the Clutches of Chaos", "status": "planned" },
+        { "id": "tcu_before_the_black_throne", "num": "VIII", "title": "Before the Black Throne", "status": "planned" }
+      ]
+    },
+    {
+      "id": "tde",
+      "title": "The Dream‑Eaters",
+      "box": "Cycle 5 (2019‑2020)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "tde_gates_of_sleep", "num": "1‑A", "title": "Beyond the Gates of Sleep", "status": "available" },
+        { "id": "tde_waking_nightmare", "num": "1‑B", "title": "Waking Nightmare", "status": "planned" },
+        { "id": "tde_the_search_for_kadath", "num": "2‑A", "title": "The Search for Kadath", "status": "planned" },
+        { "id": "tde_a_thousand_shapes_of_horror", "num": "2‑B", "title": "A Thousand Shapes of Horror", "status": "planned" },
+        { "id": "tde_dark_side_of_the_moon", "num": "3‑A", "title": "Dark Side of the Moon", "status": "planned" },
+        { "id": "tde_point_of_no_return", "num": "3‑B", "title": "Point of No Return", "status": "planned" },
+        { "id": "tde_where_the_gods_dwell", "num": "4‑A", "title": "Where the Gods Dwell", "status": "planned" },
+        { "id": "tde_weaver_of_the_cosmos", "num": "4‑B", "title": "Weaver of the Cosmos", "status": "planned" }
+      ]
+    },
+    {
+      "id": "tic",
+      "title": "The Innsmouth Conspiracy",
+      "box": "Cycle 6 (2020‑2021)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "tic_the_pit_of_despair", "num": "I", "title": "The Pit of Despair", "status": "planned" },
+        { "id": "tic_the_vanishing_of_elina_harper", "num": "II", "title": "The Vanishing of Elina Harper", "status": "planned" },
+        { "id": "tic_in_too_deep", "num": "III", "title": "In Too Deep", "status": "planned" },
+        { "id": "tic_devil_reef", "num": "IV", "title": "Devil Reef", "status": "planned" },
+        { "id": "tic_horror_in_high_gear", "num": "V", "title": "Horror in High Gear", "status": "planned" },
+        { "id": "tic_a_light_in_the_fog", "num": "VI", "title": "A Light in the Fog", "status": "planned" },
+        { "id": "tic_the_lair_of_dagon", "num": "VII", "title": "The Lair of Dagon", "status": "planned" },
+        { "id": "tic_into_the_maelstrom", "num": "VIII", "title": "Into the Maelstrom", "status": "planned" }
+      ]
+    },
+    {
+      "id": "eote",
+      "title": "Edge of the Earth",
+      "box": "Campagne (2021)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "eote_ice_and_death", "num": "I", "title": "Ice and Death (parties 1 à 3)", "status": "planned" },
+        { "id": "eote_fatal_mirage", "num": "II", "title": "Fatal Mirage", "status": "planned" },
+        { "id": "eote_to_the_forbidden_peaks", "num": "III", "title": "To the Forbidden Peaks", "status": "planned" },
+        { "id": "eote_city_of_the_elder_things", "num": "IV", "title": "City of the Elder Things", "status": "planned" },
+        { "id": "eote_the_heart_of_madness", "num": "V", "title": "The Heart of Madness", "status": "planned" }
+      ]
+    },
+    {
+      "id": "tsk",
+      "title": "The Scarlet Keys",
+      "box": "Campagne (2022)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "tsk_riddles_and_rain", "num": "I", "title": "Riddles and Rain", "status": "planned" },
+        { "id": "tsk_dead_heat", "num": "—", "title": "Dead Heat", "status": "planned" },
+        { "id": "tsk_sanguine_shadows", "num": "—", "title": "Sanguine Shadows", "status": "planned" },
+        { "id": "tsk_dealings_in_the_dark", "num": "—", "title": "Dealings in the Dark", "status": "planned" },
+        { "id": "tsk_dancing_mad", "num": "—", "title": "Dancing Mad", "status": "planned" },
+        { "id": "tsk_on_thin_ice", "num": "—", "title": "On Thin Ice", "status": "planned" },
+        { "id": "tsk_dogs_of_war", "num": "—", "title": "Dogs of War", "status": "planned" },
+        { "id": "tsk_shades_of_suffering", "num": "—", "title": "Shades of Suffering", "status": "planned" },
+        { "id": "tsk_without_a_trace", "num": "—", "title": "Without a Trace", "status": "planned" },
+        { "id": "tsk_congress_of_the_keys", "num": "Final", "title": "Congress of the Keys", "status": "planned" }
+      ]
+    },
+    {
+      "id": "fhv",
+      "title": "The Feast of Hemlock Vale",
+      "box": "Campagne (2024)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "fhv_written_in_rock", "num": "Jour 1", "title": "Written in Rock", "status": "planned" },
+        { "id": "fhv_the_silent_heath", "num": "Jour 1", "title": "The Silent Heath", "status": "planned" },
+        { "id": "fhv_the_lost_sister", "num": "Jour 1", "title": "The Lost Sister", "status": "planned" },
+        { "id": "fhv_the_thing_in_the_depths", "num": "Jour 2", "title": "The Thing in the Depths", "status": "planned" },
+        { "id": "fhv_the_twisted_hollow", "num": "Jour 2", "title": "The Twisted Hollow", "status": "planned" },
+        { "id": "fhv_the_longest_night", "num": "Jour 2", "title": "The Longest Night", "status": "planned" },
+        { "id": "fhv_the_vale_forlorn", "num": "Jour 3", "title": "The Vale Forlorn", "status": "planned" },
+        { "id": "fhv_fate_of_the_vale", "num": "Jour 3", "title": "Fate of the Vale", "status": "planned" }
+      ]
+    },
+    {
+      "id": "tdc",
+      "title": "The Drowned City",
+      "box": "Campagne (2025)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "tdc_prologue", "num": "Prologue", "title": "One Last Job", "status": "available" },
+        { "id": "tdc_the_western_wall", "num": "—", "title": "The Western Wall", "status": "planned" },
+        { "id": "tdc_the_drowned_quarter", "num": "—", "title": "The Drowned Quarter", "status": "planned" },
+        { "id": "tdc_obsidian_canyons", "num": "—", "title": "Obsidian Canyons", "status": "planned" },
+        { "id": "tdc_court_of_the_ancients", "num": "—", "title": "Court of the Ancients", "status": "planned" },
+        { "id": "tdc_the_apiary", "num": "—", "title": "The Apiary", "status": "planned" },
+        { "id": "tdc_the_grand_vault", "num": "—", "title": "The Grand Vault", "status": "planned" },
+        { "id": "tdc_sepulchre_of_the_sleeper", "num": "—", "title": "Sepulchre of the Sleeper", "status": "planned" },
+        { "id": "tdc_the_doom_of_arkham", "num": "Final", "title": "The Doom of Arkham", "status": "planned" }
+      ]
+    },
+    {
+      "id": "boa",
+      "title": "Brethren of Ash",
+      "box": "Boîte de base « Chapitre 2 » (2026)",
+      "kind": "campaign",
+      "scenarios": [
+        { "id": "boa_spreading_flames", "num": "I", "title": "Spreading Flames", "status": "planned" },
+        { "id": "boa_smoke_and_mirrors", "num": "II", "title": "Smoke and Mirrors", "status": "planned" },
+        { "id": "boa_queen_of_ash", "num": "III", "title": "Queen of Ash", "status": "planned" }
+      ]
+    },
+    {
+      "id": "standalone",
+      "title": "Scénarios indépendants",
+      "box": "Dans l'ordre de sortie",
+      "kind": "standalone",
+      "scenarios": [
+        { "id": "sa_curse_of_the_rougarou", "num": "2016", "title": "Curse of the Rougarou", "status": "planned" },
+        { "id": "sa_carnevale_of_horrors", "num": "2017", "title": "Carnevale of Horrors", "status": "planned" },
+        { "id": "sa_the_labyrinths_of_lunacy", "num": "2017", "title": "The Labyrinths of Lunacy", "status": "planned" },
+        { "id": "sa_the_eternal_slumber", "num": "2018", "title": "Guardians of the Abyss — The Eternal Slumber", "status": "planned" },
+        { "id": "sa_the_nights_usurper", "num": "2018", "title": "Guardians of the Abyss — The Night's Usurper", "status": "planned" },
+        { "id": "sa_murder_at_the_excelsior_hotel", "num": "2019", "title": "Murder at the Excelsior Hotel", "status": "planned" },
+        { "id": "sa_the_blob_that_ate_everything", "num": "2019", "title": "The Blob That Ate Everything", "status": "planned" },
+        { "id": "sa_war_of_the_outer_gods", "num": "2020", "title": "War of the Outer Gods", "status": "planned" },
+        { "id": "sa_machinations_through_time", "num": "2021", "title": "Machinations Through Time", "status": "planned" },
+        { "id": "sa_fortune_and_folly", "num": "2023", "title": "Fortune and Folly", "status": "planned" },
+        { "id": "sa_the_midwinter_gala", "num": "2024", "title": "The Midwinter Gala", "status": "planned" },
+        { "id": "film_fatale", "num": "2025", "title": "Film Fatale", "status": "wip", "note": "pioche Reel (v2)" }
+      ]
+    }
+  ]
+}

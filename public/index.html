@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anofelis — tables en ligne pour Horreur à Arkham JCE</title>
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+  <header class="entete">
+    <a class="marque" href="/">Anofelis</a>
+    <nav><a href="/scenarios">Bibliothèque</a></nav>
+  </header>
+
+  <main class="accueil">
+    <h1>Une table pour chaque scénario d’Horreur à Arkham.</h1>
+    <p class="propos">
+      Choisissez un scénario dans la bibliothèque, créez une table et partagez son code
+      à vos coéquipiers. La mise en place est faite pour vous ; le jeu reste entre vos mains.
+      Aucun compte, rien à installer.
+    </p>
+
+    <fieldset class="rejoindre">
+      <legend>Rejoindre une table</legend>
+      <div class="ligne">
+        <input class="code-saisie" id="code" type="text" inputmode="latin" autocomplete="off"
+               spellcheck="false" maxlength="6" placeholder="ABC234" aria-label="Code de la table">
+        <button class="bouton" id="rejoindre" type="button">Rejoindre</button>
+      </div>
+      <p class="aide" id="aide-code">Le code fait six caractères ; l’hôte de la table vous l’a transmis.</p>
+    </fieldset>
+
+    <a class="vers-biblio" href="/scenarios">Parcourir la bibliothèque des scénarios</a>
+  </main>
+
+  <footer class="pied">
+    Projet indépendant, sans lien avec Fantasy Flight Games. Images des cartes servies par cdn.arkham.build.
+  </footer>
+
+  <script src="/js/accueil.js"></script>
+</body>
+</html>

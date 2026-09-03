@@ -1,0 +1,269 @@
+/* Anofelis Web — style commun.
+   Palette : nuit d'Arkham (fond), papier de guide (texte), dorure (accent). */
+
+@import url("https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap");
+
+:root {
+  --nuit: #1e2d33;
+  --nuit-2: #253840;
+  --papier: #e6dcc3;
+  --papier-2: #b9ae95;
+  --dorure: #c8a25a;
+  --dorure-2: #e0c07a;
+  --ok: #8fbf9f;
+  --wip: #d08a3e;
+  --prevu: #7f8c88;
+  --filet: rgba(230, 220, 195, 0.18);
+
+  --serif: "IM Fell English", "Iowan Old Style", Georgia, serif;
+  --sans: "Alegreya Sans", "Gill Sans", "Segoe UI", system-ui, sans-serif;
+
+  --mesure: 64rem;
+  --pas: 0.5rem;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--nuit); color: var(--papier); }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--dorure-2); text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+a:hover { color: var(--papier); }
+
+:focus-visible { outline: 2px solid var(--dorure-2); outline-offset: 3px; }
+
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; line-height: 1.1; margin: 0; }
+
+/* En‑tête commun --------------------------------------------------- */
+
+.entete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2rem;
+  max-width: var(--mesure);
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 0;
+}
+
+.entete .marque {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  color: var(--papier);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.entete .marque:hover { color: var(--dorure-2); }
+
+.entete nav a { margin-left: 1.5rem; }
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--mesure);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.pied {
+  max-width: var(--mesure);
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+  color: var(--papier-2);
+  font-size: 0.9rem;
+  border-top: 1px solid var(--filet);
+}
+
+/* Accueil ---------------------------------------------------------- */
+
+.accueil h1 {
+  font-size: clamp(2.6rem, 6vw, 4.5rem);
+  max-width: 18ch;
+  margin-top: 3rem;
+}
+
+.accueil .propos {
+  max-width: 60ch;
+  margin: 1.5rem 0 3rem;
+  color: var(--papier-2);
+}
+
+.rejoindre {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 3rem;
+  padding: 0;
+  border: 0;
+}
+
+.rejoindre legend {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.rejoindre .ligne { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: stretch; }
+
+.code-saisie {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 2rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  width: 6.2em;
+  padding: 0.25rem 0 0.25rem 0.35em;
+  background: var(--nuit-2);
+  color: var(--papier);
+  border: 0;
+  border-bottom: 2px solid var(--dorure);
+  border-radius: 0;
+}
+.code-saisie::placeholder { color: var(--papier-2); opacity: 0.55; }
+
+.rejoindre .aide { color: var(--papier-2); font-size: 0.95rem; margin: 0; }
+
+.bouton {
+  font: inherit;
+  font-weight: 500;
+  padding: 0.55rem 1.2rem;
+  background: var(--dorure);
+  color: var(--nuit);
+  border: 1px solid var(--dorure);
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  line-height: 1.3;
+}
+.bouton:hover { background: var(--dorure-2); border-color: var(--dorure-2); color: var(--nuit); }
+.bouton:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.bouton.secondaire {
+  background: transparent;
+  color: var(--dorure-2);
+}
+.bouton.secondaire:hover { background: var(--nuit-2); }
+
+.accueil .vers-biblio {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+}
+
+/* Bibliothèque ----------------------------------------------------- */
+
+.biblio h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); }
+
+.biblio .legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin: 1rem 0 2.5rem;
+  color: var(--papier-2);
+  font-size: 0.95rem;
+}
+
+.campagne { margin: 0 0 2.5rem; }
+
+.campagne header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--dorure);
+}
+
+.campagne h2 { font-size: 1.9rem; }
+.campagne .boite { color: var(--papier-2); font-size: 0.95rem; }
+
+.campagne ol { list-style: none; margin: 0; padding: 0; }
+
+.scenario {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 7.5rem auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--filet);
+}
+
+.scenario .num { font-family: var(--serif); color: var(--papier-2); }
+.scenario .titre { font-weight: 500; }
+.scenario .note { display: block; color: var(--papier-2); font-size: 0.9rem; font-weight: 400; }
+
+.statut {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--papier-2);
+  white-space: nowrap;
+}
+.statut::before {
+  content: "";
+  width: 0.6rem; height: 0.6rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.statut.available { color: var(--ok); }
+.statut.wip { color: var(--wip); }
+.statut.planned { color: var(--prevu); }
+
+.scenario .action { min-width: 8.5rem; text-align: right; }
+.scenario .action .bouton { font-size: 0.95rem; padding: 0.35rem 0.9rem; }
+
+.scenario.planned .titre { color: var(--papier-2); }
+
+/* Room (placeholder) ----------------------------------------------- */
+
+.room h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); }
+
+.room .code {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  letter-spacing: 0.3em;
+  margin: 1rem 0;
+  color: var(--dorure-2);
+}
+
+.room .etat { color: var(--papier-2); max-width: 60ch; }
+.room .etat strong { color: var(--papier); font-weight: 500; }
+
+.room .journal {
+  margin-top: 2rem;
+  padding: 1rem 1.25rem;
+  background: var(--nuit-2);
+  border-left: 2px solid var(--dorure);
+  font-size: 0.95rem;
+  max-width: 60ch;
+}
+.room .journal p { margin: 0.25rem 0; }
+
+.erreur { color: var(--wip); }
+
+/* Réactif ---------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .scenario { grid-template-columns: 4rem 1fr; row-gap: 0.4rem; }
+  .scenario .statut { grid-column: 2; }
+  .scenario .action { grid-column: 2; text-align: left; }
+  .scenario .action:empty { display: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bouton { transition: background-color 120ms ease, color 120ms ease; }
+}

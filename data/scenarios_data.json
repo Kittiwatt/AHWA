@@ -1,0 +1,2370 @@
+{
+ "_meta": {
+  "source": "Extrait automatiquement de Build_Scenario.py (pipeline PCIO Anofelis) le 2026-09-03.",
+  "usage": "Données de setup réutilisables pour l'app web. Codes = codes ArkhamDB (images : https://cdn.arkham.build/optimized/<code>.webp, dos <code>b.webp). Les listes (code, n) sont des quantités.",
+  "attention": "Les constantes marquées layout_pcio=true sont des coordonnées pixel du board PCIO 1600x1000 (cartes 126x178) : seule la TOPOLOGIE (quel lieu sur quelle case du diagramme) est à conserver. Les popups sont les textes des boutons START/transitions PCIO : ils listent les étapes restées MANUELLES = candidats à automatiser dans l'app.",
+  "rooms_pcio_2j": "Toutes ces rooms sont calibrées 2 joueurs, sans sac du chaos, decks joueurs dans une room séparée."
+ },
+ "scenarios": {
+  "film_fatale": {
+   "campagne": "Standalone",
+   "titre": "Film Fatale (AHC85)",
+   "prefixe_constantes": "FF",
+   "fichier_pcio": "anofelis-film-fatale-2p.pcio",
+   "resume_setup": "Film Fatale (AHC85), hub + 3 films — v3 aux conventions TCU : 2 zones de menace, holder DOOM collé à l'agenda (+1 doom auto en Fin de manche), compteur Manche dans la barre, transitions de film durcies (balayage défausse/menace/minis ; VICTOIRE jamais touchée).",
+   "constantes": {
+    "FF_AST": {
+     "value": [
+      "c3r0",
+      "c3r2"
+     ],
+     "layout_pcio": false,
+     "source": "FF_AST = ['c3r0', 'c3r2']"
+    },
+    "FF_FILMS": {
+     "value": {
+      "cosmic": {
+       "nom": "Cosmic Journey",
+       "actes": [
+        "72025",
+        "72026"
+       ],
+       "lieux": [
+        "72028",
+        "72027",
+        "72030",
+        "72029",
+        "72031"
+       ],
+       "slots": [
+        "c0r1",
+        "c1r1",
+        "c2r1",
+        "c0r2",
+        "c2r2"
+       ],
+       "set": "space",
+       "set_slot": "c1r0",
+       "boss": [
+        "72032",
+        "72036"
+       ],
+       "boss_slot": "c1r1",
+       "asset_slot": "c1r0",
+       "rencontres": [
+        "72033",
+        "72035"
+       ],
+       "asteroides": [
+        "72034"
+       ]
+      },
+      "island": {
+       "nom": "Forgotten Island",
+       "actes": [
+        "72037",
+        "72038"
+       ],
+       "lieux": [
+        "72040",
+        "72039",
+        "72043",
+        "72041",
+        "72042"
+       ],
+       "slots": [
+        "c2r0",
+        "c1r1",
+        "c2r1",
+        "c3r1",
+        "c2r2"
+       ],
+       "set": "jungle",
+       "set_slot": "c0r1",
+       "boss": [
+        "72044"
+       ],
+       "boss_slot": "c2r2",
+       "rencontres": [
+        "72045",
+        "72046",
+        "72047"
+       ],
+       "asteroides": []
+      },
+      "contessa": {
+       "nom": "Abominable Contessa",
+       "actes": [
+        "72048",
+        "72049"
+       ],
+       "lieux": [
+        "72053",
+        "72054",
+        "72052",
+        "72050",
+        "72051"
+       ],
+       "slots": [
+        "c0r0",
+        "c1r0",
+        "c2r0",
+        "c0r2",
+        "c2r2"
+       ],
+       "set": "gothic",
+       "set_slot": "c1r1",
+       "boss": [
+        "72055"
+       ],
+       "boss_slot": "c1r0",
+       "rencontres": [
+        "72056",
+        "72057",
+        "72058",
+        "72059"
+       ],
+       "asteroides": []
+      }
+     },
+     "layout_pcio": false,
+     "source": "FF_FILMS = {\n    'cosmic': dict(nom='Cosmic Journey', actes=['72025', '72026'],\n                   lieux=['72028', '72027', '72030', '72029', '72031'],\n                   slots=['c0r1', 'c1r1', 'c2r1', 'c0r2', 'c2r2'],\n                   set='space', set_slot='c1r0', boss=['72032', '72036'],\n                   boss_slot='c1r1', asset_slot='c1r0',\n                   rencontres=['72033', '72035'], asteroides=['72034']),\n    'island': dict(nom='Forgotten Island', actes=['72037', '72038'],\n                   lieux=['72040', '72039', '72043', '72041', '72042'],\n                   slots=['c2r0', 'c1r1', 'c2r1', 'c3r1', 'c2r2'],\n                   set='jungle', set_slot='c0r1', boss=['72044'], boss_slot='c2r2',\n                   rencontres=['72045', '72046', '72047'], asteroides=[]),\n    'contessa': dict(nom='Abominable Contessa', actes=['72048', '72049'],\n                     lieux=['72053', '72054', '72052', '72050', '72051'],\n                     slots=['c0r0', 'c1r0', 'c2r0', 'c0r2', 'c2r2'],\n                     set='gothic', set_slot='c1r1', boss=['72055'], boss_slot='c1r0',\n                     rencontres=['72056', '72057', '72058', '72059'], asteroides=[]),"
+    },
+    "FF_G": {
+     "value": [
+      "c0r0",
+      "c1r0",
+      "c2r0",
+      "c0r1",
+      "c1r1",
+      "c2r1",
+      "c3r1",
+      "c0r2",
+      "c2r2"
+     ],
+     "layout_pcio": false,
+     "source": "FF_G = ['c0r0', 'c1r0', 'c2r0', 'c0r1', 'c1r1', 'c2r1', 'c3r1', 'c0r2', 'c2r2']"
+    },
+    "FF_GRID_X": {
+     "value": [
+      268,
+      494,
+      720,
+      946
+     ],
+     "layout_pcio": true,
+     "source": "FF_GRID_X = [268, 494, 720, 946]   # v3 : resserrée pour libérer x~1100"
+    },
+    "FF_HUB": {
+     "value": {
+      "scen": "72001",
+      "central": "72008",
+      "sets": {
+       "space": "72009",
+       "jungle": "72010",
+       "gothic": "72011"
+      },
+      "props": [
+       "72005",
+       "72006",
+       "72007"
+      ],
+      "andre": "72024",
+      "agenda_actes": [
+       "72002",
+       "72003",
+       "72004"
+      ],
+      "rencontres": [
+       "72012",
+       "72013",
+       "72014",
+       "72015",
+       "72016",
+       "72017",
+       "72018",
+       "72019",
+       "72020",
+       "72021",
+       "72022",
+       "72023"
+      ]
+     },
+     "layout_pcio": false,
+     "source": "FF_HUB = dict(scen='72001', central='72008',\n              sets={'space': '72009', 'jungle': '72010', 'gothic': '72011'},\n              props=['72005', '72006', '72007'], andre='72024',\n              agenda_actes=['72002', '72003', '72004'],\n              rencontres=['72012', '72013', '72014', '72015', '72016', '72017', '72018',\n                          '72019', '72020', '72021', '72022', '72023'])"
+    },
+    "FF_Y": {
+     "value": {
+      "hub": 46,
+      "r0": 286,
+      "r1": 484,
+      "r2": 682
+     },
+     "layout_pcio": true,
+     "source": "FF_Y = dict(hub=46, r0=286, r1=484, r2=682)"
+    }
+   },
+   "popups_boutons": [
+    "Mise en place de Film Fatale ? (2 joueurs, decks joueurs dans la room joueur ; pions, révélations et indices à la main)",
+    "Transition vers {cfg['nom']} ? (pions, révélation du Set et Prop à la main)"
+   ],
+   "commentaires_build": [
+    "= decks « menace »",
+    "jamais H_VICT (score !)",
+    "nettoyage en tête",
+    "=====================================================================",
+    "SCÉNARIO 2 : TCU PROLOGUE — Disappearance at the Twilight Estate (2 j.)",
+    "====================================================================="
+   ]
+  },
+  "tcu_prologue": {
+   "campagne": "The Circle Undone",
+   "titre": "Prologue — Disappearance at the Twilight Estate",
+   "prefixe_constantes": "TCU",
+   "fichier_pcio": "anofelis-tcu-prologue-2p.pcio",
+   "resume_setup": "The Circle Undone, Prologue « Disappearance at the Twilight Estate » (2 joueurs). Investigateurs neutres sans deck : leurs cartes de départ sont parsées depuis le DOS de leur carte (ArkhamDB back_text, références « Core 16 » / « TCU 21 ») et embarquées dans des rangements par personnage. Les 7 lieux Spectral (05078-84) sont disposés selon le « Suggested Location Placement » (guide p.6) et le Spectral Watcher posé dans l'Entry Hall par le bouton START.",
+   "constantes": {
+    "TCU_ACT": {
+     "value": "05045",
+     "layout_pcio": false,
+     "source": "TCU_SCEN, TCU_AGENDA, TCU_ACT, TCU_WATCHER = '05043', '05044', '05045', '05086'"
+    },
+    "TCU_AGENDA": {
+     "value": "05044",
+     "layout_pcio": false,
+     "source": "TCU_SCEN, TCU_AGENDA, TCU_ACT, TCU_WATCHER = '05043', '05044', '05045', '05086'"
+    },
+    "TCU_ART": {
+     "value": "Prologue.png",
+     "layout_pcio": true,
+     "source": "TCU_ART = 'Prologue.png'   # illustration de fond du tapis, à garder à côté du script\n# Pions joueurs STANDARD de toutes les rooms scénario (défaut de token_trays) :\n# visuels hébergés sur le GitHub de l'utilisateur, 120 px, simple face,\n# rotation 0/90 (épuisé). Sefina l'artiste (03003) et Pitty la vagabonde\n# (gender swap de Pete, 02005). pions='pegs' pour retrouver les 4 pegs."
+    },
+    "TCU_COLS": {
+     "value": [
+      280,
+      470,
+      660,
+      850,
+      1040
+     ],
+     "layout_pcio": true,
+     "source": "TCU_COLS = [280, 470, 660, 850, 1040]"
+    },
+    "TCU_ENC": {
+     "value": [
+      [
+       "05087",
+       2
+      ],
+      [
+       "05100",
+       1
+      ],
+      [
+       "05101",
+       2
+      ],
+      [
+       "05102",
+       2
+      ],
+      [
+       "05103",
+       2
+      ],
+      [
+       "05104",
+       2
+      ],
+      [
+       "05105",
+       2
+      ],
+      [
+       "05106",
+       2
+      ],
+      [
+       "05107",
+       3
+      ],
+      [
+       "05108",
+       3
+      ],
+      [
+       "01167",
+       2
+      ],
+      [
+       "01168",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "TCU_ENC = [('05087', 2),                                     # Watcher's Grasp\n           ('05100', 1), ('05101', 2), ('05102', 2),         # Spectral Predators\n           ('05103', 2), ('05104', 2),                       # Trapped Spirits\n           ('05105', 2), ('05106', 2),                       # Realm of Death\n           ('05107', 3), ('05108', 3),                       # Inexorable Fate\n           ('01167', 2), ('01168', 2)]                       # Chilling Cold"
+    },
+    "TCU_INVEST": {
+     "value": [
+      "05046",
+      "05047",
+      "05048",
+      "05049"
+     ],
+     "layout_pcio": false,
+     "source": "TCU_INVEST = ['05046', '05047', '05048', '05049']       # Gavriella, Jerome, Valentino, Penny"
+    },
+    "TCU_LOC_ORDER": {
+     "value": [
+      "office",
+      "billiards",
+      "trophy",
+      "victorian",
+      "master",
+      "balcony",
+      "entry"
+     ],
+     "layout_pcio": false,
+     "source": "TCU_LOC_ORDER = ['office', 'billiards', 'trophy', 'victorian', 'master', 'balcony', 'entry']"
+    },
+    "TCU_ROW": {
+     "value": {
+      "office": 46,
+      "mid": 286,
+      "entry": 526
+     },
+     "layout_pcio": true,
+     "source": "TCU_ROW = dict(office=46, mid=286, entry=526)"
+    },
+    "TCU_SCEN": {
+     "value": "05043",
+     "layout_pcio": false,
+     "source": "TCU_SCEN, TCU_AGENDA, TCU_ACT, TCU_WATCHER = '05043', '05044', '05045', '05086'"
+    },
+    "TCU_SPECTRAL": {
+     "value": {
+      "office": "05084",
+      "billiards": "05081",
+      "trophy": "05080",
+      "victorian": "05079",
+      "master": "05082",
+      "balcony": "05083",
+      "entry": "05078"
+     },
+     "layout_pcio": false,
+     "source": "TCU_SPECTRAL = dict(office='05084', billiards='05081', trophy='05080',\n                    victorian='05079', master='05082', balcony='05083', entry='05078')"
+    },
+    "TCU_STATIONS": {
+     "value": {
+      "05046": [
+       "Gavriella",
+       285,
+       58
+      ],
+      "05047": [
+       "Jerome",
+       810,
+       58
+      ],
+      "05048": [
+       "Valentino",
+       285,
+       540
+      ],
+      "05049": [
+       "Penny",
+       810,
+       540
+      ]
+     },
+     "layout_pcio": true,
+     "source": "TCU_STATIONS = {'05046': ('Gavriella', 285, 58), '05047': ('Jerome', 810, 58),\n                '05048': ('Valentino', 285, 540), '05049': ('Penny', 810, 540)}"
+    },
+    "TCU_WATCHER": {
+     "value": "05086",
+     "layout_pcio": false,
+     "source": "TCU_SCEN, TCU_AGENDA, TCU_ACT, TCU_WATCHER = '05043', '05044', '05045', '05086'"
+    }
+   },
+   "popups_boutons": [
+    "Setup du Prologue ? Ensuite : chaque joueur choisit une des 4 STATIONS autour du manoir, glisse sa carte investigateur + sa pile « départ » vers sa zone en bas, retourne sa carte pour lire son setup (lieu de départ, ressources, recherches via « Chercher rencontre »), puis révèle son lieu de départ."
+   ],
+   "commentaires_build": [
+    "replacés en room par l'utilisateur",
+    "rangements + decks",
+    "stations de choix des investigateurs (sur le board, 4 coins du manoir)",
+    "holders de jeu",
+    "START : setup du prologue (guide p.6)",
+    "=====================================================================",
+    "SCÉNARIO 3 : TCU I — The Witching Hour (2 joueurs, decks dans une",
+    "room séparée : ici uniquement bois hantés, zones de menace, rencontre)",
+    "====================================================================="
+   ]
+  },
+  "tcu_witching_hour": {
+   "campagne": "The Circle Undone",
+   "titre": "I — The Witching Hour",
+   "prefixe_constantes": "TW",
+   "fichier_pcio": "anofelis-tcu-witching-hour-2p.pcio",
+   "resume_setup": "TCU I et II (2 joueurs).",
+   "constantes": {
+    "TW_ACTS": {
+     "value": [
+      "05053",
+      "05054",
+      "05055",
+      "05056"
+     ],
+     "layout_pcio": false,
+     "source": "TW_SCEN, TW_AGENDAS, TW_ACTS = '05050', ['05051', '05052'], \\\n    ['05053', '05054', '05055', '05056']"
+    },
+    "TW_AGENDAS": {
+     "value": [
+      "05051",
+      "05052"
+     ],
+     "layout_pcio": false,
+     "source": "TW_SCEN, TW_AGENDAS, TW_ACTS = '05050', ['05051', '05052'], \\\n    ['05053', '05054', '05055', '05056']"
+    },
+    "TW_ANETTE": {
+     "value": "05057",
+     "layout_pcio": false,
+     "source": "TW_ANETTE, TW_ARKHAM_WOODS = '05057', ['01150', '01151', '01152', '01153', '01154', '01155']"
+    },
+    "TW_ARKHAM_WOODS": {
+     "value": [
+      "01150",
+      "01151",
+      "01152",
+      "01153",
+      "01154",
+      "01155"
+     ],
+     "layout_pcio": false,
+     "source": "TW_ANETTE, TW_ARKHAM_WOODS = '05057', ['01150', '01151', '01152', '01153', '01154', '01155']"
+    },
+    "TW_AW_X": {
+     "value": [
+      280,
+      438,
+      596,
+      754,
+      912,
+      1070
+     ],
+     "layout_pcio": true,
+     "source": "TW_AW_X = [280, 438, 596, 754, 912, 1070]"
+    },
+    "TW_AZATHOTH": {
+     "value": [
+      [
+       "05088",
+       1
+      ],
+      [
+       "05089",
+       3
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "TW_AZATHOTH = [('05088', 1), ('05089', 3)]"
+    },
+    "TW_ENC": {
+     "value": [
+      [
+       "05090",
+       3
+      ],
+      [
+       "05091",
+       1
+      ],
+      [
+       "05098",
+       2
+      ],
+      [
+       "05099",
+       3
+      ],
+      [
+       "05092",
+       3
+      ],
+      [
+       "05093",
+       2
+      ],
+      [
+       "05094",
+       2
+      ],
+      [
+       "01166",
+       3
+      ],
+      [
+       "01163",
+       3
+      ],
+      [
+       "01164",
+       2
+      ],
+      [
+       "01165",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "TW_ENC = [('05090', 3), ('05091', 1),                       # Anette's Coven\n          ('05098', 2), ('05099', 3),                       # City of Sins\n          ('05092', 3), ('05093', 2), ('05094', 2),         # Witchcraft\n          ('01166', 3),                                     # Ancient Evils\n          ('01163', 3), ('01164', 2), ('01165', 2)]         # Striking Fear"
+    },
+    "TW_J1_X": {
+     "value": [
+      280,
+      470,
+      660
+     ],
+     "layout_pcio": true,
+     "source": null
+    },
+    "TW_J2_X": {
+     "value": [
+      280,
+      470
+     ],
+     "layout_pcio": true,
+     "source": null
+    },
+    "TW_MENACE": {
+     "value": {
+      "w": 380,
+      "h": 186
+     },
+     "layout_pcio": true,
+     "source": "TW_MENACE = dict(w=380, h=CW+60)"
+    },
+    "TW_SCEN": {
+     "value": "05050",
+     "layout_pcio": false,
+     "source": "TW_SCEN, TW_AGENDAS, TW_ACTS = '05050', ['05051', '05052'], \\\n    ['05053', '05054', '05055', '05056']"
+    },
+    "TW_SHUB": {
+     "value": [
+      [
+       "01179",
+       1
+      ],
+      [
+       "01180",
+       3
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "TW_SHUB = [('01179', 1), ('01180', 3)]"
+    },
+    "TW_WOODS": {
+     "value": [
+      "05058",
+      "05059",
+      "05060",
+      "05061",
+      "05062",
+      "05063",
+      "05064"
+     ],
+     "layout_pcio": false,
+     "source": "TW_WOODS = ['05058', '05059', '05060', '05061', '05062', '05063', '05064']   # 7, 5 en jeu"
+    },
+    "TW_Y": {
+     "value": {
+      "j1": 46,
+      "j2": 300,
+      "aw": 554
+     },
+     "layout_pcio": true,
+     "source": "TW_Y = dict(j1=46, j2=300, aw=554)"
+    }
+   },
+   "popups_boutons": [
+    "Setup de The Witching Hour ? 5 bois hantés AU HASARD (3 pour J1, 2 pour J2 ; les 2 restants sont retirés — ils restent au rangement). Ensuite : chaque joueur choisit AU HASARD un de ses bois, le révèle et y pose son pion. Decks joueurs dans la room joueur."
+   ],
+   "commentaires_build": [
+    "holders de jeu",
+    "START : setup du scénario I (guide p.8) — bois AU HASARD (3 + 2)",
+    "=====================================================================",
+    "SCÉNARIO 4 : TCU II — At Death's Doorstep (2 joueurs, decks joueurs",
+    "dans une room séparée : manoir mortel + Spectral de côté, échanges",
+    "« Replacing Locations » à la main, zones de menace, doom sur agenda)",
+    "====================================================================="
+   ]
+  },
+  "tcu_at_deaths_doorstep": {
+   "campagne": "The Circle Undone",
+   "titre": "II — At Death's Doorstep",
+   "prefixe_constantes": "ADD",
+   "fichier_pcio": "anofelis-tcu-at-deaths-doorstep-2p.pcio",
+   "resume_setup": "TCU I et II (2 joueurs).",
+   "constantes": {
+    "ADD_ACTS": {
+     "value": [
+      "05068",
+      "05069",
+      "05070"
+     ],
+     "layout_pcio": false,
+     "source": "ADD_SCEN, ADD_AGENDAS, ADD_ACTS = '05065', ['05066', '05067'], ['05068', '05069', '05070']"
+    },
+    "ADD_AGENDAS": {
+     "value": [
+      "05066",
+      "05067"
+     ],
+     "layout_pcio": false,
+     "source": "ADD_SCEN, ADD_AGENDAS, ADD_ACTS = '05065', ['05066', '05067'], ['05068', '05069', '05070']"
+    },
+    "ADD_CLUES": {
+     "value": {
+      "office": "Jerome",
+      "victorian": "Gavriella",
+      "billiards": "Valentino",
+      "balcony": "Penny"
+     },
+     "layout_pcio": false,
+     "source": "ADD_CLUES = {'office': 'Jerome', 'victorian': 'Gavriella',\n             'billiards': 'Valentino', 'balcony': 'Penny'}"
+    },
+    "ADD_ENC": {
+     "value": [
+      [
+       "05095",
+       3
+      ],
+      [
+       "05096",
+       1
+      ],
+      [
+       "05097",
+       2
+      ],
+      [
+       "05100",
+       1
+      ],
+      [
+       "05101",
+       2
+      ],
+      [
+       "05102",
+       2
+      ],
+      [
+       "05103",
+       2
+      ],
+      [
+       "05104",
+       2
+      ],
+      [
+       "05107",
+       3
+      ],
+      [
+       "05108",
+       3
+      ],
+      [
+       "01167",
+       2
+      ],
+      [
+       "01168",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "ADD_ENC = [('05095', 3), ('05096', 1), ('05097', 2),        # Silver Twilight Lodge\n           ('05100', 1), ('05101', 2), ('05102', 2),        # Spectral Predators\n           ('05103', 2), ('05104', 2),                      # Trapped Spirits\n           ('05107', 3), ('05108', 3),                      # Inexorable Fate\n           ('01167', 2), ('01168', 2)]                      # Chilling Cold"
+    },
+    "ADD_JOSEF": {
+     "value": "05085",
+     "layout_pcio": false,
+     "source": "ADD_JOSEF = '05085'                                        # ennemi ; dos = Josef's Plan (story)"
+    },
+    "ADD_NORMAL": {
+     "value": {
+      "office": "05077",
+      "billiards": "05074",
+      "trophy": "05073",
+      "victorian": "05072",
+      "master": "05075",
+      "balcony": "05076",
+      "entry": "05071"
+     },
+     "layout_pcio": false,
+     "source": "ADD_NORMAL = dict(office='05077', billiards='05074', trophy='05073',\n                  victorian='05072', master='05075', balcony='05076', entry='05071')"
+    },
+    "ADD_REALM_SET": {
+     "value": [
+      [
+       "05105",
+       2
+      ],
+      [
+       "05106",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "ADD_REALM_SET = [('05105', 2), ('05106', 2)]"
+    },
+    "ADD_SCEN": {
+     "value": "05065",
+     "layout_pcio": false,
+     "source": "ADD_SCEN, ADD_AGENDAS, ADD_ACTS = '05065', ['05066', '05067'], ['05068', '05069', '05070']"
+    },
+    "ADD_WATCHER_SET": {
+     "value": [
+      [
+       "05086",
+       1
+      ],
+      [
+       "05087",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "ADD_WATCHER_SET = [('05086', 1), ('05087', 2)]"
+    }
+   },
+   "popups_boutons": [
+    "Setup d'At Death's Doorstep ? Ensuite à la main : révéler l'Entry Hall et y poser les pions ; 6 indices sur le lieu de chaque disparu NON barré du journal (Jerome:Office, Gavriella:Victorian Halls, Valentino:Billiards, Penny:Balcony), moins le total « evidence ». Échanges normal↔spectral à la main (glisser depuis SPECTRAL · CÔTÉ). Ne pas regarder le dos de Josef. Decks joueurs dans la room joueur."
+   ],
+   "commentaires_build": [
+    "Josef Meiger : l'ennemi (face A) n'a pas d'entrée ArkhamDB propre ; on la synthétise",
+    "échange manuel possible",
+    "START : setup du scénario II (guide p.10)",
+    "=====================================================================",
+    "SCÉNARIO 4ter : TCU III — The Secret Name (2 joueurs, decks joueurs",
+    "dans une room séparée : croix Witch House 3x3 avec 4 slots libres,",
+    "pioche « Unknown Places » construite au START — Witch House Ruins",
+    "mélangée dans les 4 du fond —, Decrepit Doors au hasard, de côté :",
+    "Nahab / Keziah's Room / Site of the Sacrifice / Black Book / pièges)",
+    "====================================================================="
+   ]
+  },
+  "tcu_secret_name": {
+   "campagne": "The Circle Undone",
+   "titre": "III — The Secret Name",
+   "prefixe_constantes": "TSN",
+   "fichier_pcio": "anofelis-tcu-the-secret-name-2p.pcio",
+   "resume_setup": "TCU III « The Secret Name » (2 joueurs). Croix Witch House 3x3 (5 slots du diagramme p.21 + 4 coins libres pour les lieux révélés), pioche « Unknown Places » construite au START selon la règle exacte (Witch House Ruins mélangée dans les 4 du fond, les 3 autres au-dessus en ordre aléatoire, tout face cachée — pas de bouton shuffle sur ce holder), 3 Decrepit Doors distribuées au hasard (dos identiques), Brown Jenkin dans la pioche rencontre ; de côté : Nahab, Keziah's Room, Site of the Sacrifice, The Black Book, 2 Strange Geometry, 2 Ghostly Presence.",
+   "constantes": {
+    "TSN_ACTS": {
+     "value": [
+      "05125",
+      "05126",
+      "05127"
+     ],
+     "layout_pcio": false,
+     "source": "TSN_ACTS = ['05125', '05126', '05127']"
+    },
+    "TSN_AGENDAS": {
+     "value": [
+      "05121",
+      "05122",
+      "05123",
+      "05124"
+     ],
+     "layout_pcio": false,
+     "source": "TSN_SCEN, TSN_AGENDAS = '05120', ['05121', '05122', '05123', '05124']"
+    },
+    "TSN_ASIDE_LOC": {
+     "value": [
+      "05133",
+      "05141"
+     ],
+     "layout_pcio": false,
+     "source": "TSN_ASIDE_LOC = ['05133', '05141']            # Keziah's Room, Site of the Sacrifice"
+    },
+    "TSN_BLACK": {
+     "value": "05150",
+     "layout_pcio": false,
+     "source": "TSN_NAHAB, TSN_BLACK = '05149', '05150'"
+    },
+    "TSN_CROSS": {
+     "value": [
+      [
+       "wgr",
+       1,
+       "haut",
+       "WALTER GILMAN'S ROOM"
+      ],
+      [
+       "dd_w",
+       0,
+       "mid",
+       "DECREPIT DOOR"
+      ],
+      [
+       "mh",
+       1,
+       "mid",
+       "MOLDY HALLS · DÉPART"
+      ],
+      [
+       "dd_e",
+       2,
+       "mid",
+       "DECREPIT DOOR"
+      ],
+      [
+       "dd_s",
+       1,
+       "bas",
+       "DECREPIT DOOR"
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "TSN_CROSS = [('wgr', 1, 'haut', \"WALTER GILMAN'S ROOM\"),\n             ('dd_w', 0, 'mid', 'DECREPIT DOOR'),\n             ('mh', 1, 'mid', 'MOLDY HALLS · DÉPART'),\n             ('dd_e', 2, 'mid', 'DECREPIT DOOR'),\n             ('dd_s', 1, 'bas', 'DECREPIT DOOR')]"
+    },
+    "TSN_DOORS": {
+     "value": [
+      "05129",
+      "05130",
+      "05131"
+     ],
+     "layout_pcio": false,
+     "source": "TSN_DOORS = ['05129', '05130', '05131']       # 3 Decrepit Door (dos identiques ;\n#   faces = Landlord's Quarters / Joe Mazurewicz's / Frank Elwood's Room)"
+    },
+    "TSN_ENC": {
+     "value": [
+      [
+       "05143",
+       3
+      ],
+      [
+       "05145",
+       2
+      ],
+      [
+       "05146",
+       2
+      ],
+      [
+       "05147",
+       2
+      ],
+      [
+       "05148",
+       1
+      ],
+      [
+       "05098",
+       2
+      ],
+      [
+       "05099",
+       3
+      ],
+      [
+       "05107",
+       3
+      ],
+      [
+       "05108",
+       3
+      ],
+      [
+       "05105",
+       2
+      ],
+      [
+       "05106",
+       2
+      ],
+      [
+       "05092",
+       3
+      ],
+      [
+       "05093",
+       2
+      ],
+      [
+       "05094",
+       2
+      ],
+      [
+       "01159",
+       3
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "TSN_ENC = [('05143', 3), ('05145', 2), ('05146', 2), ('05147', 2),   # Secret Name\n           ('05148', 1),                                   # Brown Jenkin (Elite !)\n           ('05098', 2), ('05099', 3),                     # City of Sins\n           ('05107', 3), ('05108', 3),                     # Inexorable Fate\n           ('05105', 2), ('05106', 2),                     # Realm of Death\n           ('05092', 3), ('05093', 2), ('05094', 2),       # Witchcraft\n           ('01159', 3)]                                   # Rats            = 35"
+    },
+    "TSN_FIXES": {
+     "value": [
+      "05128",
+      "05132"
+     ],
+     "layout_pcio": false,
+     "source": "TSN_FIXES = ['05128', '05132']                # Moldy Halls, Walter Gilman's Room"
+    },
+    "TSN_GEOMETRY": {
+     "value": [
+      [
+       "05142",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "TSN_GEOMETRY, TSN_GHOSTLY = [('05142', 2)], [('05144', 2)]"
+    },
+    "TSN_GHOSTLY": {
+     "value": [
+      [
+       "05144",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "TSN_GEOMETRY, TSN_GHOSTLY = [('05142', 2)], [('05144', 2)]"
+    },
+    "TSN_LIBRES": {
+     "value": [
+      [
+       0,
+       "haut"
+      ],
+      [
+       2,
+       "haut"
+      ],
+      [
+       0,
+       "bas"
+      ],
+      [
+       2,
+       "bas"
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "TSN_LIBRES = [(0, 'haut'), (2, 'haut'), (0, 'bas'), (2, 'bas')]"
+    },
+    "TSN_MENACE": {
+     "value": {
+      "x": 855,
+      "w": 380,
+      "h": 186
+     },
+     "layout_pcio": true,
+     "source": "TSN_MENACE = dict(x=855, w=380, h=CW + 60)\n# croix du diagramme p.21 ; les 4 coins de la grille 3x3 = slots libres"
+    },
+    "TSN_NAHAB": {
+     "value": "05149",
+     "layout_pcio": false,
+     "source": "TSN_NAHAB, TSN_BLACK = '05149', '05150'"
+    },
+    "TSN_SCEN": {
+     "value": "05120",
+     "layout_pcio": false,
+     "source": "TSN_SCEN, TSN_AGENDAS = '05120', ['05121', '05122', '05123', '05124']"
+    },
+    "TSN_UNKNOWN": {
+     "value": [
+      "05134",
+      "05135",
+      "05136",
+      "05138",
+      "05139",
+      "05140"
+     ],
+     "layout_pcio": false,
+     "source": "TSN_UNKNOWN = ['05134', '05135', '05136', '05138', '05139', '05140']   # 6 UP"
+    },
+    "TSN_UP_X": {
+     "value": 940,
+     "layout_pcio": true,
+     "source": "TSN_UP_X = 940                                # pioche Unknown Places (colonne mid)"
+    },
+    "TSN_WHR": {
+     "value": "05137",
+     "layout_pcio": false,
+     "source": "TSN_WHR = '05137'                             # Witch House Ruins (7e Unknown Places)"
+    },
+    "TSN_X": {
+     "value": [
+      280,
+      490,
+      700
+     ],
+     "layout_pcio": true,
+     "source": "TSN_X, TSN_Y = [280, 490, 700], dict(haut=46, mid=286, bas=526)"
+    },
+    "TSN_Y": {
+     "value": {
+      "haut": 46,
+      "mid": 286,
+      "bas": 526
+     },
+     "layout_pcio": true,
+     "source": "TSN_X, TSN_Y = [280, 490, 700], dict(haut=46, mid=286, bas=526)"
+    }
+   },
+   "popups_boutons": [
+    "Setup de The Secret Name ? Croix Witch House en jeu face cachée (les 3 Decrepit Doors distribuées AU HASARD) ; pioche UNKNOWN PLACES construite selon la règle : Witch House Ruins mélangée dans les 4 cartes du FOND, les 3 autres au-dessus en ordre aléatoire — NE PAS la remélanger. De côté : Nahab, Keziah's Room, Site of the Sacrifice, The Black Book, 2 Strange Geometry, 2 Ghostly Presence. Ensuite à la main : révéler MOLDY HALLS et y poser les pions ; sac du chaos selon la difficulté. Decks joueurs dans la room joueur."
+   ],
+   "commentaires_build": [
+    "pioche Unknown Places : PAS de bouton shuffle (ordre construit au START)",
+    "START : setup du scénario III (guide p.20-21)",
+    "az : 05128 Moldy H., 05132 Gilman",
+    "dos identiques : portes au hasard",
+    "pioche Unknown Places : WHR + 3 au hasard mélangées = les 4 du FOND,",
+    "puis les 3 restantes au-dessus en ordre aléatoire (tout face cachée)",
+    "=====================================================================",
+    "SCÉNARIO 4quater : TCU IV — The Wages of Sin (2 joueurs, decks joueurs",
+    "dans une room séparée). Particularités : 7 lieux à DOUBLE FACE RÉVÉLÉE",
+    "(normale / Spectral — dos CDN = face spectrale, le clic PCIO bascule),",
+    "entrent en jeu RÉVÉLÉS côté normal ; 4 paires de lieux dont 1 version",
+    "sur 2 tirée AU HASARD (l'autre retirée) ; 6 Hérétiques (05178a/c/e/g/",
+    "i/k, dos histoire 05178b/d/f/h/j/l patchés) dont 4 de côté au hasard,",
+    "2 retirés — dos à ne pas regarder ; DEUX pioches rencontre (standard",
+    "24 / spectrale 20, split par trait Spectral) avec chacune sa défausse,",
+    "sa révélée et ses boutons ; de côté : 4 Spectral Web + set The Watcher.",
+    "====================================================================="
+   ]
+  },
+  "tcu_wages_of_sin": {
+   "campagne": "The Circle Undone",
+   "titre": "IV — The Wages of Sin",
+   "prefixe_constantes": "WOS",
+   "fichier_pcio": "anofelis-tcu-the-wages-of-sin-2p.pcio",
+   "resume_setup": "TCU IV « The Wages of Sin » (2 joueurs). Lieux à double face révélée (normale/Spectral, clic = bascule), entrent en jeu révélés côté normal ; 4 paires de lieux (1 version sur 2 au hasard, l'autre retirée) ; 6 Hérétiques dont 4 de côté au hasard (dos histoire patchés b/d/f/h/j/l, à ne pas regarder) ; DEUX pioches rencontre (standard 24 / spectrale 20, split par trait Spectral) avec révélée + défausse + boutons chacune ; de côté : 4 Spectral Web + set The Watcher.",
+   "constantes": {
+    "WOS_ACTS": {
+     "value": [
+      "05164",
+      "05165"
+     ],
+     "layout_pcio": false,
+     "source": "WOS_SCEN, WOS_AGENDAS, WOS_ACTS = '05161', ['05162', '05163'], ['05164', '05165']"
+    },
+    "WOS_AGENDAS": {
+     "value": [
+      "05162",
+      "05163"
+     ],
+     "layout_pcio": false,
+     "source": "WOS_SCEN, WOS_AGENDAS, WOS_ACTS = '05161', ['05162', '05163'], ['05164', '05165']"
+    },
+    "WOS_BROOK_X": {
+     "value": 517,
+     "layout_pcio": true,
+     "source": "WOS_BROOK_X = 517                             # Hangman's Brook centrée c2-c3"
+    },
+    "WOS_ENC_SPE": {
+     "value": [
+      [
+       "05180",
+       2
+      ],
+      [
+       "05182",
+       2
+      ],
+      [
+       "05185",
+       2
+      ],
+      [
+       "05103",
+       2
+      ],
+      [
+       "05104",
+       2
+      ],
+      [
+       "05105",
+       2
+      ],
+      [
+       "05106",
+       2
+      ],
+      [
+       "05107",
+       3
+      ],
+      [
+       "05108",
+       3
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "WOS_ENC_SPE = [('05180', 2), ('05182', 2), ('05185', 2),                 # Wages\n               ('05103', 2), ('05104', 2),                     # Trapped Spirits\n               ('05105', 2), ('05106', 2),                     # Realm of Death\n               ('05107', 3), ('05108', 3)]                     # Inexorable F. = 20"
+    },
+    "WOS_ENC_STD": {
+     "value": [
+      [
+       "05179",
+       2
+      ],
+      [
+       "05181",
+       2
+      ],
+      [
+       "05183",
+       2
+      ],
+      [
+       "05184",
+       2
+      ],
+      [
+       "05090",
+       3
+      ],
+      [
+       "05091",
+       1
+      ],
+      [
+       "05092",
+       3
+      ],
+      [
+       "05093",
+       2
+      ],
+      [
+       "05094",
+       2
+      ],
+      [
+       "05098",
+       2
+      ],
+      [
+       "05099",
+       3
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "WOS_ENC_STD = [('05179', 2), ('05181', 2), ('05183', 2), ('05184', 2),   # Wages\n               ('05090', 3), ('05091', 1),                     # Anette's Coven\n               ('05092', 3), ('05093', 2), ('05094', 2),       # Witchcraft\n               ('05098', 2), ('05099', 3)]                     # City of Sins = 24"
+    },
+    "WOS_FIXES": {
+     "value": [
+      "05166",
+      "05167",
+      "05168"
+     ],
+     "layout_pcio": false,
+     "source": "WOS_FIXES = ['05166', '05167', '05168']       # Hangman's Brook, Haunted F., Chapel"
+    },
+    "WOS_HERETICS": {
+     "value": [
+      "05178a",
+      "05178c",
+      "05178e",
+      "05178g",
+      "05178i",
+      "05178k"
+     ],
+     "layout_pcio": false,
+     "source": "WOS_HERETICS = ['05178a', '05178c', '05178e', '05178g', '05178i', '05178k']"
+    },
+    "WOS_MENACE": {
+     "value": {
+      "x": 912,
+      "w": 320,
+      "h": 186
+     },
+     "layout_pcio": true,
+     "source": "WOS_MENACE = dict(x=912, w=320, h=CW + 60)\n# diagramme p.25 : Gallows/Attic en haut (c2/c3), rangée de 4 au milieu"
+    },
+    "WOS_PAIRS": {
+     "value": {
+      "gallows": [
+       "05169",
+       "05170"
+      ],
+      "graves": [
+       "05171",
+       "05172"
+      ],
+      "crypt": [
+       "05173",
+       "05174"
+      ],
+      "attic": [
+       "05175",
+       "05176"
+      ]
+     },
+     "layout_pcio": false,
+     "source": "WOS_PAIRS = dict(gallows=['05169', '05170'], graves=['05171', '05172'],\n                 crypt=['05173', '05174'], attic=['05175', '05176'])"
+    },
+    "WOS_SCEN": {
+     "value": "05161",
+     "layout_pcio": false,
+     "source": "WOS_SCEN, WOS_AGENDAS, WOS_ACTS = '05161', ['05162', '05163'], ['05164', '05165']"
+    },
+    "WOS_SLOTS": {
+     "value": [
+      [
+       "gallows",
+       1,
+       "haut",
+       "THE GALLOWS"
+      ],
+      [
+       "attic",
+       2,
+       "haut",
+       "CHAPEL ATTIC"
+      ],
+      [
+       "graves",
+       0,
+       "mid",
+       "HERETICS' GRAVES"
+      ],
+      [
+       "fields",
+       1,
+       "mid",
+       "HAUNTED FIELDS"
+      ],
+      [
+       "chapel",
+       2,
+       "mid",
+       "ABANDONED CHAPEL"
+      ],
+      [
+       "crypt",
+       3,
+       "mid",
+       "CHAPEL CRYPT"
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "WOS_SLOTS = [('gallows', 1, 'haut', 'THE GALLOWS'),\n             ('attic', 2, 'haut', 'CHAPEL ATTIC'),\n             ('graves', 0, 'mid', \"HERETICS' GRAVES\"),\n             ('fields', 1, 'mid', 'HAUNTED FIELDS'),\n             ('chapel', 2, 'mid', 'ABANDONED CHAPEL'),\n             ('crypt', 3, 'mid', 'CHAPEL CRYPT')]"
+    },
+    "WOS_WATCHER": {
+     "value": [
+      [
+       "05086",
+       1
+      ],
+      [
+       "05087",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "WOS_WEBS, WOS_WATCHER = [('05177', 4)], [('05086', 1), ('05087', 2)]"
+    },
+    "WOS_WEBS": {
+     "value": [
+      [
+       "05177",
+       4
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "WOS_WEBS, WOS_WATCHER = [('05177', 4)], [('05086', 1), ('05087', 2)]"
+    },
+    "WOS_X": {
+     "value": [
+      280,
+      438,
+      596,
+      754
+     ],
+     "layout_pcio": true,
+     "source": "WOS_X = [280, 438, 596, 754]                  # 4 colonnes du diagramme p.25"
+    },
+    "WOS_Y": {
+     "value": {
+      "haut": 46,
+      "mid": 286,
+      "bas": 526
+     },
+     "layout_pcio": true,
+     "source": "WOS_Y = dict(haut=46, mid=286, bas=526)"
+    }
+   },
+   "popups_boutons": [
+    "Setup de The Wages of Sin ? Les 7 lieux entrent RÉVÉLÉS côté normal (clic = bascule spectrale) ; Gallows / Heretics' Graves / Chapel Attic / Chapel Crypt : 1 version sur 2 AU HASARD, l'autre retirée (rangement). 4 Hérétiques sur 6 de côté au hasard (2 retirés) — NE PAS regarder leur dos histoire. De côté : 4 Spectral Web + set The Watcher. DEUX pioches rencontre (STANDARD 24 / SPECTRALE 20), chacune SA défausse — au spectral, tout passe par la colonne SPECTRALE. Ensuite à la main : pions sur Hangman's Brook, sac du chaos. Decks joueurs dans la room joueur.",
+    "Recherche dans cette pioche rencontre"
+   ],
+   "commentaires_build": [
+    "Hérétiques : ArkhamDB les modélise simple-face ; leurs dos histoire",
+    "(Unfinished Business) existent sur le CDN en b/d/f/h/j/l — on patche.",
+    "START : setup du scénario IV (guide p.23) — lieux RÉVÉLÉS côté normal",
+    "1 version sur 2 au hasard",
+    "4 Hérétiques sur 6",
+    "deux systèmes de pioche : boutons par pioche",
+    "=====================================================================",
+    "SCÉNARIO 4quinquies : TCU V — For the Greater Good (2 joueurs, decks",
+    "joueurs dans une room séparée). Particularités : setup DÉPENDANT DU",
+    "JOURNAL → DEUX boutons START (Membres / Non-membres : acte 1a,",
+    "versions subtitle des 3 lieux appariés et 7 cartes rencontre par",
+    "branche, la branche non choisie reste au rangement = retirée) ;",
+    "4 jetons-CLÉS (crâne/cultiste/tablette/entité) dessinés en proxy",
+    "(jamais dans le sac du chaos — marqueurs de plateau) ; Sanctum",
+    "Doorways de côté face cachée MÉLANGÉES (anonymes) ; Nathan Wick",
+    "double face (05217b patché).",
+    "====================================================================="
+   ]
+  },
+  "tcu_for_the_greater_good": {
+   "campagne": "The Circle Undone",
+   "titre": "V — For the Greater Good",
+   "prefixe_constantes": "FGG",
+   "fichier_pcio": "anofelis-tcu-for-the-greater-good-2p.pcio",
+   "resume_setup": "TCU V « For the Greater Good » (2 j.). Setup dépendant du journal → DEUX boutons START (Membres / Non-membres : acte 1a, versions des 3 lieux appariés, 7 cartes de rencontre par branche ; la branche non choisie reste au rangement, retirée). 4 jetons-CLÉS proxy (crâne/cultiste/tablette/entité, jamais dans le sac). Sanctum Doorways de côté face cachée mélangées (anonymes), Vault/Library/Inner Sanctum visibles, Nathan Wick double face (05217b patché), Puzzle Box / Summoned Beast / August Lindquist de côté. Rencontre 29 cartes (22 communes + 7 branche).",
+   "constantes": {
+    "FGG_ACTS_COMMON": {
+     "value": [
+      "05202",
+      "05203"
+     ],
+     "layout_pcio": false,
+     "source": "FGG_ACTS_COMMON = ['05202', '05203']          # Obtaining the Device, The Four Keys"
+    },
+    "FGG_ACT_MEM": {
+     "value": "05200",
+     "layout_pcio": false,
+     "source": "FGG_ACT_MEM, FGG_ACT_NON = '05200', '05201'   # Warm Welcome / Infiltrating"
+    },
+    "FGG_ACT_NON": {
+     "value": "05201",
+     "layout_pcio": false,
+     "source": "FGG_ACT_MEM, FGG_ACT_NON = '05200', '05201'   # Warm Welcome / Infiltrating"
+    },
+    "FGG_AGENDAS": {
+     "value": [
+      "05198",
+      "05199"
+     ],
+     "layout_pcio": false,
+     "source": "FGG_SCEN, FGG_AGENDAS = '05197', ['05198', '05199']"
+    },
+    "FGG_ASIDE_LOC": {
+     "value": [
+      "05211",
+      "05212",
+      "05216"
+     ],
+     "layout_pcio": false,
+     "source": "FGG_ASIDE_LOC = ['05211', '05212', '05216']   # Vault, Library, Inner Sanctum"
+    },
+    "FGG_CL": {
+     "value": 400,
+     "layout_pcio": true,
+     "source": "FGG_CL, FGG_CR = 400, 610                     # 2 colonnes du diagramme p.29"
+    },
+    "FGG_CR": {
+     "value": 610,
+     "layout_pcio": true,
+     "source": "FGG_CL, FGG_CR = 400, 610                     # 2 colonnes du diagramme p.29"
+    },
+    "FGG_DOORWAYS": {
+     "value": [
+      "05214",
+      "05215"
+     ],
+     "layout_pcio": false,
+     "source": "FGG_DOORWAYS = ['05214', '05215']             # Ceremony Room / Holding Cells\n#   (dos commun « Sanctum Doorway » : de côté FACE CACHÉE et mélangées)"
+    },
+    "FGG_ENC_COMMON": {
+     "value": [
+      [
+       "05223",
+       2
+      ],
+      [
+       "05224",
+       2
+      ],
+      [
+       "05225",
+       2
+      ],
+      [
+       "05226",
+       2
+      ],
+      [
+       "05097",
+       2
+      ],
+      [
+       "05098",
+       2
+      ],
+      [
+       "05099",
+       3
+      ],
+      [
+       "01171",
+       2
+      ],
+      [
+       "01166",
+       3
+      ],
+      [
+       "01174",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "FGG_ENC_COMMON = [('05223', 2), ('05224', 2), ('05225', 2), ('05226', 2),  # FGG\n                  ('05097', 2),                            # Mysteries of the Lodge\n                  ('05098', 2), ('05099', 3),              # City of Sins\n                  ('01171', 2),                            # Mysterious Chanting\n                  ('01166', 3),                            # Ancient Evils\n                  ('01174', 2)]                            # Locked Door      = 22"
+    },
+    "FGG_FIXES": {
+     "value": [
+      "05210",
+      "05213"
+     ],
+     "layout_pcio": false,
+     "source": "FGG_FIXES = ['05210', '05213']                # Lounge, Lodge Catacombs"
+    },
+    "FGG_GATES_X": {
+     "value": 505,
+     "layout_pcio": true,
+     "source": "FGG_GATES_X = (FGG_CL + FGG_CR) // 2          # Lodge Gates centrée au-dessus"
+    },
+    "FGG_GRP_ACO": {
+     "value": [
+      [
+       "01169",
+       3
+      ],
+      [
+       "01170",
+       1
+      ],
+      [
+       "05221",
+       2
+      ],
+      [
+       "05219",
+       1
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "FGG_GRP_ACO = [('01169', 3), ('01170', 1), ('05221', 2), ('05219', 1)]   # Non-m."
+    },
+    "FGG_GRP_NEO": {
+     "value": [
+      [
+       "05095",
+       3
+      ],
+      [
+       "05096",
+       1
+      ],
+      [
+       "05222",
+       2
+      ],
+      [
+       "05218",
+       1
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "FGG_GRP_NEO = [('05095', 3), ('05096', 1), ('05222', 2), ('05218', 1)]   # Membres"
+    },
+    "FGG_KEYS": {
+     "value": {
+      "x": 855,
+      "y": 526,
+      "w": 300,
+      "h": 96
+     },
+     "layout_pcio": true,
+     "source": "FGG_KEYS = dict(x=855, y=526, w=300, h=96)"
+    },
+    "FGG_LOC_MEM": {
+     "value": [
+      "05204",
+      "05206",
+      "05208"
+     ],
+     "layout_pcio": false,
+     "source": "FGG_LOC_MEM = ['05204', '05206', '05208']     # We've Been Expecting You (Membres)"
+    },
+    "FGG_LOC_NON": {
+     "value": [
+      "05205",
+      "05207",
+      "05209"
+     ],
+     "layout_pcio": false,
+     "source": "FGG_LOC_NON = ['05205', '05207', '05209']     # Members Only (Non-membres)"
+    },
+    "FGG_MENACE": {
+     "value": {
+      "x": 855,
+      "w": 380,
+      "h": 186
+     },
+     "layout_pcio": true,
+     "source": "FGG_MENACE = dict(x=855, w=380, h=CW + 60)"
+    },
+    "FGG_SCEN": {
+     "value": "05197",
+     "layout_pcio": false,
+     "source": "FGG_SCEN, FGG_AGENDAS = '05197', ['05198', '05199']"
+    },
+    "FGG_SLOTS": {
+     "value": [
+      [
+       "gates",
+       505,
+       "haut",
+       "LODGE GATES · DÉPART"
+      ],
+      [
+       "lobby",
+       400,
+       "mid",
+       "LOBBY"
+      ],
+      [
+       "cellar",
+       610,
+       "mid",
+       "LODGE CELLAR"
+      ],
+      [
+       "lounge",
+       400,
+       "bas",
+       "LOUNGE"
+      ],
+      [
+       "catacombs",
+       610,
+       "bas",
+       "LODGE CATACOMBS"
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "FGG_SLOTS = [('gates', FGG_GATES_X, 'haut', 'LODGE GATES · DÉPART'),\n             ('lobby', FGG_CL, 'mid', 'LOBBY'),\n             ('cellar', FGG_CR, 'mid', 'LODGE CELLAR'),\n             ('lounge', FGG_CL, 'bas', 'LOUNGE'),\n             ('catacombs', FGG_CR, 'bas', 'LODGE CATACOMBS')]"
+    },
+    "FGG_STORY": {
+     "value": [
+      "05217",
+      "05220",
+      "05227",
+      "05228"
+     ],
+     "layout_pcio": false,
+     "source": "FGG_STORY = ['05217', '05220', '05227', '05228']   # N. Wick, Beast, August, Puzzle Box"
+    },
+    "FGG_Y": {
+     "value": {
+      "haut": 46,
+      "mid": 286,
+      "bas": 526
+     },
+     "layout_pcio": true,
+     "source": "FGG_Y = dict(haut=46, mid=286, bas=526)"
+    }
+   },
+   "popups_boutons": [
+    "Setup BRANCHE MEMBRES DE LA LOGE (acte 1a « Warm Welcome ») ? À n'utiliser QUE si le journal dit que vous êtes membres.",
+    "Setup BRANCHE NON-MEMBRES (acte 1a « Infiltrating the Lodge ») ? À n'utiliser QUE si le journal ne fait PAS de vous des membres."
+   ],
+   "commentaires_build": [
+    "Nathan Wick : double face (guide) mais simple sur ArkhamDB — 05217b",
+    "existe sur le CDN, on patche (cf. Hérétiques WOS).",
+    "plateau des 4 clés (proxys dessinés, jamais dans le sac du chaos)",
+    "deux STARTs : branche du journal (guide p.28) — tout le reste identique",
+    "az : 05210 Lounge, 05213 Catac.",
+    "az = gates, lobby, cellar",
+    "doorways anonymes, face cachée",
+    "actes 2-3 puis le 1a choisi",
+    "=====================================================================",
+    "SCÉNARIO 4sexies : TCU VI — Union and Disillusion (2 joueurs, decks",
+    "joueurs dans une room séparée). Particularités : 2 Unvisited Isles",
+    "sur 6 AU HASARD (les 4 autres de côté face cachée, anonymes) ;",
+    "ACTE 3 en 4 versions + ACTE 4 en 2 → un START commun + 4 boutons",
+    "« Actes ▸ v.X » (v.I = Binding Rite, v.II-IV = Broken Rite + rappel",
+    "braseros allumés côté coven) ; stations DISPARUS (asset + Fate par",
+    "nom, tri MANUEL selon le journal, Fate sous le scénario) ; Anette",
+    "05057 + Josef 05085 (entrée synthétisée) de côté ; sets Coven /",
+    "Lodge / Watcher de côté = restent aux RANGEMENTS ; doom par",
+    "hérétique lâché = manuel (popup + tapis).",
+    "====================================================================="
+   ]
+  },
+  "tcu_union_and_disillusion": {
+   "campagne": "The Circle Undone",
+   "titre": "VI — Union and Disillusion",
+   "prefixe_constantes": "UAD",
+   "fichier_pcio": "anofelis-tcu-union-and-disillusion-2p.pcio",
+   "resume_setup": "TCU VI « Union and Disillusion » (2 j.). START commun + 4 boutons « Actes ▸ v.I-IV » (v.I = Binding Rite, v.II-IV = Broken Rite, popups avec conditions du journal et rappel braseros côté coven) ; 2 Unvisited Isles sur 6 au hasard ; stations DISPARUS (asset + Fate, tri manuel selon le journal, Fates sous le scénario) ; Anette + Josef (synthétisé) + Watcher's Gaze de côté ; sets Coven / Lodge / Watcher de côté aux rangements ; doom par hérétique lâché en manuel. Rencontre 35 cartes.",
+   "constantes": {
+    "UAD_ACT3": {
+     "value": [
+      "05243",
+      "05244",
+      "05245",
+      "05246"
+     ],
+     "layout_pcio": false,
+     "source": "UAD_ACT3 = ['05243', '05244', '05245', '05246']          # Beyond the Mist v.I-IV"
+    },
+    "UAD_ACT4_BIND": {
+     "value": "05247",
+     "layout_pcio": false,
+     "source": null
+    },
+    "UAD_ACT4_BROKE": {
+     "value": "05248",
+     "layout_pcio": false,
+     "source": null
+    },
+    "UAD_ACTS_COMMON": {
+     "value": [
+      "05241",
+      "05242"
+     ],
+     "layout_pcio": false,
+     "source": "UAD_ACTS_COMMON = ['05241', '05242']          # The Unvisited Isle, Fated Souls"
+    },
+    "UAD_AGENDAS": {
+     "value": [
+      "05239",
+      "05240"
+     ],
+     "layout_pcio": false,
+     "source": "UAD_SCEN, UAD_AGENDAS = '05238', ['05239', '05240']"
+    },
+    "UAD_ANETTE": {
+     "value": "05057",
+     "layout_pcio": false,
+     "source": "UAD_ANETTE, UAD_JOSEF, UAD_WGAZE = '05057', '05085', '05272'"
+    },
+    "UAD_BAS_X": {
+     "value": [
+      280,
+      470,
+      660,
+      850,
+      1040
+     ],
+     "layout_pcio": true,
+     "source": "UAD_BAS_X = [280, 470, 660, 850, 1040]        # [libre, ISLE, GEIST, ISLE, libre]"
+    },
+    "UAD_ENC": {
+     "value": [
+      [
+       "05266",
+       3
+      ],
+      [
+       "05267",
+       2
+      ],
+      [
+       "05268",
+       2
+      ],
+      [
+       "05269",
+       2
+      ],
+      [
+       "05270",
+       2
+      ],
+      [
+       "05271",
+       2
+      ],
+      [
+       "05107",
+       3
+      ],
+      [
+       "05108",
+       3
+      ],
+      [
+       "05105",
+       2
+      ],
+      [
+       "05106",
+       2
+      ],
+      [
+       "05100",
+       1
+      ],
+      [
+       "05101",
+       2
+      ],
+      [
+       "05102",
+       2
+      ],
+      [
+       "01166",
+       3
+      ],
+      [
+       "01167",
+       2
+      ],
+      [
+       "01168",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "UAD_ENC = [('05266', 3), ('05267', 2), ('05268', 2), ('05269', 2),   # UAD\n           ('05270', 2), ('05271', 2),\n           ('05107', 3), ('05108', 3),                   # Inexorable Fate\n           ('05105', 2), ('05106', 2),                   # Realm of Death\n           ('05100', 1), ('05101', 2), ('05102', 2),     # Spectral Predators\n           ('01166', 3),                                 # Ancient Evils\n           ('01167', 2), ('01168', 2)]                   # Chilling Cold   = 35"
+    },
+    "UAD_FIXES": {
+     "value": [
+      "05249",
+      "05250"
+     ],
+     "layout_pcio": false,
+     "source": "UAD_FIXES = ['05249', '05250']                # Miskatonic River, Forbidding Shore"
+    },
+    "UAD_GEIST": {
+     "value": "05257",
+     "layout_pcio": false,
+     "source": "UAD_GEIST = '05257'"
+    },
+    "UAD_ISLES": {
+     "value": [
+      "05251",
+      "05252",
+      "05253",
+      "05254",
+      "05255",
+      "05256"
+     ],
+     "layout_pcio": false,
+     "source": "UAD_ISLES = ['05251', '05252', '05253', '05254', '05255', '05256']   # 6, 2 en jeu"
+    },
+    "UAD_JOSEF": {
+     "value": "05085",
+     "layout_pcio": false,
+     "source": "UAD_ANETTE, UAD_JOSEF, UAD_WGAZE = '05057', '05085', '05272'"
+    },
+    "UAD_MENACE": {
+     "value": {
+      "x": 855,
+      "w": 380,
+      "h": 186
+     },
+     "layout_pcio": true,
+     "source": "UAD_MENACE = dict(x=855, w=380, h=CW + 60)"
+    },
+    "UAD_PAIRS": {
+     "value": [
+      [
+       "gavriella",
+       "GAVRIELLA",
+       "05258",
+       "05262"
+      ],
+      [
+       "jerome",
+       "JEROME",
+       "05259",
+       "05263"
+      ],
+      [
+       "valentino",
+       "VALENTINO",
+       "05261",
+       "05265"
+      ],
+      [
+       "penny",
+       "PENNY",
+       "05260",
+       "05264"
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "UAD_PAIRS = [('gavriella', 'GAVRIELLA', '05258', '05262'),\n             ('jerome', 'JEROME', '05259', '05263'),\n             ('valentino', 'VALENTINO', '05261', '05265'),\n             ('penny', 'PENNY', '05260', '05264')]"
+    },
+    "UAD_RIVER_X": {
+     "value": 660,
+     "layout_pcio": true,
+     "source": "UAD_RIVER_X, UAD_Y = 660, dict(haut=46, mid=286, bas=526)"
+    },
+    "UAD_SCEN": {
+     "value": "05238",
+     "layout_pcio": false,
+     "source": "UAD_SCEN, UAD_AGENDAS = '05238', ['05239', '05240']"
+    },
+    "UAD_SET_COVEN": {
+     "value": [
+      [
+       "05090",
+       3
+      ],
+      [
+       "05091",
+       1
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "UAD_SET_COVEN = [('05090', 3), ('05091', 1)]"
+    },
+    "UAD_SET_LODGE": {
+     "value": [
+      [
+       "05095",
+       3
+      ],
+      [
+       "05096",
+       1
+      ],
+      [
+       "05097",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "UAD_SET_LODGE = [('05095', 3), ('05096', 1), ('05097', 2)]"
+    },
+    "UAD_SET_WATCH": {
+     "value": [
+      [
+       "05086",
+       1
+      ],
+      [
+       "05087",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "UAD_SET_WATCH = [('05086', 1), ('05087', 2)]"
+    },
+    "UAD_STATIONS": {
+     "value": [
+      [
+       280,
+       46
+      ],
+      [
+       470,
+       46
+      ],
+      [
+       280,
+       286
+      ],
+      [
+       470,
+       286
+      ]
+     ],
+     "layout_pcio": true,
+     "source": "UAD_STATIONS = [(280, 46), (470, 46), (280, 286), (470, 286)]   # ordre UAD_PAIRS"
+    },
+    "UAD_WGAZE": {
+     "value": "05272",
+     "layout_pcio": false,
+     "source": "UAD_ANETTE, UAD_JOSEF, UAD_WGAZE = '05057', '05085', '05272'"
+    },
+    "UAD_Y": {
+     "value": {
+      "haut": 46,
+      "mid": 286,
+      "bas": 526
+     },
+     "layout_pcio": true,
+     "source": "UAD_RIVER_X, UAD_Y = 660, dict(haut=46, mid=286, bas=526)"
+    }
+   },
+   "popups_boutons": [
+    "Setup d'Union and Disillusion ? River + Shore + 2 Unvisited Isles AU HASARD en jeu face cachée (4 isles + Geist-Trap de côté) ; stations DISPARUS garnies (tri selon le journal : barré → rangement ; sinon asset reste, Fate SOUS le scénario) ; Anette, Josef (NE PAS regarder son dos) et Watcher's Gaze de côté ; sets Coven / Lodge / Watcher restent aux RANGEMENTS. PUIS presser LE bouton Actes de votre branche. À la main : révéler Miskatonic River + pions, +1 doom sur l'agenda 1a PAR hérétique lâché sur Arkham (journal), sac du chaos. Decks joueurs dans la room joueur.",
+    "Actes ▸ v.Iact3_1act4_bindBranche v.I + « The Binding Rite » — SEULEMENT si le journal dit que les investigateurs ont choisi le camp de la LOGE. Braseros éteints au départ."
+   ],
+   "commentaires_build": [
+    "Josef Meiger : pas d'entrée ArkhamDB propre (cf. ADD) — synthèse",
+    "START commun (guide p.34-35) — actes 3-4 via les 4 boutons de branche",
+    "az : 05249 River, 05250 Shore",
+    "2 isles sur 6 au hasard",
+    "4 stations : asset dessus, Fate dessous",
+    "4 branches d'actes (guide p.35) : v.I = Binding, v.II-IV = Broken",
+    "=====================================================================",
+    "SCÉNARIO 5 : THE DROWNED CITY — Prologue « One Last Job » (2 joueurs,",
+    "decks joueurs dans une room séparée : 6 lieux d'Arkham en 3x2, un",
+    "Downtown et un acte 1a tirés AU HASARD, gangs de côté, zones de menace)",
+    "====================================================================="
+   ]
+  },
+  "tdc_prologue": {
+   "campagne": "The Drowned City",
+   "titre": "Prologue — One Last Job",
+   "prefixe_constantes": "OLJ",
+   "fichier_pcio": "anofelis-tdc-prologue-one-last-job-2p.pcio",
+   "resume_setup": "The Drowned City, Prologue « One Last Job » (2 joueurs). 6 lieux d'Arkham en 3x2 (diagramme p.5), Tillinghast Esoterica révélée au START ; le Downtown conservé et la copie de l'acte 1a utilisée sont tirés AU HASARD (SHUFFLE du rangement) — les cartes non retenues restent au rangement, retirées de la partie. Sadie Sheldon, Naomi O'Bannion, 2 Gang Enforcer et les actes 2 & 3 de côté ; rencontre de 31 cartes.",
+   "constantes": {
+    "OLJ_ACT1": {
+     "value": [
+      "11504",
+      "11505"
+     ],
+     "layout_pcio": false,
+     "source": "OLJ_ACT1 = ['11504', '11505']                         # 2 copies de l'acte 1a : 1 AU HASARD"
+    },
+    "OLJ_ACTS_ASIDE": {
+     "value": [
+      "11506",
+      "11507",
+      "11508"
+     ],
+     "layout_pcio": false,
+     "source": "OLJ_ACTS_ASIDE = ['11506', '11507', '11508']          # actes 2 (x2) et 3, de côté"
+    },
+    "OLJ_AGENDAS": {
+     "value": [
+      "11502",
+      "11503"
+     ],
+     "layout_pcio": false,
+     "source": "OLJ_AGENDAS = ['11502', '11503']                      # 1 Arkham Nightlife, 2 Long Night"
+    },
+    "OLJ_ASIDE_ENEMIES": {
+     "value": [
+      [
+       "11510",
+       1
+      ],
+      [
+       "11511",
+       1
+      ],
+      [
+       "11513",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "OLJ_ASIDE_ENEMIES = [('11510', 1), ('11511', 1), ('11513', 2)]   # Sadie, Naomi, 2 Gang Enforcer"
+    },
+    "OLJ_CITY": {
+     "value": [
+      "01134",
+      "01132",
+      "01129",
+      "01125"
+     ],
+     "layout_pcio": false,
+     "source": "OLJ_CITY = ['01134', '01132', '01129', '01125']       # Northside, Easttown, Miskatonic, Rivertown"
+    },
+    "OLJ_DOWNTOWN": {
+     "value": [
+      "01130",
+      "01131"
+     ],
+     "layout_pcio": false,
+     "source": "OLJ_DOWNTOWN = ['01130', '01131']                     # First Bank of Arkham / Arkham Asylum"
+    },
+    "OLJ_ENC": {
+     "value": [
+      [
+       "11512",
+       3
+      ],
+      [
+       "11514",
+       2
+      ],
+      [
+       "11515",
+       2
+      ],
+      [
+       "11516",
+       2
+      ],
+      [
+       "11749",
+       3
+      ],
+      [
+       "11750",
+       3
+      ],
+      [
+       "01167",
+       2
+      ],
+      [
+       "01168",
+       2
+      ],
+      [
+       "01174",
+       2
+      ],
+      [
+       "01159",
+       3
+      ],
+      [
+       "01163",
+       3
+      ],
+      [
+       "01164",
+       2
+      ],
+      [
+       "01165",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "OLJ_ENC = [('11512', 3), ('11514', 2),                # One Last Job : Soldiers, Informants\n           ('11515', 2), ('11516', 2),                # Crossfire, End of Negotiations\n           ('11749', 3), ('11750', 3),                # Dreams\n           ('01167', 2), ('01168', 2),                # Chilling Cold\n           ('01174', 2),                              # Locked Doors\n           ('01159', 3),                              # Rats\n           ('01163', 3), ('01164', 2), ('01165', 2)]  # Striking Fear"
+    },
+    "OLJ_MENACE": {
+     "value": {
+      "x": 808,
+      "w": 380,
+      "h": 186
+     },
+     "layout_pcio": true,
+     "source": "OLJ_MENACE = dict(x=808, w=380, h=CW + 60)"
+    },
+    "OLJ_SCEN": {
+     "value": "11501",
+     "layout_pcio": false,
+     "source": "OLJ_SCEN = '11501'"
+    },
+    "OLJ_SLOTS": {
+     "value": [
+      [
+       "north",
+       0,
+       0,
+       "NORTHSIDE"
+      ],
+      [
+       "down",
+       1,
+       0,
+       "DOWNTOWN"
+      ],
+      [
+       "east",
+       2,
+       0,
+       "EASTTOWN"
+      ],
+      [
+       "till",
+       0,
+       1,
+       "TILLINGHAST · DÉPART"
+      ],
+      [
+       "misk",
+       1,
+       1,
+       "MISKATONIC UNIV."
+      ],
+      [
+       "river",
+       2,
+       1,
+       "RIVERTOWN"
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "OLJ_SLOTS = [('north', 0, 0, 'NORTHSIDE'), ('down', 1, 0, 'DOWNTOWN'),\n             ('east', 2, 0, 'EASTTOWN'), ('till', 0, 1, 'TILLINGHAST · DÉPART'),\n             ('misk', 1, 1, 'MISKATONIC UNIV.'), ('river', 2, 1, 'RIVERTOWN')]"
+    },
+    "OLJ_TILL": {
+     "value": "11509",
+     "layout_pcio": false,
+     "source": "OLJ_TILL = '11509'                                    # Tillinghast Esoterica (départ)"
+    },
+    "OLJ_X": {
+     "value": [
+      300,
+      480,
+      660
+     ],
+     "layout_pcio": true,
+     "source": "OLJ_X = [300, 480, 660]"
+    },
+    "OLJ_Y": {
+     "value": [
+      96,
+      416
+     ],
+     "layout_pcio": true,
+     "source": "OLJ_Y = [96, 416]\n# ordre du diagramme p.5 : Northside / Downtown / Easttown — Tillinghast / Miskatonic / Rivertown"
+    }
+   },
+   "popups_boutons": [
+    "Setup de « One Last Job » (Prologue The Drowned City) ? Le bouton tire au hasard le Downtown conservé et la copie de l'acte 1a — les cartes non retenues restent au rangement, RETIRÉES de la partie (ne pas les regarder). Ensuite à la main : indices sur chaque lieu selon sa valeur, pions des deux investigateurs sur Tillinghast Esoterica (déjà révélée), sac du chaos selon la difficulté. Decks joueurs dans la room joueur."
+   ],
+   "commentaires_build": [
+    "ordre du deck = ordre de tri (SORT az) = ordre de distribution",
+    "START : setup du Prologue « One Last Job » (guide p.4, diagramme p.5)",
+    "1 des 2 Downtown AU HASARD",
+    "lieu de départ",
+    "1 des 2 actes 1a AU HASARD",
+    "=====================================================================",
+    "SCÉNARIO 6 : THE DREAM-EATERS — Campagne A, Scénario 1-A « Beyond the",
+    "Gates of Sleep » (2 joueurs, decks joueurs dans une room séparée).",
+    "Pas de diagramme de placement dans le guide : la descente est",
+    "linéaire (Seventy Steps → Cavern of Flame → Seven Hundred Steps → Base",
+    "of the Steps → The Enchanted Path) puis 6 Enchanted Woods AU HASARD",
+    "parmi 7. PAS de pioche rencontre au départ (« Steps of Slumber ») :",
+    "les 27 cartes attendent dans une pile de côté, mélangées plus tard par",
+    "le bouton « Acte 3b ». Nasht / Kaman-Thah : dos = carte histoire (CDN",
+    "06057b / 06058b, sondés) — clic natif pour retourner quand l'ennemi",
+    "====================================================================="
+   ]
+  },
+  "tde_gates_of_sleep": {
+   "campagne": "The Dream-Eaters (campagne A)",
+   "titre": "1-A — Beyond the Gates of Sleep",
+   "prefixe_constantes": "BGS",
+   "fichier_pcio": "anofelis-tde-1a-beyond-the-gates-of-sleep-2p.pcio",
+   "resume_setup": "The Dream-Eaters, Campagne A, 1-A « Beyond the Gates of Sleep » (2 joueurs). Descente linéaire (5 lieux Steps), 6 Enchanted Woods AU HASARD parmi 7 via le bouton « Acte 3b », pas de pioche rencontre au départ (pile de côté), Nasht / Kaman-Thah avec leur dos histoire ; Gug et Randolph Carter de côté.",
+   "constantes": {
+    "BGS_ACTS": {
+     "value": [
+      "06041",
+      "06042",
+      "06043",
+      "06044"
+     ],
+     "layout_pcio": false,
+     "source": "BGS_ACTS = ['06041', '06042', '06043', '06044']          # 1 Entering … 4 The Path"
+    },
+    "BGS_AGENDA": {
+     "value": "06040",
+     "layout_pcio": false,
+     "source": "BGS_SCEN, BGS_AGENDA = '06039', '06040'"
+    },
+    "BGS_CAVERN": {
+     "value": "06046",
+     "layout_pcio": false,
+     "source": "BGS_SEVENTY, BGS_CAVERN = '06045', '06046'               # en jeu au départ"
+    },
+    "BGS_ENC": {
+     "value": [
+      [
+       "06061",
+       1
+      ],
+      [
+       "06062",
+       2
+      ],
+      [
+       "06086",
+       1
+      ],
+      [
+       "06087",
+       1
+      ],
+      [
+       "06088",
+       1
+      ],
+      [
+       "06089",
+       1
+      ],
+      [
+       "06106",
+       2
+      ],
+      [
+       "06107",
+       2
+      ],
+      [
+       "06108",
+       1
+      ],
+      [
+       "06109",
+       1
+      ],
+      [
+       "06093",
+       2
+      ],
+      [
+       "06094",
+       2
+      ],
+      [
+       "06095",
+       2
+      ],
+      [
+       "06096",
+       2
+      ],
+      [
+       "06097",
+       2
+      ],
+      [
+       "01167",
+       2
+      ],
+      [
+       "01168",
+       2
+      ]
+     ],
+     "layout_pcio": false,
+     "source": "BGS_ENC = [('06061', 1), ('06062', 2),                   # Ancient Zoog, Lost in the Woods\n           ('06086', 1), ('06087', 1), ('06088', 1), ('06089', 1),   # Agents of Nyarlathotep\n           ('06106', 2), ('06107', 2), ('06108', 1), ('06109', 1),   # Zoogs\n           ('06093', 2), ('06094', 2), ('06095', 2),     # Dreamer's Curse\n           ('06096', 2), ('06097', 2),                   # Dreamlands\n           ('01167', 2), ('01168', 2)]                   # Chilling Cold (core)"
+    },
+    "BGS_GUG": {
+     "value": "06060",
+     "layout_pcio": false,
+     "source": "BGS_GUG, BGS_RANDOLPH = '06060', '06059'"
+    },
+    "BGS_MENACE": {
+     "value": {
+      "w": 380,
+      "h": 186
+     },
+     "layout_pcio": true,
+     "source": "BGS_MENACE = dict(w=380, h=CW + 60)"
+    },
+    "BGS_PRIESTS": {
+     "value": [
+      "06057",
+      "06058"
+     ],
+     "layout_pcio": false,
+     "source": "BGS_PRIESTS = ['06057', '06058']                         # Kaman-Thah, Nasht (double-face)"
+    },
+    "BGS_RANDOLPH": {
+     "value": "06059",
+     "layout_pcio": false,
+     "source": "BGS_GUG, BGS_RANDOLPH = '06060', '06059'"
+    },
+    "BGS_SCEN": {
+     "value": "06039",
+     "layout_pcio": false,
+     "source": "BGS_SCEN, BGS_AGENDA = '06039', '06040'"
+    },
+    "BGS_SEVENTY": {
+     "value": "06045",
+     "layout_pcio": false,
+     "source": "BGS_SEVENTY, BGS_CAVERN = '06045', '06046'               # en jeu au départ"
+    },
+    "BGS_STEPS_ASIDE": {
+     "value": [
+      "06047",
+      "06048",
+      "06049"
+     ],
+     "layout_pcio": false,
+     "source": "BGS_STEPS_ASIDE = ['06047', '06048', '06049']            # 700 Steps, Base, Enchanted Path"
+    },
+    "BGS_STEP_LABELS": {
+     "value": [
+      "70 STEPS · DÉPART",
+      "CAVERN OF FLAME",
+      "700 STEPS",
+      "BASE OF THE STEPS",
+      "ENCHANTED PATH"
+     ],
+     "layout_pcio": true,
+     "source": "BGS_STEP_LABELS = ['70 STEPS · DÉPART', 'CAVERN OF FLAME', '700 STEPS',\n                   'BASE OF THE STEPS', 'ENCHANTED PATH']"
+    },
+    "BGS_STEP_X": {
+     "value": [
+      280,
+      438,
+      596,
+      754,
+      912
+     ],
+     "layout_pcio": true,
+     "source": "BGS_STEP_X = [280, 438, 596, 754, 912]"
+    },
+    "BGS_WOODS": {
+     "value": [
+      "06050",
+      "06051",
+      "06052",
+      "06053",
+      "06054",
+      "06055",
+      "06056"
+     ],
+     "layout_pcio": false,
+     "source": "BGS_WOODS = ['06050', '06051', '06052', '06053', '06054', '06055', '06056']   # 7, 6 en jeu"
+    },
+    "BGS_WOOD_X": {
+     "value": [
+      280,
+      438,
+      596,
+      754,
+      912,
+      1070
+     ],
+     "layout_pcio": true,
+     "source": "BGS_WOOD_X = [280, 438, 596, 754, 912, 1070]"
+    },
+    "BGS_Y": {
+     "value": {
+      "steps": 46,
+      "woods": 300,
+      "menace": 554,
+      "notes": 764
+     },
+     "layout_pcio": true,
+     "source": "BGS_Y = dict(steps=46, woods=300, menace=554, notes=764)"
+    }
+   },
+   "popups_boutons": [
+    "Setup de « Beyond the Gates of Sleep » (1-A) ? Seventy Steps révélée + Cavern of Flame en jeu ; de côté : 3 lieux Steps, Nasht & Kaman-Thah (NE PAS regarder leur dos), Laboring Gug, Randolph Carter ; les 7 Enchanted Woods restent au rangement. AUCUNE pioche rencontre : les 27 cartes vont dans la PILE DE CÔTÉ. Ensuite à la main : chaque investigateur choisit et lit un rêve (guide p.5-6 ; bonus dans la room joueur), indices (valeur × joueurs), pions sur Seventy Steps, sac du chaos selon la difficulté.",
+    "Dos de l'acte 2 : placer les 3 lieux Steps de côté (Seven Hundred Steps, Base of the Steps, The Enchanted Path) face cachée sur leurs emplacements ? Le reste du texte de l'acte reste à la main.",
+    "Dos de l'acte 3 : retirer de la partie les 4 lieux Steps (retour au rangement), tirer AU HASARD 6 Enchanted Woods parmi 7 (face cachée ; le 7e reste au rangement, retiré) et mélanger la PILE DE CÔTÉ pour former la pioche rencontre ? Le reste du texte de l'acte reste à la main."
+   ],
+   "commentaires_build": [
+    "1 deck par rôle ; ordre des cardTypes = ordre de distribution",
+    "START : setup du scénario 1-A (guide A p.6)",
+    "reste : 700 Steps, Base, Path",
+    "aides de jeu : la partie « lieux / pioche » du dos des actes 2 et 3",
+    "------------------------------------------------------------------- main"
+   ]
+  }
+ }
+}
