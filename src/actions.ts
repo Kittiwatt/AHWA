@@ -37,6 +37,10 @@ function retirerDesPiles(state: RoomState, id: string) {
   }
 }
 
+function nomPile(def: ScenarioDef, pile: string): string {
+  return def.piles?.find((p) => p.id === pile)?.label ?? pile;
+}
+
 function nomCarte(def: ScenarioDef, c: CardState): string {
   return def.cards.find((d) => d.code === c.code)?.name ?? c.code;
 }
@@ -296,24 +300,27 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const pile = String(msg.pile);
       if (!(pile in state.piles)) refuser("pile inconnue");
       shuffle(state.piles[pile], rng);
-      if (pile === "encounter") for (const id of state.piles.encounter) state.cards[id].faceUp = false;
-      addLog(state, "action", pile === "encounter" ? "Pioche de rencontre mélangée." : `Pile ${pile} mélangée.`);
+      if (pile !== "encounterDiscard") for (const id of state.piles[pile]) state.cards[id].faceUp = false;
+      addLog(state, "action", pile === "encounter" ? "Pioche de rencontre mélangée." : `${nomPile(def, pile)} : mélangée.`);
       return {};
     }
     case "drawEncounter": {
-      // Piocher = retourner la première carte de la pioche, qui reste dessus ; le joueur la déplace
-      // ensuite à la main (glisser). Tant qu'une carte révélée est dessus, la pioche attend.
+      // Piocher = retourner la première carte de la pile (pioche de rencontre par défaut, ou une pile
+      // déclarée par le scénario), qui reste dessus ; le joueur la déplace ensuite à la main (glisser).
+      // Tant qu'une carte révélée est dessus, la pile attend.
       const s = msg.seat === undefined ? monSiege() : siege(state, msg.seat);
-      const dessus = state.piles.encounter.length ? state.cards[state.piles.encounter[0]] : null;
-      if (dessus?.faceUp) refuser(`${nomCarte(def, dessus)} est déjà révélé sur la pioche : glissez-le où il faut avant de piocher`);
-      if (!state.piles.encounter.length) {
-        if (!state.piles.encounterDiscard.length) refuser("pioche et défausse vides");
+      const pile = String(msg.pile ?? "encounter");
+      if (!(pile in state.piles) || ["encounterDiscard", "removed", "agendaDeck", "actDeck"].includes(pile)) refuser("pile inconnue");
+      const dessus = state.piles[pile].length ? state.cards[state.piles[pile][0]] : null;
+      if (dessus?.faceUp) refuser(`${nomCarte(def, dessus)} est déjà révélé : glissez-le où il faut avant de piocher`);
+      if (!state.piles[pile].length) {
+        if (pile !== "encounter" || !state.piles.encounterDiscard.length) refuser(pile === "encounter" ? "pioche et défausse vides" : "cette pile est vide");
         remelangerDefausse(state, rng);
         addLog(state, "action", "Pioche de rencontre vide : la défausse est remélangée.");
       }
-      const c = state.cards[state.piles.encounter[0]];
+      const c = state.cards[state.piles[pile][0]];
       c.faceUp = true;
-      addLog(state, "action", `${nomSiege(state, s, def)} pioche ${nomCarte(def, c)}.`, s);
+      addLog(state, "action", `${nomSiege(state, s, def)} pioche ${nomCarte(def, c)}${pile === "encounter" ? "" : ` (${nomPile(def, pile)})`}.`, s);
       return {};
     }
     case "reshuffleDiscard": {

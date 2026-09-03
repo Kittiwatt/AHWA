@@ -1,0 +1,77 @@
+{
+  "_source": "Guide de campagne Night of the Zealot (FFG, 2017) : Part II, section « Setup » p. 4-5 et diagramme « Suggested Location Placement » p. 5 ; sac du chaos p. 1. Aucun texte de carte ; les rappels paraphrasent le guide. Les questions reprennent uniquement les points du journal que la mise en place vérifie.",
+  "id": "notz_the_midnight_masks",
+  "title": "The Midnight Masks",
+  "campaign": "Night of the Zealot",
+  "campaignId": "notz",
+  "order": 2,
+  "pack": "core",
+  "encounterSets": ["arkham", "chilling_cold", "nightgaunts", "pentagram", "locked_doors", "cultists"],
+  "extraCards": ["01116"],
+  "scenarioCard": "01120",
+  "agendaDeck": ["01121a", "01122"],
+  "actDeck": ["01123"],
+  "piles": [{ "id": "cultist", "label": "Cultist deck" }],
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-5", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "-8", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"]
+  },
+  "layout": [
+    { "code": "01134", "x": 551, "y": 173 }, { "code": "01130", "x": 737, "y": 173 }, { "code": "01132", "x": 923, "y": 173 },
+    { "code": "01129", "x": 551, "y": 411 }, { "code": "01125", "x": 737, "y": 411 }, { "code": "01133", "x": 923, "y": 411 },
+    { "code": "01128", "x": 551, "y": 649 }, { "code": "01126", "x": 737, "y": 649 }, { "code": "01124", "x": 923, "y": 649 }
+  ],
+  "questions": [
+    { "id": "house", "text": "Journal de campagne — votre maison :", "options": [
+      { "id": "standing", "label": "est encore debout" },
+      { "id": "burned", "label": "a brûlé jusqu'aux fondations" } ] },
+    { "id": "ghoul_priest", "text": "Journal de campagne — le Ghoul Priest :", "options": [
+      { "id": "alive", "label": "est encore en vie" },
+      { "id": "gone", "label": "n'est pas noté comme en vie" } ] }
+  ],
+  "setup": [
+    { "op": "pickRandom", "from": ["01130", "01131"], "n": 1, "slot": "downtown", "zone": "board", "x": 737, "y": 173,
+      "log": "Downtown : une des deux versions est tirée au hasard et mise en jeu, l'autre est retirée de la partie." },
+    { "op": "pickRandom", "from": ["01126", "01127"], "n": 1, "slot": "southside", "zone": "board", "x": 737, "y": 649,
+      "log": "Southside : une des deux versions est tirée au hasard et mise en jeu, l'autre est retirée de la partie." },
+    { "op": "place", "code": "01134", "zone": "board", "x": 551, "y": 173 },
+    { "op": "place", "code": "01132", "zone": "board", "x": 923, "y": 173 },
+    { "op": "place", "code": "01129", "zone": "board", "x": 551, "y": 411 },
+    { "op": "place", "code": "01125", "zone": "board", "x": 737, "y": 411 },
+    { "op": "place", "code": "01133", "zone": "board", "x": 923, "y": 411 },
+    { "op": "place", "code": "01128", "zone": "board", "x": 551, "y": 649 },
+    { "op": "branch", "on": "house", "cases": {
+      "standing": [
+        { "op": "place", "code": "01124", "zone": "board", "x": 923, "y": 649, "log": "Your House est encore debout : mise en jeu. Chaque enquêteur y commence la partie." },
+        { "op": "setStart", "code": "01124" } ],
+      "burned": [
+        { "op": "remove", "codes": ["01124"], "log": "Your House a brûlé : retirée de la partie. Chaque enquêteur commence à Rivertown." },
+        { "op": "setStart", "code": "01125" } ] } },
+    { "op": "branch", "on": "players", "cases": {
+      "1": [ { "op": "log", "text": "1 enquêteur : aucun Acolyte n'est placé au départ." } ],
+      "2": [ { "op": "spawn", "code": "01169", "at": "slot:southside" } ],
+      "3": [ { "op": "spawn", "code": "01169", "at": "slot:southside" }, { "op": "spawn", "code": "01169", "at": "slot:downtown" } ],
+      "4": [ { "op": "spawn", "code": "01169", "at": "slot:southside" }, { "op": "spawn", "code": "01169", "at": "slot:downtown" }, { "op": "spawn", "code": "01169", "at": "01133" } ] },
+      "log": "Acolytes de départ selon le nombre d'enquêteurs." },
+    { "op": "minis", "code": "slot:start" },
+    { "op": "toPile", "set": "cultists", "pile": "cultist", "shuffle": true,
+      "log": "Le Cultist deck (set Cult of Umôrdhoth) est mis de côté en pile séparée, mélangé, face cachée." },
+    { "op": "branch", "on": "ghoul_priest", "cases": {
+      "alive": [ { "op": "log", "text": "Le Ghoul Priest est encore en vie : il est mélangé dans la pioche de rencontre." } ],
+      "gone": [ { "op": "remove", "codes": ["01116"], "log": "Le Ghoul Priest ne rejoint pas la pioche : retiré de la partie." } ] } },
+    { "op": "story" },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée." },
+    { "when": "setup", "text": "Note du guide : le doom placé sur les ennemis compte pour l'avancement de l'agenda. Le Cultist deck est la pile à côté de la pioche ; on n'y pioche que lorsqu'une carte le demande." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda (pensez au doom posé sur les ennemis). Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

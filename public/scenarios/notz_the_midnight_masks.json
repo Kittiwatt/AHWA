@@ -1,0 +1,773 @@
+{
+ "id": "notz_the_midnight_masks",
+ "title": "The Midnight Masks",
+ "campaign": "Night of the Zealot",
+ "campaignId": "notz",
+ "order": 2,
+ "pack": "core",
+ "encounterSets": [
+  "arkham",
+  "chilling_cold",
+  "nightgaunts",
+  "pentagram",
+  "locked_doors",
+  "cultists"
+ ],
+ "extraCards": [
+  "01116"
+ ],
+ "scenarioCard": "01120",
+ "agendaDeck": [
+  "01121a",
+  "01122"
+ ],
+ "actDeck": [
+  "01123"
+ ],
+ "piles": [
+  {
+   "id": "cultist",
+   "label": "Cultist deck"
+  }
+ ],
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "layout": [
+  {
+   "code": "01134",
+   "x": 551,
+   "y": 173
+  },
+  {
+   "code": "01130",
+   "x": 737,
+   "y": 173
+  },
+  {
+   "code": "01132",
+   "x": 923,
+   "y": 173
+  },
+  {
+   "code": "01129",
+   "x": 551,
+   "y": 411
+  },
+  {
+   "code": "01125",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "code": "01133",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "code": "01128",
+   "x": 551,
+   "y": 649
+  },
+  {
+   "code": "01126",
+   "x": 737,
+   "y": 649
+  },
+  {
+   "code": "01124",
+   "x": 923,
+   "y": 649
+  }
+ ],
+ "questions": [
+  {
+   "id": "house",
+   "text": "Journal de campagne — votre maison :",
+   "options": [
+    {
+     "id": "standing",
+     "label": "est encore debout"
+    },
+    {
+     "id": "burned",
+     "label": "a brûlé jusqu'aux fondations"
+    }
+   ]
+  },
+  {
+   "id": "ghoul_priest",
+   "text": "Journal de campagne — le Ghoul Priest :",
+   "options": [
+    {
+     "id": "alive",
+     "label": "est encore en vie"
+    },
+    {
+     "id": "gone",
+     "label": "n'est pas noté comme en vie"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "pickRandom",
+   "from": [
+    "01130",
+    "01131"
+   ],
+   "n": 1,
+   "slot": "downtown",
+   "zone": "board",
+   "x": 737,
+   "y": 173,
+   "log": "Downtown : une des deux versions est tirée au hasard et mise en jeu, l'autre est retirée de la partie."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "01126",
+    "01127"
+   ],
+   "n": 1,
+   "slot": "southside",
+   "zone": "board",
+   "x": 737,
+   "y": 649,
+   "log": "Southside : une des deux versions est tirée au hasard et mise en jeu, l'autre est retirée de la partie."
+  },
+  {
+   "op": "place",
+   "code": "01134",
+   "zone": "board",
+   "x": 551,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "01132",
+   "zone": "board",
+   "x": 923,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "01129",
+   "zone": "board",
+   "x": 551,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "01125",
+   "zone": "board",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "01133",
+   "zone": "board",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "01128",
+   "zone": "board",
+   "x": 551,
+   "y": 649
+  },
+  {
+   "op": "branch",
+   "on": "house",
+   "cases": {
+    "standing": [
+     {
+      "op": "place",
+      "code": "01124",
+      "zone": "board",
+      "x": 923,
+      "y": 649,
+      "log": "Your House est encore debout : mise en jeu. Chaque enquêteur y commence la partie."
+     },
+     {
+      "op": "setStart",
+      "code": "01124"
+     }
+    ],
+    "burned": [
+     {
+      "op": "remove",
+      "codes": [
+       "01124"
+      ],
+      "log": "Your House a brûlé : retirée de la partie. Chaque enquêteur commence à Rivertown."
+     },
+     {
+      "op": "setStart",
+      "code": "01125"
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "players",
+   "cases": {
+    "1": [
+     {
+      "op": "log",
+      "text": "1 enquêteur : aucun Acolyte n'est placé au départ."
+     }
+    ],
+    "2": [
+     {
+      "op": "spawn",
+      "code": "01169",
+      "at": "slot:southside"
+     }
+    ],
+    "3": [
+     {
+      "op": "spawn",
+      "code": "01169",
+      "at": "slot:southside"
+     },
+     {
+      "op": "spawn",
+      "code": "01169",
+      "at": "slot:downtown"
+     }
+    ],
+    "4": [
+     {
+      "op": "spawn",
+      "code": "01169",
+      "at": "slot:southside"
+     },
+     {
+      "op": "spawn",
+      "code": "01169",
+      "at": "slot:downtown"
+     },
+     {
+      "op": "spawn",
+      "code": "01169",
+      "at": "01133"
+     }
+    ]
+   },
+   "log": "Acolytes de départ selon le nombre d'enquêteurs."
+  },
+  {
+   "op": "minis",
+   "code": "slot:start"
+  },
+  {
+   "op": "toPile",
+   "set": "cultists",
+   "pile": "cultist",
+   "shuffle": true,
+   "log": "Le Cultist deck (set Cult of Umôrdhoth) est mis de côté en pile séparée, mélangé, face cachée."
+  },
+  {
+   "op": "branch",
+   "on": "ghoul_priest",
+   "cases": {
+    "alive": [
+     {
+      "op": "log",
+      "text": "Le Ghoul Priest est encore en vie : il est mélangé dans la pioche de rencontre."
+     }
+    ],
+    "gone": [
+     {
+      "op": "remove",
+      "codes": [
+       "01116"
+      ],
+      "log": "Le Ghoul Priest ne rejoint pas la pioche : retiré de la partie."
+     }
+    ]
+   }
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée."
+  },
+  {
+   "when": "setup",
+   "text": "Note du guide : le doom placé sur les ennemis compte pour l'avancement de l'agenda. Le Cultist deck est la pile à côté de la pioche ; on n'y pioche que lorsqu'une carte le demande."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda (pensez au doom posé sur les ennemis). Chaque enquêteur pioche ensuite une carte rencontre et la résout."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-03",
+ "encounterSetNames": {
+  "arkham": "The Midnight Masks",
+  "cultists": "Cult of Umôrdhoth",
+  "chilling_cold": "Chilling Cold",
+  "pentagram": "Dark Cult",
+  "nightgaunts": "Nightgaunts",
+  "locked_doors": "Locked Doors"
+ },
+ "cards": [
+  {
+   "code": "01116",
+   "name": "Ghoul Priest",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "torch",
+   "back": "encounter",
+   "storyBack": false,
+   "health": 5,
+   "healthPerInvestigator": true,
+   "victory": 2
+  },
+  {
+   "code": "01120",
+   "name": "The Midnight Masks",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "01121a",
+   "name": "Predator or Prey?",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "backCode": "01121b",
+   "backKind": "enemy",
+   "backName": "The Masked Hunter",
+   "backHealth": 4,
+   "backVictory": 2,
+   "doom": 6,
+   "stage": 1
+  },
+  {
+   "code": "01122",
+   "name": "Time Is Running Short",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "doom": 8,
+   "stage": 2
+  },
+  {
+   "code": "01123",
+   "name": "Uncovering the Conspiracy",
+   "kind": "act",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "stage": 1
+  },
+  {
+   "code": "01124",
+   "name": "Your House",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "01125",
+   "name": "Rivertown",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "01126",
+   "name": "Southside",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "01127",
+   "name": "Southside",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "01128",
+   "name": "St. Mary's Hospital",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "01129",
+   "name": "Miskatonic University",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "victory": 1
+  },
+  {
+   "code": "01130",
+   "name": "Downtown",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "01131",
+   "name": "Downtown",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "victory": 1
+  },
+  {
+   "code": "01132",
+   "name": "Easttown",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "01133",
+   "name": "Graveyard",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "victory": 1
+  },
+  {
+   "code": "01134",
+   "name": "Northside",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "victory": 1
+  },
+  {
+   "code": "01135",
+   "name": "Hunting Shadow",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "arkham",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01136",
+   "name": "False Lead",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "arkham",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01137",
+   "name": "\"Wolf-Man\" Drew",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "cultists",
+   "back": "encounter",
+   "storyBack": false,
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "01138",
+   "name": "Herman Collins",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "cultists",
+   "back": "encounter",
+   "storyBack": false,
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "01139",
+   "name": "Peter Warren",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "cultists",
+   "back": "encounter",
+   "storyBack": false,
+   "health": 3,
+   "victory": 1
+  },
+  {
+   "code": "01140",
+   "name": "Victoria Devereux",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "cultists",
+   "back": "encounter",
+   "storyBack": false,
+   "health": 3,
+   "victory": 1
+  },
+  {
+   "code": "01141",
+   "name": "Ruth Turner",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "cultists",
+   "back": "encounter",
+   "storyBack": false,
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "01167",
+   "name": "Crypt Chill",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "chilling_cold",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01168",
+   "name": "Obscuring Fog",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "chilling_cold",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01169",
+   "name": "Acolyte",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "pentagram",
+   "back": "encounter",
+   "storyBack": false,
+   "health": 1
+  },
+  {
+   "code": "01170",
+   "name": "Wizard of the Order",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "pentagram",
+   "back": "encounter",
+   "storyBack": false,
+   "health": 2
+  },
+  {
+   "code": "01171",
+   "name": "Mysterious Chanting",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "pentagram",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01172",
+   "name": "Hunting Nightgaunt",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "nightgaunts",
+   "back": "encounter",
+   "storyBack": false,
+   "health": 4
+  },
+  {
+   "code": "01173",
+   "name": "On Wings of Darkness",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "nightgaunts",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01174",
+   "name": "Locked Door",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "locked_doors",
+   "back": "encounter",
+   "storyBack": false
+  }
+ ]
+}

@@ -12,7 +12,7 @@
       "kind": "campaign",
       "scenarios": [
         { "id": "notz_the_gathering", "num": "I", "title": "The Gathering", "status": "available", "note": "tapis en cours de validation (étape 1)" },
-        { "id": "notz_the_midnight_masks", "num": "II", "title": "The Midnight Masks", "status": "planned" },
+        { "id": "notz_the_midnight_masks", "num": "II", "title": "The Midnight Masks", "status": "available" },
         { "id": "notz_the_devourer_below", "num": "III", "title": "The Devourer Below", "status": "planned" }
       ]
     },

@@ -59,6 +59,16 @@ function carte(c, src) {
     // clues_fixed absent/false = valeur « par enquêteur » ; true = valeur fixe.
     out.clue = { value: c.clues ?? 0, perInvestigator: !c.clues_fixed };
   }
+  // Carte liée (ex. agenda dont le verso est un ennemi) : le verso est une autre carte ArkhamDB.
+  if (c.linked_card) {
+    out.back = "b";
+    out.backCode = c.linked_card.code;
+    out.backKind = KIND[c.linked_card.type_code] ?? "story";
+    out.backName = c.linked_card.name;
+    if (c.linked_card.health !== undefined && c.linked_card.health !== null) out.backHealth = c.linked_card.health;
+    if (c.linked_card.health_per_investigator) out.backHealthPerInvestigator = true;
+    if (c.linked_card.victory) out.backVictory = c.linked_card.victory;
+  }
   if (kind === "enemy" || kind === "asset") {
     if (c.health !== undefined && c.health !== null) out.health = c.health;
     if (c.sanity !== undefined && c.sanity !== null) out.sanity = c.sanity;
@@ -74,20 +84,20 @@ async function buildScenario(fichierSrc) {
   const src = JSON.parse(await readFile(fichierSrc, "utf8"));
   const cartesPack = await json(`${ARKHAMDB}/cards/${src.pack}.json?encounter=1`, `${src.pack}.json`);
   const sets = new Set(src.encounterSets);
+  const extra = new Set(src.extraCards ?? []);
   const cards = cartesPack
-    .filter((c) => sets.has(c.encounter_code))
+    .filter((c) => sets.has(c.encounter_code) || extra.has(c.code))
     .sort((a, b) => a.code.localeCompare(b.code))
     .map((c) => carte(c, src));
+  for (const code of extra) if (!cards.some((c) => c.code === code)) throw new Error(`${src.id} : carte hors set ${code} introuvable dans le pack`);
   const encounterSetNames = {};
   for (const c of cartesPack) if (sets.has(c.encounter_code)) encounterSetNames[c.encounter_code] = c.encounter_name;
 
   // Contrôles de cohérence entre la source et ArkhamDB.
   const codes = new Set(cards.map((c) => c.code));
-  const cites = [
-    src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck,
-    ...src.layout.map((l) => l.code),
-    ...src.setup.flatMap((s) => [s.code, ...(s.codes ?? [])]).filter(Boolean),
-  ];
+  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.from ?? []), s.at,
+    ...(s.cases ? Object.values(s.cases).flatMap(citesDe) : [])]).filter((c) => c && !String(c).startsWith("slot:"));
+  const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup)].filter(Boolean);
   for (const code of cites) if (!codes.has(code)) throw new Error(`${src.id} : code ${code} absent des sets de rencontre`);
 
   const { _source, ...reste } = src;

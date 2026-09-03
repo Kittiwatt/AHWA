@@ -177,11 +177,14 @@ export function ajusterVue(ctx) {
     const w = c.kind === "mini" ? MINI : CARTE_L, h = c.kind === "mini" ? MINI : CARTE_H;
     x0 = Math.min(x0, c.loc.x); y0 = Math.min(y0, c.loc.y); x1 = Math.max(x1, c.loc.x + w); y1 = Math.max(y1, c.loc.y + h);
   }
-  const marge = 160;
-  const k = Math.min(1.4, Math.max(0.3, Math.min(W / (x1 - x0 + marge * 2), H / (y1 - y0 + marge * 2))));
+  // L'encart pioche/défausse/sac occupe le bas gauche : on cadre au-dessus de lui.
+  const basReserve = Math.min(170, H * 0.25);
+  const marge = 120;
+  const Hu = H - basReserve;
+  const k = Math.min(1.4, Math.max(0.3, Math.min(W / (x1 - x0 + marge * 2), Hu / (y1 - y0 + marge * 2))));
   vue.k = k;
   vue.tx = (W - (x1 - x0) * k) / 2 - x0 * k;
-  vue.ty = (H - (y1 - y0) * k) / 2 - y0 * k;
+  vue.ty = (Hu - (y1 - y0) * k) / 2 - y0 * k;
   appliquerVue();
 }
 
@@ -309,6 +312,18 @@ function rendrePioches(ctx) {
     el("div", { class: "pile", "data-drop": "pile:encounterDiscard", "data-outil": "defausse", title: "Déposez ici pour défausser. Clic droit : consulter, remélanger dans la pioche." },
       el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteEl(dessus, ctx) : el("span", { class: "sous", text: "défausse" })),
       el("span", { class: "badge", text: String(defausse.length) })),
+    // Piles déclarées par le scénario (ex. « Cultist deck ») : mêmes gestes que la pioche.
+    ...(ctx.scenario.piles ?? []).map((p) => {
+      const ids = state.piles[p.id] ?? [];
+      const haut = ids.length ? state.cards[ids[0]] : null;
+      return el("div", { class: "pile", "data-drop": `pile:${p.id}`, "data-outil": `pile:${p.id}`, title: `${p.label} — clic : retourner la première carte ; clic droit : chercher, mélanger.` },
+        el("div", { class: `dos-pile pile-scenario${ids.length ? "" : " vide"}${haut?.faceUp ? " revelee" : ""}` },
+          haut?.faceUp ? carteEl(haut, ctx)
+            : ids.length ? el("button", { class: "dos-bouton", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "drawEncounter", pile: p.id }) }, el("img", { src: "/img/dos-rencontre.svg", alt: p.label }))
+            : el("span", { class: "sous", text: "vide" })),
+        el("span", { class: "badge", text: String(ids.length) }),
+        el("span", { class: "etiquette-pile", text: p.label }));
+    }),
   );
 }
 

@@ -214,6 +214,15 @@ export function initInteractions(ctx) {
       items.push(el("p", { class: "titre-menu", text: `Défausse de rencontre — ${n}` }));
       items.push(item("Consulter", () => ctx.envoyer({ t: "searchEncounter", pile: "encounterDiscard" }), { off: !n }));
       items.push(item("Remélanger dans la pioche", () => { if (confirm(`Remélanger les ${n} cartes de la défausse dans la pioche ?`)) ctx.envoyer({ t: "reshuffleDiscard" }); }, { off: !n }));
+    } else if (outil.startsWith("pile:")) {
+      const id = outil.slice(5);
+      const def = ctx.scenario.piles?.find((p) => p.id === id);
+      const ids = state.piles[id] ?? [];
+      const haut = ids.length ? state.cards[ids[0]] : null;
+      items.push(el("p", { class: "titre-menu", text: `${def?.label ?? id} — ${ids.length}` }));
+      items.push(item("Piocher (retourner la première carte)", () => ctx.envoyer({ t: "drawEncounter", pile: id }), { off: Boolean(haut?.faceUp) || !ids.length }));
+      items.push(item("Chercher (puis mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
+      items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: id }), { off: !ids.length }));
     } else if (outil === "sac") {
       items.push(el("p", { class: "titre-menu", text: `Sac du chaos — ${state.chaos.bag.length} jetons` }));
       items.push(item("Tirer un jeton", () => ctx.envoyer({ t: "chaosDraw" }), { off: !state.chaos.bag.length }));

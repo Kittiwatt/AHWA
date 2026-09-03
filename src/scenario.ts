@@ -16,14 +16,31 @@ export type ScenarioCard = {
   doom?: number | null;
   stage?: number | null;
   victory?: number;
+  health?: number;
+  sanity?: number;
+  healthPerInvestigator?: boolean;
+  backCode?: string;      // carte liée : le verso est une autre carte (ex. agenda → ennemi)
+  backKind?: CardKind;
+  backName?: string;
+  backHealth?: number;
+  backHealthPerInvestigator?: boolean;
+  backVictory?: number;
 };
 
+// Les références « slot:<nom> » désignent une carte choisie plus tôt (pickRandom, setStart).
 export type SetupStep =
   | { op: "place"; code: string; zone: ZoneId; x: number; y: number; reveal?: boolean; faceUp?: boolean; log?: string }
+  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; faceUp?: boolean; log?: string }
+  | { op: "branch"; on: string; cases: Record<string, SetupStep[]>; log?: string }   // on = id de question ou "players"
+  | { op: "remove"; codes: string[]; log?: string }
+  | { op: "toPile"; pile: string; set?: string; codes?: string[]; shuffle?: boolean; log?: string }
+  | { op: "spawn"; code: string; at: string; log?: string }
+  | { op: "setStart"; code: string; log?: string }
   | { op: "minis"; code: string; log?: string }
   | { op: "aside"; codes: string[]; faceUp?: boolean; log?: string }
   | { op: "story"; log?: string }
   | { op: "buildEncounter"; log?: string }
+  | { op: "log"; text: string }
   | { op: "hook"; name: string; log?: string };
 
 export type Reminder = { when: string; text: string };
@@ -40,7 +57,9 @@ export type ScenarioDef = {
   scenarioCard: string;
   agendaDeck: string[];
   actDeck: string[];
-  startLocation: string;
+  startLocation?: string;
+  extraCards?: string[];
+  piles?: { id: string; label: string }[];   // piles supplémentaires (ex. « Cultist deck »)
   chaosBag: Record<Difficulty, Token[]>;
   layout: { code: string; x: number; y: number }[];
   setup: SetupStep[];

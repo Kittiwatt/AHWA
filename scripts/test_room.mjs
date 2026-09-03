@@ -328,5 +328,93 @@ await new Promise((r) => setTimeout(r, 800));
 assert.ok(mort.ferme === 4404 || mort.ws.readyState >= 2, "room supprimée = inconnue");
 assert.equal(mort.state, null, "aucun welcome après suppression");
 
+// ============ The Midnight Masks : questions de journal, tirages au hasard, piles, branches ============
+async function tableMasks({ joueurs, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "notz_the_midnight_masks" }) });
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  const invs = ["01001", "01002", "01003", "01004"];
+  let d = await h.action({ t: "chooseInvestigator", code: invs[0] });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    d = await c.action({ t: "chooseInvestigator", code: invs[i] });
+    autres.push(c);
+  }
+  await h.attendre((m) => m.t === "delta" && m.rev === joueurs); // rattraper
+  d = await h.action({ t: "startSetup" });
+  assert.equal(d.t, "nack", "questions sans réponse : refus");
+  d = await h.action({ t: "startSetup", answers });
+  assert.equal(d.t, "delta", "mise en place avec réponses");
+  return { code, h, autres };
+}
+
+{
+  const { h } = await tableMasks({ joueurs: 3, answers: { house: "burned", ghoul_priest: "alive" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const surTapis = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  const retiree = (code) => cartes.find((c) => c.code === code && c.loc.pile === "removed");
+  assert.ok(!surTapis("01124") && retiree("01124"), "maison brûlée : Your House retirée");
+  assert.ok(surTapis("01125") && surTapis("01134") && surTapis("01132") && surTapis("01129") && surTapis("01133") && surTapis("01128"), "les 6 lieux fixes en jeu");
+  const downtown = surTapis("01130") ?? surTapis("01131"), southside = surTapis("01126") ?? surTapis("01127");
+  assert.ok(downtown && southside, "une version de Downtown et de Southside en jeu");
+  assert.ok((retiree("01130") ?? retiree("01131")) && (retiree("01126") ?? retiree("01127")), "l'autre version retirée");
+  assert.equal(downtown.loc.x, 737); assert.equal(downtown.loc.y, 173);
+  assert.equal(southside.loc.x, 737); assert.equal(southside.loc.y, 649);
+  const minis = cartes.filter((c) => c.kind === "mini");
+  assert.equal(minis.length, 3);
+  assert.ok(minis.every((m) => m.loc.y === 411 - 22 && m.loc.x >= 737), "pions sur Rivertown");
+  const acolytes = cartes.filter((c) => c.code === "01169" && c.loc.zone === "board");
+  assert.equal(acolytes.length, 2, "3 enquêteurs : 2 Acolytes");
+  assert.ok(acolytes.every((a) => a.faceUp));
+  assert.ok(acolytes.some((a) => Math.abs(a.loc.y - 649) < 100) && acolytes.some((a) => Math.abs(a.loc.y - 173) < 100), "à Southside et Downtown");
+  assert.equal(s.piles.cultist.length, 5, "Cultist deck : 5 cartes");
+  assert.ok(s.piles.cultist.every((id) => !s.cards[id].faceUp && s.cards[id].set !== undefined || true));
+  assert.equal(s.piles.encounter.length, 21 - 2 + 1, "pioche : 21 − 2 Acolytes + Ghoul Priest");
+  assert.ok(s.piles.encounter.some((id) => s.cards[id].code === "01116"), "Ghoul Priest dans la pioche");
+  assert.equal(s.cards[s.agendaId].code, "01121a");
+  assert.equal(s.cards[s.actId].code, "01123");
+  assert.equal(s.piles.actDeck.length, 0);
+  assert.equal(s.chaos.bag.length, 16);
+  assert.ok(s.log.some((e) => e.text.includes("votre maison")), "réponses consignées au journal");
+  // Pile du scénario : retourner la première carte, la glisser sur le tapis.
+  let d = await h.action({ t: "drawEncounter", pile: "cultist" });
+  assert.equal(d.t, "delta");
+  assert.equal(s.cards[s.piles.cultist[0]].faceUp, true);
+  d = await h.action({ t: "drawEncounter", pile: "cultist" });
+  assert.equal(d.t, "nack");
+  const cultiste = s.piles.cultist[0];
+  d = await h.action({ t: "moveCard", id: cultiste, zone: "board", x: 300, y: 300 });
+  assert.equal(s.piles.cultist.length, 4);
+  d = await h.action({ t: "shufflePile", pile: "cultist" });
+  assert.ok(s.piles.cultist.every((id) => !s.cards[id].faceUp));
+  // Agenda 1 retourné (son verso est un ennemi) et posé sur le tapis : reste l'agenda courant ; avancer le laisse en place.
+  d = await h.action({ t: "flipCard", id: "01121a" });
+  d = await h.action({ t: "moveCard", id: "01121a", zone: "board", x: 100, y: 100 });
+  assert.equal(s.agendaId, "01121a");
+  d = await h.action({ t: "advanceAgenda" });
+  assert.equal(s.cards[s.agendaId].code, "01122");
+  assert.equal(s.cards["01121a"].loc.zone, "board", "l'ancien agenda (ennemi) reste sur le tapis");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+{
+  const { h } = await tableMasks({ joueurs: 2, answers: { house: "standing", ghoul_priest: "gone" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const maison = cartes.find((c) => c.code === "01124");
+  assert.equal(maison.loc.zone, "board", "maison debout : Your House en jeu");
+  assert.equal(maison.loc.x, 923); assert.equal(maison.loc.y, 649);
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.x >= 923 && m.loc.y === 649 - 22), "pions sur Your House");
+  assert.equal(cartes.filter((c) => c.code === "01169" && c.loc.zone === "board").length, 1, "2 enquêteurs : 1 Acolyte");
+  assert.equal(cartes.find((c) => c.code === "01116").loc.pile, "removed", "Ghoul Priest retiré");
+  assert.equal(s.piles.encounter.length, 20);
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

@@ -23,10 +23,18 @@ export const JETONS_CHAOS = {
 /** URL de l'image à afficher pour une carte selon sa face et son côté. */
 export function urlImage(carte, def) {
   const dos = def?.back ?? "b";
-  if (carte.faceUp) return `${CDN}${carte.code}${carte.side === "b" ? "b" : ""}.webp`;
+  const verso = def?.backCode ? `${CDN}${def.backCode}.webp` : `${CDN}${carte.code}b.webp`;
+  if (carte.faceUp) return carte.side === "b" ? verso : `${CDN}${carte.code}.webp`;
   if (carte.kind === "investigator") return `${CDN}${carte.code}b.webp`;
-  if (dos === "b" && !carte.storyBack) return `${CDN}${carte.code}b.webp`;
+  if (dos === "b" && !carte.storyBack) return verso;
   return "/img/dos-rencontre.svg";
+}
+
+/** Face actuellement visible : la carte elle-même, ou la carte liée quand le verso en est une autre. */
+export function faceVisible(carte, def) {
+  const versoVisible = def?.backCode && (carte.faceUp ? carte.side === "b" : !carte.storyBack);
+  if (versoVisible) return { kind: def.backKind ?? carte.kind, name: def.backName ?? def?.name, health: def.backHealth, sanity: undefined, healthPerInvestigator: def.backHealthPerInvestigator, liee: true };
+  return { kind: carte.kind, name: def?.name, health: def?.health, sanity: def?.sanity, healthPerInvestigator: def?.healthPerInvestigator, liee: false };
 }
 
 /** La face actuellement visible peut-elle être agrandie ? (jamais le dos d'une carte histoire) */
@@ -83,15 +91,19 @@ export function majCarte(el, carte, ctx) {
     el.append(document.createElement("img"), Object.assign(document.createElement("div"), { className: "jetons" }));
     el.firstChild.draggable = false;
   }
-  el.className = `carte kind-${carte.kind}${estPaysage(carte) ? " paysage" : ""}${carte.exhausted ? " epuisee" : ""}${carte.faceUp ? "" : " retournee"}`;
+  const face0 = faceVisible(carte, def);
+  const paysage = face0.liee ? ["agenda", "act", "investigator"].includes(face0.kind) : estPaysage(carte);
+  el.className = `carte kind-${carte.kind}${paysage ? " paysage" : ""}${carte.exhausted ? " epuisee" : ""}${carte.faceUp ? "" : " retournee"}`;
   // Ennemis : compteurs de dégâts et d'horreur toujours visibles (clic = +1, − au survol, menu pour le reste).
   let chips = el.querySelector(".chips");
   const enJeu = "zone" in carte.loc;
+  const face = faceVisible(carte, def);
   // Ennemis : dégâts seulement (pas de santé mentale) ; soutiens du scénario : selon leurs jauges
-  // (vie → dégâts, santé mentale → horreur).
-  const jauges = !carte.faceUp || !enJeu ? []
-    : carte.kind === "enemy" ? ["damage"]
-    : carte.kind === "asset" ? [def?.health !== undefined ? "damage" : null, def?.sanity !== undefined ? "horror" : null].filter(Boolean)
+  // (vie → dégâts, santé mentale → horreur). Une carte liée montrant son verso ennemi compte comme ennemi.
+  const visible = carte.faceUp || face.liee;
+  const jauges = !visible || !enJeu ? []
+    : face.kind === "enemy" ? ["damage"]
+    : face.kind === "asset" ? [face.health !== undefined ? "damage" : null, face.sanity !== undefined ? "horror" : null].filter(Boolean)
     : [];
   if (jauges.length) {
     const attendu = jauges.join(" ");
@@ -108,14 +120,14 @@ export function majCarte(el, carte, ctx) {
     }
     for (const t of jauges) {
       const n = carte.tokens[t] ?? 0;
-      const max = t === "damage" ? def?.health : def?.sanity;
-      chips.querySelector(`.chip-${t} .chip-n`).textContent = max ? `${n}/${max}${def?.healthPerInvestigator && t === "damage" ? "*" : ""}` : String(n);
+      const max = t === "damage" ? face.health : face.sanity;
+      chips.querySelector(`.chip-${t} .chip-n`).textContent = max ? `${n}/${max}${face.healthPerInvestigator && t === "damage" ? "*" : ""}` : String(n);
     }
   } else if (chips) chips.remove();
   const img = el.firstChild;
   const src = urlImage(carte, def);
   if (img.getAttribute("src") !== src) img.src = src;
-  const nom = inv?.name ?? def?.name ?? carte.code;
+  const nom = inv?.name ?? face.name ?? carte.code;
   img.alt = carte.faceUp || loupePermise(carte, def) ? nom : "carte face cachée";
   el.title = nom;
   el.dataset.loupe = loupePermise(carte, def) ? "1" : "";

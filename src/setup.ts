@@ -37,6 +37,10 @@ export function addLog(state: RoomState, kind: LogEntry["kind"], text: string, s
   return entry;
 }
 
+function nomDe(def: ScenarioDef, code: string): string {
+  return def.cards.find((c) => c.code === code)?.name ?? code;
+}
+
 export function clueValue(card: ScenarioCard | undefined, playerCount: number): number {
   if (!card?.clue) return 0;
   return card.clue.perInvestigator ? card.clue.value * playerCount : card.clue.value;
@@ -84,13 +88,19 @@ function newCard(pool: Pool, code: string, id: CardId, loc: CardState["loc"], fa
   return { id, code, kind: d.kind, storyBack: d.storyBack, loc, faceUp, exhausted: false, side: "a", tokens: {} };
 }
 
-export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.random): LogEntry[] {
+export type Answers = Record<string, string>;
+
+export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.random, answers: Answers = {}): LogEntry[] {
   const seated = state.seats.filter((s) => s.investigatorCode);
   if (seated.length === 0) throw new Error("aucun enquêteur choisi");
+  for (const q of def.questions) {
+    if (!q.options.some((o) => o.id === answers[q.id])) throw new Error(`question sans réponse : ${q.id}`);
+  }
 
   // Table vierge (une réinitialisation a pu laisser des cartes).
   state.cards = {};
   state.piles = { encounter: [], encounterDiscard: [], removed: [], agendaDeck: [], actDeck: [] };
+  for (const p of def.piles ?? []) state.piles[p.id] = [];
   state.links = [];
   state.chaos = { bag: [...def.chaosBag[state.difficulty]], drawn: [], sealed: [] };
   state.counters = Object.fromEntries(def.tableCounters.map((c) => [c.key, c.initial]));
@@ -110,8 +120,25 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
   const pool = new Pool(def);
   let z = 1;
   const reminders: LogEntry[] = [];
+  const slots = new Map<string, CardId>();   // « slot:<nom> » → carte choisie (pickRandom, setStart)
+  const resoudre = (ref: string): CardId => {
+    if (!ref.startsWith("slot:")) return ref;
+    const id = slots.get(ref.slice(5));
+    if (!id) throw new Error(`setup : ${ref} non défini`);
+    return id;
+  };
+  const enJeu = (ref: string): CardState => {
+    const id = resoudre(ref);
+    const c = state.cards[id] ?? Object.values(state.cards).find((k) => k.code === id && "zone" in k.loc);
+    if (!c || !("zone" in c.loc)) throw new Error(`setup : ${ref} n'est pas en jeu`);
+    return c;
+  };
 
   addLog(state, "setup", `Mise en place de « ${def.title} » pour ${state.playerCount} enquêteur${state.playerCount > 1 ? "s" : ""}, difficulté ${state.difficulty}.`);
+  for (const q of def.questions) {
+    const opt = q.options.find((o) => o.id === answers[q.id])!;
+    addLog(state, "setup", `${q.text} ${opt.label}.`);
+  }
 
   // Cartes et pions des enquêteurs.
   for (const s of seated) {
@@ -122,9 +149,8 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
     };
   }
 
-  const placeMinis = (onCode: string) => {
-    const lieu = Object.values(state.cards).find((c) => c.code === onCode && "zone" in c.loc);
-    if (!lieu || !("zone" in lieu.loc)) throw new Error(`setup : lieu ${onCode} non posé`);
+  const placeMinis = (ref: string) => {
+    const lieu = enJeu(ref);
     seated.forEach((s, i) => {
       state.cards[`mini-${s.index}`] = {
         id: `mini-${s.index}`, code: s.investigatorCode!, kind: "mini", storyBack: false,
@@ -135,23 +161,93 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
     });
   };
 
+  const poser = (code: string, zone: ZoneId, x: number, y: number, faceUp: boolean, reveal: boolean | undefined, log: string | undefined) => {
+    const id = pool.take(code);
+    const card = newCard(pool, code, id, { zone, x, y, z: z++ }, faceUp);
+    state.cards[id] = card;
+    let texte = log ?? `${pool.def(code).name} est mis en jeu.`;
+    if (reveal && card.kind === "location") {
+      const n = revealLocation(state, def, card);
+      if (n > 0) texte += ` ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}.`;
+    }
+    addLog(state, "setup", texte);
+    return card;
+  };
+  const retirer = (code: string) => {
+    for (const id of pool.takeAll(code)) {
+      state.cards[id] = newCard(pool, code, id, { pile: "removed" }, false);
+      state.piles.removed.push(id);
+    }
+  };
+
   const run = (step: SetupStep) => {
     switch (step.op) {
       case "place": {
-        const id = pool.take(step.code);
-        const card = newCard(pool, step.code, id, { zone: step.zone, x: step.x, y: step.y, z: z++ }, step.faceUp ?? false);
-        state.cards[id] = card;
-        let texte = step.log ?? `${pool.def(step.code).name} est mis en jeu.`;
-        if (step.reveal && card.kind === "location") {
-          const n = revealLocation(state, def, card);
-          if (n > 0) texte += ` ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}.`;
+        poser(resoudre(step.code), step.zone, step.x, step.y, step.faceUp ?? false, step.reveal, step.log);
+        break;
+      }
+      case "pickRandom": {
+        const n = step.n ?? 1;
+        const choix = shuffle([...step.from], rng).slice(0, n);
+        const noms = choix.map((c) => pool.def(c).name);
+        for (const code of step.from) if (!choix.includes(code)) retirer(code);
+        if (step.zone !== undefined && step.x !== undefined && step.y !== undefined) {
+          choix.forEach((code, i) => {
+            const card = poser(code, step.zone!, step.x! + i * (CARD_W + 32), step.y!, step.faceUp ?? false, false, step.log ?? `${pool.def(code).name} tiré au hasard et mis en jeu.`);
+            if (step.slot && i === 0) slots.set(step.slot, card.id);
+          });
+        } else if (step.slot) {
+          slots.set(step.slot, choix[0]);
+          addLog(state, "setup", step.log ?? `Tirage au hasard : ${noms.join(", ")}.`);
         }
-        addLog(state, "setup", texte);
+        break;
+      }
+      case "branch": {
+        const cle = step.on === "players" ? String(state.playerCount) : answers[step.on];
+        const suite = step.cases[cle] ?? step.cases["default"] ?? [];
+        if (step.log) addLog(state, "setup", step.log);
+        for (const sub of suite) run(sub);
+        break;
+      }
+      case "remove": {
+        for (const code of step.codes) retirer(code);
+        addLog(state, "setup", step.log ?? `${step.codes.map((c) => pool.def(c).name).join(", ")} : retiré de la partie.`);
+        break;
+      }
+      case "toPile": {
+        if (!(step.pile in state.piles)) state.piles[step.pile] = [];
+        const codes = step.codes ?? def.cards.filter((c) => c.set === step.set).map((c) => c.code);
+        const ids: CardId[] = [];
+        for (const code of codes) {
+          for (const id of pool.takeAll(code)) {
+            state.cards[id] = newCard(pool, code, id, { pile: step.pile }, false);
+            ids.push(id);
+          }
+        }
+        state.piles[step.pile].push(...(step.shuffle ? shuffle(ids, rng) : ids));
+        addLog(state, "setup", step.log ?? `${ids.length} cartes dans la pile ${step.pile}.`);
+        break;
+      }
+      case "spawn": {
+        const lieu = enJeu(step.at);
+        const lx = (lieu.loc as { x: number }).x, ly = (lieu.loc as { y: number }).y;
+        const deja = Object.values(state.cards).filter((k) => k.kind !== "mini" && k.kind !== "location" && "zone" in k.loc && k.loc.zone === "board"
+          && Math.abs(k.loc.x - lx) < CARD_W && Math.abs(k.loc.y - ly) < CARD_H).length;
+        poser(step.code, "board", lx + 36 + deja * 18, ly + 46 + deja * 18, true, false,
+          step.log ?? `${pool.def(step.code).name} apparaît à ${nomDe(def, lieu.code)}.`);
+        break;
+      }
+      case "setStart": {
+        slots.set("start", resoudre(step.code));
         break;
       }
       case "minis": {
         placeMinis(step.code);
-        addLog(state, "setup", step.log ?? `Les pions des enquêteurs sont posés sur ${pool.def(step.code).name}.`);
+        addLog(state, "setup", step.log ?? `Les pions des enquêteurs sont posés sur ${nomDe(def, enJeu(step.code).code)}.`);
+        break;
+      }
+      case "log": {
+        addLog(state, "setup", step.text);
         break;
       }
       case "aside": {

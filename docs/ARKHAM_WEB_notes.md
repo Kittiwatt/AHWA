@@ -36,6 +36,25 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **The Midnight Masks (NotZ II) livré**, deuxième table.
+  Nouveau dans le moteur de setup : `pickRandom` (versions de Downtown
+  et Southside tirées au hasard, l'autre retirée ; `slot:` pour y
+  faire référence), `branch` sur une **question de journal** ou sur
+  `players`, `remove`, `toPile` (le set Cult of Umôrdhoth devient la
+  pile « Cultist deck »), `spawn` (Acolytes de départ selon le nombre
+  d'enquêteurs), `setStart`, `log`. `extraCards` (Ghoul Priest hors
+  sets, mélangé si « encore en vie »), `piles` déclarées (rendues dans
+  l'encart avec badge et étiquette, mêmes gestes que la pioche :
+  `drawEncounter {pile}`). **Questions au lobby** : l'hôte répond avant
+  « Lancer » (grisé sinon), les autres les voient ; réponses envoyées
+  dans `startSetup {answers}` et consignées au journal. **Cartes
+  liées** (agenda 1 dont le verso est un ennemi) : `backCode/backKind/
+  backHealth` au build, image et compteur de dégâts du verso, format
+  portrait quand le verso l'est ; posé sur le tapis retourné, l'agenda
+  reste courant et « Avancer » le laisse en place. Vue cadrée au-dessus
+  de l'encart. Tests : 107 messages ; captures 16-18. Régression
+  Gathering au vert. Pas encore : lieux à connexions imprimées,
+  Devourer Below (jeton chaos supplémentaire, doom selon le journal).
 - 2026-09-03 : **ennemis : compteur de dégâts seulement** (correction
   de l'utilisateur : pas de jauge de santé mentale sur les ennemis) ; les
   soutiens du scénario gardent dégâts et horreur selon leurs jauges. Le
@@ -168,7 +187,8 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   Pipeline `scripts/build.mjs` (ArkhamDB → `public/scenarios/<id>.json`,
   `public/data/investigators.json`, registre `src/scenarios.generated.ts`),
   source déclarative `data/scenarios/notz_the_gathering.src.json`
-  (Setup p. 2 et sac du chaos p. 1 du guide FFG, rien d'autre lu).
+  (Setup p. 2 et sac du chaos p. 1 du guide FFG ; à l'époque la règle
+  limitait la lecture au Setup).
   DO : sièges, lobby, `startSetup` (setup automatique), `reset`, `close`,
   `deleteRoom`, `claimHost`, `kick`, deltas JSON Patch. Front : lobby,
   choix d'enquêteur, tapis (zone des lieux zoomable, agenda/acte,
@@ -243,10 +263,18 @@ navigateurs).
   `<code>b.webp` (sondé au build ; cache `ab_probe_webp.json`).
   Dos génériques (rencontre, joueur) embarqués dans l'app. Le CDN doit
   être joignable en jeu — dépendance assumée et documentée à l'écran.
-- **Pas de spoiler** : pour construire un scénario on lit UNIQUEMENT la
-  section Setup du guide de campagne + le diagramme de placement ; ni
-  les résolutions, ni les interludes. Le texte des cartes n'est jamais
-  reproduit dans le code (images seulement).
+- **Lecture du guide, spoiler** (règle changée le 2026-09-03 à la
+  demande de l'utilisateur) : Claude lit l'INTÉGRALITÉ du guide de
+  campagne (mise en place, résolutions, interludes, journal) pour
+  anticiper les dépendances et automatisations d'un scénario au suivant
+  (questions de journal, cartes conditionnelles, prochains scénarios).
+  Le spoiler à éviter est celui de l'utilisateur : dans ses messages et
+  dans l'application, Claude ne restitue ni le récit, ni les
+  résolutions, ni les interludes ; seules apparaissent les questions et
+  rappels que la mise en place exige, formulés sans dévoiler leur
+  contexte. Claude prévient quand un résultat d'outil contient le texte
+  du guide. Le texte des cartes n'est jamais reproduit dans le code
+  (images seulement).
 
 ### Fonctionnalités décidées (questionnaire du 2026-09-03)
 
@@ -369,8 +397,10 @@ investigateurs (sans `duplicate_of_code` ni `hidden`, parallèles gardés
 avec `parallel: true`) et `src/scenarios.generated.ts`. Les sorties sont
 commitées (Workers Builds ne relance pas le script). Codes des sets du
 Core sur ArkhamDB : The Gathering = `torch`, Midnight Masks = `arkham`,
-Devourer Below = `tentacles`, Dark Cult = `cultists`, Cult of Umôrdhoth =
-`pentagram` (nom d'icône, pas de titre).
+Devourer Below = `tentacles`, Dark Cult = `pentagram` (Acolyte, Wizard
+of the Order, Mysterious Chanting), Cult of Umôrdhoth = `cultists` (les
+5 cultistes nommés) — noms d'icône, pas de titre ; vérifiés le
+2026-09-03. L'agenda 01121a a une `linked_card` 01121b (son verso).
 
 ### Choix du cahier des charges (2026-09-03)
 

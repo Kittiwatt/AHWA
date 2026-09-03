@@ -9,14 +9,19 @@ from playwright.sync_api import sync_playwright
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8787"
 OUT = sys.argv[2] if len(sys.argv) > 2 else "/home/claude/captures"
 
-req = urllib.request.Request(f"{BASE}/api/rooms", data=json.dumps({"scenarioId": "notz_the_gathering"}).encode(),
-                             headers={"content-type": "application/json"}, method="POST")
-room = json.load(urllib.request.urlopen(req))
-code, token = room["code"], room["hostToken"]
+def creer(scenario):
+    req = urllib.request.Request(f"{BASE}/api/rooms", data=json.dumps({"scenarioId": scenario}).encode(),
+                                 headers={"content-type": "application/json", "user-agent": "Mozilla/5.0 (captures)"}, method="POST")
+    room = json.load(urllib.request.urlopen(req))
+    return room["code"], room["hostToken"]
+
+code, token = creer("notz_the_gathering")
+CODE, TOKEN = code, token
 print("room", code)
 erreurs = []
 
-def page_pour(browser, nom, host=False):
+def page_pour(browser, nom, host=False, code=None, token=None):
+    code = code or CODE; token = token or TOKEN
     ctx = browser.new_context(viewport={"width": 1600, "height": 1000}, locale="fr-FR", ignore_https_errors=True)
     script = f"localStorage.setItem('ahwa:nom', {json.dumps(nom)});"
     if host:
@@ -293,6 +298,44 @@ with sync_playwright() as p:
     alice.screenshot(path=f"{OUT}/09_recherche_pioche.png")
     alice.get_by_role("button", name="Fermer et mélanger").click()
     alice.wait_for_timeout(300)
+
+    # ---- The Midnight Masks : questions de journal au lobby, 9 lieux, Cultist deck ----
+    code2, token2 = creer("notz_the_midnight_masks")
+    print("room Masks", code2)
+    hote = page_pour(browser, "Hôte", host=True, code=code2, token=token2)
+    hote.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    hote.get_by_role("button", name="Choisir un enquêteur").click(); hote.wait_for_selector("dialog.dialogue-inv[open]")
+    hote.locator("dialog .inv").first.click(); hote.wait_for_selector(".siege-lobby.moi .fiche")
+    joueur = page_pour(browser, "Bob", code=code2, token=None)
+    joueur.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    joueur.get_by_role("button", name="Choisir un enquêteur").click(); joueur.wait_for_selector("dialog.dialogue-inv[open]")
+    joueur.fill("dialog .recherche", "daisy"); joueur.wait_for_timeout(300); joueur.locator("dialog .inv").first.click()
+    joueur.wait_for_selector(".siege-lobby.moi .fiche")
+    hote.wait_for_timeout(400)
+    assert hote.get_by_role("button", name="Lancer la mise en place").is_disabled(), "questions sans réponse : lancement grisé"
+    assert joueur.locator(".reglage.questions input").first.is_disabled(), "les autres joueurs voient les questions sans y répondre"
+    hote.get_by_label("est encore debout").check()
+    hote.get_by_label("est encore en vie").check()
+    hote.wait_for_timeout(200)
+    hote.screenshot(path=f"{OUT}/16_masks_lobby_questions.png")
+    hote.get_by_role("button", name="Lancer la mise en place").click()
+    hote.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    hote.wait_for_load_state("networkidle"); hote.wait_for_timeout(1500)
+    assert hote.locator("#plateau .carte.kind-location").count() == 9, "9 lieux en jeu"
+    assert hote.locator("#plateau .carte.kind-enemy").count() == 1, "2 enquêteurs : 1 Acolyte"
+    assert hote.locator("#pioches .pile[data-outil='pile:cultist'] .badge").inner_text() == "5", "Cultist deck : 5"
+    hote.screenshot(path=f"{OUT}/17_masks_tapis.png")
+    # Agenda 1 retourné : son verso est un ennemi, avec compteur de dégâts.
+    hote.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    hote.locator("#histoire .carte.kind-agenda").first.click(button="right"); hote.wait_for_selector(".menu-carte")
+    hote.locator(".menu-carte").get_by_role("button", name="Retourner (lire le verso)").click(); hote.wait_for_timeout(500)
+    assert hote.locator("#histoire .carte.kind-agenda .chip-damage").count() == 1, "verso ennemi : compteur de dégâts"
+    assert "/4" in hote.locator("#histoire .carte.kind-agenda .chip-damage .chip-n").inner_text()
+    hote.locator("#histoire .carte.kind-agenda").hover(); hote.wait_for_timeout(400)
+    hote.screenshot(path=f"{OUT}/18_masks_agenda_verso.png")
+    # Cultist deck : clic = retourner la première carte.
+    hote.locator("#pioches .pile[data-outil='pile:cultist'] .dos-bouton").click()
+    hote.wait_for_selector("#pioches .pile[data-outil='pile:cultist'] .revelee .carte")
     browser.close()
 
 if erreurs:

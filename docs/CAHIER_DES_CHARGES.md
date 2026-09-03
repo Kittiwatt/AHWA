@@ -227,7 +227,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `setLead {seat}` | J | enquêteur principal (★) |
 | `claimHost` | J si `!hostConnected` | transfert du rôle : nouveau jeton envoyé au demandeur (`{ t:"hostToken", token }`), ancien jeton invalidé |
 | `resync` | tous | redemande un `welcome` |
-| `startSetup` | H (lobby) | passe en `setup_questions` ou exécute le setup |
+| `startSetup {answers}` | H | exécute le setup ; `answers` = réponses aux `questions` du scénario (posées au lobby, refus si une manque) |
 | `answerQuestion {id, option}` | H | répond à `pendingQuestion` |
 | `reset` | H | retour lobby |
 | `close` / `deleteRoom` | H | résolution / suppression |
@@ -318,9 +318,15 @@ type SetupStep =
   | { op:"hook", name };                                        // délègue à hooks.js (v1.1)
 ```
 
-Implémentées à l'étape 1 (The Gathering) : `place`, `minis`, `aside`,
-`story`, `buildEncounter`. Tout ce qui n'est ni posé ni mélangé va dans
-`removed`. Après la mise en place, `round = 1` et `phase =
+Implémentées : `place`, `minis`, `aside`, `story`, `buildEncounter`
+(The Gathering) ; `pickRandom {from, n, slot, zone, x, y}` (les non
+choisis sont retirés), `branch {on: questionId | "players", cases}`,
+`remove {codes}`, `toPile {set | codes, pile, shuffle}`, `spawn {code,
+at}`, `setStart {code}`, `log {text}` (The Midnight Masks). Une
+référence `slot:<nom>` désigne la carte choisie par `pickRandom` ou
+`setStart` (`slot:start`). `extraCards` ajoute des codes hors sets ;
+`piles` déclare des piles supplémentaires. Tout ce qui n'est ni posé ni
+mélangé va dans `removed`. Après la mise en place, `round = 1` et `phase =
 "investigation"` (la phase du mythe est sautée à la première manche).
 La source déclarative est `data/scenarios/<id>.src.json` ; le build y
 ajoute `cards[]` et `encounterSetNames` depuis ArkhamDB.

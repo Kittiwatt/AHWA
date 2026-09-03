@@ -49,15 +49,30 @@ export function rendreLobby(conteneur, ctx) {
     el("p", { class: "aide", text: "Marque ★ sur le tapis. L'ordre des tours reste libre : chaque joueur annonce quand il prend le sien." }),
   );
 
+  // Questions de mise en place (journal de campagne) : l'hôte répond, tout le monde les voit.
+  const questions = ctx.scenario.questions ?? [];
+  ctx.reponses ??= {};
+  const blocQuestions = questions.length ? el("fieldset", { class: "reglage questions" },
+    el("legend", { text: "Journal de campagne" }),
+    el("p", { class: "aide", text: moi.isHost ? "Ces points du journal déterminent la mise en place." : "L'hôte renseigne ces points du journal avant de lancer." }),
+    ...questions.map((q) => el("div", { class: "question" },
+      el("p", { class: "libelle", text: q.text }),
+      el("div", { class: "choix-ligne" }, ...q.options.map((o) => el("label", { class: `choix${ctx.reponses[q.id] === o.id ? " actif" : ""}` },
+        el("input", { type: "radio", name: `q-${q.id}`, value: o.id, checked: ctx.reponses[q.id] === o.id, disabled: !moi.isHost,
+          onchange: () => { ctx.reponses[q.id] = o.id; rendreLobby(conteneur, ctx); } }),
+        el("span", { class: "libelle", text: o.label })))))),
+  ) : null;
+  const toutesRepondues = questions.every((q) => ctx.reponses[q.id]);
+
   const lancement = el("div", { class: "lancement" });
   if (moi.isHost) {
-    const pret = avecInv.length > 0;
+    const pret = avecInv.length > 0 && toutesRepondues;
     lancement.append(
-      el("button", { class: "bouton grand", type: "button", disabled: !pret, onclick: () => ctx.envoyer({ t: "startSetup" }) },
+      el("button", { class: "bouton grand", type: "button", disabled: !pret, onclick: () => ctx.envoyer({ t: "startSetup", answers: ctx.reponses }) },
         "Lancer la mise en place"),
       el("p", { class: "aide", text: pret
         ? `${pluriel(avecInv.length, "enquêteur")} — le nombre est figé au lancement ; les lieux, la pioche et le sac du chaos sont préparés automatiquement.`
-        : "Il faut au moins un siège avec un enquêteur." }),
+        : avecInv.length === 0 ? "Il faut au moins un siège avec un enquêteur." : "Répondez d'abord aux points du journal de campagne." }),
       el("button", { class: "bouton secondaire danger", type: "button", onclick: () => {
         if (confirm("Supprimer définitivement cette table ?")) ctx.envoyer({ t: "deleteRoom" });
       } }, "Supprimer la table"),
@@ -86,6 +101,7 @@ export function rendreLobby(conteneur, ctx) {
     ),
     el("section", { class: "sieges-lobby", "aria-label": "Sièges" }, ...sieges),
     el("section", { class: "reglages" }, difficulte, principal),
+    blocQuestions,
     lancement,
     el("p", { class: "spectateurs", text: spectateurs > 0 ? pluriel(spectateurs, "spectateur") : "" }),
   );

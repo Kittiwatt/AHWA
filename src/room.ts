@@ -277,10 +277,18 @@ export class Room extends Server<Env> {
         host(); lobby();
         const def = getScenario(state.scenarioId) ?? refuser("scénario indisponible");
         if (!state.seats.some((s) => s.investigatorCode)) refuser("choisissez au moins un enquêteur");
-        if (def.questions.length) refuser("questions de mise en place non prises en charge (v1)");
+        const answers = (msg.answers && typeof msg.answers === "object" ? msg.answers : {}) as Record<string, string>;
+        for (const q of def.questions) {
+          if (!q.options.some((o) => o.id === answers[q.id])) refuser(`répondez d'abord : ${q.text}`);
+        }
         const before = clone(state);
-        const reminders = runSetup(state, def);
-        this.commit(before, reminders);
+        try {
+          const reminders = runSetup(state, def, Math.random, answers);
+          this.commit(before, reminders);
+        } catch (e) {
+          this.state = before;
+          throw e;
+        }
         return;
       }
       case "reset": {

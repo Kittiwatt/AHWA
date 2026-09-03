@@ -17,7 +17,8 @@ function dialogue(titre, corps, boutons) {
 
 /** Cartes d'une pile (message « peek ») : la pioche est remélangée à la fermeture. */
 export function ouvrirDialogueCartes(ctx, pile, cartes) {
-  const pioche = pile === "encounter";
+  const pioche = pile !== "encounterDiscard";
+  const nomPile = pile === "encounter" ? "Pioche de rencontre" : pile === "encounterDiscard" ? "Défausse" : (ctx.scenario.piles?.find((p) => p.id === pile)?.label ?? pile);
   const moi = ctx.etat.moi.seat;
   const liste = el("div", { class: "grille-cartes" });
   const rendre = (restantes) => liste.replaceChildren(...restantes.map((c) => {
@@ -30,10 +31,10 @@ export function ouvrirDialogueCartes(ctx, pile, cartes) {
     );
   }));
   rendre(cartes);
-  const d = dialogue(pioche ? `Pioche de rencontre — ${cartes.length} cartes (du dessus au dessous)` : `Défausse — ${cartes.length} cartes (la plus récente d'abord)`,
+  const d = dialogue(pioche ? `${nomPile} — ${cartes.length} cartes (du dessus au dessous)` : `${nomPile} — ${cartes.length} cartes (la plus récente d'abord)`,
     cartes.length ? liste : el("p", { class: "vide", text: "Aucune carte." }),
     [el("button", { class: "bouton", type: "button", onclick: () => d.close() }, pioche ? "Fermer et mélanger" : "Fermer")]);
-  if (pioche) d.addEventListener("close", () => ctx.envoyer({ t: "shufflePile", pile: "encounter" }), { once: true });
+  if (pioche) d.addEventListener("close", () => ctx.envoyer({ t: "shufflePile", pile }), { once: true });
 }
 
 export function ouvrirAjustementSac(ctx) {

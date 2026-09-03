@@ -15,7 +15,8 @@ redéployé automatiquement à chaque push sur `main` (Workers Builds).
 
 ## État
 
-Première table jouable : *Night of the Zealot I — The Gathering*. Lobby
+Tables jouables : *Night of the Zealot I — The Gathering* et *II — The
+Midnight Masks* (questions de journal au lobby, tirages au hasard, Cultist deck). Lobby
 (sièges, enquêteurs, difficulté, enquêteur principal), mise en place
 automatique par l'hôte, tapis complet : glisser-déposer des cartes et des
 pions, révélation des lieux avec indices, phases et tours, doom et agenda,
