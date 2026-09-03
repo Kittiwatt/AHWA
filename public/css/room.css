@@ -170,12 +170,10 @@
 .composition-details summary { font-size: 0.85rem; color: var(--papier-2); cursor: pointer; list-style: none; text-decoration: underline; text-underline-offset: 0.15em; }
 .composition-details summary::-webkit-details-marker { display: none; }
 .composition-details[open] summary { color: var(--papier); }
-.composition { list-style: none; margin: 0; padding: 0.5rem 0.6rem; display: flex; flex-wrap: wrap; gap: 0.3rem; position: absolute; left: 0; bottom: 100%; width: 22rem; background: var(--nuit); border: 1px solid var(--filet); border-radius: 4px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); }
-.jeton-chaos { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.1rem 0.45rem; border-radius: 999px; background: var(--nuit-2); border: 1px solid var(--filet); font-size: 0.85rem; }
-.jeton-chaos .glyphe { font-weight: 700; color: var(--papier); }
+.composition { list-style: none; margin: 0; padding: 0.5rem 0.6rem; display: flex; flex-wrap: wrap; gap: 0.35rem 0.7rem; position: absolute; left: 0; bottom: 100%; width: 28rem; background: var(--nuit); border: 1px solid var(--filet); border-radius: 4px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); }
+.jeton-chaos { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.85rem; }
 .jeton-chaos .nombre { color: var(--papier-2); }
-.jeton-chaos.j-auto_fail .glyphe { color: var(--wip); }
-.jeton-chaos.j-elder_sign .glyphe { color: var(--dorure-2); }
+.jeton-chaos-img { display: block; border-radius: 50%; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)); }
 
 /* Zone des lieux */
 .plateau-zone { position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, var(--tapis-fond) 0%, var(--tapis-fond-2) 75%); cursor: grab; touch-action: none; }
@@ -272,8 +270,9 @@
 .dos-pile[data-drop] { cursor: pointer; padding: 0; font: inherit; color: inherit; background: none; }
 .dos-pile[data-drop]:disabled { cursor: default; }
 .tires { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; margin-top: 0.2rem; }
-.jeton-chaos.tire { background: var(--papier); color: var(--nuit); border-color: var(--dorure); font-size: 1.05rem; padding: 0.15rem 0.6rem; }
-.jeton-chaos.tire .glyphe { color: var(--nuit); }
+.tires .jeton-chaos-img { animation: jeton-sort 250ms ease-out; }
+@keyframes jeton-sort { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .tires .jeton-chaos-img { animation: none; } }
 .sac-forme { border: 0; font: inherit; font-weight: 700; font-size: 1.2rem; cursor: pointer; }
 .sac-forme:hover:not(:disabled) { background: var(--dorure-2); }
 .sac-forme:disabled { cursor: default; }

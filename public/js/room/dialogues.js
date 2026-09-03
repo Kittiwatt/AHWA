@@ -1,7 +1,7 @@
 // Fenêtres : consultation d'une pile (recherche / défausse), ajustement du sac, dépense d'indices.
 
 import { el } from "./dom.js";
-import { CDN, JETONS_CHAOS } from "./cartes.js";
+import { CDN, JETONS_CHAOS, imgJetonChaos } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 
 function dialogue(titre, corps, boutons) {
@@ -46,7 +46,7 @@ export function ouvrirAjustementSac(ctx) {
   const rendre = () => {
     const m = comptes();
     lignes.replaceChildren(...Object.keys(JETONS_CHAOS).map((t) => el("div", { class: "ajust-ligne" },
-      el("span", { class: "libelle", text: JETONS_CHAOS[t] }),
+      imgJetonChaos(t, 30), el("span", { class: "libelle", text: JETONS_CHAOS[t] }),
       el("button", { class: "pm", type: "button", disabled: !(m.get(t) > 0), onclick: () => ctx.envoyer({ t: "chaosAdjust", token: t, delta: -1 }) }, "−"),
       el("span", { class: "valeur", text: String(m.get(t) ?? 0) }),
       el("button", { class: "pm", type: "button", onclick: () => ctx.envoyer({ t: "chaosAdjust", token: t, delta: 1 }) }, "+"),

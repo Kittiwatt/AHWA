@@ -98,6 +98,18 @@ export function majCarte(el, carte, ctx) {
 
 export const MINI = 44;
 
+/** Image d'un jeton du chaos (SVG générés par scripts/build_chaos_tokens.py). */
+export function imgJetonChaos(t, taille = 28) {
+  const img = document.createElement("img");
+  img.src = `/img/chaos/${t.replace(/[+]/g, "p").replace(/-/g, "m")}.svg`;
+  img.alt = JETONS_CHAOS[t] ?? t;
+  img.title = JETONS_CHAOS[t] ?? t;
+  img.width = taille; img.height = taille;
+  img.className = "jeton-chaos-img";
+  img.draggable = false;
+  return img;
+}
+
 /** Pion d'enquêteur : portrait recadré dans un disque cerclé de la couleur de classe ; initiales si l'image manque. */
 export function majMini(el, carte, ctx) {
   const inv = ctx.investigateurs.get(carte.code);

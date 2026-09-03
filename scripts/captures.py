@@ -119,14 +119,19 @@ with sync_playwright() as p:
 
     # Tirer un jeton du chaos, passer à la phase suivante.
     alice.locator("#chaos .sac-forme").click()
-    alice.wait_for_selector("#chaos .jeton-chaos.tire")
+    alice.wait_for_selector("#chaos .tires .jeton-chaos-img")
     alice.get_by_role("button", name="Phase suivante").click()
     alice.wait_for_timeout(400)
     assert "Ennemis" in alice.locator("#phases .phase.courante").inner_text()
     bob.wait_for_timeout(600)
     assert "Ennemis" in bob.locator("#phases .phase.courante").inner_text(), "Bob voit la phase"
+    alice.locator("#chaos .sac-forme").click()
+    alice.wait_for_timeout(300)
+    alice.locator("#chaos details summary").click()
     alice.wait_for_load_state("networkidle")
+    alice.wait_for_timeout(300)
     alice.screenshot(path=f"{OUT}/08_tapis_apres_interactions.png")
+    alice.locator("#chaos details summary").click()
 
     # Recherche dans la pioche.
     alice.get_by_role("button", name="Chercher").click()

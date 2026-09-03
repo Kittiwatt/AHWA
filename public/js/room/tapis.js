@@ -3,7 +3,7 @@
 // les états (tour en cours, a joué, seuil atteint) sont des indications visuelles.
 
 import { el, pluriel } from "./dom.js";
-import { majCarte, majMini, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS } from "./cartes.js";
+import { majCarte, majMini, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { ouvrirDialogueCartes, ouvrirAjustementSac, ouvrirDepenseIndices } from "./dialogues.js";
 
@@ -266,8 +266,7 @@ function rendreChaos(ctx) {
         el("p", { class: "compte", text: "Sac du chaos" }),
         el("p", { class: "sous", text: `Difficulté ${libelleDifficulte(state.difficulty)}` }),
         state.chaos.drawn.length
-          ? el("div", { class: "tires" }, ...state.chaos.drawn.map((t) => el("span", { class: `jeton-chaos tire j-${cls(t)}`, title: JETONS_CHAOS[t] },
-              el("span", { class: "glyphe", text: glypheChaos(t) }))),
+          ? el("div", { class: "tires" }, ...state.chaos.drawn.map((t) => imgJetonChaos(t, 44)),
             el("button", { class: "lien-outil", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "chaosReturn" }) }, "Tout remettre"))
           : el("p", { class: "sous", text: "Cliquez le sac pour tirer." }),
       ),
@@ -275,22 +274,17 @@ function rendreChaos(ctx) {
     el("div", { class: "ligne-boutons" },
       el("details", { class: "composition-details", open: ouvert },
         el("summary", { text: "Composition" }),
-        el("ul", { class: "composition" }, ...liste.map(([t, n]) => el("li", { class: `jeton-chaos j-${cls(t)}`, title: JETONS_CHAOS[t] },
-          el("span", { class: "glyphe", text: glypheChaos(t) }), el("span", { class: "nombre", text: `×${n}` }))))),
+        el("ul", { class: "composition" }, ...liste.map(([t, n]) => el("li", { class: "jeton-chaos", title: JETONS_CHAOS[t] },
+          imgJetonChaos(t, 26), el("span", { class: "nombre", text: `×${n}` }))))),
       el("button", { class: "lien-outil", type: "button", disabled: !peut, onclick: () => ouvrirAjustementSac(ctx) }, "Ajuster"),
     ),
   );
 }
 
-const cls = (t) => t.replace(/[+]/g, "p").replace(/-/g, "m");
-
 export function libelleDifficulte(d) {
   return { easy: "facile", standard: "standard", hard: "difficile", expert: "expert" }[d] ?? d;
 }
 
-export function glypheChaos(t) {
-  return { skull: "☠", cultist: "✝", tablet: "▤", elder_thing: "✺", auto_fail: "✕", elder_sign: "✶", bless: "☼", curse: "☾", frost: "❄" }[t] ?? JETONS_CHAOS[t];
-}
 
 // ---- Colonne droite : de côté, victoire, journal ----------------------------------
 

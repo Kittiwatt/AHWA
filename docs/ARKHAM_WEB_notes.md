@@ -36,6 +36,14 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **jetons du chaos** : SVG générés depuis la police
+  d'icônes `tokens.ttf` d'Arkham Cards (zzorba, dépôt public, recette de
+  `ChaosToken.tsx` : dégradé radial + couches fill/overlay/highlight) par
+  `scripts/build_chaos_tokens.py` → `public/img/chaos/<jeton>.svg`
+  (`+`→`p`, `-`→`m`). Utilisés dans la composition du sac, les jetons
+  tirés et le panneau d'ajustement. Le dépôt Arkham Cards n'a pas de
+  fichier LICENSE : crédit dans le README ; à retirer si l'auteur le
+  demande.
 - 2026-09-03 : **étape 2 livrée — le tapis est jouable** (The Gathering).
   Serveur (`src/actions.ts`, fonctions pures) : `takeTurn`/`endTurn`,
   `setPhase` (saut direct sans automatisation), `nextPhase` (mythe :
@@ -257,6 +265,9 @@ prévu. Pas de liste publique des rooms actives.
   scénario hors registre, quel que soit le statut affiché).
 
 ### Pipeline de données (2026-09-03)
+
+`python3 scripts/build_chaos_tokens.py` : jetons du chaos (police Arkham
+Cards en cache `data/cache/arkhamcards/`), sorties commitées.
 
 `node scripts/build.mjs` (option `--refresh` pour ignorer le cache
 `data/cache/`, non commité) : lit `data/scenarios/*.src.json`, filtre le

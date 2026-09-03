@@ -22,6 +22,13 @@ pions, révélation des lieux avec indices, phases et tours, doom et agenda,
 indices et acte, pioche de rencontre, sac du chaos, journal de bord. Le cahier des charges et le mémo de suivi sont dans `docs/` —
 **`docs/ARKHAM_WEB_notes.md` fait foi**, à lire avant toute modification.
 
+## Crédits
+
+Les icônes des jetons du chaos (`public/img/chaos/`) sont générées par
+`scripts/build_chaos_tokens.py` à partir de la police `assets/tokens.ttf` du
+projet open source [Arkham Cards](https://github.com/zzorba/ArkhamCards)
+(zzorba), en reprenant sa recette de composition. Merci à ses auteurs.
+
 ## Architecture
 
 Cloudflare Workers, un seul déploiement :
