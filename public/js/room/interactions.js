@@ -159,8 +159,7 @@ export function initInteractions(ctx) {
       ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: chipMoins ? -1 : 1 });
       return;
     }
-    if (elem.closest(".pioche-rencontre")) { ctx.envoyer({ t: "drawEncounter" }); return; }
-    if (elem.closest(".dos-pile")) return;
+    if (elem.closest(".dos-pile")) return; // carte révélée sur la pioche ou dessus de la défausse : glisser seulement
     if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") ctx.envoyer({ t: "revealLocation", id: carte.id });
   });
   document.addEventListener("dblclick", (e) => {

@@ -36,6 +36,17 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **pioche de rencontre, règle simplifiée** (bug signalé :
+  les cartes suivantes se retrouvaient révélées) : cliquer sur la pioche
+  retourne la première carte ; tant qu'elle est là, la pioche refuse
+  (« glissez-la d'abord ») et un clic sur la carte révélée ne fait rien —
+  seul le glisser la déplace. Le « second clic = zone de menace » que
+  j'avais ajouté seul est retiré. `reshuffleDiscard` (« Remélanger dans
+  la pioche » sur la défausse). **Refus sans trace** : le DO restaure le
+  snapshot `before` quand une action est refusée en cours de route
+  (avant, la dernière carte révélée partait en zone de menace *puis* le
+  refus « pioche vide » laissait un état modifié non diffusé → serveur
+  et clients divergeaient).
 - 2026-09-03 : **agenda / acte refaits « physiques »** : une carte n'est
   rendue qu'à un seul endroit (le panneau Histoire n'affiche l'agenda,
   l'acte ou la carte de scénario que s'ils sont dans la zone `story`,
@@ -509,6 +520,9 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   le tracé et 400 ms après.
 - Les cartes du tapis peuvent passer sous l'overlay pioche/sac (bas
   gauche) : elles restent accessibles en déplaçant la vue.
+- Une action qui mute l'état puis `refuser()` laisse une divergence
+  serveur/clients : toujours valider avant de muter, et de toute façon
+  le DO restaure `before` sur refus (filet de sécurité en place).
 - Éléments de carte réutilisés entre zones : toute propriété de style
   posée par un rendu (position absolue du tapis) doit être effacée par
   les autres rendus, sinon elle « fuit » (carte décalée, invisible).

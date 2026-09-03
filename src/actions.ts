@@ -62,6 +62,13 @@ function boutDeMenace(state: RoomState, zone: ZoneId): number {
   return x;
 }
 
+/** Défausse de rencontre → pioche (le tout mélangé, face cachée). */
+function remelangerDefausse(state: RoomState, rng: Rng) {
+  state.piles.encounter.push(...state.piles.encounterDiscard.splice(0));
+  shuffle(state.piles.encounter, rng);
+  for (const id of state.piles.encounter) state.cards[id].faceUp = false;
+}
+
 /** Bord droit de la zone « de côté » (pour y ranger une carte en fin de rangée). */
 function boutDeCote(state: RoomState): number {
   let x = 0;
@@ -295,25 +302,25 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
     }
     case "drawEncounter": {
       // Piocher = retourner la première carte de la pioche, qui reste dessus ; le joueur la déplace
-      // ensuite à la main. Si une carte révélée est déjà dessus, elle part dans la zone de menace du
-      // demandeur et la suivante est retournée (rien n'est bloqué).
+      // ensuite à la main (glisser). Tant qu'une carte révélée est dessus, la pioche attend.
       const s = msg.seat === undefined ? monSiege() : siege(state, msg.seat);
       const dessus = state.piles.encounter.length ? state.cards[state.piles.encounter[0]] : null;
-      if (dessus?.faceUp) {
-        state.piles.encounter.shift();
-        const zone = SEAT_ZONES[s];
-        dessus.loc = { zone, x: boutDeMenace(state, zone), y: 0, z: nextZ(state) };
-        if (dessus.kind === "enemy" || dessus.kind === "treachery") dessus.ownerSeat = s;
-      }
+      if (dessus?.faceUp) refuser(`${nomCarte(def, dessus)} est déjà révélé sur la pioche : glissez-le où il faut avant de piocher`);
       if (!state.piles.encounter.length) {
         if (!state.piles.encounterDiscard.length) refuser("pioche et défausse vides");
-        state.piles.encounter = shuffle(state.piles.encounterDiscard.splice(0), rng);
-        for (const id of state.piles.encounter) state.cards[id].faceUp = false;
+        remelangerDefausse(state, rng);
         addLog(state, "action", "Pioche de rencontre vide : la défausse est remélangée.");
       }
       const c = state.cards[state.piles.encounter[0]];
       c.faceUp = true;
       addLog(state, "action", `${nomSiege(state, s, def)} pioche ${nomCarte(def, c)}.`, s);
+      return {};
+    }
+    case "reshuffleDiscard": {
+      if (!state.piles.encounterDiscard.length) refuser("la défausse est vide");
+      const n = state.piles.encounterDiscard.length;
+      remelangerDefausse(state, rng);
+      addLog(state, "action", `${n} carte${n > 1 ? "s" : ""} de la défausse remélangée${n > 1 ? "s" : ""} dans la pioche.`);
       return {};
     }
     case "takeClue": {

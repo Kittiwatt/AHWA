@@ -241,7 +241,8 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `addToken {id, token, delta}` | J | jetons ± sur une carte |
 | `setSeatCounter {seat, key, delta}` | J | vie, santé mentale, indices, actions, spécifiques |
 | `setCounter {key, delta}` | J | compteur de table |
-| `drawEncounter {seat?}` | J | retourne la première carte de la pioche (elle y reste, le joueur la déplace) ; si une carte révélée est déjà dessus, elle part dans la zone de menace du siège et la suivante est retournée ; défausse remélangée si pioche vide |
+| `drawEncounter {seat?}` | J | retourne la première carte de la pioche (elle y reste, le joueur la glisse ensuite) ; refusé tant qu'une carte révélée est dessus ; défausse remélangée si pioche vide |
+| `reshuffleDiscard` | J | toute la défausse de rencontre retourne dans la pioche, mélangée, face cachée |
 | `takeClue {id, n?}` | J | déplace `n` (1) indice d'un lieu vers la réserve du siège (double-clic sur les indices) |
 | `linkLocations {a, b}` / `unlink {id?}` | J | chemin entre deux lieux (`state.links`, bascule) / efface les chemins d'un lieu ou tous |
 | `searchEncounter {pile?}` | J | envoie la pioche (ou la défausse) au demandeur (`peek`) ; le client remélange à la fermeture (`shufflePile`) et permet de prendre une carte (`moveCard`) |

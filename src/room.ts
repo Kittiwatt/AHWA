@@ -325,7 +325,13 @@ export class Room extends Server<Env> {
         if (state.phase === "lobby") refuser("la partie n'est pas commencée");
         const def = getScenario(state.scenarioId) ?? refuser("scénario indisponible");
         const before = clone(state);
-        const res = jouer(state, def, msg, a.seat, Math.random);
+        let res;
+        try {
+          res = jouer(state, def, msg, a.seat, Math.random);
+        } catch (e) {
+          this.state = before; // une action refusée en cours de route ne laisse aucune trace
+          throw e;
+        }
         if (res.peek) { this.send(conn, { t: "peek", pile: res.peek.pile, cards: res.peek.cards }); return; }
         this.commit(before, res.reminders ?? []);
       }

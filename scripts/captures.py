@@ -23,6 +23,7 @@ def page_pour(browser, nom, host=False):
         script += f"localStorage.setItem('ahwa:host:{code}', {json.dumps(token)});"
     ctx.add_init_script(script)
     page = ctx.new_page()
+    page.on("dialog", lambda d: d.accept())
     page.on("console", lambda m: erreurs.append(f"[{nom}] console {m.type}: {m.text}") if m.type in ("error", "warning") else None)
     page.on("pageerror", lambda e: erreurs.append(f"[{nom}] pageerror: {e}"))
     page.goto(f"{BASE}/r/{code}")
@@ -149,6 +150,24 @@ with sync_playwright() as p:
     alice.wait_for_timeout(400)
     assert alice.locator("#sieges .siege").nth(0).locator(".menace .carte").count() == 1, "carte piochée en zone de menace"
     assert alice.locator("#pioches .pioche-rencontre.revelee").count() == 0, "la pioche est de nouveau face cachée"
+    # Une carte révélée qui attend sur la pioche : un clic dessus ne pioche pas, « Piocher » est désactivé.
+    alice.locator("#pioches .pioche-rencontre .dos-bouton").click()
+    alice.wait_for_selector("#pioches .pioche-rencontre.revelee .carte")
+    alice.locator("#pioches .pioche-rencontre .carte").first.click()
+    alice.wait_for_timeout(300)
+    assert alice.locator("#pioches .pioche-rencontre.revelee .carte").count() == 1, "toujours la même carte révélée"
+    assert alice.locator("#sieges .siege").nth(0).locator(".menace .carte").count() == 1, "rien n'est parti en zone de menace"
+    assert alice.get_by_role("button", name="Piocher").is_disabled()
+    src = alice.locator("#pioches .pioche-rencontre .carte").first.bounding_box()
+    dst = alice.locator("#pioches .pile").nth(1).bounding_box()
+    alice.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); alice.mouse.down()
+    alice.mouse.move(dst["x"] + dst["width"] / 2, dst["y"] + 40, steps=10); alice.mouse.up()
+    alice.wait_for_timeout(400)
+    assert alice.locator("#pioches .pioche-rencontre.revelee").count() == 0
+    assert alice.evaluate("[...document.querySelectorAll('#pioches .pioche-rencontre .carte')].length") == 0, "aucune carte révélée ne reste sur la pioche"
+    alice.get_by_role("button", name="Remélanger dans la pioche").click()
+    alice.wait_for_timeout(400)
+    assert "0" in alice.locator("#pioches .pile").nth(1).locator(".compte").inner_text(), "défausse remélangée"
     assert alice.evaluate("window.getSelection().toString()") == "", "aucune sélection de texte résiduelle"
     # Double-clic sur les indices du Study : 1 indice passe à Alice.
     alice.locator("#plateau .carte .jeton-clue").first.dblclick()

@@ -153,13 +153,21 @@ assert.equal(d.t, "delta");
 assert.equal(hote.state.piles.encounter.length, 26, "piocher = retourner la première carte, qui reste sur la pioche");
 assert.equal(hote.state.cards[hote.state.piles.encounter[0]].faceUp, true);
 d = await hote.action({ t: "drawEncounter" });
-assert.equal(hote.state.piles.encounter.length, 25, "second tirage : la carte révélée part en zone de menace");
-const tiree = Object.values(hote.state.cards).find((c) => c.loc.zone === "seat0" && c.kind !== "investigator");
-assert.ok(tiree && tiree.faceUp && tiree.ownerSeat === 0, "carte piochée dans la zone de menace");
+assert.equal(d.t, "nack", "une carte révélée attend sur la pioche : refus");
+assert.equal(hote.state.piles.encounter.length, 26, "et rien n'a bougé");
+const tiree = hote.state.cards[hote.state.piles.encounter[0]];
+d = await hote.action({ t: "moveCard", id: tiree.id, zone: "seat0", x: 9999, y: 0 });
+assert.equal(hote.state.piles.encounter.length, 25);
+assert.ok(tiree.faceUp && hote.state.cards[tiree.id].ownerSeat === 0, "carte glissée dans la zone de menace");
+assert.equal(hote.state.cards[hote.state.piles.encounter[0]].faceUp, false, "la suivante reste face cachée");
+d = await hote.action({ t: "drawEncounter" });
 const revelee = hote.state.cards[hote.state.piles.encounter[0]];
 assert.equal(revelee.faceUp, true);
 d = await hote.action({ t: "toPile", id: revelee.id, pile: "encounter", top: false });
 assert.equal(hote.state.cards[revelee.id].faceUp, false, "remise sous la pioche : face cachée");
+assert.equal(hote.state.piles.encounter.filter((id) => hote.state.cards[id].faceUp).length, 0, "aucune carte révélée dans la pioche");
+d = await hote.action({ t: "reshuffleDiscard" });
+assert.equal(d.t, "nack", "défausse vide : refus, état intact");
 d = await hote.action({ t: "setSeatCounter", seat: 0, key: "clues", value: 0 });
 d = await hote.action({ t: "takeClue", id: "01111" });
 assert.equal(hote.state.cards["01111"].tokens.clue, 3, "1 indice pris sur le Study");
@@ -252,6 +260,28 @@ assert.equal(hote.state.cards[peek.cards[3].id].faceUp, true, "carte prise dans 
 assert.equal(hote.state.piles.encounter.length, 24);
 d = await hote.action({ t: "shufflePile", pile: "encounter" });
 assert.equal(d.t, "delta");
+// Dernière carte révélée sur la pioche + défausse : remélange explicite, puis dernière carte seule.
+d = await hote.action({ t: "reshuffleDiscard" });
+assert.equal(d.t, "delta");
+assert.equal(hote.state.piles.encounterDiscard.length, 0);
+assert.equal(hote.state.piles.encounter.filter((id) => hote.state.cards[id].faceUp).length, 0);
+while (hote.state.piles.encounter.length > 1) {
+  d = await hote.action({ t: "toPile", id: hote.state.piles.encounter[0], pile: "removed" });
+}
+d = await hote.action({ t: "drawEncounter" });
+assert.equal(d.t, "delta", "dernière carte : retournée");
+const derniere = hote.state.piles.encounter[0];
+assert.equal(hote.state.cards[derniere].faceUp, true);
+d = await hote.action({ t: "drawEncounter" });
+assert.equal(d.t, "nack", "dernière carte révélée : refus sans effet");
+assert.equal(hote.state.piles.encounter[0], derniere, "la carte est toujours sur la pioche");
+d = await hote.action({ t: "moveCard", id: derniere, zone: "board", x: 100, y: 100 });
+assert.equal(hote.state.piles.encounter.length, 0);
+d = await hote.action({ t: "drawEncounter" });
+assert.equal(d.t, "nack", "pioche et défausse vides");
+spec.envoyer({ t: "resync" });
+const w3 = await spec.attendre((m) => m.t === "welcome");
+assert.deepEqual(sans(w3.state), sans(hote.state), "après des refus, serveur et client restent identiques");
 await bob.attendre((m) => m.t === "delta" && m.rev === hote.state.rev);
 assert.deepEqual(bob.state, hote.state, "états identiques après les actions de jeu");
 
