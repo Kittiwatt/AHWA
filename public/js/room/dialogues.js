@@ -1,7 +1,7 @@
 // Fenêtres : consultation d'une pile (recherche / défausse), ajustement du sac, dépense d'indices.
 
 import { el } from "./dom.js";
-import { CDN, JETONS_CHAOS, imgJetonChaos } from "./cartes.js";
+import { CDN, JETONS_CHAOS, imgJetonChaos, libelleType } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 
 function dialogue(titre, corps, boutons) {
@@ -80,4 +80,54 @@ export function ouvrirDepenseIndices(ctx, seuil) {
     } }, "Dépenser"),
     el("button", { class: "bouton secondaire", type: "button", onclick: () => d.close() }, "Annuler"),
   ]);
+}
+
+
+// ---- Générer une carte (outil générique, identique dans toutes les tables) ----
+let indexCartes = null;
+const normaliser = (t) => (t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+async function chargerIndex() {
+  if (indexCartes) return indexCartes;
+  const r = await fetch("/data/cards_index.json");
+  indexCartes = (await r.json()).cards;
+  return indexCartes;
+}
+
+export function ouvrirGenerateur(ctx) {
+  const champ = el("input", { type: "search", class: "recherche large", placeholder: "Nom de carte, code (01117) ou lien arkham.build/card/…", "aria-label": "Rechercher une carte", autofocus: true });
+  const liste = el("div", { class: "grille-cartes" }, el("p", { class: "vide", text: "Chargement de l'index…" }));
+  const d = dialogue("Générer une carte", el("div", { class: "generateur" }, champ, liste),
+    [el("button", { class: "bouton secondaire", type: "button", onclick: () => d.close() }, "Fermer")]);
+  const rendre = (cartes) => {
+    const q = champ.value.trim();
+    const code = q.match(/arkham\.build\/card\/([0-9a-z]+)/i)?.[1] ?? (/^[0-9]{5}[a-z]?$/i.test(q) ? q : null);
+    let res;
+    if (code) res = cartes.filter((c) => c.c.toLowerCase() === code.toLowerCase());
+    else {
+      const nq = normaliser(q);
+      if (nq.length < 2) { liste.replaceChildren(el("p", { class: "vide", text: "Tapez au moins deux lettres du nom, un code ou un lien arkham.build." })); return; }
+      const debut = [], dedans = [];
+      for (const c of cartes) {
+        const nom = normaliser(c.n), sous = normaliser(c.s);
+        if (nom.startsWith(nq)) debut.push(c);
+        else if (nom.includes(nq) || sous.includes(nq)) dedans.push(c);
+      }
+      res = [...debut, ...dedans];
+    }
+    const total = res.length;
+    res = res.slice(0, 40);
+    liste.replaceChildren(...res.map((c) => el("figure", { class: "carte-peek" },
+      el("img", { src: `${CDN}${c.c}.webp`, alt: c.n, loading: "lazy" }),
+      el("figcaption", {},
+        el("span", {}, el("strong", { text: c.n }), c.s ? el("span", { class: "sous", text: ` ${c.s}` }) : null,
+          el("span", { class: "meta", text: `${libelleType(c.t)} · ${c.pn || c.p} · ${c.c}` })),
+        el("button", { class: "lien-outil", type: "button", title: "Créer cette carte dans votre zone de menace",
+          onclick: () => { ctx.envoyer({ t: "createCard", code: c.c }); d.close(); } }, "Générer")),
+    )));
+    if (!res.length) liste.append(el("p", { class: "vide", text: "Aucune carte ne correspond." }));
+    else if (total > res.length) liste.append(el("p", { class: "vide", text: `${total} résultats, les 40 premiers affichés : précisez.` }));
+  };
+  chargerIndex().then((cartes) => { rendre(cartes); champ.addEventListener("input", () => rendre(cartes)); champ.focus(); })
+    .catch(() => liste.replaceChildren(el("p", { class: "vide", text: "L'index des cartes n'a pas pu être chargé." })));
 }

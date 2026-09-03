@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1050" width="750" height="1050">
+  <defs>
+    <radialGradient id="fond" cx="50%" cy="45%" r="70%">
+      <stop offset="0" stop-color="#3b3252"/>
+      <stop offset="1" stop-color="#171224"/>
+    </radialGradient>
+  </defs>
+  <rect width="750" height="1050" rx="28" fill="url(#fond)"/>
+  <rect x="34" y="34" width="682" height="982" rx="18" fill="none" stroke="#c8a25a" stroke-width="5" opacity="0.85"/>
+  <rect x="52" y="52" width="646" height="946" rx="12" fill="none" stroke="#c8a25a" stroke-width="1.5" opacity="0.6"/>
+  <g transform="translate(375 500)" fill="none" stroke="#c8a25a" stroke-width="4">
+    <circle r="190" opacity="0.7"/>
+    <circle r="150" stroke-width="2" opacity="0.6"/>
+    <path d="M-120 60 L0 -140 L120 60 Z" opacity="0.9"/>
+    <path d="M-70 40 L0 -70 L70 40 Z" opacity="0.6"/>
+    <circle r="22" fill="#c8a25a" stroke="none" opacity="0.9"/>
+  </g>
+  <text x="375" y="930" text-anchor="middle" font-family="Georgia, serif" font-size="34" letter-spacing="12" fill="#c8a25a" opacity="0.8">JOUEUR</text>
+</svg>

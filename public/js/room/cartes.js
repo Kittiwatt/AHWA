@@ -27,7 +27,7 @@ export function urlImage(carte, def) {
   if (carte.faceUp) return carte.side === "b" ? verso : `${CDN}${carte.code}.webp`;
   if (carte.kind === "investigator") return `${CDN}${carte.code}b.webp`;
   if (dos === "b" && !carte.storyBack) return verso;
-  return "/img/dos-rencontre.svg";
+  return dos === "player" ? "/img/dos-joueur.svg" : "/img/dos-rencontre.svg";
 }
 
 /** Face actuellement visible : la carte elle-même, ou la carte liée quand le verso en est une autre. */
@@ -43,6 +43,10 @@ export function loupePermise(carte, def) {
   if (carte.storyBack) return false;
   return (def?.back ?? "b") === "b" || carte.kind === "investigator";
 }
+
+const TYPES_INDEX = { asset: "Soutien", event: "Événement", skill: "Compétence", key: "Clé", enemy: "Ennemi", enemy_location: "Lieu-ennemi", treachery: "Traîtrise",
+  location: "Lieu", act: "Acte", agenda: "Agenda", story: "Histoire", scenario: "Scénario", investigator: "Investigateur" };
+export const libelleType = (t) => TYPES_INDEX[t] ?? t;
 
 export function estPaysage(carte) {
   return carte.kind === "agenda" || carte.kind === "act" || carte.kind === "investigator";

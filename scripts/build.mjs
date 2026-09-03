@@ -136,6 +136,21 @@ async function buildInvestigators() {
   process.stdout.write(`investigators.json : ${inv.length} investigateurs\n`);
 }
 
+/** Index compact de TOUTES les cartes (joueur et rencontre) pour l'outil « Générer une carte ». */
+async function buildCardsIndex() {
+  const cartes = await json(`${ARKHAMDB}/cards/?encounter=1`, "all_encounter.json");
+  const idx = cartes
+    .filter((c) => c.imagesrc)
+    .map((c) => ({
+      c: c.code, n: c.name, s: c.subname ?? "", t: c.type_code, p: c.pack_code, pn: c.pack_name ?? "",
+      f: c.faction_code ?? "", h: c.health ?? null, m: c.sanity ?? null, d: c.double_sided ? 1 : 0, e: c.encounter_code ? 1 : 0,
+      ...(c.linked_card ? { lc: c.linked_card.code, lt: c.linked_card.type_code, ln: c.linked_card.name, lh: c.linked_card.health ?? null } : {}),
+    }))
+    .sort((a, b) => a.c.localeCompare(b.c));
+  await writeFile(path.join(racine, "public", "data", "cards_index.json"), JSON.stringify({ builtAt: new Date().toISOString().slice(0, 10), cards: idx }));
+  process.stdout.write(`cards_index.json : ${idx.length} cartes\n`);
+}
+
 async function buildRegistre(ids) {
   const lignes = [
     "// GÉNÉRÉ par scripts/build.mjs — ne pas modifier à la main.",
@@ -156,5 +171,6 @@ const fichiers = (await readdir(SRC)).filter((f) => f.endsWith(".src.json")).sor
 const ids = [];
 for (const f of fichiers) ids.push(await buildScenario(path.join(SRC, f)));
 await buildInvestigators();
+await buildCardsIndex();
 await buildRegistre(ids);
 process.stdout.write("Build terminé.\n");

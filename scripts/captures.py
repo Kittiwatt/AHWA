@@ -277,6 +277,22 @@ with sync_playwright() as p:
     assert bb and abs(bb["x"] - pile_bb["x"]) < 3 and abs(bb["y"] - pile_bb["y"]) < 3, f"carte visible dans la défausse ({bb} vs {pile_bb})"
     assert alice.locator("#pioches .defausse-rencontre .carte").first.get_attribute("style") in (None, ""), "pas de position résiduelle du tapis"
 
+    # Générer une carte : recherche par nom, par lien arkham.build.
+    alice.locator("#generer-carte").click()
+    alice.wait_for_selector("dialog.dialogue[open]")
+    alice.fill("dialog .recherche.large", "https://arkham.build/card/01117")
+    alice.wait_for_selector("dialog .carte-peek")
+    assert alice.locator("dialog .carte-peek").count() == 1 and "Lita Chantler" in alice.locator("dialog .carte-peek").first.inner_text()
+    alice.fill("dialog .recherche.large", "barric")
+    alice.wait_for_timeout(300)
+    assert "Barricade" in alice.locator("dialog .carte-peek").first.inner_text()
+    alice.screenshot(path=f"{OUT}/19_generateur.png")
+    alice.locator("dialog .carte-peek").first.get_by_role("button", name="Générer").click()
+    alice.wait_for_timeout(500)
+    generee = alice.locator("#sieges .siege").nth(0).locator(".menace .carte[data-id^='gen-']")
+    assert generee.count() == 1, "carte générée dans la zone de menace"
+    assert "01038" in generee.first.locator("img").get_attribute("src")
+
     # Rechargement : Alice retrouve son siège automatiquement.
     alice.reload()
     alice.wait_for_selector("#tapis:not([hidden])", timeout=8000)

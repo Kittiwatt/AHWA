@@ -102,6 +102,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
   state.piles = { encounter: [], encounterDiscard: [], removed: [], agendaDeck: [], actDeck: [] };
   for (const p of def.piles ?? []) state.piles[p.id] = [];
   state.links = [];
+  state.extraDefs = {};
   state.chaos = { bag: [...def.chaosBag[state.difficulty]], drawn: [], sealed: [] };
   state.counters = Object.fromEntries(def.tableCounters.map((c) => [c.key, c.initial]));
   state.agendaId = null;

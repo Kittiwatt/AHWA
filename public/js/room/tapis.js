@@ -5,7 +5,7 @@
 import { el, pluriel } from "./dom.js";
 import { majCarte, majMini, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos, COULEURS_CHEMINS } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
-import { ouvrirDialogueCartes, ouvrirAjustementSac, ouvrirDepenseIndices } from "./dialogues.js";
+import { ouvrirDialogueCartes, ouvrirAjustementSac, ouvrirDepenseIndices, ouvrirGenerateur } from "./dialogues.js";
 
 export const PHASES = {
   mythos: "Phase du mythe",
@@ -42,6 +42,8 @@ const assis = (ctx) => ctx.etat.moi.seat !== null;
 
 export function rendreTapis(ctx) {
   const { state } = ctx.etat;
+  // Cartes générées par l'outil : leurs définitions voyagent dans l'état.
+  for (const [code, def] of Object.entries(state.extraDefs ?? {})) if (!ctx.defs.has(code)) ctx.defs.set(code, def);
   nettoyer(ctx);
   rendreBarre(ctx);
   rendrePlateau(ctx);
@@ -79,6 +81,10 @@ function rendreBarre(ctx) {
       ? (restants.length ? `Tour libre — ${pluriel(restants.length, "enquêteur")} n'${restants.length > 1 ? "ont" : "a"} pas encore joué.` : "Tout le monde a joué : phase suivante.")
       : `Tour de ${nomSiege(state.seats[state.turn.seat], ctx)}.`;
   } else tour.textContent = "";
+
+  const gen = document.getElementById("generer-carte");
+  gen.disabled = !peut;
+  gen.onclick = () => ouvrirGenerateur(ctx);
 
   const suivante = document.getElementById("phase-suivante");
   suivante.disabled = !peut || state.phase === "resolution";

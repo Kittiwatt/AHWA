@@ -13,12 +13,17 @@ import {
 } from "./state";
 import { diff, clone } from "./patch";
 import { getScenario } from "./scenario";
-import { addLog, runSetup } from "./setup";
+import { addLog, runSetup, nextZ, SEAT_ZONES } from "./setup";
 import { jouer, Refus, refuser } from "./actions";
 import { newHostToken } from "./codes";
 import investigatorsIndex from "../public/data/investigators.json";
 
 type Meta = { code: string; scenarioId: string; hostToken: string };
+type FicheIndex = { c: string; n: string; s?: string; t: string; p: string; f?: string; h?: number | null; m?: number | null; d: number; e: number; lc?: string; lt?: string; ln?: string; lh?: number | null };
+const KIND_INDEX: Record<string, import("./state").CardKind> = {
+  asset: "asset", event: "asset", skill: "asset", key: "asset", enemy: "enemy", enemy_location: "location", treachery: "treachery",
+  location: "location", act: "act", agenda: "agenda", story: "story", scenario: "scenario", investigator: "investigator",
+};
 type Attachment = { seat: number | null; isHost: boolean };
 
 const INVESTIGATORS = new Map(investigatorsIndex.investigators.map((i) => [i.code, i]));
@@ -43,6 +48,7 @@ export class Room extends Server<Env> {
       if (r.k === "state") this.state = JSON.parse(r.json);
     }
     if (this.state && !this.state.links) this.state.links = []; // tables créées avant le champ
+    if (this.state && !this.state.extraDefs) this.state.extraDefs = {};
   }
 
   private persist(k: "meta" | "state", value: unknown) {
@@ -301,6 +307,7 @@ export class Room extends Server<Env> {
         state.cards = {};
         state.piles = emptyPiles();
         state.links = [];
+        state.extraDefs = {};
         state.chaos = { bag: [], drawn: [], sealed: [] };
         state.counters = {};
         state.agendaId = null;
@@ -325,6 +332,32 @@ export class Room extends Server<Env> {
       case "deleteRoom": {
         host();
         await this.detruire(4411, "table supprimée par l'hôte");
+        return;
+      }
+
+      // ---- Générer une carte (outil générique) ----
+      case "createCard": {
+        const s = seated();
+        if (state.phase === "lobby") refuser("la partie n'est pas commencée");
+        const code = String(msg.code ?? "").trim();
+        const fiche = (await this.indexCartes()).get(code) ?? refuser("carte inconnue");
+        const before = clone(state);
+        const kind = KIND_INDEX[fiche.t] ?? "asset";
+        const n = Object.keys(state.cards).filter((id) => id.startsWith("gen-")).length + 1;
+        const id = `gen-${n}-${code}`;
+        const def = {
+          code, name: fiche.n, kind, qty: 1, set: fiche.e ? "encounter" : "player", back: fiche.d ? "b" : (fiche.e ? "encounter" : "player"), storyBack: false,
+          ...(fiche.h !== null && fiche.h !== undefined ? { health: fiche.h } : {}), ...(fiche.m !== null && fiche.m !== undefined ? { sanity: fiche.m } : {}),
+          ...(fiche.lc ? { backCode: fiche.lc, backKind: KIND_INDEX[fiche.lt ?? ""] ?? "story", backName: fiche.ln, ...(fiche.lh !== null && fiche.lh !== undefined ? { backHealth: fiche.lh } : {}) } : {}),
+          ...(kind === "location" ? { clue: { value: 0, perInvestigator: false } } : {}),
+        };
+        state.extraDefs[code] = def;
+        const zone = SEAT_ZONES[s];
+        let x = 0;
+        for (const c of Object.values(state.cards)) if ("zone" in c.loc && c.loc.zone === zone && c.kind !== "investigator") x = Math.max(x, c.loc.x + 136);
+        state.cards[id] = { id, code, kind, storyBack: false, loc: { zone, x, y: 0, z: nextZ(state) }, faceUp: true, exhausted: false, side: "a", tokens: {}, ownerSeat: s };
+        addLog(state, "action", `${this.nomSiege(s)} génère la carte ${fiche.n}${fiche.s ? ` (${fiche.s})` : ""}.`, s);
+        this.commit(before);
         return;
       }
 
@@ -414,6 +447,19 @@ export class Room extends Server<Env> {
   private nomSiege(n: number): string {
     const s = this.state!.seats[n];
     return s.name ?? INVESTIGATORS.get(s.investigatorCode ?? "")?.name ?? `Siège ${n + 1}`;
+  }
+
+  // ---- Index de toutes les cartes (assets statiques, chargé une fois par instance) ----
+
+  private index: Map<string, FicheIndex> | null = null;
+
+  private async indexCartes(): Promise<Map<string, FicheIndex>> {
+    if (this.index) return this.index;
+    const r = await this.env.ASSETS.fetch(new Request("https://assets.local/data/cards_index.json"));
+    if (!r.ok) refuser("index des cartes indisponible");
+    const data = (await r.json()) as { cards: FicheIndex[] };
+    this.index = new Map(data.cards.map((c) => [c.c, c]));
+    return this.index;
   }
 
   // ---- Utilitaires -------------------------------------------------------------

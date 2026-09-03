@@ -78,6 +78,7 @@ export type RoomState = {
   cards: Record<CardId, CardState>;
   piles: Record<PileId, CardId[]>;
   links: { a: CardId; b: CardId; color: number }[];   // chemins tracés entre lieux (couleur = index de palette)
+  extraDefs: Record<string, unknown>;                  // définitions des cartes générées (outil « Générer une carte »)
   chaos: ChaosState;
   counters: Record<string, number>;
   agendaId: CardId | null;
@@ -117,6 +118,7 @@ export function initialState(code: string, scenarioId: string, now = Date.now())
     cards: {},
     piles: emptyPiles(),
     links: [],
+    extraDefs: {},
     chaos: { bag: [], drawn: [], sealed: [] },
     counters: {},
     agendaId: null,

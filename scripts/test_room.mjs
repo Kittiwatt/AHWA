@@ -285,6 +285,22 @@ assert.deepEqual(sans(w3.state), sans(hote.state), "après des refus, serveur et
 await bob.attendre((m) => m.t === "delta" && m.rev === hote.state.rev);
 assert.deepEqual(bob.state, hote.state, "états identiques après les actions de jeu");
 
+// Générer une carte : Lita (soutien à jauges) et Barricade (événement), dans la zone de menace du demandeur.
+d = await hote.action({ t: "createCard", code: "01117" });
+assert.equal(d.t, "delta");
+const lita = Object.values(hote.state.cards).find((c) => c.id.startsWith("gen-") && c.code === "01117");
+assert.ok(lita && lita.loc.zone === "seat0" && lita.faceUp && lita.kind === "asset", "Lita générée en zone de menace");
+assert.equal(hote.state.extraDefs["01117"].health, 3);
+d = await hote.action({ t: "createCard", code: "01038" });
+assert.equal(hote.state.extraDefs["01038"].name, "Barricade");
+assert.equal(hote.state.extraDefs["01038"].back, "player");
+d = await hote.action({ t: "createCard", code: "99999" });
+assert.equal(d.t, "nack", "code inconnu refusé");
+spec.envoyer({ t: "createCard", code: "01117" });
+assert.equal((await spec.attendre((m) => m.t === "nack")).t, "nack", "spectateur : refusé");
+await bob.attendre((m) => m.t === "delta" && m.rev === hote.state.rev);
+assert.deepEqual(bob.state.extraDefs, hote.state.extraDefs, "définitions partagées");
+
 // Un spectateur ne peut pas prendre un siège vide après la mise en place.
 spec.envoyer({ t: "takeSeat", seat: 2 });
 assert.equal((await spec.attendre((m) => m.t === "nack")).t, "nack");

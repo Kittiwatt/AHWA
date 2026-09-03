@@ -36,6 +36,19 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **outil « Générer une carte »** (demande) : bouton ⊞ dans
+  la barre de phase, identique dans toutes les tables. Fenêtre de
+  recherche par nom (insensible à la casse et aux accents, préfixe
+  d'abord), par code (01117) ou par lien arkham.build/card/<code> ;
+  40 résultats max avec vignette, type, extension, code. La carte
+  apparaît dans la zone de menace du demandeur (`createCard {code}`,
+  joueur assis, partie commencée) et se manipule comme les autres.
+  Données : `public/data/cards_index.json` (toutes les cartes ArkhamDB
+  avec image, 5 711, ~630 Ko / 86 Ko gzip, chargé à la première
+  ouverture) ; côté DO l'index est lu depuis les assets à la première
+  demande (`env.ASSETS.fetch`) — pas dans le bundle. Les définitions
+  des cartes générées voyagent dans `state.extraDefs` (nom, dos,
+  jauges, verso lié). Dos « joueur » original (`img/dos-joueur.svg`).
 - 2026-09-03 : **The Midnight Masks (NotZ II) livré**, deuxième table.
   Nouveau dans le moteur de setup : `pickRandom` (versions de Downtown
   et Southside tirées au hasard, l'autre retirée ; `slot:` pour y

@@ -381,3 +381,11 @@ body.mode-lien #plateau .carte.kind-location { outline: 2px dashed var(--dorure-
 .reglage.questions .question > .libelle { margin: 0; font-weight: 500; }
 .pile .etiquette-pile { position: absolute; left: 0; right: 0; bottom: -1.1rem; text-align: center; font-size: 0.7rem; color: var(--papier-2); white-space: nowrap; pointer-events: none; }
 .pioches { padding-bottom: 0.9rem; }
+
+/* Outil « Générer une carte » */
+.bouton.icone { padding: 0.25rem 0.45rem; display: inline-grid; place-items: center; }
+.bouton.icone svg { width: 1.3rem; height: 1.3rem; }
+.generateur { display: grid; gap: 0.8rem; }
+.generateur .recherche.large { width: 100%; max-width: none; font-size: 1.05rem; padding: 0.5rem 0.8rem; background: var(--nuit-2); color: var(--papier); border: 1px solid var(--filet); border-radius: 2px; font: inherit; }
+.generateur .carte-peek figcaption { flex-direction: column; align-items: stretch; gap: 0.2rem; }
+.generateur .carte-peek .meta { display: block; color: var(--papier-2); font-size: 0.78rem; }

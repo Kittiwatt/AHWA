@@ -245,6 +245,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `reshuffleDiscard` | J | toute la défausse de rencontre retourne dans la pioche, mélangée, face cachée |
 | `takeClue {id, n?}` | J | déplace `n` (1) indice d'un lieu vers la réserve du siège (double-clic sur les indices) |
 | `linkLocations {a, b}` / `unlink {id?}` | J | chemin entre deux lieux (`state.links`, bascule) / efface les chemins d'un lieu ou tous |
+| `createCard {code}` | J | génère n'importe quelle carte du jeu (index `cards_index.json`) dans la zone de menace du demandeur ; définition dans `state.extraDefs` |
 | `searchEncounter {pile?}` | J | envoie la pioche (ou la défausse) au demandeur (`peek`) ; le client remélange à la fermeture (`shufflePile`) et permet de prendre une carte (`moveCard`) |
 | `shufflePile {pile}` | J | remélange |
 | `nextPhase` | J | enchaîne les phases (§6) |
