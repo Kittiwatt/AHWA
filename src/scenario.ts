@@ -49,8 +49,26 @@ export type SetupStep =
     // sur l'une de ses cartes, tirée au hasard, révélée, avec son pion dessus
   | { op: "story"; log?: string }
   | { op: "buildEncounter"; log?: string }
+  | { op: "addClues"; code: string; n: number; log?: string }                  // indices fixes sur un lieu en jeu (révélé ou non)
+  | { op: "removeClues"; from: string[]; n?: number; nFrom?: string; log?: string }   // retire n indices (ou la réponse numérique nFrom) aussi également que possible
   | { op: "log"; text: string }
   | { op: "hook"; name: string; log?: string };
+
+// Question au lobby : à choix (options) ou numérique (type "number", bornes min/max, valeur par défaut).
+export type Question = {
+  id: string; text: string;
+  options?: { id: string; label: string }[];
+  type?: "number"; min?: number; max?: number; default?: number;
+};
+
+/** Réponse valide ? (choix parmi les options, ou entier dans les bornes) */
+export function reponseValide(q: Question, r: unknown): boolean {
+  if (q.type === "number") {
+    const n = Number(r);
+    return Number.isInteger(n) && n >= (q.min ?? 0) && n <= (q.max ?? Number.MAX_SAFE_INTEGER);
+  }
+  return (q.options ?? []).some((o) => o.id === r);
+}
 
 export type Reminder = { when: string; text: string };
 
@@ -74,7 +92,8 @@ export type ScenarioDef = {
   chaosBag: Record<Difficulty, Token[]>;
   layout: { code: string; x: number; y: number }[];
   setup: SetupStep[];
-  questions: { id: string; text: string; options: { id: string; label: string }[] }[];
+  questions: Question[];
+  swaps?: { pair: [string, string]; labels: [string, string] }[];   // lieux qui se remplacent (normal ↔ Spectral), avec le libellé de chaque version
   seatCounters: { key: string; label: string; icon?: string; initial: number }[];
   tableCounters: { key: string; label: string; icon?: string; initial: number }[];
   reminders: Reminder[];

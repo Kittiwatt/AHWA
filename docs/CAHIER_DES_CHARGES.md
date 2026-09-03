@@ -233,8 +233,8 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `close` / `deleteRoom` | H | résolution / suppression |
 | `kick {seat}` | H | libère un siège (au lobby : retire aussi son enquêteur) |
 | `moveCard {id, zone, x, y}` | J | drop sur le tapis (au lâcher uniquement) ; une carte sortie d'une pile entre en jeu face visible, sauf un lieu, qui entre non révélé (clic = révélation + indices) |
-| `toPile {id, pile, top?}` | J | met une carte dans une pile |
-| `flipCard {id}` | J | retourne (refusé si `storyBack && !faceUp` — seul le setup/scénario peut révéler) |
+| `toPile {id, pile, top?, shuffle?}` | J | met une carte dans une pile ; `shuffle` remélange la pile ensuite (« Mélanger dans la pioche ») |
+| `flipCard {id}` | J | retourne (refusé pour un dos histoire : face cachée il montre le dos générique ; son côté histoire se lit par `toggleSide`, menu « Lire le côté histoire », quand une carte l'indique) |
 | `revealLocation {id}` | J | face visible + indices auto (`clueValue × joueurs` ou `clueValue` si « per investigator » absent) |
 | `toggleSide {id}` | J | lieux double face |
 | `exhaust {id, v}` | J | épuiser / redresser |
@@ -245,6 +245,8 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `reshuffleDiscard` | J | toute la défausse de rencontre retourne dans la pioche, mélangée, face cachée |
 | `takeClue {id, n?}` | J | déplace `n` (1) indice d'un lieu vers la réserve du siège (double-clic sur les indices) |
 | `linkLocations {a, b}` / `unlink {id?}` | J | chemin entre deux lieux (`state.links`, bascule) / efface les chemins d'un lieu ou tous |
+| `swapLocation {id}` / `swapLocation {all}` | J | lieux qui se remplacent (`swaps`) : la version jumelle prend la place, les jetons, les chemins et ce qui est posé ; elle entre non révélée, sauf si un pion s'y trouve (révélée, indices) ; l'ancien lieu part de côté. `all` : tous les lieux du tapis qui ont une jumelle disponible |
+| `clearClues` | J | retire tous les indices des lieux en jeu |
 | `createCard {code}` | J | génère n'importe quelle carte du jeu (index `cards_index.json`) dans la zone de menace du demandeur ; définition dans `state.extraDefs` |
 | `searchEncounter {pile?}` | J | envoie la pioche (ou la défausse) au demandeur (`peek`) ; le client remélange à la fermeture (`shufflePile`) et permet de prendre une carte (`moveCard`) |
 | `shufflePile {pile}` | J | remélange |
@@ -338,7 +340,21 @@ référence `slot:<nom>` désigne la carte choisie par `pickRandom` ou
 packs ArkhamDB ; `piles` déclare des piles supplémentaires ;
 `backPlacement {code: {x, y}}` dit où entre en jeu le verso-lieu d'un
 acte ou d'un agenda (voir `advanceAct`). Une carte liée dont le verso
-est un lieu reçoit `backClue` au build. Tout ce qui n'est ni posé ni
+est un lieu reçoit `backClue` au build. `addClues {code, n}` (indices
+fixes sur un lieu, révélé ou non) et `removeClues {from, n | nFrom}`
+(retrait aussi égal que possible, `nFrom` = réponse numérique) servent
+aux traces du journal (At Death's Doorstep). `swaps [{pair, labels}]`
+déclare les lieux qui se remplacent (normal ↔ Spectral, voir
+`swapLocation`). `storyBack` (codes) marque les cartes dont le dos est
+une carte histoire. Le build synthétise le recto d'une carte dont
+ArkhamDB ne connaît que le verso (`<code>b` avec `linked_card`, ex.
+Josef Meiger 05085).
+
+Questions du lobby : à choix (`options`) ou **numériques** (`type:
+"number"`, `min`, `max`, `default`) ; la réponse voyage en chaîne dans
+`startSetup {answers}` et est validée par `reponseValide`. Rappels
+`when` : `setup`, phases, `round:<n>`, et **`act:<n>` / `agenda:<n>`**
+(déclenchés quand cet acte ou agenda devient courant). Tout ce qui n'est ni posé ni
 mélangé va dans `removed`. Après la mise en place, `round = 1` et `phase =
 "investigation"` (la phase du mythe est sautée à la première manche).
 La source déclarative est `data/scenarios/<id>.src.json` ; le build y

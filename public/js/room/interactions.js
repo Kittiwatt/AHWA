@@ -280,9 +280,19 @@ export function initInteractions(ctx) {
       if (carte.kind === "location" && carte.loc.zone === "board") {
         items.push(item("Relier à un autre lieu…", () => { modeLien = carte.id; document.body.classList.add("mode-lien"); encart("Cliquez sur le lieu de destination (Échap pour annuler).", "info"); }));
         if ((ctx.etat.state.links ?? []).some((l) => l.a === carte.id || l.b === carte.id)) items.push(item("Effacer ses chemins", () => ctx.envoyer({ t: "unlink", id: carte.id })));
+        // Lieux qui se remplacent (TCU « Replacing Locations ») : ce lieu, ou tous ceux du tapis.
+        const paire = (ctx.scenario.swaps ?? []).find((p) => p.pair.includes(carte.code));
+        if (paire) {
+          const autre = paire.labels[1 - paire.pair.indexOf(carte.code)];
+          items.push(item(`Remplacer par sa ${autre}`, () => ctx.envoyer({ t: "swapLocation", id: carte.id })));
+          items.push(item("Tous les lieux → version jumelle", () => { if (confirm("Remplacer tous les lieux du tapis par leur version jumelle disponible (jetons et cartes conservés) ?")) ctx.envoyer({ t: "swapLocation", all: true }); }));
+        }
+        items.push(item("Retirer tous les indices des lieux", () => { if (confirm("Retirer tous les indices de tous les lieux en jeu ?")) ctx.envoyer({ t: "clearClues" }); }));
       }
       if (!carte.storyBack && carte.kind !== "investigator") items.push(item("Retourner", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
       if (carte.kind === "scenario" || carte.kind === "story") items.push(item("Autre face", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
+      // Dos « histoire » : lisible seulement sur demande explicite (une carte l'indique), jamais par retournement.
+      if (carte.storyBack && carte.faceUp && def?.back === "b") items.push(item(carte.side === "b" ? "Revenir au recto" : "Lire le côté histoire (quand une carte l'indique)", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
       const jetons = carte.kind === "investigator" ? ["damage", "horror", "resource"]
         : carte.kind === "location" ? ["clue", "doom", "generic"]
         : carte.kind === "enemy" ? ["damage", "doom", "clue", "generic"]
@@ -292,6 +302,7 @@ export function initInteractions(ctx) {
         items.push(item("Défausser", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "encounterDiscard" })));
         items.push(item("Sur la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "encounter", top: true })));
         items.push(item("Sous la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "encounter", top: false })));
+        items.push(item("Mélanger dans la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "encounter", shuffle: true })));
       }
       if (carte.kind !== "investigator" && carte.kind !== "agenda" && carte.kind !== "act" && carte.kind !== "scenario") {
         if (carte.loc.zone !== "victory") items.push(item("Zone de victoire", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "victory", x: 9999, y: 0 })));

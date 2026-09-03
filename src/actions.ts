@@ -84,7 +84,7 @@ function boutDeCote(state: RoomState): number {
  * Révèle l'agenda ou l'acte suivant. L'ancienne carte, si elle est encore dans l'histoire, part de côté
  * (hors jeu, lisible dans la zone floutée) ; un agenda qui avance retire tout le doom en jeu.
  */
-function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDejaSortie = false) {
+function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDejaSortie = false): LogEntry[] {
   const pile = agenda ? state.piles.agendaDeck : state.piles.actDeck;
   const courantId = agenda ? state.agendaId : state.actId;
   if (courantId && !ancienneDejaSortie) {
@@ -113,7 +113,7 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
   if (!pile.length) {
     if (agenda) state.agendaId = null; else state.actId = null;
     addLog(state, "action", agenda ? "Dernier agenda sorti de l'histoire." : "Dernier acte sorti de l'histoire.");
-    return;
+    return [];
   }
   const id = pile.shift()!;
   const c = state.cards[id];
@@ -127,14 +127,59 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
     state.actId = id;
     addLog(state, "action", `Acte suivant : ${nomCarte(def, c)}.`);
   }
+  // Rappels déclarés par le scénario pour cette étape (« act:2 », « agenda:2 »…).
+  const stage = def.cards.find((k) => k.code === c.code)?.stage;
+  return stage ? rappels(state, def, `${agenda ? "agenda" : "act"}:${stage}`) : [];
 }
 
 /** Si la carte quitte l'histoire pour sortir du jeu (de côté, victoire, pile), l'agenda/acte suivant est révélé. */
-function sortieHistoire(state: RoomState, def: ScenarioDef, c: CardState) {
+function sortieHistoire(state: RoomState, def: ScenarioDef, c: CardState): LogEntry[] {
   const sortie = "pile" in c.loc || c.loc.zone === "aside" || c.loc.zone === "victory";
-  if (!sortie) return;
-  if (c.id === state.agendaId) avancer(state, def, true, true);
-  else if (c.id === state.actId) avancer(state, def, false, true);
+  if (!sortie) return [];
+  if (c.id === state.agendaId) return avancer(state, def, true, true);
+  if (c.id === state.actId) return avancer(state, def, false, true);
+  return [];
+}
+
+/** Pions posés sur un lieu (à cheval sur ses bords, comme au setup). */
+function pionsSur(state: RoomState, lieu: CardState): CardState[] {
+  if (!("zone" in lieu.loc)) return [];
+  const lx = lieu.loc.x, ly = lieu.loc.y;
+  return Object.values(state.cards).filter((k) => k.kind === "mini" && "zone" in k.loc && k.loc.zone === "board"
+    && k.loc.x + MINI / 2 >= lx - MINI && k.loc.x + MINI / 2 <= lx + CARD_W + MINI
+    && k.loc.y + MINI / 2 >= ly - MINI && k.loc.y + MINI / 2 <= ly + CARD_H + MINI);
+}
+
+/**
+ * Remplacement d'un lieu par sa version jumelle (normal ↔ Spectral, TCU « Replacing Locations ») : la jumelle
+ * prend sa place, ses jetons et ce qui est posé dessus (rien n'a bougé) ; elle entre non révélée, sauf si un
+ * enquêteur s'y trouve (révélée, indices posés) ; l'ancien lieu part de côté, hors jeu.
+ */
+function remplacerLieu(state: RoomState, def: ScenarioDef, c: CardState): string {
+  if (c.kind !== "location" || !("zone" in c.loc) || c.loc.zone !== "board") refuser("ce n'est pas un lieu en jeu");
+  const paire = def.swaps?.find((p) => p.pair.includes(c.code)) ?? refuser("ce lieu n'a pas de version de remplacement");
+  const autreCode = paire.pair[0] === c.code ? paire.pair[1] : paire.pair[0];
+  const autre = Object.values(state.cards).find((k) => k.code === autreCode && !("zone" in k.loc && k.loc.zone === "board"))
+    ?? refuser("la version de remplacement n'est pas disponible");
+  retirerDesPiles(state, autre.id);
+  const loc = c.loc as { x: number; y: number };
+  autre.loc = { zone: "board", x: loc.x, y: loc.y, z: nextZ(state) };
+  autre.tokens = c.tokens;
+  autre.exhausted = c.exhausted;
+  autre.faceUp = false;
+  autre.side = "a";
+  c.loc = { zone: "aside", x: boutDeCote(state), y: 0, z: nextZ(state) };
+  c.tokens = {};
+  c.exhausted = false;
+  c.faceUp = false;
+  for (const l of state.links) { if (l.a === c.id) l.a = autre.id; if (l.b === c.id) l.b = autre.id; }
+  let texte = `${nomCarte(def, c)} est remplacé par sa ${paire.labels[paire.pair.indexOf(autreCode)]} (jetons et cartes conservés) ; l'ancien lieu part de côté.`;
+  if (pionsSur(state, autre).length) {
+    const n = revealLocation(state, def, autre);
+    texte += ` Un enquêteur s'y trouve : lieu révélé${n ? `, ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}.`;
+  }
+  addLog(state, "action", texte);
+  return autre.id;
 }
 
 export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: string]: unknown }, moi: number | null, rng: Rng): Resultat {
@@ -255,7 +300,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
         c.faceUp = c.kind !== "location";
         if (c.kind === "location") c.side = "a";
       }
-      sortieHistoire(state, def, c);
+      const reminders = sortieHistoire(state, def, c);
       // Un lieu déplacé sur le tapis emmène ce qui est posé dessus : pions (à cheval sur le bord) et cartes dont le centre est sur le lieu.
       if (c.kind === "location" && avant?.zone === "board" && zone === "board") {
         const dx = x - avant.x, dy = y - avant.y;
@@ -273,7 +318,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       if (c.kind === "enemy" || c.kind === "treachery" || c.kind === "asset" || c.kind === "story") {
         if (idx >= 0) c.ownerSeat = idx; else delete c.ownerSeat;
       }
-      return {};
+      return reminders.length ? { reminders } : {};
     }
     case "toPile": {
       const c = carte(state, msg.id);
@@ -288,9 +333,12 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       c.tokens = {};
       delete c.ownerSeat;
       if (msg.top === false) state.piles[pile].push(c.id); else state.piles[pile].unshift(c.id);
-      if (pile === "encounterDiscard") addLog(state, "action", `${nomCarte(def, c)} défaussé.`);
-      sortieHistoire(state, def, c);
-      return {};
+      if (msg.shuffle === true && pile !== "encounterDiscard") {
+        shuffle(state.piles[pile], rng);
+        addLog(state, "action", `${nomCarte(def, c)} mélangé dans ${pile === "encounter" ? "la pioche de rencontre" : nomPile(def, pile)}.`);
+      } else if (pile === "encounterDiscard") addLog(state, "action", `${nomCarte(def, c)} défaussé.`);
+      const reminders = sortieHistoire(state, def, c);
+      return reminders.length ? { reminders } : {};
     }
     case "flipCard": {
       const c = carte(state, msg.id);
@@ -377,7 +425,35 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const courantId = agenda ? state.agendaId : state.actId;
       if (!pile.length && !courantId) refuser(agenda ? "plus d'agenda" : "plus d'acte");
       const courant = courantId ? state.cards[courantId] : null;
-      avancer(state, def, agenda, !courant || !("zone" in courant.loc) || courant.loc.zone !== "story");
+      const reminders = avancer(state, def, agenda, !courant || !("zone" in courant.loc) || courant.loc.zone !== "story");
+      return reminders.length ? { reminders } : {};
+    }
+
+    // ---- Lieux qui se remplacent (TCU), indices en masse ------------------------------
+    case "swapLocation": {
+      // {id} : ce lieu ; {all: true} : tous les lieux du tapis qui ont une version jumelle disponible.
+      if (msg.all === true) {
+        const lieux = Object.values(state.cards).filter((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board"
+          && def.swaps?.some((p) => p.pair.includes(k.code)));
+        if (!lieux.length) refuser("aucun lieu à remplacer");
+        let n = 0;
+        for (const l of lieux) {
+          try { remplacerLieu(state, def, l); n++; } catch (e) { if (!(e instanceof Refus)) throw e; }
+        }
+        if (!n) refuser("aucune version de remplacement disponible");
+        addLog(state, "action", `${n} lieu${n > 1 ? "x" : ""} remplacé${n > 1 ? "s" : ""} par ${n > 1 ? "leur" : "sa"} version jumelle.`);
+        return {};
+      }
+      remplacerLieu(state, def, carte(state, msg.id));
+      return {};
+    }
+    case "clearClues": {
+      // Retire tous les indices des lieux en jeu (les cartes le demandent parfois d'un coup).
+      let n = 0;
+      for (const k of Object.values(state.cards)) {
+        if (k.kind === "location" && "zone" in k.loc && k.loc.zone === "board" && k.tokens.clue) { n += k.tokens.clue; delete k.tokens.clue; }
+      }
+      addLog(state, "action", n ? `${n} indice${n > 1 ? "s" : ""} retiré${n > 1 ? "s" : ""} des lieux en jeu.` : "Aucun indice sur les lieux en jeu.");
       return {};
     }
 

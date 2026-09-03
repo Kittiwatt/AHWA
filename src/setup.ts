@@ -6,6 +6,7 @@
 import type { CardId, CardState, LogEntry, RoomState, ZoneId } from "./state";
 import { LOG_MAX } from "./state";
 import type { ScenarioCard, ScenarioDef, SetupStep } from "./scenario";
+import { reponseValide } from "./scenario";
 
 export type Rng = () => number;
 
@@ -98,7 +99,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
   const seated = state.seats.filter((s) => s.investigatorCode);
   if (seated.length === 0) throw new Error("aucun enquêteur choisi");
   for (const q of def.questions) {
-    if (!q.options.some((o) => o.id === answers[q.id])) throw new Error(`question sans réponse : ${q.id}`);
+    if (!reponseValide(q, answers[q.id])) throw new Error(`question sans réponse : ${q.id}`);
   }
 
   // Table vierge (une réinitialisation a pu laisser des cartes).
@@ -141,8 +142,8 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
 
   addLog(state, "setup", `Mise en place de « ${def.title} » pour ${state.playerCount} enquêteur${state.playerCount > 1 ? "s" : ""}, difficulté ${state.difficulty}.`);
   for (const q of def.questions) {
-    const opt = q.options.find((o) => o.id === answers[q.id])!;
-    addLog(state, "setup", `${q.text} ${opt.label}.`);
+    const libelle = q.type === "number" ? String(Number(answers[q.id])) : q.options!.find((o) => o.id === answers[q.id])!.label;
+    addLog(state, "setup", `${q.text} ${libelle}.`);
   }
 
   // Cartes et pions des enquêteurs.
@@ -281,6 +282,30 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       case "minis": {
         placeMinis(step.code);
         addLog(state, "setup", step.log ?? `Les pions des enquêteurs sont posés sur ${nomDe(def, enJeu(step.code).code)}.`);
+        break;
+      }
+      case "addClues": {
+        const lieu = enJeu(step.code);
+        lieu.tokens.clue = (lieu.tokens.clue ?? 0) + step.n;
+        addLog(state, "setup", step.log ?? `${step.n} indice${step.n > 1 ? "s" : ""} posé${step.n > 1 ? "s" : ""} sur ${nomDe(def, lieu.code)}.`);
+        break;
+      }
+      case "removeClues": {
+        // Retrait « aussi également que possible » : un indice à la fois, à tour de rôle, dans l'ordre donné.
+        let n = step.nFrom !== undefined ? Number(answers[step.nFrom]) : step.n ?? 0;
+        const lieux = step.from.map((ref) => enJeu(ref));
+        const demande = n;
+        let retires = 0;
+        while (n > 0 && lieux.some((l) => (l.tokens.clue ?? 0) > 0)) {
+          for (const l of lieux) {
+            if (n <= 0) break;
+            if ((l.tokens.clue ?? 0) > 0) { l.tokens.clue!--; n--; retires++; if (l.tokens.clue === 0) delete l.tokens.clue; }
+          }
+        }
+        if (demande > 0) {
+          const etat = lieux.map((l) => `${nomDe(def, l.code)} ${l.tokens.clue ?? 0}`).join(", ");
+          addLog(state, "setup", `${step.log ?? `${demande} indice${demande > 1 ? "s" : ""} à retirer, aussi également que possible`} : ${retires} retiré${retires > 1 ? "s" : ""} (${etat}).`);
+        }
         break;
       }
       case "log": {

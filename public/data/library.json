@@ -75,7 +75,7 @@
       "scenarios": [
         { "id": "tcu_prologue", "num": "Prologue", "title": "Disappearance at the Twilight Estate", "status": "wip", "note": "données importées de PCIO, table à venir" },
         { "id": "tcu_witching_hour", "num": "I", "title": "The Witching Hour", "status": "available" },
-        { "id": "tcu_at_deaths_doorstep", "num": "II", "title": "At Death's Doorstep", "status": "wip", "note": "données importées de PCIO, table à venir" },
+        { "id": "tcu_at_deaths_doorstep", "num": "II", "title": "At Death's Doorstep", "status": "available" },
         { "id": "tcu_secret_name", "num": "III", "title": "The Secret Name", "status": "wip", "note": "données importées de PCIO, table à venir" },
         { "id": "tcu_wages_of_sin", "num": "IV", "title": "The Wages of Sin", "status": "wip", "note": "deux pioches de rencontre (v2)" },
         { "id": "tcu_for_the_greater_good", "num": "V", "title": "For the Greater Good", "status": "wip", "note": "données importées de PCIO, table à venir" },

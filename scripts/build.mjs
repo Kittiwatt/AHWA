@@ -91,10 +91,17 @@ async function buildScenario(fichierSrc) {
   const cartesPack = (await Promise.all(packs.map((p) => json(`${ARKHAMDB}/cards/${p}.json?encounter=1`, `${p}.json`)))).flat();
   const sets = new Set(src.encounterSets);
   const extra = new Set(src.extraCards ?? []);
-  const cards = cartesPack
+  // Cartes dont ArkhamDB ne connaît que le verso (ex. 05085b « Josef's Plan », verso de l'ennemi 05085 Josef
+  // Meiger absent de l'API) : le recto est synthétisé depuis `linked_card`, le verso n'est pas une carte à part.
+  const codesPack = new Set(cartesPack.map((c) => c.code));
+  const versosSeuls = cartesPack.filter((c) => c.linked_card && c.code === `${c.linked_card.code}b` && !codesPack.has(c.linked_card.code));
+  const synthetises = versosSeuls.map((c) => ({ ...c.linked_card, quantity: c.linked_card.quantity ?? 1, double_sided: true, linked_card: null, _verso: c }));
+  const exclus = new Set(versosSeuls.map((c) => c.code));
+  const cards = [...cartesPack.filter((c) => !exclus.has(c.code)), ...synthetises]
     .filter((c) => sets.has(c.encounter_code) || extra.has(c.code))
     .sort((a, b) => a.code.localeCompare(b.code))
     .map((c) => carte(c, src));
+  for (const c of synthetises) if (sets.has(c.encounter_code)) process.stdout.write(`  ${src.id} : ${c.code} ${c.name} synthétisé depuis le verso ${c._verso.code}\n`);
   for (const code of extra) if (!cards.some((c) => c.code === code)) throw new Error(`${src.id} : carte hors set ${code} introuvable dans le pack`);
   const encounterSetNames = {};
   for (const c of cartesPack) if (sets.has(c.encounter_code)) encounterSetNames[c.encounter_code] = c.encounter_name;
@@ -109,6 +116,13 @@ async function buildScenario(fichierSrc) {
     if (s.op === "dealToSeats" && (!Array.isArray(s.rows) || !s.rows.length)) throw new Error(`${src.id} : dealToSeats sans rows`);
   }
   for (const code of Object.keys(src.backPlacement ?? {})) if (!cartesPack.some((c) => c.code === code && c.linked_card)) throw new Error(`${src.id} : backPlacement ${code} n'est pas une carte liée`);
+  for (const p of src.swaps ?? []) {
+    if (!Array.isArray(p.pair) || p.pair.length !== 2 || !Array.isArray(p.labels) || p.labels.length !== 2) throw new Error(`${src.id} : swaps mal formé`);
+    for (const code of p.pair) if (!codes.has(code)) throw new Error(`${src.id} : swaps ${code} absent des sets de rencontre`);
+  }
+  for (const q of src.questions ?? []) {
+    if (q.type === "number" ? !(Number.isInteger(q.min) && Number.isInteger(q.max)) : !(Array.isArray(q.options) && q.options.length)) throw new Error(`${src.id} : question ${q.id} mal formée`);
+  }
   const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup)].filter(Boolean);
   for (const code of cites) if (!codes.has(code)) throw new Error(`${src.id} : code ${code} absent des sets de rencontre`);
 

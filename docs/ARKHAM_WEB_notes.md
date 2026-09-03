@@ -17,6 +17,43 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-04 : **At Death's Doorstep (TCU II) livré** (choix laissés à
+  Claude, utilisateur absent : à valider par ses retours). Guide p. 11 :
+  sept lieux normaux selon le diagramme (Office en haut, rangée
+  Billiards / Trophy / Victorian Halls / Master Bedroom / Balcony,
+  Entry Hall en bas, révélé, pions), **questions au lobby** : les 4
+  profils de « Missing Persons » (barré / non barré → 6 indices sur
+  Entry Hall, Office, Billiards Room, Balcony via `addClues`), le
+  nombre de « pieces of evidence » (**question numérique**, nouveau
+  type `number` avec bornes et défaut ; `removeClues` retire autant
+  d'indices, un à un à tour de rôle dans l'ordre du guide), et le
+  choix d'introduction du scénario I (2 tablettes / 2 anciens) avec une
+  option « partie autonome » (1 + 1, sac du mode autonome p. 11). De
+  côté : les 7 lieux Spectral (non révélés), **Josef Meiger** (recto
+  **synthétisé au build** depuis le verso 05085b « Josef's Plan », seul
+  connu d'ArkhamDB ; `storyBack` : face cachée = dos générique, pas de
+  retournement, **côté histoire lisible par `toggleSide`** — menu
+  « Lire le côté histoire (quand une carte l'indique) »), sets Realm of
+  Death et The Watcher face visible. **Lieux qui se remplacent**
+  (`swaps` + action `swapLocation {id | all}`) : la jumelle prend la
+  place, les jetons, les chemins et ce qui est posé, entre non révélée
+  sauf si un pion s'y trouve (révélée, indices), l'ancien lieu part de
+  côté ; menu du lieu « Remplacer par sa version spectrale » / « Tous
+  les lieux → version jumelle ». Aussi : `clearClues` (« Retirer tous
+  les indices des lieux »), `toPile {shuffle}` (« Mélanger dans la
+  pioche » sur toute carte de rencontre), **rappels `act:<n>` /
+  `agenda:<n>`** déclenchés quand l'acte/agenda devient courant
+  (`avancer` renvoie les rappels ; moveCard/toPile/advance les
+  propagent). Sets : `at_deaths_doorstep`, `silver_twilight_lodge`,
+  `spectral_predators`, `trapped_spirits`, `inexorable_fate`
+  (05107‑08), `chilling_cold` (Core) + de côté `realm_of_death`,
+  `the_watcher`. Pioche : 25 cartes. Tests : 159 messages, cinq
+  scénarios (TCU II : refus hors bornes / sans réponse, 3 profils +
+  5 preuves = 4/4/0/5, swap simple et retour, swap de tous, indices
+  effacés, mélange, rappels agenda:2 et act:2 ; solo autonome) ;
+  captures 25‑28. Régression au vert. Piège corrigé : un rendu du
+  lobby déclenché dans le `change` d'un champ numérique provoquait un
+  rendu imbriqué (`replaceChildren` en erreur) → le champ ne rerend pas.
 - 2026-09-04 : **The Witching Hour (TCU I) livré** — première table de
   The Circle Undone (le prologue viendra plus tard, à la demande de
   l'utilisateur ; choix structurels laissés à Claude, à valider par ses
@@ -262,15 +299,16 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
 - **Prochaine étape** : retours de l'utilisateur sur The Witching Hour
-  (choix faits par Claude : rangées par enquêteur, pile Arkham Woods,
-  sets de côté face visible, question d'introduction, verso-lieu
-  automatique), puis TCU II At Death's Doorstep (dépend du prologue :
-  section « Missing Persons » du journal → questions au lobby ; lieux
-  double face normal/Spectral 05071‑84 ; Josef 05085 dos histoire) et
-  le prologue. Pour TCU II et la suite : les jetons ajoutés au sac au
-  fil de la campagne (tablette/ancien de l'introduction, cultistes…)
-  doivent être reportés — question au lobby « jetons de campagne » ou
-  ajustement dans le panneau du sac, à trancher. À faire au fil de
+  et At Death's Doorstep (choix faits par Claude : rangées par
+  enquêteur, pile Arkham Woods, sets de côté face visible, question
+  d'introduction, verso-lieu automatique ; questions « Missing
+  Persons » + numérique, jetons de campagne par la question
+  d'introduction avec option « partie autonome », lieux qui se
+  remplacent par le menu), puis TCU III The Secret Name (ou le
+  prologue). Jetons de campagne : pour l'instant reportés par la
+  question d'introduction (seul ajout avant TCU II) ; à partir de TCU
+  III il faudra aussi les jetons des résolutions précédentes (question
+  à choix multiple ou panneau du sac). À faire au fil de
   l'eau : étiquette de rangée sur le tapis (« devant X »), pincer pour
   zoomer sur tablette, chemins pré-tracés depuis les connexions
   imprimées, hook `onChaosDraw` (jetons scellés), pioches multiples
@@ -679,6 +717,13 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
 - Le test `test_room.mjs` utilise un scénario **hors registre** pour
   vérifier le refus 400 : le changer quand ce scénario est livré (fait
   pour `tcu_witching_hour` → `tcu_prologue`).
+- ArkhamDB ne liste pas Josef Meiger 05085 : seul son verso 05085b
+  (story) existe, avec `linked_card` → le build synthétise le recto
+  (`versosSeuls`) et exclut le verso ; règle générale pour tout
+  `<code>b` dont le recto manque. Vérifier `health_per_investigator`
+  sur la carte réelle (ArkhamDB dit non pour Josef).
+- Un champ de saisie dans un rendu reconstruit par `replaceChildren` :
+  ne pas relancer le rendu depuis son `change` (blur → rendu imbriqué).
 - Cartes liées : le front rend le verso d'après `backKind` ; un verso-lieu
   ne devient un lieu pour le moteur (couche, pions emportés, chemins)
   que par le changement de `kind` fait dans `avancer` — retourner l'acte
@@ -727,10 +772,11 @@ par phase (`reminders[]` du `*.src.json`).
   le build).
 - **Composition du sac par difficulté** : TCU saisi (2026-09-04) ; reste
   TDC, TDE‑A et Film Fatale (section Setup / encart du guide).
-- **Jetons de campagne** (TCU II et suivants) : les jetons ajoutés au sac
-  par les scénarios précédents ne sont pas connus d'une table isolée →
-  question au lobby ou rappel « ajustez le sac », à trancher avec
-  l'utilisateur.
+- **Jetons de campagne** (TCU III et suivants) : les jetons ajoutés au
+  sac par les résolutions précédentes ne sont pas connus d'une table
+  isolée → TCU II les reporte par la question d'introduction (+ option
+  autonome) ; pour la suite, question à choix multiple ou rappel
+  « ajustez le sac », à trancher avec l'utilisateur.
 - **Compteurs spécifiques par scénario** : `seatCounters` /
   `tableCounters` du `*.src.json` (vides pour NotZ I) — recenser ceux
   des 10 scénarios PCIO à leur migration.

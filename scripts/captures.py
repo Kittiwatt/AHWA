@@ -414,6 +414,54 @@ with sync_playwright() as p:
     cercle = h4.locator("#plateau .carte.kind-location").filter(has_text="6").last
     h4.wait_for_load_state("networkidle"); h4.wait_for_timeout(800)
     h4.screenshot(path=f"{OUT}/24_witching_verso_lieu.png")
+
+    # ---- At Death's Doorstep (TCU II) : questions (dont numérique), manoir, lieux qui se remplacent, dos histoire ----
+    code5, token5 = creer("tcu_at_deaths_doorstep")
+    print("room Doorstep", code5)
+    h5 = page_pour(browser, "Hôte", host=True, code=code5, token=token5)
+    h5.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h5.get_by_role("button", name="Choisir un enquêteur").click(); h5.wait_for_selector("dialog.dialogue-inv[open]")
+    h5.fill("dialog .recherche", "joe"); h5.wait_for_timeout(300); h5.locator("dialog .inv").first.click()
+    h5.wait_for_selector(".siege-lobby.moi .fiche")
+    j5 = page_pour(browser, "Bob", code=code5, token=None)
+    j5.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j5.get_by_role("button", name="Choisir un enquêteur").click(); j5.wait_for_selector("dialog.dialogue-inv[open]")
+    j5.fill("dialog .recherche", "preston"); j5.wait_for_timeout(300); j5.locator("dialog .inv").first.click()
+    j5.wait_for_selector(".siege-lobby.moi .fiche")
+    h5.wait_for_timeout(400)
+    assert h5.get_by_role("button", name="Lancer la mise en place").is_disabled(), "questions sans réponse : lancement grisé"
+    for q in ("gavriella", "jerome", "valentino", "penny"):
+        h5.locator(f"input[name='q-{q}'][value='{'crossed' if q == 'valentino' else 'kept'}']").check()
+    h5.locator("input[name='q-evidence']").fill("5"); h5.locator("input[name='q-evidence']").dispatch_event("change")
+    h5.locator("input[name='q-fate'][value='accepted']").check()
+    h5.wait_for_timeout(200)
+    assert j5.locator("input[name='q-evidence']").is_disabled(), "les autres voient la question numérique sans y répondre"
+    h5.locator(".reglage.questions").screenshot(path=f"{OUT}/25_doorstep_lobby_questions.png")
+    h5.get_by_role("button", name="Lancer la mise en place").click()
+    h5.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h5.wait_for_load_state("networkidle"); h5.wait_for_timeout(1500)
+    assert h5.locator("#plateau .carte.kind-location").count() == 7, "7 lieux"
+    assert h5.locator("#plateau .carte.kind-location.retournee").count() == 6, "Entry Hall seul révélé"
+    assert h5.locator("#aside .carte").count() == 15, "15 cartes de côté"
+    assert h5.locator("#chaos .sac-forme").inner_text().strip() == "15", "sac 13 + 2"
+    h5.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h5.screenshot(path=f"{OUT}/26_doorstep_tapis.png")
+    # Menu d'un lieu : remplacement par la version spectrale (tous les lieux).
+    h5.locator("#plateau .carte.kind-location").nth(3).click(button="right"); h5.wait_for_selector(".menu-carte")
+    h5.screenshot(path=f"{OUT}/27_doorstep_menu_lieu.png")
+    h5.locator(".menu-carte").get_by_role("button", name="Tous les lieux → version jumelle").click()
+    h5.wait_for_timeout(700)
+    assert h5.locator("#plateau .carte.kind-location").count() == 7, "toujours 7 lieux"
+    assert h5.locator("#aside .carte").count() == 15, "15 de côté (les 7 normaux ont remplacé les 7 spectraux)"
+    h5.wait_for_load_state("networkidle"); h5.wait_for_timeout(800)
+    h5.screenshot(path=f"{OUT}/28_doorstep_spectral.png")
+    # Josef : côté histoire lisible seulement par le menu.
+    h5.locator("#aside").click()
+    josef = h5.locator("#aside .carte.kind-enemy").filter(has=h5.locator("img[alt='Josef Meiger']")).first
+    josef.click(button="right"); h5.wait_for_selector(".menu-carte")
+    assert h5.locator(".menu-carte").get_by_role("button", name="Lire le côté histoire (quand une carte l'indique)").count() == 1, "menu : côté histoire"
+    assert h5.locator(".menu-carte").get_by_role("button", name="Retourner", exact=True).count() == 0, "pas de retournement d'un dos histoire"
+    h5.keyboard.press("Escape")
     browser.close()
 
 if erreurs:

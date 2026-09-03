@@ -55,12 +55,23 @@ export function rendreLobby(conteneur, ctx) {
   const blocQuestions = questions.length ? el("fieldset", { class: "reglage questions" },
     el("legend", { text: "Journal de campagne" }),
     el("p", { class: "aide", text: moi.isHost ? "Ces points du journal déterminent la mise en place." : "L'hôte renseigne ces points du journal avant de lancer." }),
-    ...questions.map((q) => el("div", { class: "question" },
-      el("p", { class: "libelle", text: q.text }),
-      el("div", { class: "choix-ligne" }, ...q.options.map((o) => el("label", { class: `choix${ctx.reponses[q.id] === o.id ? " actif" : ""}` },
-        el("input", { type: "radio", name: `q-${q.id}`, value: o.id, checked: ctx.reponses[q.id] === o.id, disabled: !moi.isHost,
-          onchange: () => { ctx.reponses[q.id] = o.id; rendreLobby(conteneur, ctx); } }),
-        el("span", { class: "libelle", text: o.label })))))),
+    ...questions.map((q) => {
+      if (q.type === "number") {
+        // Question numérique : valeur par défaut préremplie (toujours répondue), bornes min/max.
+        ctx.reponses[q.id] ??= String(q.default ?? q.min ?? 0);
+        return el("div", { class: "question" },
+          el("label", { class: "libelle" }, q.text, " ",
+            el("input", { type: "number", class: "nombre", name: `q-${q.id}`, min: String(q.min ?? 0), max: String(q.max ?? 99), value: ctx.reponses[q.id], disabled: !moi.isHost,
+              // Pas de nouveau rendu du lobby (la réponse existe toujours) : un rendu pendant le blur du champ provoquerait un rendu imbriqué.
+              onchange: (e) => { const v = Math.min(q.max ?? 99, Math.max(q.min ?? 0, Math.round(Number(e.target.value) || 0))); ctx.reponses[q.id] = String(v); e.target.value = String(v); } })));
+      }
+      return el("div", { class: "question" },
+        el("p", { class: "libelle", text: q.text }),
+        el("div", { class: "choix-ligne" }, ...q.options.map((o) => el("label", { class: `choix${ctx.reponses[q.id] === o.id ? " actif" : ""}` },
+          el("input", { type: "radio", name: `q-${q.id}`, value: o.id, checked: ctx.reponses[q.id] === o.id, disabled: !moi.isHost,
+            onchange: () => { ctx.reponses[q.id] = o.id; rendreLobby(conteneur, ctx); } }),
+          el("span", { class: "libelle", text: o.label })))));
+    }),
   ) : null;
   const toutesRepondues = questions.every((q) => ctx.reponses[q.id]);
 

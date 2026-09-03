@@ -602,5 +602,123 @@ function verifWitching(s, joueurs, attendu) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ At Death's Doorstep (TCU II) : indices selon le journal, question numérique, Josef synthétisé, remplacement de lieux ============
+async function tableDoorstep({ joueurs, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tcu_at_deaths_doorstep" }) });
+  assert.equal(r.status, 200, "At Death's Doorstep est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "05001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["05001", "05002", "05003", "05004"][i] });
+    autres.push(c);
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  return { code, h, autres, lancer: async (reponses = answers) => {
+    const rev = h.state.rev;
+    h.envoyer({ t: "startSetup", answers: reponses });
+    return h.attendre((m) => (m.t === "delta" && m.rev === rev + 1) || m.t === "nack");
+  } };
+}
+{
+  const { h, autres, lancer } = await tableDoorstep({ joueurs: 2 });
+  // Réponse numérique hors bornes → refus ; réponse manquante → refus.
+  let d = await lancer({ gavriella: "kept", jerome: "kept", valentino: "crossed", penny: "kept", evidence: "25", fate: "accepted" });
+  assert.equal(d.t, "nack", "évidence hors bornes refusée");
+  d = await lancer({ gavriella: "kept", jerome: "kept", valentino: "crossed", penny: "kept", fate: "accepted" });
+  assert.equal(d.t, "nack", "question numérique sans réponse refusée");
+  d = await lancer({ gavriella: "kept", jerome: "kept", valentino: "crossed", penny: "kept", evidence: "5", fate: "accepted" });
+  assert.equal(d.t, "delta");
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const surTapis = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  assert.equal(cartes.filter((c) => c.loc.zone === "board" && c.kind === "location").length, 7, "7 lieux normaux en jeu");
+  assert.ok(surTapis("05071").faceUp && surTapis("05077") && !surTapis("05077").faceUp, "Entry Hall révélé, les autres non");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.y === 649 - 22), "pions sur Entry Hall");
+  // 3 profils non barrés → 18 indices, 5 retirés aussi également que possible (Entry Hall, Office, Balcony) : 4 / 4 / 5.
+  assert.equal(surTapis("05071").tokens.clue, 4, "Entry Hall : 6 − 2");
+  assert.equal(surTapis("05077").tokens.clue, 4, "Office : 6 − 2");
+  assert.equal(surTapis("05074").tokens.clue ?? 0, 0, "Billiards Room : profil barré");
+  assert.equal(surTapis("05076").tokens.clue, 5, "Balcony : 6 − 1");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["05078", "05079", "05080", "05081", "05082", "05083", "05084", "05085", "05086", "05087", "05087", "05105", "05105", "05106", "05106"], "de côté : 7 Spectral, Josef, The Watcher, Realm of Death");
+  const josef = cote.find((c) => c.code === "05085");
+  assert.ok(josef.kind === "enemy" && josef.storyBack && josef.faceUp, "Josef Meiger : ennemi synthétisé, dos histoire, face visible");
+  assert.ok(!cartes.some((c) => c.code === "05085b"), "le verso de Josef n'est pas une carte à part");
+  assert.ok(cote.filter((c) => c.code >= "05078" && c.code <= "05084").every((c) => !c.faceUp), "lieux Spectral non révélés");
+  assert.equal(s.piles.encounter.length, 25, "pioche : 25 cartes");
+  assert.equal(s.chaos.bag.length, 15, "sac 13 + 2 tablettes");
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 2);
+  assert.ok(s.log.some((e) => e.text.includes("5 retirés")), "journal : indices retirés");
+
+  // Dos histoire : retournement refusé, lecture du côté histoire par toggleSide.
+  d = await h.action({ t: "flipCard", id: josef.id });
+  assert.equal(d.t, "nack", "un dos histoire ne se retourne pas");
+  d = await h.action({ t: "toggleSide", id: josef.id });
+  assert.equal(h.state.cards[josef.id].side, "b", "côté histoire lu sur demande");
+  await h.action({ t: "toggleSide", id: josef.id });
+
+  // Remplacement d'un lieu : version spectrale à la même place, jetons conservés, ancien de côté ; occupé → révélé.
+  const entry = surTapis("05071");
+  d = await h.action({ t: "swapLocation", id: entry.id });
+  assert.equal(d.t, "delta");
+  const spectral = h.state.cards[cartes.find((c) => c.code === "05078").id];
+  assert.ok(spectral.loc.zone === "board" && spectral.loc.x === 737 && spectral.loc.y === 649, "Entry Hall spectral à la même place");
+  assert.ok(spectral.faceUp, "occupé par les enquêteurs : révélé");
+  assert.equal(spectral.tokens.clue, 4, "indices conservés (+0 imprimé)");
+  assert.equal(h.state.cards[entry.id].loc.zone, "aside", "l'ancien Entry Hall est de côté");
+  d = await h.action({ t: "swapLocation", id: spectral.id });
+  assert.equal(d.t, "delta", "retour à la version normale possible");
+  assert.equal(h.state.cards[entry.id].loc.zone, "board");
+  assert.ok(!h.state.cards[entry.id].faceUp || true);
+  // Tous les lieux d'un coup : les 7 spectraux en jeu, les 7 normaux de côté ; Office non occupé reste non révélé.
+  d = await h.action({ t: "swapLocation", all: true });
+  assert.equal(d.t, "delta");
+  const enJeu = Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board").map((c) => c.code).sort();
+  assert.deepEqual(enJeu, ["05078", "05079", "05080", "05081", "05082", "05083", "05084"], "7 lieux Spectral en jeu");
+  const office = Object.values(h.state.cards).find((c) => c.code === "05084");
+  assert.ok(!office.faceUp && office.tokens.clue === 4 && office.loc.x === 737 && office.loc.y === 173, "Office spectral : non révélé, indices conservés, même place");
+  d = await h.action({ t: "swapLocation", all: true });
+  assert.equal(d.t, "delta", "et retour");
+  // Retirer tous les indices des lieux.
+  d = await h.action({ t: "clearClues" });
+  assert.ok(Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board").every((c) => !c.tokens.clue), "plus d'indices sur les lieux");
+  // Mélanger une carte de côté dans la pioche (toPile shuffle).
+  const watcherGrasp = cote.find((c) => c.code === "05087");
+  d = await h.action({ t: "toPile", id: watcherGrasp.id, pile: "encounter", shuffle: true });
+  assert.equal(h.state.piles.encounter.length, 26);
+  assert.ok(h.state.log.some((e) => e.text.includes("mélangé dans la pioche")), "journal : mélangé");
+  // Rappels à l'avancement : agenda 2, acte 2.
+  h.recus = h.recus.filter((m) => m.t !== "reminder");
+  await h.action({ t: "advanceAgenda" });
+  await h.action({ t: "advanceAct" });
+  await new Promise((r) => setTimeout(r, 200));
+  const rappels = h.recus.filter((m) => m.t === "reminder").map((m) => m.entry.text);
+  assert.ok(rappels.some((t) => t.startsWith("Agenda 2")), "rappel agenda:2");
+  assert.ok(rappels.some((t) => t.startsWith("Acte 2")), "rappel act:2");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(autres[0].state.cards[office.id], h.state.cards[office.id], "les autres clients voient la même chose");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+{
+  const { h, lancer } = await tableDoorstep({ joueurs: 1 });
+  const d = await lancer({ gavriella: "crossed", jerome: "crossed", valentino: "crossed", penny: "crossed", evidence: "0", fate: "standalone" });
+  assert.equal(d.t, "delta");
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  assert.ok(Object.values(s.cards).filter((c) => c.kind === "location" && c.loc.zone === "board").every((c) => !c.tokens.clue), "mode autonome : aucun indice");
+  assert.equal(s.chaos.bag.length, 15);
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 1);
+  assert.equal(s.chaos.bag.filter((t) => t === "elder_thing").length, 1);
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

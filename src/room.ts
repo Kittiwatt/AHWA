@@ -12,7 +12,7 @@ import {
   type ClientMessage, type Difficulty, type LogEntry, type RoomState, type ServerMessage,
 } from "./state";
 import { diff, clone } from "./patch";
-import { getScenario } from "./scenario";
+import { getScenario, reponseValide } from "./scenario";
 import { addLog, runSetup, nextZ, SEAT_ZONES } from "./setup";
 import { jouer, Refus, refuser } from "./actions";
 import { newHostToken } from "./codes";
@@ -285,7 +285,7 @@ export class Room extends Server<Env> {
         if (!state.seats.some((s) => s.investigatorCode)) refuser("choisissez au moins un enquêteur");
         const answers = (msg.answers && typeof msg.answers === "object" ? msg.answers : {}) as Record<string, string>;
         for (const q of def.questions) {
-          if (!q.options.some((o) => o.id === answers[q.id])) refuser(`répondez d'abord : ${q.text}`);
+          if (!reponseValide(q, answers[q.id])) refuser(`répondez d'abord : ${q.text}`);
         }
         const before = clone(state);
         try {

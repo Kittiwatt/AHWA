@@ -1,0 +1,100 @@
+{
+  "_source": "Guide de campagne The Circle Undone (FFG, 2019) : Scenario II, section « Setup » p. 11, encadré « Replacing Locations » et diagramme « Suggested Location Placement » p. 11 ; sac de campagne p. 4 + jetons ajoutés par l'introduction du scénario I (ou sac du mode autonome p. 11). Aucun texte de carte ; les rappels décrivent les gestes de l'application. Les questions reprennent uniquement la section « Missing Persons » et le compte de « pieces of evidence » du journal.",
+  "id": "tcu_at_deaths_doorstep",
+  "title": "At Death's Doorstep",
+  "campaign": "The Circle Undone",
+  "campaignId": "tcu",
+  "order": 2,
+  "packs": ["tcu", "core"],
+  "encounterSets": ["at_deaths_doorstep", "silver_twilight_lodge", "spectral_predators", "trapped_spirits", "inexorable_fate", "chilling_cold", "realm_of_death", "the_watcher"],
+  "storyBack": ["05085"],
+  "scenarioCard": "05065",
+  "agendaDeck": ["05066", "05067"],
+  "actDeck": ["05068", "05069", "05070"],
+  "startLocation": "05071",
+  "swaps": [
+    { "pair": ["05071", "05078"], "labels": ["version normale", "version spectrale"] },
+    { "pair": ["05072", "05079"], "labels": ["version normale", "version spectrale"] },
+    { "pair": ["05073", "05080"], "labels": ["version normale", "version spectrale"] },
+    { "pair": ["05074", "05081"], "labels": ["version normale", "version spectrale"] },
+    { "pair": ["05075", "05082"], "labels": ["version normale", "version spectrale"] },
+    { "pair": ["05076", "05083"], "labels": ["version normale", "version spectrale"] },
+    { "pair": ["05077", "05084"], "labels": ["version normale", "version spectrale"] }
+  ],
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-2", "-3", "skull", "skull", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "-1", "-1", "-2", "-2", "-3", "-4", "-5", "skull", "skull", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-4", "-6", "-8", "skull", "skull", "auto_fail", "elder_sign"]
+  },
+  "layout": [
+    { "code": "05077", "x": 737, "y": 173 },
+    { "code": "05074", "x": 365, "y": 411 }, { "code": "05073", "x": 551, "y": 411 }, { "code": "05072", "x": 737, "y": 411 }, { "code": "05075", "x": 923, "y": 411 }, { "code": "05076", "x": 1109, "y": 411 },
+    { "code": "05071", "x": 737, "y": 649 }
+  ],
+  "questions": [
+    { "id": "gavriella", "text": "Journal de campagne, section « Missing Persons » — le profil de Gavriella Mizrah :", "options": [
+      { "id": "kept", "label": "n'est pas barré" }, { "id": "crossed", "label": "est barré" } ] },
+    { "id": "jerome", "text": "Journal de campagne, section « Missing Persons » — le profil de Jerome Davids :", "options": [
+      { "id": "kept", "label": "n'est pas barré" }, { "id": "crossed", "label": "est barré" } ] },
+    { "id": "valentino", "text": "Journal de campagne, section « Missing Persons » — le profil de Valentino Rivas :", "options": [
+      { "id": "kept", "label": "n'est pas barré" }, { "id": "crossed", "label": "est barré" } ] },
+    { "id": "penny", "text": "Journal de campagne, section « Missing Persons » — le profil de Penny White :", "options": [
+      { "id": "kept", "label": "n'est pas barré" }, { "id": "crossed", "label": "est barré" } ] },
+    { "id": "evidence", "type": "number", "min": 0, "max": 24, "default": 0, "text": "Journal de campagne — nombre de « pieces of evidence » notées comme laissées derrière (prologue) :" },
+    { "id": "fate", "text": "Journal de campagne (introduction du scénario I) — l'enquêteur principal :", "options": [
+      { "id": "accepted", "label": "a accepté son destin" },
+      { "id": "rejected", "label": "a rejeté son destin" },
+      { "id": "standalone", "label": "partie autonome (hors campagne)" } ] }
+  ],
+  "setup": [
+    { "op": "place", "code": "05077", "zone": "board", "x": 737, "y": 173 },
+    { "op": "place", "code": "05074", "zone": "board", "x": 365, "y": 411 },
+    { "op": "place", "code": "05073", "zone": "board", "x": 551, "y": 411 },
+    { "op": "place", "code": "05072", "zone": "board", "x": 737, "y": 411 },
+    { "op": "place", "code": "05075", "zone": "board", "x": 923, "y": 411 },
+    { "op": "place", "code": "05076", "zone": "board", "x": 1109, "y": 411 },
+    { "op": "place", "code": "05071", "zone": "board", "x": 737, "y": 649, "reveal": true,
+      "log": "Les sept lieux du manoir (versions normales) sont mis en jeu selon le diagramme du guide ; Entry Hall est révélé, chaque enquêteur y commence la partie." },
+    { "op": "minis", "code": "05071" },
+    { "op": "branch", "on": "gavriella", "cases": {
+      "kept": [ { "op": "addClues", "code": "05071", "n": 6, "log": "Profil de Gavriella Mizrah non barré : 6 indices sur Entry Hall." } ],
+      "crossed": [ { "op": "log", "text": "Profil de Gavriella Mizrah barré : pas d'indices sur Entry Hall." } ] } },
+    { "op": "branch", "on": "jerome", "cases": {
+      "kept": [ { "op": "addClues", "code": "05077", "n": 6, "log": "Profil de Jerome Davids non barré : 6 indices sur Office." } ],
+      "crossed": [ { "op": "log", "text": "Profil de Jerome Davids barré : pas d'indices sur Office." } ] } },
+    { "op": "branch", "on": "valentino", "cases": {
+      "kept": [ { "op": "addClues", "code": "05074", "n": 6, "log": "Profil de Valentino Rivas non barré : 6 indices sur Billiards Room." } ],
+      "crossed": [ { "op": "log", "text": "Profil de Valentino Rivas barré : pas d'indices sur Billiards Room." } ] } },
+    { "op": "branch", "on": "penny", "cases": {
+      "kept": [ { "op": "addClues", "code": "05076", "n": 6, "log": "Profil de Penny White non barré : 6 indices sur Balcony." } ],
+      "crossed": [ { "op": "log", "text": "Profil de Penny White barré : pas d'indices sur Balcony." } ] } },
+    { "op": "removeClues", "from": ["05071", "05077", "05074", "05076"], "nFrom": "evidence",
+      "log": "Pièces à conviction laissées derrière : autant d'indices retirés de ces lieux, aussi également que possible" },
+    { "op": "aside", "codes": ["05078", "05079", "05080", "05081", "05082", "05083", "05084"], "faceUp": false,
+      "log": "Les sept lieux Spectral sont mis de côté, hors jeu (ils remplaceront les lieux normaux quand une carte le demandera : menu du lieu)." },
+    { "op": "aside", "codes": ["05085"], "faceUp": true,
+      "log": "Josef Meiger est mis de côté, hors jeu ; son dos est une carte histoire qui ne se lit que lorsqu'une carte l'indique." },
+    { "op": "aside", "sets": ["realm_of_death", "the_watcher"], "faceUp": true,
+      "log": "Les sets Realm of Death et The Watcher sont mis de côté, hors jeu, face visible." },
+    { "op": "story" },
+    { "op": "branch", "on": "fate", "cases": {
+      "accepted": [ { "op": "chaosAdd", "tokens": ["tablet", "tablet"], "log": "Destin accepté (scénario I) : les 2 jetons Tablette de la campagne sont dans le sac." } ],
+      "rejected": [ { "op": "chaosAdd", "tokens": ["elder_thing", "elder_thing"], "log": "Destin rejeté (scénario I) : les 2 jetons Ancien de la campagne sont dans le sac." } ],
+      "standalone": [ { "op": "chaosAdd", "tokens": ["tablet", "elder_thing"], "log": "Partie autonome : 1 jeton Tablette et 1 jeton Ancien ajoutés au sac, comme l'indique le guide." } ] } },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée." },
+    { "when": "setup", "text": "Lieux qui se remplacent (guide) : quand une carte demande d'échanger un lieu contre sa version spectrale, menu du lieu → « Remplacer par sa version spectrale » (ou « Tous les lieux → version jumelle »). Jetons, pions et cartes restent en place ; l'ancien lieu part de côté ; un lieu occupé par un enquêteur est révélé avec ses indices." },
+    { "when": "setup", "text": "Zone de côté : Josef Meiger (menu → « Lire le côté histoire » seulement quand une carte l'indique), les sept lieux Spectral, les sets Realm of Death et The Watcher. Un ennemi à mettre de côté : menu → « Mettre de côté » ; il revient sur le tapis par glisser. Une carte de côté rejoint la pioche par « Mélanger dans la pioche »." },
+    { "when": "agenda:2", "text": "Agenda 2 : pour retirer d'un coup tous les indices des lieux, menu d'un lieu → « Retirer tous les indices des lieux ». L'interlude se lit dans le guide (lien « Guide » en haut de la table)." },
+    { "when": "act:2", "text": "Acte 2 : les remplacements de lieux se font par le menu d'un lieu (« Tous les lieux → version jumelle » : jetons conservés, lieux occupés révélés) ; déplacez pions et ennemis par glisser ; les cartes mises de côté rejoignent la pioche par leur menu « Mélanger dans la pioche », la défausse par « Remélanger dans la pioche » (clic droit sur la défausse)." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

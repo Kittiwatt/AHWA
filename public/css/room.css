@@ -380,6 +380,8 @@ body.mode-lien #plateau .carte.kind-location { outline: 2px dashed var(--dorure-
 .reglage.questions { margin-bottom: 1.5rem; }
 .reglage.questions .question { display: grid; gap: 0.2rem; margin-top: 0.4rem; }
 .reglage.questions .question > .libelle { margin: 0; font-weight: 500; }
+.reglage.questions input.nombre { width: 4.5rem; margin-left: 0.4rem; padding: 0.2rem 0.4rem; font: inherit; color: var(--papier); background: var(--nuit-2, #182028); border: 1px solid var(--zone-filet); border-radius: 4px; }
+.reglage.questions input.nombre:disabled { opacity: 0.6; }
 .pile .etiquette-pile { position: absolute; left: 0; right: 0; bottom: -1.1rem; text-align: center; font-size: 0.7rem; color: var(--papier-2); white-space: nowrap; pointer-events: none; }
 .pioches { padding-bottom: 0.9rem; }
 
