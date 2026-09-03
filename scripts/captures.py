@@ -106,6 +106,36 @@ with sync_playwright() as p:
     alice.wait_for_timeout(300)
     assert alice.locator("#plateau .carte.retournee").count() == 0, "Hallway révélé"
 
+    # Déplacer le Study : les pions suivent. Clic droit glissé Study → Hallway : un chemin apparaît.
+    study = alice.locator("#plateau .carte").first
+    hallway_el = alice.locator("#plateau .carte").nth(1)
+    b0 = study.bounding_box(); m0 = alice.locator("#plateau .mini").first.bounding_box()
+    alice.mouse.move(b0["x"] + b0["width"] / 2, b0["y"] + b0["height"] * 0.7)
+    alice.mouse.down()
+    alice.mouse.move(b0["x"] + b0["width"] / 2 - 120, b0["y"] + b0["height"] * 0.7 - 60, steps=10)
+    alice.mouse.up()
+    alice.wait_for_timeout(400)
+    m1 = alice.locator("#plateau .mini").first.bounding_box()
+    assert abs((m1["x"] - m0["x"]) + 120) < 8 and abs((m1["y"] - m0["y"]) + 60) < 8, "le pion a suivi le lieu"
+    b0 = study.bounding_box(); b1 = hallway_el.bounding_box()
+    alice.mouse.move(b0["x"] + b0["width"] / 2, b0["y"] + b0["height"] / 2)
+    alice.mouse.down(button="right")
+    alice.mouse.move(b1["x"] + b1["width"] / 2, b1["y"] + b1["height"] / 2, steps=10)
+    alice.mouse.up(button="right")
+    alice.wait_for_timeout(400)
+    assert alice.locator("#plateau .chemins line:not(.temp)").count() == 1, "un chemin tracé"
+    assert alice.locator(".menu-carte").count() == 0, "pas de menu après un tracé"
+    bob.wait_for_timeout(300)
+    assert bob.locator("#plateau .chemins line:not(.temp)").count() == 1, "Bob voit le chemin"
+    alice.screenshot(path=f"{OUT}/12_chemin.png")
+    # Clic droit simple sur un lieu : menu.
+    alice.mouse.move(b1["x"] + b1["width"] / 2, b1["y"] + b1["height"] / 2)
+    alice.mouse.down(button="right"); alice.mouse.up(button="right")
+    alice.wait_for_selector(".menu-carte")
+    assert alice.locator(".menu-carte").get_by_role("button", name="Effacer ses chemins").count() == 1
+    alice.keyboard.press("Escape")
+    alice.wait_for_timeout(200)
+
     # Piocher = retourner la première carte de la pioche ; la glisser en zone de menace ; la défausser par le menu.
     alice.locator("#pioches .pioche-rencontre .dos-bouton").click()
     alice.wait_for_selector("#pioches .pioche-rencontre.revelee .carte")

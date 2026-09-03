@@ -4,7 +4,7 @@
 
 import type { CardState, LogEntry, Phase, RoomState, Token, ZoneId } from "./state";
 import type { ScenarioDef } from "./scenario";
-import { addLog, nextZ, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W } from "./setup";
+import { addLog, nextZ, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI } from "./setup";
 
 export class Refus extends Error {}
 export const refuser = (raison: string): never => { throw new Refus(raison); };
@@ -171,10 +171,24 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const zone = String(msg.zone) as ZoneId;
       if (!ZONES.has(zone)) refuser("zone inconnue");
       const venaitDunePile = "pile" in c.loc;
+      const avant = "zone" in c.loc ? { ...c.loc } : null;
       retirerDesPiles(state, c.id);
       const x = Math.round(Number(msg.x) || 0), y = Math.round(Number(msg.y) || 0);
       c.loc = { zone, x, y, z: nextZ(state) };
       if (venaitDunePile) c.faceUp = true; // une carte sortie d'une pile entre en jeu face visible
+      // Un lieu déplacé sur le tapis emmène ce qui est posé dessus : pions (à cheval sur le bord) et cartes dont le centre est sur le lieu.
+      if (c.kind === "location" && avant?.zone === "board" && zone === "board") {
+        const dx = x - avant.x, dy = y - avant.y;
+        for (const k of Object.values(state.cards)) {
+          if (k.id === c.id || !("zone" in k.loc) || k.loc.zone !== "board" || k.kind === "location") continue;
+          const w = k.kind === "mini" ? MINI : CARD_W, h = k.kind === "mini" ? MINI : CARD_H;
+          const cx = k.loc.x + w / 2, cy = k.loc.y + h / 2;
+          const marge = k.kind === "mini" ? MINI : 0;
+          if (cx >= avant.x - marge && cx <= avant.x + CARD_W + marge && cy >= avant.y - marge && cy <= avant.y + CARD_H + marge) {
+            k.loc = { ...k.loc, x: k.loc.x + dx, y: k.loc.y + dy };
+          }
+        }
+      }
       const idx = SEAT_ZONES.indexOf(zone);
       if (c.kind === "enemy" || c.kind === "treachery" || c.kind === "asset" || c.kind === "story") {
         if (idx >= 0) c.ownerSeat = idx; else delete c.ownerSeat;
@@ -186,6 +200,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const pile = String(msg.pile);
       if (!(pile in state.piles)) refuser("pile inconnue");
       retirerDesPiles(state, c.id);
+      state.links = state.links.filter((l) => l.a !== c.id && l.b !== c.id);
       c.loc = { pile };
       c.faceUp = pile === "encounterDiscard"; // la défausse est consultable, face visible
       c.exhausted = false;
@@ -294,6 +309,31 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
         state.actId = id;
         addLog(state, "action", `Acte suivant : ${nomCarte(def, c)}.`);
       }
+      return {};
+    }
+
+    // ---- Chemins entre lieux --------------------------------------------------------
+    case "linkLocations": {
+      const a = carte(state, msg.a), b = carte(state, msg.b);
+      if (a.id === b.id) return {};
+      if (a.kind !== "location" || b.kind !== "location") refuser("un chemin relie deux lieux");
+      const i = state.links.findIndex((l) => (l.a === a.id && l.b === b.id) || (l.a === b.id && l.b === a.id));
+      if (i >= 0) {
+        state.links.splice(i, 1);
+        addLog(state, "action", `Chemin effacé entre ${nomCarte(def, a)} et ${nomCarte(def, b)}.`);
+      } else {
+        const utilisees = new Set(state.links.map((l) => l.color));
+        let color = 0;
+        while (utilisees.has(color) && color < 100) color++;
+        state.links.push({ a: a.id, b: b.id, color });
+        addLog(state, "action", `Chemin tracé entre ${nomCarte(def, a)} et ${nomCarte(def, b)}.`);
+      }
+      return {};
+    }
+    case "unlink": {
+      if (msg.id === undefined) { state.links = []; addLog(state, "action", "Tous les chemins sont effacés."); return {}; }
+      const c = carte(state, msg.id);
+      state.links = state.links.filter((l) => l.a !== c.id && l.b !== c.id);
       return {};
     }
 

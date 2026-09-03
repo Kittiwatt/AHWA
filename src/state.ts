@@ -77,6 +77,7 @@ export type RoomState = {
   turn: { seat: number | null; done: number[] }; // tour en cours de la phase des enquêteurs (étape 2)
   cards: Record<CardId, CardState>;
   piles: Record<PileId, CardId[]>;
+  links: { a: CardId; b: CardId; color: number }[];   // chemins tracés entre lieux (couleur = index de palette)
   chaos: ChaosState;
   counters: Record<string, number>;
   agendaId: CardId | null;
@@ -115,6 +116,7 @@ export function initialState(code: string, scenarioId: string, now = Date.now())
     turn: { seat: null, done: [] },
     cards: {},
     piles: emptyPiles(),
+    links: [],
     chaos: { bag: [], drawn: [], sealed: [] },
     counters: {},
     agendaId: null,

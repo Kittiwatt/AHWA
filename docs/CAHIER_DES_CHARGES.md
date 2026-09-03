@@ -243,6 +243,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `setCounter {key, delta}` | J | compteur de table |
 | `drawEncounter {seat?}` | J | retourne la première carte de la pioche (elle y reste, le joueur la déplace) ; si une carte révélée est déjà dessus, elle part dans la zone de menace du siège et la suivante est retournée ; défausse remélangée si pioche vide |
 | `takeClue {id, n?}` | J | déplace `n` (1) indice d'un lieu vers la réserve du siège (double-clic sur les indices) |
+| `linkLocations {a, b}` / `unlink {id?}` | J | chemin entre deux lieux (`state.links`, bascule) / efface les chemins d'un lieu ou tous |
 | `searchEncounter {pile?}` | J | envoie la pioche (ou la défausse) au demandeur (`peek`) ; le client remélange à la fermeture (`shufflePile`) et permet de prendre une carte (`moveCard`) |
 | `shufflePile {pile}` | J | remélange |
 | `nextPhase` | J | enchaîne les phases (§6) |

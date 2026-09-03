@@ -36,6 +36,16 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **deuxième salve (UX tapis)** : un lieu déplacé sur le
+  tapis emmène les pions à cheval sur ses bords et les cartes dont le
+  centre est dessus (`moveCard`, 1 message) ; **chemins entre lieux** :
+  clic droit enfoncé sur un lieu, glissé, relâché sur un autre = trait de
+  couleur (palette de 10, première couleur libre) sur le calque SVG sous
+  les cartes, partagé par tous (`state.links`, `linkLocations` bascule
+  tracer/effacer, `unlink`) ; menu du lieu « Relier à un autre lieu… »
+  (tactile) et « Effacer ses chemins » ; un lieu envoyé en pile perd ses
+  chemins. Clic droit simple sur un lieu = menu, géré au relâchement
+  (le `contextmenu` natif est neutralisé pendant le tracé).
 - 2026-09-03 : **première salve de retours de jeu** appliquée :
   reprise automatique de son siège au rechargement (siège mémorisé
   `ahwa:siege:<code>`, repris dès que l'ancienne connexion est fermée,
@@ -451,6 +461,12 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   (curseur) — chercher « le premier message qui correspond » retombe
   sur d'anciens `seats`, n'attendre que les futurs manque les
   broadcasts déjà reçus par les autres clients.
+- `contextmenu` se déclenche à l'enfoncement (Linux/Mac) ou au
+  relâchement (Windows) : pour un clic droit glissé, ouvrir le menu au
+  `pointerup` sans mouvement et ignorer le `contextmenu` natif pendant
+  le tracé et 400 ms après.
+- Les cartes du tapis peuvent passer sous l'overlay pioche/sac (bas
+  gauche) : elles restent accessibles en déplaçant la vue.
 - Menu contextuel : ne pas fermer le menu dans un `pointerdown` global
   sans vérifier `menu.contains(target)` — le bouton est détaché avant
   que son `click` ne parte.

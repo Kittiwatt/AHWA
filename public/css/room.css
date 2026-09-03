@@ -352,3 +352,9 @@
 .chip-moins { display: none; font: inherit; line-height: 1; width: 1.1em; height: 1.1em; padding: 0; border: 0; border-radius: 50%; background: var(--papier); color: var(--nuit); cursor: pointer; }
 .chip:hover .chip-moins { display: inline-grid; place-items: center; }
 .carte.epuisee .chips { transform: rotate(-90deg); }
+
+/* Chemins entre lieux (calque SVG sous les cartes du tapis) */
+.plateau .chemins { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; z-index: 0; }
+.plateau .chemins line { stroke-width: 9; stroke-linecap: round; opacity: 0.85; }
+.plateau .chemins line.temp { stroke: var(--papier); stroke-dasharray: 14 10; opacity: 0.7; }
+body.mode-lien #plateau .carte.kind-location { outline: 2px dashed var(--dorure-2); cursor: crosshair; }

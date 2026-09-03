@@ -114,6 +114,9 @@ export function majCarte(el, carte, ctx) {
 
 export const MINI = 44;
 
+/** Couleurs des chemins tracés entre lieux (une par chemin, dans l'ordre). */
+export const COULEURS_CHEMINS = ["#e0c07a", "#5aa9e6", "#7bd389", "#e07a7a", "#c98ce0", "#f0a35e", "#6ee0d6", "#e8e87a", "#b0b0ff", "#ff9ecb"];
+
 /** Image d'un jeton du chaos (SVG générés par scripts/build_chaos_tokens.py). */
 export function imgJetonChaos(t, taille = 28) {
   const img = document.createElement("img");

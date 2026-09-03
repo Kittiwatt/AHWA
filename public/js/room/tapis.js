@@ -3,7 +3,7 @@
 // les états (tour en cours, a joué, seuil atteint) sont des indications visuelles.
 
 import { el, pluriel } from "./dom.js";
-import { majCarte, majMini, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos } from "./cartes.js";
+import { majCarte, majMini, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos, COULEURS_CHEMINS } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { ouvrirDialogueCartes, ouvrirAjustementSac, ouvrirDepenseIndices } from "./dialogues.js";
 
@@ -109,9 +109,17 @@ function rendreBarre(ctx) {
 
 // ---- Zone des lieux (zoomable) ----------------------------------------------------
 
+const SVG = "http://www.w3.org/2000/svg";
+let couche = null;   // calque SVG des chemins, sous les cartes
+
 export function initPlateau() {
   plateau = document.getElementById("plateau");
   zoneBoard = document.getElementById("board");
+  couche = document.createElementNS(SVG, "svg");
+  couche.setAttribute("class", "chemins");
+  couche.setAttribute("width", "1");
+  couche.setAttribute("height", "1");
+  plateau.append(couche);
   appliquerVue();
 
   zoneBoard.addEventListener("wheel", (e) => {
@@ -174,10 +182,50 @@ export function ajusterVue(ctx) {
   appliquerVue();
 }
 
+export function centreLieu(c) {
+  return { x: c.loc.x + CARTE_L / 2, y: c.loc.y + CARTE_H / 2 };
+}
+
+function rendreChemins(ctx) {
+  const { state } = ctx.etat;
+  const temp = couche.querySelector(".temp");
+  couche.replaceChildren(...(state.links ?? []).flatMap((l) => {
+    const a = state.cards[l.a], b = state.cards[l.b];
+    if (!a || !b || a.loc.zone !== "board" || b.loc.zone !== "board") return [];
+    const p = centreLieu(a), q = centreLieu(b);
+    const ligne = document.createElementNS(SVG, "line");
+    ligne.setAttribute("x1", p.x); ligne.setAttribute("y1", p.y);
+    ligne.setAttribute("x2", q.x); ligne.setAttribute("y2", q.y);
+    ligne.setAttribute("stroke", COULEURS_CHEMINS[l.color % COULEURS_CHEMINS.length]);
+    return [ligne];
+  }));
+  if (temp) couche.append(temp);
+}
+
+/** Trait provisoire pendant un tracé (client seul) ; null pour l'effacer. */
+export function cheminProvisoire(depuis, vers) {
+  let t = couche.querySelector(".temp");
+  if (!depuis) { t?.remove(); return; }
+  if (!t) {
+    t = document.createElementNS(SVG, "line");
+    t.setAttribute("class", "temp");
+    couche.append(t);
+  }
+  t.setAttribute("x1", depuis.x); t.setAttribute("y1", depuis.y);
+  t.setAttribute("x2", vers.x); t.setAttribute("y2", vers.y);
+}
+
+/** Convertit une position écran en coordonnées du tapis. */
+export function versTapis(clientX, clientY) {
+  const r = zoneBoard.getBoundingClientRect();
+  return { x: (clientX - r.left - vue.tx) / vue.k, y: (clientY - r.top - vue.ty) / vue.k };
+}
+
 function rendrePlateau(ctx) {
   const { state } = ctx.etat;
+  rendreChemins(ctx);
   const cartes = Object.values(state.cards).filter((c) => c.loc.zone === "board").sort((a, b) => a.loc.z - b.loc.z);
-  const vus = new Set();
+  const vus = new Set([couche]);
   for (const c of cartes) {
     const e = carteEl(c, ctx);
     e.style.left = `${c.loc.x}px`;

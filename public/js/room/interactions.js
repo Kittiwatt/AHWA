@@ -1,7 +1,7 @@
 // Interactions sur les cartes : glisser-déposer (message au lâcher), clic, double-clic, menu contextuel.
 
 import { el } from "./dom.js";
-import { vue, setAsideActif } from "./tapis.js";
+import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, encart } from "./tapis.js";
 
 const LIBELLES_JETONS = { clue: "Indice", doom: "Doom", damage: "Dégât", horror: "Horreur", resource: "Ressource", generic: "Marqueur" };
 
@@ -13,6 +13,39 @@ export function initInteractions(ctx) {
 
   const assis = () => ctx.etat.moi.seat !== null;
   const carteDe = (elem) => ctx.etat.state?.cards[elem?.dataset.id];
+  let lien = null;          // tracé en cours au clic droit glissé : { depuis, bouge }
+  let ignorerMenuAvant = 0; // le contextmenu qui suit un pointerup droit est déjà traité
+  let modeLien = null;      // « Relier à un autre lieu… » (menu, tactile) : id du lieu de départ
+
+  const lieuSous = (x, y) => {
+    const e = document.elementFromPoint(x, y)?.closest("#plateau .carte.kind-location");
+    return e ? carteDe(e) : null;
+  };
+
+  // ---- Chemins : clic droit enfoncé sur un lieu, glissé, relâché sur un autre lieu ----
+  document.addEventListener("pointerdown", (e) => {
+    if (e.button !== 2 || !assis()) return;
+    const elem = e.target.closest("#plateau .carte.kind-location");
+    const carte = carteDe(elem);
+    if (!carte) return;
+    e.preventDefault();
+    lien = { depuis: carte, x0: e.clientX, y0: e.clientY, bouge: false };
+  });
+  document.addEventListener("pointermove", (e) => {
+    if (!lien) return;
+    if (!lien.bouge && Math.hypot(e.clientX - lien.x0, e.clientY - lien.y0) < 8) return;
+    lien.bouge = true;
+    cheminProvisoire(centreLieu(lien.depuis), versTapis(e.clientX, e.clientY));
+  });
+  document.addEventListener("pointerup", (e) => {
+    if (!lien || e.button !== 2) return;
+    const l = lien; lien = null;
+    cheminProvisoire(null);
+    ignorerMenuAvant = Date.now() + 400;
+    if (!l.bouge) { const elem = document.querySelector(`#plateau .carte[data-id="${l.depuis.id}"]`); if (elem) ouvrirMenu(elem, e.clientX, e.clientY); return; }
+    const cible = lieuSous(e.clientX, e.clientY);
+    if (cible && cible.id !== l.depuis.id) ctx.envoyer({ t: "linkLocations", a: l.depuis.id, b: cible.id });
+  });
 
   // ---- Glisser-déposer ----
   document.addEventListener("pointerdown", (e) => {
@@ -103,6 +136,14 @@ export function initInteractions(ctx) {
   document.addEventListener("click", (e) => {
     if (Date.now() - dernierLacher < 200) { e.stopPropagation(); return; }
     if (!assis()) return;
+    if (modeLien) {
+      const cible = e.target.closest("#plateau .carte.kind-location");
+      const carte = carteDe(cible);
+      if (carte && carte.id !== modeLien) ctx.envoyer({ t: "linkLocations", a: modeLien, b: carte.id });
+      modeLien = null;
+      document.body.classList.remove("mode-lien");
+      return;
+    }
     const chipMoins = e.target.closest(".chip-moins");
     const chip = e.target.closest(".chip");
     const elem = e.target.closest(".carte");
@@ -135,6 +176,7 @@ export function initInteractions(ctx) {
     const elem = e.target.closest(".carte, .mini");
     if (!elem || elem.closest("dialog, .loupe") || !carteDe(elem)) return;
     e.preventDefault();
+    if (lien || Date.now() < ignorerMenuAvant) return; // clic droit sur un lieu : géré au pointerup (tracé ou menu)
     ouvrirMenu(elem, e.clientX, e.clientY);
   });
 
@@ -163,6 +205,10 @@ export function initInteractions(ctx) {
       items.push(item(carte.exhausted ? "Redresser" : "Épuiser", () => ctx.envoyer({ t: "exhaust", id: carte.id })));
       if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") items.push(item("Révéler (indices automatiques)", () => ctx.envoyer({ t: "revealLocation", id: carte.id })));
       if (carte.kind === "location" && (carte.tokens.clue ?? 0) > 0) items.push(item("Prendre 1 indice", () => ctx.envoyer({ t: "takeClue", id: carte.id })));
+      if (carte.kind === "location" && carte.loc.zone === "board") {
+        items.push(item("Relier à un autre lieu…", () => { modeLien = carte.id; document.body.classList.add("mode-lien"); encart("Cliquez sur le lieu de destination (Échap pour annuler).", "info"); }));
+        if ((ctx.etat.state.links ?? []).some((l) => l.a === carte.id || l.b === carte.id)) items.push(item("Effacer ses chemins", () => ctx.envoyer({ t: "unlink", id: carte.id })));
+      }
       if (!carte.storyBack && carte.kind !== "investigator") items.push(item("Retourner", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
       if (carte.kind === "scenario" || carte.kind === "story") items.push(item("Autre face", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
       const jetons = carte.kind === "investigator" ? ["damage", "horror", "resource"]
@@ -191,7 +237,7 @@ export function initInteractions(ctx) {
     menu.style.top = `${Math.min(y, window.innerHeight - r.height - 8)}px`;
   }
   document.addEventListener("pointerdown", (e) => { if (menu && !menu.contains(e.target)) fermerMenu(); }, true);
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") fermerMenu(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { fermerMenu(); modeLien = null; document.body.classList.remove("mode-lien"); } });
 
   // Les lignes ± du menu restent ouvertes : le menu est reconstruit à chaque delta.
   document.addEventListener("ahwa:etat", () => {

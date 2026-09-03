@@ -173,6 +173,20 @@ d = await hote.action({ t: "moveCard", id: hallway.id, zone: "board", x: 900, y:
 assert.equal(hote.state.cards[hallway.id].loc.zone, "board");
 assert.equal(hote.state.cards[hallway.id].faceUp, false);
 await bob.attendre((m) => m.t === "delta" && m.rev === hote.state.rev); // rattraper les deltas de l'hôte
+// Déplacement solidaire : les pions posés sur le Study suivent le Study.
+const miniAvant = { ...hote.state.cards["mini-0"].loc };
+d = await hote.action({ t: "moveCard", id: "01111", zone: "board", x: 537, y: 411 });
+assert.equal(hote.state.cards["mini-0"].loc.x, miniAvant.x - 200, "le pion suit le lieu");
+assert.equal(hote.state.cards["mini-1"].loc.x, hote.state.cards["mini-1"].loc.x);
+// Chemins entre lieux : tracer, couleur distincte, effacer par un second tracé.
+d = await hote.action({ t: "linkLocations", a: "01111", b: hallway.id });
+assert.deepEqual(hote.state.links, [{ a: "01111", b: hallway.id, color: 0 }]);
+d = await hote.action({ t: "linkLocations", a: hallway.id, b: "01111" });
+assert.deepEqual(hote.state.links, [], "second tracé = effacement");
+d = await hote.action({ t: "linkLocations", a: "01111", b: hallway.id });
+d = await hote.action({ t: "linkLocations", a: "01111", b: "01111" });
+assert.equal(hote.state.links.length, 1);
+await bob.attendre((m) => m.t === "delta" && m.rev === hote.state.rev);
 d = await bob.action({ t: "revealLocation", id: hallway.id });
 assert.equal(bob.state.cards[hallway.id].faceUp, true);
 assert.equal(bob.state.cards[hallway.id].tokens.clue, undefined, "Hallway : 0 indice");

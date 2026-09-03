@@ -91,6 +91,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
   // Table vierge (une réinitialisation a pu laisser des cartes).
   state.cards = {};
   state.piles = { encounter: [], encounterDiscard: [], removed: [], agendaDeck: [], actDeck: [] };
+  state.links = [];
   state.chaos = { bag: [...def.chaosBag[state.difficulty]], drawn: [], sealed: [] };
   state.counters = Object.fromEntries(def.tableCounters.map((c) => [c.key, c.initial]));
   state.agendaId = null;

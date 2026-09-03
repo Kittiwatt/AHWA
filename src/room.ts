@@ -42,6 +42,7 @@ export class Room extends Server<Env> {
       if (r.k === "meta") this.meta = JSON.parse(r.json);
       if (r.k === "state") this.state = JSON.parse(r.json);
     }
+    if (this.state && !this.state.links) this.state.links = []; // tables créées avant le champ
   }
 
   private persist(k: "meta" | "state", value: unknown) {
@@ -291,6 +292,7 @@ export class Room extends Server<Env> {
         state.playerCount = 0;
         state.cards = {};
         state.piles = emptyPiles();
+        state.links = [];
         state.chaos = { bag: [], drawn: [], sealed: [] };
         state.counters = {};
         state.agendaId = null;
