@@ -18,13 +18,7 @@
   "durable_objects": {
     "bindings": [{ "name": "ROOM", "class_name": "Room" }]
   },
-  // v2/v3 (2026-09-03) : remise à zéro de toutes les tables de test — supprimer la classe efface
-  // tous ses objets et leur stockage, puis la classe est recréée vide.
-  "migrations": [
-    { "tag": "v1", "new_sqlite_classes": ["Room"] },
-    { "tag": "v2", "deleted_classes": ["Room"] },
-    { "tag": "v3", "new_sqlite_classes": ["Room"] }
-  ],
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
 
   "observability": { "enabled": true }
 }
