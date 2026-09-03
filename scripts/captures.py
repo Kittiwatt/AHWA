@@ -82,6 +82,59 @@ with sync_playwright() as p:
     assert "Manche 1" in alice.locator("#manche").inner_text()
     assert alice.locator("#journal .entree").count() >= 8
     print("encarts affichés :", alice.locator("#rappels .encart").count())
+
+    # ---- Étape 2 : interactions dans le navigateur (Alice, siège 1) ----
+    alice.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    alice.locator("#sieges .siege").nth(0).get_by_role("button", name="Prendre mon tour").click()
+    alice.wait_for_selector("#sieges .siege.actif")
+    alice.locator("#sieges .siege").nth(0).locator(".compteur.actions .pm").first.click()  # −1 action
+    alice.wait_for_timeout(300)
+    assert alice.locator("#sieges .siege").nth(0).locator(".pip.plein").count() == 2, "2 actions restantes"
+
+    # Glisser le Hallway (de côté) sur le tapis, puis le révéler d'un clic.
+    hallway = alice.locator("#aside .bande .carte").first
+    board = alice.locator("#board").bounding_box()
+    src = hallway.bounding_box()
+    alice.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2)
+    alice.mouse.down()
+    alice.mouse.move(board["x"] + board["width"] * 0.7, board["y"] + board["height"] * 0.45, steps=12)
+    alice.mouse.up()
+    alice.wait_for_timeout(400)
+    assert alice.locator("#plateau .carte").count() == 2, "Hallway déposé sur le tapis"
+    assert alice.locator("#aside .bande .carte").count() == 5
+    alice.locator("#plateau .carte.retournee").first.click()
+    alice.wait_for_timeout(300)
+    assert alice.locator("#plateau .carte.retournee").count() == 0, "Hallway révélé"
+
+    # Piocher une carte rencontre, la défausser par le menu contextuel.
+    alice.locator("#pioches .dos-pile[data-drop='pile:encounter']").click()
+    alice.wait_for_timeout(400)
+    assert alice.locator("#sieges .siege").nth(0).locator(".menace .carte").count() == 1, "carte piochée en zone de menace"
+    alice.locator("#sieges .siege").nth(0).locator(".menace .carte").first.click(button="right")
+    alice.wait_for_selector(".menu-carte")
+    alice.screenshot(path=f"{OUT}/07_menu_contextuel.png")
+    alice.locator(".menu-carte").get_by_role("button", name="Défausser").click()
+    alice.wait_for_timeout(400)
+    assert "1" in alice.locator("#pioches .pile").nth(1).locator(".compte").inner_text(), "défausse : 1"
+
+    # Tirer un jeton du chaos, passer à la phase suivante.
+    alice.locator("#chaos .sac-forme").click()
+    alice.wait_for_selector("#chaos .jeton-chaos.tire")
+    alice.get_by_role("button", name="Phase suivante").click()
+    alice.wait_for_timeout(400)
+    assert "Ennemis" in alice.locator("#phases .phase.courante").inner_text()
+    bob.wait_for_timeout(600)
+    assert "Ennemis" in bob.locator("#phases .phase.courante").inner_text(), "Bob voit la phase"
+    alice.wait_for_load_state("networkidle")
+    alice.screenshot(path=f"{OUT}/08_tapis_apres_interactions.png")
+
+    # Recherche dans la pioche.
+    alice.get_by_role("button", name="Chercher").click()
+    alice.wait_for_selector("dialog.dialogue[open]")
+    alice.wait_for_timeout(800)
+    alice.screenshot(path=f"{OUT}/09_recherche_pioche.png")
+    alice.get_by_role("button", name="Fermer et mélanger").click()
+    alice.wait_for_timeout(300)
     browser.close()
 
 if erreurs:

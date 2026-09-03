@@ -27,10 +27,10 @@
 
   <main id="tapis" class="tapis" hidden>
     <div class="barre-phase">
-      <div class="manche-phase"><span id="manche"></span><span id="phase-nom"></span></div>
+      <div class="manche-phase"><span id="manche"></span><div class="phases" id="phases"></div></div>
       <div class="tour" id="tour"></div>
       <div class="commandes">
-        <button class="bouton" id="phase-suivante" type="button" disabled title="Arrive à l'étape 2 (interactions)">Phase suivante</button>
+        <button class="bouton" id="phase-suivante" type="button">Phase suivante</button>
         <div class="hote" id="hote-commandes"></div>
       </div>
     </div>
@@ -39,7 +39,7 @@
       <section class="histoire" id="histoire"></section>
     </aside>
 
-    <section class="plateau-zone" id="board" aria-label="Zone des lieux">
+    <section class="plateau-zone" id="board" data-drop="board" aria-label="Zone des lieux">
       <div class="plateau" id="plateau"></div>
       <div id="loupe" class="loupe" hidden><img alt=""></div>
       <div class="table-outils">

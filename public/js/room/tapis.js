@@ -1,8 +1,11 @@
-// Tapis : rendu de l'état de jeu (zones fixes + zone des lieux zoomable). Étape 1 : affichage seul.
+// Tapis : rendu de l'état de jeu (zones fixes + zone des lieux zoomable) et commandes.
+// Règle « rien n'est jamais bloqué » : tous les boutons restent actifs pour un joueur assis ;
+// les états (tour en cours, a joué, seuil atteint) sont des indications visuelles.
 
 import { el, pluriel } from "./dom.js";
 import { majCarte, majMini, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
+import { ouvrirDialogueCartes, ouvrirAjustementSac, ouvrirDepenseIndices } from "./dialogues.js";
 
 export const PHASES = {
   mythos: "Phase du mythe",
@@ -11,12 +14,13 @@ export const PHASES = {
   upkeep: "Phase d'entretien",
   resolution: "Partie terminée",
 };
+const ORDRE_PHASES = ["mythos", "investigation", "enemy", "upkeep"];
 
 const els = new Map();   // id de carte → élément DOM (réutilisé d'un rendu à l'autre)
-const vue = { k: 1, tx: 0, ty: 0, ajustee: false };
+export const vue = { k: 1, tx: 0, ty: 0, ajustee: false };
 let plateau = null, zoneBoard = null;
 
-function carteEl(carte, ctx) {
+export function carteEl(carte, ctx) {
   const existant = els.get(carte.id);
   const e = carte.kind === "mini" ? majMini(existant, carte, ctx) : majCarte(existant, carte, ctx);
   els.set(carte.id, e);
@@ -26,6 +30,8 @@ function carteEl(carte, ctx) {
 function nettoyer(ctx) {
   for (const id of [...els.keys()]) if (!ctx.etat.state.cards[id]) { els.get(id).remove(); els.delete(id); }
 }
+
+const assis = (ctx) => ctx.etat.moi.seat !== null;
 
 export function rendreTapis(ctx) {
   const { state } = ctx.etat;
@@ -48,12 +54,35 @@ export function oublierVue() { vue.ajustee = false; }
 
 function rendreBarre(ctx) {
   const { state, moi } = ctx.etat;
+  const peut = assis(ctx);
   document.getElementById("manche").textContent = state.round ? `Manche ${state.round}` : "";
-  document.getElementById("phase-nom").textContent = PHASES[state.phase] ?? state.phase;
+  const phases = document.getElementById("phases");
+  phases.replaceChildren(...ORDRE_PHASES.map((p) => el("button", {
+    type: "button", class: `phase${state.phase === p ? " courante" : ""}`, disabled: !peut,
+    title: state.phase === p ? "Phase en cours" : `Aller directement à la ${PHASES[p].toLowerCase()} (sans automatisation)`,
+    onclick: () => { if (state.phase !== p) ctx.envoyer({ t: "setPhase", phase: p }); },
+  }, { mythos: "Mythe", investigation: "Enquêteurs", enemy: "Ennemis", upkeep: "Entretien" }[p])));
+  if (state.phase === "resolution") phases.append(el("span", { class: "phase courante", text: PHASES.resolution }));
+
   const tour = document.getElementById("tour");
   if (state.phase === "investigation") {
-    tour.textContent = state.turn.seat === null ? "Personne n'a pris son tour." : `Tour de ${nomSiege(state.seats[state.turn.seat], ctx)}`;
+    const restants = state.seats.filter((s) => s.investigatorCode && !state.turn.done.includes(s.index));
+    tour.textContent = state.turn.seat === null
+      ? (restants.length ? `Tour libre — ${pluriel(restants.length, "enquêteur")} n'${restants.length > 1 ? "ont" : "a"} pas encore joué.` : "Tout le monde a joué : phase suivante.")
+      : `Tour de ${nomSiege(state.seats[state.turn.seat], ctx)}.`;
   } else tour.textContent = "";
+
+  const suivante = document.getElementById("phase-suivante");
+  suivante.disabled = !peut || state.phase === "resolution";
+  const prochaine = ORDRE_PHASES[(ORDRE_PHASES.indexOf(state.phase) + 1) % 4];
+  suivante.title = {
+    mythos: "Manche suivante : +1 doom sur l'agenda, puis chaque enquêteur pioche une carte rencontre",
+    investigation: "Phase des enquêteurs : tours libres",
+    enemy: "Phase des ennemis : chasseurs, puis attaques",
+    upkeep: "Entretien : redresse les cartes, remet les actions à 3",
+  }[prochaine] ?? "";
+  suivante.onclick = () => ctx.envoyer({ t: "nextPhase" });
+
   const cmd = document.getElementById("hote-commandes");
   cmd.replaceChildren();
   if (moi.isHost) {
@@ -81,16 +110,15 @@ export function initPlateau() {
   appliquerVue();
 
   zoneBoard.addEventListener("wheel", (e) => {
+    if (e.target.closest(".table-outils, .loupe")) return;
     e.preventDefault();
     const r = zoneBoard.getBoundingClientRect();
-    const px = e.clientX - r.left, py = e.clientY - r.top;
-    const facteur = e.deltaY < 0 ? 1.12 : 1 / 1.12;
-    zoomer(facteur, px, py);
+    zoomer(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - r.left, e.clientY - r.top);
   }, { passive: false });
 
   let glisse = null;
   zoneBoard.addEventListener("pointerdown", (e) => {
-    if (e.target.closest(".carte, .mini, button, .table-outils")) return;
+    if (e.target.closest(".carte, .mini, button, .table-outils, .loupe, details")) return;
     glisse = { x: e.clientX, y: e.clientY, tx: vue.tx, ty: vue.ty };
     zoneBoard.setPointerCapture(e.pointerId);
     zoneBoard.classList.add("glisse");
@@ -156,10 +184,11 @@ function rendrePlateau(ctx) {
   for (const e of [...plateau.children]) if (!vus.has(e)) e.remove();
 }
 
-// ---- Colonne gauche : histoire, pioches, sac ---------------------------------------
+// ---- Colonne gauche : histoire ---------------------------------------------------
 
 function rendreHistoire(ctx) {
   const { state } = ctx.etat;
+  const peut = assis(ctx);
   const sect = document.getElementById("histoire");
   const cartes = Object.values(state.cards).filter((c) => c.loc.zone === "story");
   const scenario = cartes.find((c) => c.kind === "scenario");
@@ -168,25 +197,35 @@ function rendreHistoire(ctx) {
   const defAgenda = agenda ? ctx.defs.get(agenda.code) : null;
   const defActe = acte ? ctx.defs.get(acte.code) : null;
   const seuilActe = defActe?.clue ? (defActe.clue.perInvestigator ? defActe.clue.value * state.playerCount : defActe.clue.value) : null;
-  const doomTotal = Object.values(state.cards).reduce((n, c) => n + (c.tokens.doom ?? 0), 0);
+  const doomTotal = Object.values(state.cards).reduce((n, c) => n + (c.loc.zone ? c.tokens.doom ?? 0 : 0), 0);
   const indicesJoueurs = state.seats.reduce((n, s) => n + (s.counters.clues ?? 0), 0);
+  const seuilDoom = defAgenda?.doom ?? null;
 
   sect.replaceChildren(
     el("h2", { text: "Agenda et acte" }),
     el("div", { class: "histoire-cartes" },
       agenda ? el("div", { class: "bloc" }, carteEl(agenda, ctx),
-        el("p", { class: "compte", html: `Doom <strong>${doomTotal}</strong> / ${defAgenda?.doom ?? "?"}` }),
-        el("p", { class: "sous", text: `${state.piles.agendaDeck.length} agenda${state.piles.agendaDeck.length > 1 ? "s" : ""} à venir` })) : null,
+        el("p", { class: `compte${seuilDoom && doomTotal >= seuilDoom ? " alerte" : ""}`, html: `Doom en jeu <strong>${doomTotal}</strong> / ${seuilDoom ?? "?"}` }),
+        el("div", { class: "ligne-boutons" },
+          el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, title: "Retire tout le doom en jeu et révèle l'agenda suivant",
+            onclick: () => { if (confirm("Avancer l'agenda ? Tout le doom en jeu sera retiré.")) ctx.envoyer({ t: "advanceAgenda" }); } }, "Avancer l'agenda"),
+          el("span", { class: "sous", text: `${state.piles.agendaDeck.length} à venir` }))) : null,
       acte ? el("div", { class: "bloc" }, carteEl(acte, ctx),
-        el("p", { class: "compte", html: `Indices des enquêteurs <strong>${indicesJoueurs}</strong>${seuilActe ? ` / ${seuilActe}` : ""}` }),
-        el("p", { class: "sous", text: `${state.piles.actDeck.length} acte${state.piles.actDeck.length > 1 ? "s" : ""} à venir` })) : null,
-      scenario ? el("div", { class: "bloc scenario" }, carteEl(scenario, ctx), el("p", { class: "sous", text: "Carte de scénario (verso : jetons)" })) : null,
+        el("p", { class: `compte${seuilActe && indicesJoueurs >= seuilActe ? " alerte" : ""}`, html: `Indices des enquêteurs <strong>${indicesJoueurs}</strong>${seuilActe ? ` / ${seuilActe}` : ""}` }),
+        el("div", { class: "ligne-boutons" },
+          el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ouvrirDepenseIndices(ctx, seuilActe) }, "Dépenser des indices"),
+          el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "advanceAct" }) }, "Avancer l'acte"),
+          el("span", { class: "sous", text: `${state.piles.actDeck.length} à venir` }))) : null,
+      scenario ? el("div", { class: "bloc scenario" }, carteEl(scenario, ctx), el("p", { class: "sous", text: "Carte de scénario — clic droit : autre face" })) : null,
     ),
   );
 }
 
+// ---- Outils de table : pioches, sac ------------------------------------------------
+
 function rendrePioches(ctx) {
   const { state } = ctx.etat;
+  const peut = assis(ctx);
   const sect = document.getElementById("pioches");
   const pioche = state.piles.encounter;
   const defausse = state.piles.encounterDiscard;
@@ -194,17 +233,25 @@ function rendrePioches(ctx) {
   sect.replaceChildren(
     el("div", { class: "pioches-cartes" },
       el("div", { class: "pile" },
-        el("div", { class: `dos-pile${pioche.length ? "" : " vide"}` }, pioche.length ? el("img", { src: "/img/dos-rencontre.svg", alt: "pioche de rencontre" }) : null),
-        el("p", { class: "compte", html: `Pioche <strong>${pioche.length}</strong>` })),
+        el("button", { class: `dos-pile${pioche.length ? "" : " vide"}`, type: "button", "data-drop": "pile:encounter", disabled: !peut,
+          title: "Piocher une carte rencontre dans votre zone de menace", onclick: () => ctx.envoyer({ t: "drawEncounter" }) },
+          pioche.length ? el("img", { src: "/img/dos-rencontre.svg", alt: "" }) : el("span", { class: "sous", text: "vide" })),
+        el("p", { class: "compte", html: `Pioche <strong>${pioche.length}</strong>` }),
+        el("div", { class: "ligne-boutons" },
+          el("button", { class: "lien-outil", type: "button", disabled: !peut, title: "Regarder la pioche puis la mélanger", onclick: () => ctx.envoyer({ t: "searchEncounter", pile: "encounter" }) }, "Chercher"),
+          el("button", { class: "lien-outil", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "shufflePile", pile: "encounter" }) }, "Mélanger"))),
       el("div", { class: "pile" },
-        el("div", { class: `dos-pile${dessus ? "" : " vide"}` }, dessus ? carteEl(dessus, ctx) : null),
-        el("p", { class: "compte", html: `Défausse <strong>${defausse.length}</strong>` })),
+        el("div", { class: `dos-pile${dessus ? "" : " vide"}`, "data-drop": "pile:encounterDiscard", title: "Déposez ici pour défausser" }, dessus ? carteEl(dessus, ctx) : null),
+        el("p", { class: "compte", html: `Défausse <strong>${defausse.length}</strong>` }),
+        el("div", { class: "ligne-boutons" },
+          el("button", { class: "lien-outil", type: "button", disabled: !peut || !defausse.length, onclick: () => ctx.envoyer({ t: "searchEncounter", pile: "encounterDiscard" }) }, "Consulter"))),
     ),
   );
 }
 
 function rendreChaos(ctx) {
   const { state } = ctx.etat;
+  const peut = assis(ctx);
   const sect = document.getElementById("chaos");
   const comptes = new Map();
   for (const t of state.chaos.bag) comptes.set(t, (comptes.get(t) ?? 0) + 1);
@@ -213,26 +260,35 @@ function rendreChaos(ctx) {
   const ouvert = sect.querySelector("details")?.open ?? false;
   sect.replaceChildren(
     el("div", { class: "sac" },
-      el("div", { class: "sac-forme", title: `${state.chaos.bag.length} jetons dans le sac` }, el("span", { text: String(state.chaos.bag.length) })),
+      el("button", { class: "sac-forme", type: "button", disabled: !peut, title: state.chaos.drawn.length ? "Tirer un autre jeton" : "Tirer un jeton du chaos",
+        onclick: () => ctx.envoyer({ t: "chaosDraw" }) }, el("span", { text: String(state.chaos.bag.length) })),
       el("div", { class: "sac-info" },
         el("p", { class: "compte", text: "Sac du chaos" }),
         el("p", { class: "sous", text: `Difficulté ${libelleDifficulte(state.difficulty)}` }),
-        el("p", { class: "sous", text: state.chaos.drawn.length ? `Tirés : ${state.chaos.drawn.map((t) => JETONS_CHAOS[t]).join(", ")}` : "Aucun jeton tiré." }),
+        state.chaos.drawn.length
+          ? el("div", { class: "tires" }, ...state.chaos.drawn.map((t) => el("span", { class: `jeton-chaos tire j-${cls(t)}`, title: JETONS_CHAOS[t] },
+              el("span", { class: "glyphe", text: glypheChaos(t) }))),
+            el("button", { class: "lien-outil", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "chaosReturn" }) }, "Tout remettre"))
+          : el("p", { class: "sous", text: "Cliquez le sac pour tirer." }),
       ),
     ),
-    el("details", { class: "composition-details", open: ouvert },
-      el("summary", { text: "Composition" }),
-      el("ul", { class: "composition" }, ...liste.map(([t, n]) => el("li", { class: `jeton-chaos j-${t.replace(/[+]/g, "p").replace(/-/g, "m")}` },
-        el("span", { class: "glyphe", text: glypheChaos(t) }), el("span", { class: "nombre", text: `×${n}` })))),
+    el("div", { class: "ligne-boutons" },
+      el("details", { class: "composition-details", open: ouvert },
+        el("summary", { text: "Composition" }),
+        el("ul", { class: "composition" }, ...liste.map(([t, n]) => el("li", { class: `jeton-chaos j-${cls(t)}`, title: JETONS_CHAOS[t] },
+          el("span", { class: "glyphe", text: glypheChaos(t) }), el("span", { class: "nombre", text: `×${n}` }))))),
+      el("button", { class: "lien-outil", type: "button", disabled: !peut, onclick: () => ouvrirAjustementSac(ctx) }, "Ajuster"),
     ),
   );
 }
+
+const cls = (t) => t.replace(/[+]/g, "p").replace(/-/g, "m");
 
 export function libelleDifficulte(d) {
   return { easy: "facile", standard: "standard", hard: "difficile", expert: "expert" }[d] ?? d;
 }
 
-function glypheChaos(t) {
+export function glypheChaos(t) {
   return { skull: "☠", cultist: "✝", tablet: "▤", elder_thing: "✺", auto_fail: "✕", elder_sign: "✶", bless: "☼", curse: "☾", frost: "❄" }[t] ?? JETONS_CHAOS[t];
 }
 
@@ -240,6 +296,7 @@ function glypheChaos(t) {
 
 function rendreBande(bande, zone, ctx, vide) {
   const { state } = ctx.etat;
+  bande.dataset.drop = zone;
   const cartes = Object.values(state.cards).filter((c) => c.loc.zone === zone).sort((a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z);
   const vus = new Set();
   for (const c of cartes) {
@@ -248,6 +305,8 @@ function rendreBande(bande, zone, ctx, vide) {
     vus.add(e);
   }
   for (const e of [...bande.children]) if (!vus.has(e) && !e.classList.contains("vide")) e.remove();
+  // Ordre visuel = ordre des x.
+  cartes.forEach((c) => bande.append(els.get(c.id)));
   let v = bande.querySelector(".vide");
   if (!cartes.length && !v) bande.append(el("p", { class: "vide", text: vide }));
   if (cartes.length && v) v.remove();
@@ -269,6 +328,7 @@ function heure(t) {
 
 function rendreSieges(ctx) {
   const { state, moi } = ctx.etat;
+  const peut = assis(ctx);
   const pied = document.getElementById("sieges");
   const sieges = state.seats.filter((s) => s.investigatorCode);
   pied.replaceChildren(...sieges.map((s) => {
@@ -279,34 +339,54 @@ function rendreSieges(ctx) {
       .sort((a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z);
     const degats = carteInv?.tokens.damage ?? 0, horreur = carteInv?.tokens.horror ?? 0;
     const faction = FACTIONS[inv?.faction] ?? FACTIONS.neutral;
-    return el("article", { class: `siege${moi.seat === s.index ? " moi" : ""}${state.turn.seat === s.index ? " actif" : ""}`, style: { "--faction": faction.couleur } },
+    const enTour = state.turn.seat === s.index, aJoue = state.turn.done.includes(s.index);
+    const jeton = (token, delta) => ctx.envoyer({ t: "addToken", id: `inv-${s.index}`, token, delta });
+    const compteur = (key, delta) => ctx.envoyer({ t: "setSeatCounter", seat: s.index, key, delta });
+    const boutonTour = state.phase === "resolution" ? null : enTour
+      ? el("button", { class: "bouton petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "endTurn", seat: s.index }) }, "Fin de mon tour")
+      : el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "takeTurn", seat: s.index }) },
+          aJoue ? "Rejouer" : (moi.seat === s.index ? "Prendre mon tour" : "Prend son tour"));
+    return el("article", { class: `siege${moi.seat === s.index ? " moi" : ""}${enTour ? " actif" : ""}${aJoue && !enTour ? " joue" : ""}`, "data-seat": s.index, style: { "--faction": faction.couleur } },
       el("header", {},
         el("span", { class: `etat-siege ${s.occupied ? "connecte" : "libre"}`, title: s.occupied ? "connecté" : "déconnecté" }),
         state.lead === s.index ? el("span", { class: "etoile", title: "enquêteur principal", text: "★" }) : null,
         el("strong", { text: nomSiege(s, ctx) }),
         s.name && inv ? el("span", { class: "sous", text: inv.name }) : null,
         moi.seat === s.index ? el("span", { class: "vous", text: "vous" }) : null,
+        aJoue && !enTour ? el("span", { class: "sous", text: "a joué" }) : null,
+        el("span", { class: "espace" }),
+        boutonTour,
       ),
       el("div", { class: "siege-corps" },
         carteInv ? carteEl(carteInv, ctx) : el("div", { class: "carte paysage vide" }),
         el("dl", { class: "compteurs" },
-          compteur("Vie", `${Math.max(0, s.counters.health - degats)} / ${s.counters.health}`, "/img/tokens/tok_degats.png", degats ? `${degats} dégâts` : ""),
-          compteur("Santé", `${Math.max(0, s.counters.sanity - horreur)} / ${s.counters.sanity}`, "/img/tokens/tok_horreur.png", horreur ? `${horreur} horreur` : ""),
-          compteur("Indices", String(s.counters.clues ?? 0), "/img/tokens/tok_indices.png"),
-          el("div", { class: "actions-pips", title: `${s.counters.actions} actions` }, ...[0, 1, 2].map((i) => el("span", { class: `pip${i < (s.counters.actions ?? 0) ? " plein" : ""}` })),
-            (s.counters.actions ?? 0) > 3 ? el("span", { class: "plus", text: `+${s.counters.actions - 3}` }) : null),
+          ligneCompteur("Vie", `${Math.max(0, s.counters.health - degats)} / ${s.counters.health}`, "/img/tokens/tok_degats.png", peut,
+            () => jeton("damage", -1), () => jeton("damage", 1), "dégât"),
+          ligneCompteur("Santé", `${Math.max(0, s.counters.sanity - horreur)} / ${s.counters.sanity}`, "/img/tokens/tok_horreur.png", peut,
+            () => jeton("horror", -1), () => jeton("horror", 1), "horreur"),
+          ligneCompteur("Indices", String(s.counters.clues ?? 0), "/img/tokens/tok_indices.png", peut,
+            () => compteur("clues", -1), () => compteur("clues", 1), "indice"),
+          el("div", { class: "compteur actions" },
+            el("dt", {}, el("span", { text: "Actions" })),
+            el("dd", { class: "actions-pips" },
+              el("button", { class: "pm", type: "button", disabled: !peut, title: "Dépenser une action", onclick: () => compteur("actions", -1) }, "−"),
+              ...[0, 1, 2].map((i) => el("span", { class: `pip${i < (s.counters.actions ?? 0) ? " plein" : ""}` })),
+              (s.counters.actions ?? 0) > 3 ? el("span", { class: "plus", text: `+${s.counters.actions - 3}` }) : null,
+              el("button", { class: "pm", type: "button", disabled: !peut, title: "Action supplémentaire", onclick: () => compteur("actions", 1) }, "+"))),
         ),
-        el("div", { class: "menace" }, ...(menace.length ? menace.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Zone de menace" })])),
+        el("div", { class: "menace", "data-drop": `seat${s.index}` }, ...(menace.length ? menace.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Zone de menace — déposez ici les ennemis engagés et les traîtrises" })])),
       ),
     );
   }));
 }
 
-function compteur(libelle, valeur, icone, detail) {
+function ligneCompteur(libelle, valeur, icone, peut, moins, plus, unite) {
   return el("div", { class: "compteur" },
     el("dt", {}, el("img", { src: icone, alt: "" }), el("span", { text: libelle })),
-    el("dd", { text: valeur }),
-    detail ? el("dd", { class: "detail", text: detail }) : null,
+    el("dd", {},
+      el("button", { class: "pm", type: "button", disabled: !peut, title: `−1 ${unite}`, onclick: moins }, "−"),
+      el("span", { class: "valeur", text: valeur }),
+      el("button", { class: "pm", type: "button", disabled: !peut, title: `+1 ${unite}`, onclick: plus }, "+")),
   );
 }
 
@@ -315,22 +395,32 @@ function compteur(libelle, valeur, icone, detail) {
 export function initLoupe(ctx) {
   const loupe = document.getElementById("loupe");
   const img = loupe.querySelector("img");
-  let courant = null;
-  const montrer = (e) => {
-    const cible = e.target.closest?.(".carte");
-    if (!cible || cible.dataset.loupe !== "1") return;
+  let courant = null, fixe = false;
+  const montrerCarte = (cible) => {
     const carte = ctx.etat.state?.cards[cible.dataset.id];
-    if (!carte || !loupePermise(carte, ctx.defs.get(carte.code))) return;
+    if (!carte || !loupePermise(carte, ctx.defs.get(carte.code))) return false;
     courant = cible;
     img.src = urlImage(carte, ctx.defs.get(carte.code));
     loupe.classList.toggle("paysage", cible.classList.contains("paysage"));
     loupe.hidden = false;
+    return true;
   };
-  const cacher = (e) => {
+  document.addEventListener("pointerover", (e) => {
+    if (fixe || e.pointerType === "touch") return;
+    const cible = e.target.closest?.(".carte");
+    if (!cible || cible.dataset.loupe !== "1" || cible.closest(".fantome")) return;
+    montrerCarte(cible);
+  });
+  document.addEventListener("pointerout", (e) => {
+    if (fixe) return;
     if (courant && (!e.relatedTarget || !courant.contains(e.relatedTarget))) { courant = null; loupe.hidden = true; }
-  };
-  document.addEventListener("pointerover", montrer);
-  document.addEventListener("pointerout", cacher);
+  });
+  // Tactile / menu : loupe épinglée jusqu'au prochain toucher.
+  document.addEventListener("ahwa:loupe", (e) => {
+    const cible = e.detail;
+    fixe = montrerCarte(cible);
+    if (fixe) setTimeout(() => document.addEventListener("pointerdown", () => { fixe = false; courant = null; loupe.hidden = true; }, { once: true }), 50);
+  });
 }
 
 // ---- Encarts éphémères -------------------------------------------------------------
@@ -343,4 +433,4 @@ export function encart(texte, genre = "rappel") {
   setTimeout(() => n.remove(), genre === "rappel" ? 12000 : 6000);
 }
 
-export { pluriel };
+export { pluriel, ouvrirDialogueCartes };

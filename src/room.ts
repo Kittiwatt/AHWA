@@ -14,6 +14,7 @@ import {
 import { diff, clone } from "./patch";
 import { getScenario } from "./scenario";
 import { addLog, runSetup } from "./setup";
+import { jouer, Refus, refuser } from "./actions";
 import { newHostToken } from "./codes";
 import investigatorsIndex from "../public/data/investigators.json";
 
@@ -22,8 +23,6 @@ type Attachment = { seat: number | null; isHost: boolean };
 
 const INVESTIGATORS = new Map(investigatorsIndex.investigators.map((i) => [i.code, i]));
 
-class Refus extends Error {}
-const refuser = (raison: string): never => { throw new Refus(raison); };
 
 export class Room extends Server<Env> {
   // Hibernation : la connexion WebSocket ne maintient pas le DO en mémoire.
@@ -319,8 +318,15 @@ export class Room extends Server<Env> {
         return;
       }
 
-      default:
-        refuser(`action « ${msg.t} » : à venir (étape 2 du tapis)`);
+      // ---- Actions de jeu (étape 2) : ouvertes à tout joueur assis ----
+      default: {
+        if (state.phase === "lobby") refuser("la partie n'est pas commencée");
+        const def = getScenario(state.scenarioId) ?? refuser("scénario indisponible");
+        const before = clone(state);
+        const res = jouer(state, def, msg, a.seat, Math.random);
+        if (res.peek) { this.send(conn, { t: "peek", pile: res.peek.pile, cards: res.peek.cards }); return; }
+        this.commit(before, res.reminders ?? []);
+      }
     }
   }
 

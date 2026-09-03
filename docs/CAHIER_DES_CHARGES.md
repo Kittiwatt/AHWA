@@ -242,12 +242,14 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `setSeatCounter {seat, key, delta}` | J | vie, santé mentale, indices, actions, spécifiques |
 | `setCounter {key, delta}` | J | compteur de table |
 | `drawEncounter {seat}` | J | dessus de `encounter` → zone de menace du siège, face visible ; remélange la défausse si vide |
-| `searchEncounter` | J | envoie la pioche au demandeur (`peek`), puis remélange à la fermeture |
+| `searchEncounter {pile?}` | J | envoie la pioche (ou la défausse) au demandeur (`peek`) ; le client remélange à la fermeture (`shufflePile`) et permet de prendre une carte (`moveCard`) |
 | `shufflePile {pile}` | J | remélange |
 | `nextPhase` | J | enchaîne les phases (§6) |
+| `setPhase {phase}` | J | saut direct à une phase, sans automatisation |
+| `takeTurn {seat?}` / `endTurn {seat?}` | J | tour en cours (`turn.seat`) / a joué (`turn.done`) ; indications, jamais des verrous |
 | `advanceAgenda` / `advanceAct` | J | carte suivante de `agendaDeck`/`actDeck` ; agenda : retire tout le doom en jeu |
 | `spendClues {n, from: {seat,n}[]}` | J | prélève sur les sièges ; le client demande la répartition si nécessaire |
-| `chaosDraw` / `chaosDrawAnother` / `chaosReturn` | J | tirage ; `onChaosDraw` peut sceller ou renvoyer |
+| `chaosDraw` / `chaosReturn` | J | tirage (le jeton sort du sac vers `drawn`, cumulable) / tout remettre ; `onChaosDraw` (v1.1) pourra sceller |
 | `chaosAdjust {token, delta}` | J | panneau du sac |
 | `scenarioAction {id, args}` | J | bouton déclaré par le scénario (branches, transitions) |
 | `ping` | tous | maintien (hibernation compatible : pas nécessaire côté DO, réservé au client) |
@@ -268,7 +270,7 @@ Toute action refusée renvoie `{ t:"nack", reason }` au seul émetteur.
 - `{ t:"reminder", entry }` : rappel à afficher en encart (déjà dans
   `log` du patch ; message séparé pour la mise en avant).
 - `{ t:"question", question }` : à l'hôte seulement.
-- `{ t:"peek", cards }` : au demandeur seulement (recherche).
+- `{ t:"peek", pile, cards: {id, code}[] }` : au demandeur seulement (recherche, consultation de la défausse).
 
 ### 4.4 Budget messages (plan gratuit)
 

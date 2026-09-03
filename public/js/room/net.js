@@ -69,6 +69,9 @@ export function creerConnexion({ code, hostToken, seat, name, on }) {
       case "reminder":
         on.rappel?.(msg.entry);
         break;
+      case "peek":
+        on.peek?.(msg.pile, msg.cards);
+        break;
       case "nack":
         on.refus?.(msg.reason);
         break;

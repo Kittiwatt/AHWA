@@ -2,7 +2,8 @@
 
 import { creerConnexion } from "./net.js";
 import { rendreLobby, copierLien } from "./lobby.js";
-import { rendreTapis, initPlateau, initLoupe, ajusterVue, oublierVue, encart, PHASES } from "./tapis.js";
+import { rendreTapis, initPlateau, initLoupe, ajusterVue, oublierVue, encart, PHASES, ouvrirDialogueCartes } from "./tapis.js";
+import { initInteractions } from "./interactions.js";
 import { CDN } from "./cartes.js";
 
 const code = location.pathname.split("/").filter(Boolean)[1]?.toUpperCase() ?? "";
@@ -80,6 +81,7 @@ async function demarrer() {
       },
       hostToken(token) { localStorage.setItem(`ahwa:host:${code}`, token); encart("Vous êtes maintenant l'hôte de la table.", "info"); },
       rappel(entry) { encart(entry.text, "rappel"); },
+      peek(pile, cards) { ouvrirDialogueCartes(ctx, pile, cards); },
       refus(raison) { encart(raison, "erreur"); },
       ferme(codeFermeture) {
         if (codeFermeture === 4404) erreurFatale("Aucune table ne porte ce code. Vérifiez-le, ou créez une table depuis la bibliothèque.");
@@ -94,6 +96,7 @@ async function demarrer() {
 
   initPlateau();
   initLoupe(ctx);
+  initInteractions(ctx);
   document.addEventListener("ahwa:recentrer", () => ajusterVue(ctx));
   document.addEventListener("ahwa:info", (e) => encart(e.detail, "info"));
   document.getElementById("copier").addEventListener("click", copierLien);
@@ -118,6 +121,7 @@ async function demarrer() {
       encart(PHASES[state.phase] ?? state.phase, "info");
     }
     phasePrecedente = state.phase;
+    document.dispatchEvent(new CustomEvent("ahwa:etat"));
   }
 
   // Le CDN d'images doit être joignable en jeu : sondé avec une image, jamais avec fetch (pas de CORS).

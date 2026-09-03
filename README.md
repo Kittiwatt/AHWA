@@ -15,12 +15,11 @@ redéployé automatiquement à chaque push sur `main` (Workers Builds).
 
 ## État
 
-Première table (étape 1) : *Night of the Zealot I — The Gathering*. Lobby
+Première table jouable : *Night of the Zealot I — The Gathering*. Lobby
 (sièges, enquêteurs, difficulté, enquêteur principal), mise en place
-automatique par l'hôte, tapis affiché (zone des lieux zoomable, agenda/acte,
-pioche, sac du chaos, cartes de côté, sièges, journal de bord). Les
-interactions de jeu (déplacements, phases, doom, indices, tirages) arrivent à
-l'étape 2. Le cahier des charges et le mémo de suivi sont dans `docs/` —
+automatique par l'hôte, tapis complet : glisser-déposer des cartes et des
+pions, révélation des lieux avec indices, phases et tours, doom et agenda,
+indices et acte, pioche de rencontre, sac du chaos, journal de bord. Le cahier des charges et le mémo de suivi sont dans `docs/` —
 **`docs/ARKHAM_WEB_notes.md` fait foi**, à lire avant toute modification.
 
 ## Architecture

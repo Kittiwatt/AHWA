@@ -36,6 +36,27 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **étape 2 livrée — le tapis est jouable** (The Gathering).
+  Serveur (`src/actions.ts`, fonctions pures) : `takeTurn`/`endTurn`,
+  `setPhase` (saut direct sans automatisation), `nextPhase` (mythe :
+  manche +1, +1 doom, alerte au seuil ; entretien : redressement, 3
+  actions ; rappels de phase et `round:n`), `setSeatCounter`,
+  `setCounter`, `addToken`, `spendClues`, `moveCard` (engagement par
+  dépôt en zone de menace), `toPile`, `flipCard` (refus des dos
+  histoire), `revealLocation`, `toggleSide`, `exhaust`, `shufflePile`,
+  `drawEncounter` (remélange auto de la défausse), `searchEncounter`
+  (message `peek`, pioche ou défausse), `advanceAgenda` (retire tout le
+  doom) / `advanceAct`, `chaosDraw`/`chaosReturn`/`chaosAdjust`. Front :
+  glisser-déposer (1 message au lâcher) vers tapis, zones de menace, de
+  côté, victoire, pioche et défausse ; clic sur un lieu caché = révélation
+  + indices ; double-clic = épuiser ; clic droit / appui long = menu
+  (agrandir, épuiser, retourner, autre face, jetons ±, défausser, sur/sous
+  la pioche, victoire, de côté, sur le tapis, retirer) ; phases cliquables
+  + « Phase suivante » ; « Prendre mon tour » / « Fin de mon tour » ;
+  compteurs ± ; pioche (piocher, chercher, mélanger, consulter la
+  défausse) ; sac (tirer, tirer un autre, tout remettre, ajuster) ;
+  agenda/acte (avancer, dépenser des indices). Tests : 41 messages pour la
+  séquence complète du test ; captures 07‑09 (menu, tapis, recherche).
 - 2026-09-03 : **retours de l'utilisateur sur l'étape 1** appliqués :
   jetons PNG recadrés sur leur disque et rendus transparents (les
   originaux avaient un fond blanc), pions d'enquêteur 44 px avec
@@ -56,13 +77,11 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape (étape 2 du tapis)** : interactions — glisser-déposer
-  (message au lâcher), clic sur lieu caché = révélation + indices,
-  double-clic = épuiser/redresser, menu contextuel (retourner, défausser,
-  jetons ±), « prendre mon tour » / fin de tour, `nextPhase` et
-  automatisations de phase, doom/agenda, indices/acte, pioche et recherche
-  rencontre, tirage du sac, compteurs. Puis The Midnight Masks (diagramme,
-  choix de journal) pour éprouver `pickRandom`/`questions`.
+- **Prochaine étape** : retours de jeu réel sur The Gathering (2 navigateurs),
+  puis The Midnight Masks (diagramme de placement, cartes de côté selon
+  le journal → `pickRandom`, `questions`, `branch`) et The Devourer Below.
+  À faire au fil de l'eau : pincer pour zoomer sur tablette, hook
+  `onChaosDraw` (jetons scellés), pioches multiples (v2).
 
 ## 1. Décisions d'architecture (prises, ne pas rouvrir sans raison)
 
@@ -404,6 +423,11 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   (curseur) — chercher « le premier message qui correspond » retombe
   sur d'anciens `seats`, n'attendre que les futurs manque les
   broadcasts déjà reçus par les autres clients.
+- Menu contextuel : ne pas fermer le menu dans un `pointerdown` global
+  sans vérifier `menu.contains(target)` — le bouton est détaché avant
+  que son `click` ne parte.
+- Défausse de rencontre : `toPile` y laisse la carte face visible (les
+  autres piles la retournent).
 - Le mémo PCIO listait 4 scénarios livrés alors que le script en
   contenait 10 : ne jamais inférer l'avancement, le tenir à jour ici.
 - Étiquettes : DejaVu ne rend pas ①②③ ; en web, préférer les glyphes

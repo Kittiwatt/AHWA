@@ -138,6 +138,7 @@ export type ServerMessage =
   | { t: "seats"; seats: SeatSummary[]; hostSeat: number | null; hostConnected: boolean; spectators: number }
   | { t: "delta"; rev: number; patch: PatchOp[] }
   | { t: "reminder"; entry: LogEntry }
+  | { t: "peek"; pile: string; cards: { id: string; code: string }[] }
   | { t: "seatTaken" }
   | { t: "nack"; reason: string };
 
