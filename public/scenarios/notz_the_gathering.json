@@ -348,6 +348,8 @@
    "set": "torch",
    "back": "encounter",
    "storyBack": false,
+   "health": 5,
+   "healthPerInvestigator": true,
    "victory": 2
   },
   {
@@ -357,7 +359,9 @@
    "qty": 1,
    "set": "torch",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "health": 3,
+   "sanity": 3
   },
   {
    "code": "01118",
@@ -367,6 +371,7 @@
    "set": "torch",
    "back": "encounter",
    "storyBack": false,
+   "health": 4,
    "victory": 1
   },
   {
@@ -377,6 +382,7 @@
    "set": "torch",
    "back": "encounter",
    "storyBack": false,
+   "health": 4,
    "victory": 1
   },
   {
@@ -386,7 +392,8 @@
    "qty": 3,
    "set": "rats",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "health": 1
   },
   {
    "code": "01160",
@@ -395,7 +402,8 @@
    "qty": 3,
    "set": "ghouls",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "health": 2
   },
   {
    "code": "01161",
@@ -404,7 +412,8 @@
    "qty": 1,
    "set": "ghouls",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "health": 3
   },
   {
    "code": "01162",

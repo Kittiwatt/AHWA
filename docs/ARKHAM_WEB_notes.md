@@ -36,6 +36,15 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **troisième salve** : les lieux forment la couche du bas
+  du tapis (z-index par kind : un pion ou une carte ne passe jamais sous
+  un lieu, même déplacé après) ; défausse : tout le bloc (dos, compte,
+  liens) est cible de dépôt, l'encart pioche/sac n'est plus le tapis
+  (`data-drop="none"` → dépôt annulé au lieu d'une carte cachée sous
+  l'encart, cause des « cartes qui disparaissent ») ; **compteurs
+  dégâts/horreur sur les soutiens du scénario à jauges** (build : champs
+  `health`, `sanity`, `healthPerInvestigator` des ennemis et soutiens ;
+  chips `n/max`, `*` = par enquêteur).
 - 2026-09-03 : **deuxième salve (UX tapis)** : un lieu déplacé sur le
   tapis emmène les pions à cheval sur ses bords et les cartes dont le
   centre est dessus (`moveCard`, 1 message) ; **chemins entre lieux** :

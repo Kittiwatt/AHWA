@@ -59,6 +59,11 @@ function carte(c, src) {
     // clues_fixed absent/false = valeur « par enquêteur » ; true = valeur fixe.
     out.clue = { value: c.clues ?? 0, perInvestigator: !c.clues_fixed };
   }
+  if (kind === "enemy" || kind === "asset") {
+    if (c.health !== undefined && c.health !== null) out.health = c.health;
+    if (c.sanity !== undefined && c.sanity !== null) out.sanity = c.sanity;
+    if (c.health_per_investigator) out.healthPerInvestigator = true;
+  }
   if (kind === "agenda") out.doom = c.doom ?? null;
   if (kind === "agenda" || kind === "act") out.stage = c.stage ?? null;
   if (c.victory) out.victory = c.victory;

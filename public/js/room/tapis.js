@@ -230,7 +230,8 @@ function rendrePlateau(ctx) {
     const e = carteEl(c, ctx);
     e.style.left = `${c.loc.x}px`;
     e.style.top = `${c.loc.y}px`;
-    e.style.zIndex = String(c.loc.z);
+    // Les lieux forment la couche du bas : un pion ou une carte ne passe jamais dessous.
+    e.style.zIndex = String((c.kind === "location" ? 0 : 100000) + c.loc.z);
     if (e.parentElement !== plateau) plateau.append(e);
     vus.add(e);
   }
@@ -286,8 +287,8 @@ function rendrePioches(ctx) {
   const premiere = pioche.length ? state.cards[pioche[0]] : null;
   sect.replaceChildren(
     el("div", { class: "pioches-cartes" },
-      el("div", { class: "pile" },
-        el("div", { class: `dos-pile pioche-rencontre${pioche.length ? "" : " vide"}${premiere?.faceUp ? " revelee" : ""}`, "data-drop": "pile:encounter",
+      el("div", { class: "pile", "data-drop": "pile:encounter" },
+        el("div", { class: `dos-pile pioche-rencontre${pioche.length ? "" : " vide"}${premiere?.faceUp ? " revelee" : ""}`,
           title: premiere?.faceUp ? "Carte révélée : glissez-la où il faut (clic = la prendre et retourner la suivante)" : "Piocher = retourner la première carte" },
           premiere?.faceUp ? carteEl(premiere, ctx)
             : pioche.length ? el("button", { class: "dos-bouton", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "drawEncounter" }) }, el("img", { src: "/img/dos-rencontre.svg", alt: "pioche de rencontre" }))
@@ -297,8 +298,8 @@ function rendrePioches(ctx) {
           el("button", { class: "lien-outil", type: "button", disabled: !peut || !pioche.length, title: premiere?.faceUp ? "Prendre la carte révélée dans votre zone de menace et retourner la suivante" : "Retourner la première carte", onclick: () => ctx.envoyer({ t: "drawEncounter" }) }, "Piocher"),
           el("button", { class: "lien-outil", type: "button", disabled: !peut, title: "Regarder la pioche puis la mélanger", onclick: () => ctx.envoyer({ t: "searchEncounter", pile: "encounter" }) }, "Chercher"),
           el("button", { class: "lien-outil", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "shufflePile", pile: "encounter" }) }, "Mélanger"))),
-      el("div", { class: "pile" },
-        el("div", { class: `dos-pile${dessus ? "" : " vide"}`, "data-drop": "pile:encounterDiscard", title: "Déposez ici pour défausser" }, dessus ? carteEl(dessus, ctx) : null),
+      el("div", { class: "pile", "data-drop": "pile:encounterDiscard", title: "Déposez ici pour défausser" },
+        el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteEl(dessus, ctx) : null),
         el("p", { class: "compte", html: `Défausse <strong>${defausse.length}</strong>` }),
         el("div", { class: "ligne-boutons" },
           el("button", { class: "lien-outil", type: "button", disabled: !peut || !defausse.length, onclick: () => ctx.envoyer({ t: "searchEncounter", pile: "encounterDiscard" }) }, "Consulter"))),

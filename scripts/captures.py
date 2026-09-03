@@ -200,6 +200,29 @@ with sync_playwright() as p:
     assert "1" in chip.locator(".chip-n").inner_text(), "1 dégât après −"
     alice.screenshot(path=f"{OUT}/10_ennemi_chips.png")
 
+    # Défausse par glisser-déposer sur le bloc de la défausse, puis reprise depuis « Consulter ».
+    carte_menace = alice.locator("#sieges .siege").nth(0).locator(".menace .carte").first
+    src = carte_menace.bounding_box(); dst = alice.locator("#pioches .pile").nth(1).bounding_box()
+    alice.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); alice.mouse.down()
+    alice.mouse.move(dst["x"] + dst["width"] / 2, dst["y"] + dst["height"] - 10, steps=10); alice.mouse.up()
+    alice.wait_for_timeout(400)
+    assert "2" in alice.locator("#pioches .pile").nth(1).locator(".compte").inner_text(), "défausse : 2 (dépôt sur le bloc)"
+    assert alice.locator("#pioches .defausse-rencontre .carte").count() == 1, "la carte du dessus de la défausse est visible"
+    alice.get_by_role("button", name="Consulter").click()
+    alice.wait_for_selector("dialog.dialogue[open]")
+    assert alice.locator("dialog .carte-peek").count() == 2
+    alice.locator("dialog .carte-peek").first.get_by_role("button", name="Prendre").click()
+    alice.locator("dialog header").get_by_role("button", name="Fermer", exact=True).click()
+    alice.wait_for_timeout(400)
+    assert alice.locator("#sieges .siege").nth(0).locator(".menace .carte").count() == 1, "carte reprise de la défausse en zone de menace"
+    # Dépôt sur l'encart (hors piles) : annulé, la carte ne bouge pas.
+    src = alice.locator("#sieges .siege").nth(0).locator(".menace .carte").first.bounding_box()
+    sac = alice.locator("#chaos").bounding_box()
+    alice.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); alice.mouse.down()
+    alice.mouse.move(sac["x"] + sac["width"] / 2, sac["y"] + 10, steps=10); alice.mouse.up()
+    alice.wait_for_timeout(400)
+    assert alice.locator("#sieges .siege").nth(0).locator(".menace .carte").count() == 1, "dépôt sur l'encart annulé"
+
     # Rechargement : Alice retrouve son siège automatiquement.
     alice.reload()
     alice.wait_for_selector("#tapis:not([hidden])", timeout=8000)

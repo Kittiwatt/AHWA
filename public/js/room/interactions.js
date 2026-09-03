@@ -80,7 +80,7 @@ export function initInteractions(ctx) {
     drag.fantome.style.top = `${e.clientY - drag.dy}px`;
     const cible = cibleSous(e.clientX, e.clientY);
     for (const z of document.querySelectorAll(".depot-ok")) if (z !== cible) z.classList.remove("depot-ok");
-    cible?.classList.add("depot-ok");
+    if (cible && cible.dataset.drop !== "none") cible.classList.add("depot-ok");
   });
   const finDrag = (e) => {
     clearTimeout(pressionLongue);
@@ -109,6 +109,7 @@ export function initInteractions(ctx) {
     const carte = carteDe(d.elem);
     if (!carte) return;
     const drop = cible.dataset.drop;
+    if (drop === "none") return; // l'encart pioche/sac n'est pas le tapis : dépôt annulé
     if (drop.startsWith("pile:")) {
       if (carte.kind === "mini" || carte.kind === "investigator") return;
       ctx.envoyer({ t: "toPile", id: carte.id, pile: drop.slice(5) });

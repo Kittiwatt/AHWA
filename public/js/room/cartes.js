@@ -87,17 +87,29 @@ export function majCarte(el, carte, ctx) {
   // Ennemis : compteurs de dégâts et d'horreur toujours visibles (clic = +1, − au survol, menu pour le reste).
   let chips = el.querySelector(".chips");
   const enJeu = "zone" in carte.loc;
-  if (carte.kind === "enemy" && carte.faceUp && enJeu) {
-    if (!chips) {
+  // Ennemis : dégâts et horreur ; soutiens du scénario : selon leurs jauges (vie → dégâts, santé mentale → horreur).
+  const jauges = !carte.faceUp || !enJeu ? []
+    : carte.kind === "enemy" ? ["damage", "horror"]
+    : carte.kind === "asset" ? [def?.health !== undefined ? "damage" : null, def?.sanity !== undefined ? "horror" : null].filter(Boolean)
+    : [];
+  if (jauges.length) {
+    const attendu = jauges.join(" ");
+    if (!chips || chips.dataset.jauges !== attendu) {
+      chips?.remove();
       chips = document.createElement("div");
       chips.className = "chips";
-      chips.innerHTML = [["damage", "/img/tokens/tok_degats.png", "dégâts"], ["horror", "/img/tokens/tok_horreur.png", "horreur"]].map(([t, img, lib]) =>
-        `<span class="chip chip-${t}" data-token="${t}" title="${lib} : clic +1"><button type="button" class="chip-moins" data-token="${t}" data-delta="-1" title="−1 ${lib}">−</button>` +
-        `<img src="${img}" alt="${lib}" draggable="false"><b class="chip-n"></b></span>`).join("");
+      chips.dataset.jauges = attendu;
+      const lib = { damage: ["/img/tokens/tok_degats.png", "dégâts"], horror: ["/img/tokens/tok_horreur.png", "horreur"] };
+      chips.innerHTML = jauges.map((t) =>
+        `<span class="chip chip-${t}" data-token="${t}" title="${lib[t][1]} : clic +1"><button type="button" class="chip-moins" data-token="${t}" data-delta="-1" title="−1 ${lib[t][1]}">−</button>` +
+        `<img src="${lib[t][0]}" alt="${lib[t][1]}" draggable="false"><b class="chip-n"></b></span>`).join("");
       el.append(chips);
     }
-    chips.querySelector(".chip-damage .chip-n").textContent = String(carte.tokens.damage ?? 0);
-    chips.querySelector(".chip-horror .chip-n").textContent = String(carte.tokens.horror ?? 0);
+    for (const t of jauges) {
+      const n = carte.tokens[t] ?? 0;
+      const max = t === "damage" ? def?.health : def?.sanity;
+      chips.querySelector(`.chip-${t} .chip-n`).textContent = max ? `${n}/${max}${def?.healthPerInvestigator && t === "damage" ? "*" : ""}` : String(n);
+    }
   } else if (chips) chips.remove();
   const img = el.firstChild;
   const src = urlImage(carte, def);
@@ -107,7 +119,7 @@ export function majCarte(el, carte, ctx) {
   el.title = nom;
   el.dataset.loupe = loupePermise(carte, def) ? "1" : "";
   const jetons = el.querySelector(".jetons");
-  const tokens = carte.kind === "enemy" && carte.faceUp && enJeu ? { ...carte.tokens, damage: 0, horror: 0 } : carte.tokens;
+  const tokens = jauges.length ? { ...carte.tokens, ...Object.fromEntries(jauges.map((t) => [t, 0])) } : carte.tokens;
   jetons.replaceChildren(elJetons(tokens));
   return el;
 }
