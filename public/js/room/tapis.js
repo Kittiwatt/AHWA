@@ -258,23 +258,33 @@ function rendreHistoire(ctx) {
   const indicesJoueurs = state.seats.reduce((n, s) => n + (s.counters.clues ?? 0), 0);
   const seuilDoom = defAgenda?.doom ?? null;
 
+  // Une carte n'est rendue qu'à un seul endroit : ici seulement si elle est dans l'histoire.
+  const emplacement = (c, quoi) => {
+    if (!c) return el("p", { class: "vide", text: `Plus d'${quoi} : l'histoire est allée jusqu'au bout.` });
+    if (c.loc.zone === "story") return carteEl(c, ctx);
+    return el("div", { class: "carte paysage absente" },
+      el("span", { text: `${quoi[0].toUpperCase() + quoi.slice(1)} ${c.loc.zone === "board" ? "sur le tapis" : "hors de l'histoire"}` }),
+      peut ? el("button", { class: "lien-outil", type: "button", onclick: () => ctx.envoyer({ t: "moveCard", id: c.id, zone: "story", x: 0, y: 0 }) }, "Ramener ici") : null);
+  };
+  sect.dataset.drop = "story";
   sect.replaceChildren(
     el("h2", { text: "Agenda et acte" }),
     el("div", { class: "histoire-cartes" },
-      agenda ? el("div", { class: "bloc" }, carteEl(agenda, ctx),
-        el("p", { class: `compte${seuilDoom && doomTotal >= seuilDoom ? " alerte" : ""}`, html: `Doom en jeu <strong>${doomTotal}</strong> / ${seuilDoom ?? "?"}` }),
+      el("div", { class: "bloc" }, emplacement(agenda, "agenda"),
+        el("p", { class: `compte${seuilDoom && doomTotal >= seuilDoom ? " alerte" : ""}`, html: `Doom en jeu <strong>${doomTotal}</strong>${seuilDoom ? ` / ${seuilDoom}` : ""}` }),
         el("div", { class: "ligne-boutons" },
-          el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, title: "Retire tout le doom en jeu et révèle l'agenda suivant",
+          el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || (!agenda && !state.piles.agendaDeck.length), title: "L'agenda courant part de côté (hors jeu), tout le doom en jeu est retiré, l'agenda suivant est révélé",
             onclick: () => { if (confirm("Avancer l'agenda ? Tout le doom en jeu sera retiré.")) ctx.envoyer({ t: "advanceAgenda" }); } }, "Avancer l'agenda"),
-          el("span", { class: "sous", text: `${state.piles.agendaDeck.length} à venir` }))) : null,
-      acte ? el("div", { class: "bloc" }, carteEl(acte, ctx),
+          el("span", { class: "sous", text: `${state.piles.agendaDeck.length} à venir` }))),
+      el("div", { class: "bloc" }, emplacement(acte, "acte"),
         el("p", { class: `compte${seuilActe && indicesJoueurs >= seuilActe ? " alerte" : ""}`, html: `Indices des enquêteurs <strong>${indicesJoueurs}</strong>${seuilActe ? ` / ${seuilActe}` : ""}` }),
         el("div", { class: "ligne-boutons" },
           el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ouvrirDepenseIndices(ctx, seuilActe) }, "Dépenser des indices"),
-          el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "advanceAct" }) }, "Avancer l'acte"),
-          el("span", { class: "sous", text: `${state.piles.actDeck.length} à venir` }))) : null,
-      scenario ? el("div", { class: "bloc scenario" }, carteEl(scenario, ctx), el("p", { class: "sous", text: "Carte de scénario — clic droit : autre face" })) : null,
+          el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || (!acte && !state.piles.actDeck.length), title: "L'acte courant part de côté (hors jeu), l'acte suivant est révélé", onclick: () => ctx.envoyer({ t: "advanceAct" }) }, "Avancer l'acte"),
+          el("span", { class: "sous", text: `${state.piles.actDeck.length} à venir` }))),
+      scenario ? el("div", { class: "bloc scenario" }, scenario.loc.zone === "story" ? carteEl(scenario, ctx) : el("div", { class: "carte absente" }), el("p", { class: "sous", text: "Carte de scénario — clic droit : autre face. Retourner un agenda ou un acte (clic droit) pour lire son verso, puis « Hors jeu » : le suivant sort tout seul." })) : null,
     ),
+    el("p", { class: "aide-depot", text: "Déposez ici un agenda ou un acte pour le ramener dans l'histoire." }),
   );
 }
 

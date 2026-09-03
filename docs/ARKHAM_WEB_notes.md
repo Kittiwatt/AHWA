@@ -36,6 +36,20 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **agenda / acte refaits « physiques »** : une carte n'est
+  rendue qu'à un seul endroit (le panneau Histoire n'affiche l'agenda,
+  l'acte ou la carte de scénario que s'ils sont dans la zone `story`,
+  sinon un emplacement vide « sur le tapis / hors de l'histoire » +
+  « Ramener ici ») — cause des cartes qui « disparaissaient » (le même
+  élément était réclamé par le tapis et le panneau, avec la position
+  absolue du tapis). Avancer = l'ancienne carte part **de côté, hors
+  jeu** (visible dans la zone floutée) au lieu de la pile invisible
+  `removed` ; mettre de côté / en victoire / en pile l'agenda ou l'acte
+  courant révèle automatiquement le suivant (`sortieHistoire`) ; posé sur
+  le tapis il reste le courant (pour lire). Menu dédié : retourner (lire
+  le verso), avancer, hors jeu, sur le tapis, ramener dans l'histoire,
+  jeton. Le panneau Histoire est une cible de dépôt (`story`) pour
+  agenda, acte et carte de scénario.
 - 2026-09-03 : **remise à zéro des tables de test** par migration DO
   (`v2` `deleted_classes: ["Room"]` puis `v3` `new_sqlite_classes`) : tout
   objet Room et son stockage sont effacés au déploiement. Même recette si

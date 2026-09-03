@@ -119,7 +119,10 @@ export function initInteractions(ctx) {
     if (carte.kind === "mini" && drop !== "board") return;
     const r = cible.getBoundingClientRect();
     let x, y;
-    if (drop === "board") {
+    if (drop === "story") {
+      if (!["agenda", "act", "scenario"].includes(carte.kind)) return;
+      x = 0; y = 0;
+    } else if (drop === "board") {
       x = (e.clientX - d.dx - r.left - vue.tx) / vue.k;
       y = (e.clientY - d.dy - r.top - vue.ty) / vue.k;
     } else {
@@ -202,7 +205,16 @@ export function initInteractions(ctx) {
     items.push(el("p", { class: "titre-menu", text: nom }));
     if (elem.dataset.loupe === "1") items.push(item("Agrandir", () => document.dispatchEvent(new CustomEvent("ahwa:loupe", { detail: elem })), { libre: true }));
     const rencontre = ["enemy", "treachery", "asset", "story"].includes(carte.kind);
-    if (carte.kind !== "mini") {
+    if (carte.kind === "agenda" || carte.kind === "act") {
+      const agenda = carte.kind === "agenda";
+      const courant = carte.id === (agenda ? ctx.etat.state.agendaId : ctx.etat.state.actId);
+      items.push(item(carte.faceUp ? "Retourner (lire le verso)" : "Retourner (recto)", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
+      if (courant) items.push(item(agenda ? "Avancer l'agenda (celui-ci part hors jeu)" : "Avancer l'acte (celui-ci part hors jeu)", () => ctx.envoyer({ t: agenda ? "advanceAgenda" : "advanceAct" })));
+      if (carte.loc.zone !== "aside") items.push(item(courant ? "Hors jeu (le suivant sort)" : "Hors jeu (de côté)", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "aside", x: 9999, y: 0 })));
+      if (carte.loc.zone !== "board") items.push(item("Sur le tapis (pour lire)", () => ctx.envoiSurTapis(carte)));
+      if (carte.loc.zone !== "story") items.push(item("Ramener dans l'histoire", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "story", x: 0, y: 0 })));
+      for (const t of agenda ? ["doom"] : ["clue"]) items.push(jeton(t));
+    } else if (carte.kind !== "mini") {
       items.push(item(carte.exhausted ? "Redresser" : "Épuiser", () => ctx.envoyer({ t: "exhaust", id: carte.id })));
       if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") items.push(item("Révéler (indices automatiques)", () => ctx.envoyer({ t: "revealLocation", id: carte.id })));
       if (carte.kind === "location" && (carte.tokens.clue ?? 0) > 0) items.push(item("Prendre 1 indice", () => ctx.envoyer({ t: "takeClue", id: carte.id })));
@@ -214,8 +226,6 @@ export function initInteractions(ctx) {
       if (carte.kind === "scenario" || carte.kind === "story") items.push(item("Autre face", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
       const jetons = carte.kind === "investigator" ? ["damage", "horror", "resource"]
         : carte.kind === "location" ? ["clue", "doom", "generic"]
-        : carte.kind === "agenda" ? ["doom"]
-        : carte.kind === "act" ? ["clue"]
         : ["damage", "horror", "doom", "clue", "generic"];
       for (const t of jetons) items.push(jeton(t));
       if (rencontre) {

@@ -363,3 +363,9 @@ body.mode-lien #plateau .carte.kind-location { outline: 2px dashed var(--dorure-
 .pile.depot-ok { outline: 2px solid var(--dorure-2); outline-offset: 4px; border-radius: 4px; }
 .pile .dos-pile.depot-ok { outline: none; }
 .chip .chip-n { font-variant-numeric: tabular-nums; }
+
+/* Agenda / acte hors de l'histoire : emplacement vide qui explique où est la carte */
+.carte.absente { display: grid; place-items: center; gap: 0.3rem; border: 1px dashed var(--zone-filet); background: var(--zone); box-shadow: none; color: var(--papier-2); font-size: 0.85rem; text-align: center; padding: 0.4rem; cursor: default; }
+.histoire .bloc .carte.absente.paysage { width: 100%; height: auto; aspect-ratio: 178 / 126; }
+.histoire.depot-ok { outline: 2px dashed var(--dorure-2); outline-offset: -4px; border-radius: 4px; }
+.aide-depot { margin: 0.4rem 0 0; font-size: 0.8rem; color: var(--papier-2); font-style: italic; }

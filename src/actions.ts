@@ -62,6 +62,54 @@ function boutDeMenace(state: RoomState, zone: ZoneId): number {
   return x;
 }
 
+/** Bord droit de la zone « de côté » (pour y ranger une carte en fin de rangée). */
+function boutDeCote(state: RoomState): number {
+  let x = 0;
+  for (const c of Object.values(state.cards)) if ("zone" in c.loc && c.loc.zone === "aside") x = Math.max(x, c.loc.x + CARD_W + 10);
+  return x;
+}
+
+/**
+ * Révèle l'agenda ou l'acte suivant. L'ancienne carte, si elle est encore dans l'histoire, part de côté
+ * (hors jeu, lisible dans la zone floutée) ; un agenda qui avance retire tout le doom en jeu.
+ */
+function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDejaSortie = false) {
+  const pile = agenda ? state.piles.agendaDeck : state.piles.actDeck;
+  const courantId = agenda ? state.agendaId : state.actId;
+  if (courantId && !ancienneDejaSortie) {
+    const ancien = state.cards[courantId];
+    ancien.loc = { zone: "aside", x: boutDeCote(state), y: 0, z: nextZ(state) };
+    ancien.tokens = {};
+    ancien.exhausted = false;
+  }
+  if (agenda) for (const k of Object.values(state.cards)) if (k.id !== courantId) delete k.tokens.doom;
+  if (!pile.length) {
+    if (agenda) state.agendaId = null; else state.actId = null;
+    addLog(state, "action", agenda ? "Dernier agenda sorti de l'histoire." : "Dernier acte sorti de l'histoire.");
+    return;
+  }
+  const id = pile.shift()!;
+  const c = state.cards[id];
+  c.loc = { zone: "story", x: 0, y: 0, z: nextZ(state) };
+  c.faceUp = true;
+  if (agenda) {
+    state.agendaId = id;
+    c.tokens.doom = 0;
+    addLog(state, "action", `Agenda suivant : ${nomCarte(def, c)}. Tout le doom en jeu est retiré.`);
+  } else {
+    state.actId = id;
+    addLog(state, "action", `Acte suivant : ${nomCarte(def, c)}.`);
+  }
+}
+
+/** Si la carte quitte l'histoire pour sortir du jeu (de côté, victoire, pile), l'agenda/acte suivant est révélé. */
+function sortieHistoire(state: RoomState, def: ScenarioDef, c: CardState) {
+  const sortie = "pile" in c.loc || c.loc.zone === "aside" || c.loc.zone === "victory";
+  if (!sortie) return;
+  if (c.id === state.agendaId) avancer(state, def, true, true);
+  else if (c.id === state.actId) avancer(state, def, false, true);
+}
+
 export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: string]: unknown }, moi: number | null, rng: Rng): Resultat {
   const monSiege = () => (moi === null ? refuser("il faut être assis pour agir") : moi);
 
@@ -176,6 +224,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const x = Math.round(Number(msg.x) || 0), y = Math.round(Number(msg.y) || 0);
       c.loc = { zone, x, y, z: nextZ(state) };
       if (venaitDunePile) c.faceUp = true; // une carte sortie d'une pile entre en jeu face visible
+      sortieHistoire(state, def, c);
       // Un lieu déplacé sur le tapis emmène ce qui est posé dessus : pions (à cheval sur le bord) et cartes dont le centre est sur le lieu.
       if (c.kind === "location" && avant?.zone === "board" && zone === "board") {
         const dx = x - avant.x, dy = y - avant.y;
@@ -208,6 +257,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       delete c.ownerSeat;
       if (msg.top === false) state.piles[pile].push(c.id); else state.piles[pile].unshift(c.id);
       if (pile === "encounterDiscard") addLog(state, "action", `${nomCarte(def, c)} défaussé.`);
+      sortieHistoire(state, def, c);
       return {};
     }
     case "flipCard": {
@@ -289,26 +339,9 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const agenda = msg.t === "advanceAgenda";
       const pile = agenda ? state.piles.agendaDeck : state.piles.actDeck;
       const courantId = agenda ? state.agendaId : state.actId;
-      if (!pile.length) refuser(agenda ? "c'est le dernier agenda" : "c'est le dernier acte");
-      if (courantId) {
-        const ancien = state.cards[courantId];
-        ancien.loc = { pile: "removed" };
-        ancien.tokens = {};
-        state.piles.removed.push(courantId);
-      }
-      const id = pile.shift()!;
-      const c = state.cards[id];
-      c.loc = { zone: "story", x: 0, y: 0, z: nextZ(state) };
-      c.faceUp = true;
-      if (agenda) {
-        state.agendaId = id;
-        c.tokens.doom = 0;
-        for (const k of Object.values(state.cards)) if (k.id !== id) delete k.tokens.doom;
-        addLog(state, "action", `Agenda suivant : ${nomCarte(def, c)}. Tout le doom en jeu est retiré.`);
-      } else {
-        state.actId = id;
-        addLog(state, "action", `Acte suivant : ${nomCarte(def, c)}.`);
-      }
+      if (!pile.length && !courantId) refuser(agenda ? "plus d'agenda" : "plus d'acte");
+      const courant = courantId ? state.cards[courantId] : null;
+      avancer(state, def, agenda, !courant || !("zone" in courant.loc) || courant.loc.zone !== "story");
       return {};
     }
 
