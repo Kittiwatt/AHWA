@@ -36,6 +36,13 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **encart pioche / défausse / sac compacté** (demande) :
+  trois objets alignés à gauche avec badge de compte ; clic sur la
+  pioche = piocher ; clic droit sur la pioche = chercher, mélanger ;
+  clic droit sur la défausse = consulter, remélanger dans la pioche ;
+  sac : clic = tirer, jetons tirés à côté avec « ↺ » tout remettre,
+  survol = difficulté + composition, clic droit = ajuster, composition
+  épinglée. Appui long tactile = même menu. Plus de liens texte.
 - 2026-09-03 : **pioche de rencontre, règle simplifiée** (bug signalé :
   les cartes suivantes se retrouvaient révélées) : cliquer sur la pioche
   retourne la première carte ; tant qu'elle est là, la pioche refuse

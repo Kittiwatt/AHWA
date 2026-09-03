@@ -157,7 +157,10 @@ with sync_playwright() as p:
     alice.wait_for_timeout(300)
     assert alice.locator("#pioches .pioche-rencontre.revelee .carte").count() == 1, "toujours la même carte révélée"
     assert alice.locator("#sieges .siege").nth(0).locator(".menace .carte").count() == 1, "rien n'est parti en zone de menace"
-    assert alice.get_by_role("button", name="Piocher").is_disabled()
+    alice.locator("#pioches .pile").nth(0).click(button="right")
+    alice.wait_for_selector(".menu-carte")
+    assert alice.locator(".menu-carte").get_by_role("button", name="Piocher (retourner la première carte)").is_disabled()
+    alice.keyboard.press("Escape")
     src = alice.locator("#pioches .pioche-rencontre .carte").first.bounding_box()
     dst = alice.locator("#pioches .pile").nth(1).bounding_box()
     alice.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); alice.mouse.down()
@@ -165,9 +168,11 @@ with sync_playwright() as p:
     alice.wait_for_timeout(400)
     assert alice.locator("#pioches .pioche-rencontre.revelee").count() == 0
     assert alice.evaluate("[...document.querySelectorAll('#pioches .pioche-rencontre .carte')].length") == 0, "aucune carte révélée ne reste sur la pioche"
-    alice.get_by_role("button", name="Remélanger dans la pioche").click()
+    alice.locator("#pioches .pile").nth(1).click(button="right")
+    alice.wait_for_selector(".menu-carte")
+    alice.locator(".menu-carte").get_by_role("button", name="Remélanger dans la pioche").click()
     alice.wait_for_timeout(400)
-    assert "0" in alice.locator("#pioches .pile").nth(1).locator(".compte").inner_text(), "défausse remélangée"
+    assert alice.locator("#pioches .pile").nth(1).locator(".badge").inner_text() == "0", "défausse remélangée"
     assert alice.evaluate("window.getSelection().toString()") == "", "aucune sélection de texte résiduelle"
     # Double-clic sur les indices du Study : 1 indice passe à Alice.
     alice.locator("#plateau .carte .jeton-clue").first.dblclick()
@@ -187,7 +192,7 @@ with sync_playwright() as p:
     alice.screenshot(path=f"{OUT}/07_menu_contextuel.png")
     alice.locator(".menu-carte").get_by_role("button", name="Défausser").click()
     alice.wait_for_timeout(400)
-    assert "1" in alice.locator("#pioches .pile").nth(1).locator(".compte").inner_text(), "défausse : 1"
+    assert alice.locator("#pioches .pile").nth(1).locator(".badge").inner_text() == "1", "défausse : 1"
 
     # Tirer un jeton du chaos, passer à la phase suivante.
     alice.locator("#chaos .sac-forme").click()
@@ -199,14 +204,17 @@ with sync_playwright() as p:
     assert "Ennemis" in bob.locator("#phases .phase.courante").inner_text(), "Bob voit la phase"
     alice.locator("#chaos .sac-forme").click()
     alice.wait_for_timeout(300)
-    alice.locator("#chaos details summary").click()
+    alice.locator("#chaos .sac-forme").hover()
     alice.wait_for_load_state("networkidle")
     alice.wait_for_timeout(300)
+    assert alice.locator("#chaos .sac-popover").is_visible(), "composition au survol"
     alice.screenshot(path=f"{OUT}/08_tapis_apres_interactions.png")
-    alice.locator("#chaos details summary").click()
+    alice.mouse.move(10, 10)
 
     # Ennemi : chips dégâts / horreur (clic = +1, − au survol).
-    alice.get_by_role("button", name="Chercher").click()
+    alice.locator("#pioches .pile").nth(0).click(button="right")
+    alice.wait_for_selector(".menu-carte")
+    alice.locator(".menu-carte").get_by_role("button", name="Chercher (puis mélanger)").click()
     alice.wait_for_selector("dialog.dialogue[open]")
     ennemi = alice.locator("dialog .carte-peek").filter(has_text="Ghoul").first
     ennemi.get_by_role("button", name="Prendre").click()
@@ -225,9 +233,11 @@ with sync_playwright() as p:
     alice.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); alice.mouse.down()
     alice.mouse.move(dst["x"] + dst["width"] / 2, dst["y"] + dst["height"] - 10, steps=10); alice.mouse.up()
     alice.wait_for_timeout(400)
-    assert "2" in alice.locator("#pioches .pile").nth(1).locator(".compte").inner_text(), "défausse : 2 (dépôt sur le bloc)"
+    assert alice.locator("#pioches .pile").nth(1).locator(".badge").inner_text() == "2", "défausse : 2 (dépôt sur le bloc)"
     assert alice.locator("#pioches .defausse-rencontre .carte").count() == 1, "la carte du dessus de la défausse est visible"
-    alice.get_by_role("button", name="Consulter").click()
+    alice.locator("#pioches .pile").nth(1).click(button="right")
+    alice.wait_for_selector(".menu-carte")
+    alice.locator(".menu-carte").get_by_role("button", name="Consulter").click()
     alice.wait_for_selector("dialog.dialogue[open]")
     assert alice.locator("dialog .carte-peek").count() == 2
     alice.locator("dialog .carte-peek").first.get_by_role("button", name="Prendre").click()
@@ -273,8 +283,10 @@ with sync_playwright() as p:
     alice.wait_for_timeout(200)
     assert alice.locator("#aside .bande.floue").count() == 0, "zone nette après clic"
 
-    # Recherche dans la pioche.
-    alice.get_by_role("button", name="Chercher").click()
+    # Recherche dans la pioche (clic droit).
+    alice.locator("#pioches .pile").nth(0).click(button="right")
+    alice.wait_for_selector(".menu-carte")
+    alice.locator(".menu-carte").get_by_role("button", name="Chercher (puis mélanger)").click()
     alice.wait_for_selector("dialog.dialogue[open]")
     alice.wait_for_timeout(800)
     alice.screenshot(path=f"{OUT}/09_recherche_pioche.png")

@@ -2,6 +2,7 @@
 
 import { el } from "./dom.js";
 import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, encart } from "./tapis.js";
+import { ouvrirAjustementSac } from "./dialogues.js";
 
 const LIBELLES_JETONS = { clue: "Indice", doom: "Doom", damage: "Dégât", horror: "Horreur", resource: "Ressource", generic: "Marqueur" };
 
@@ -176,11 +177,61 @@ export function initInteractions(ctx) {
 
   // ---- Menu contextuel ----
   document.addEventListener("contextmenu", (e) => {
+    const outil = e.target.closest("[data-outil]");
+    if (outil) { e.preventDefault(); ouvrirMenuOutil(outil.dataset.outil, e.clientX, e.clientY); return; }
     const elem = e.target.closest(".carte, .mini");
     if (!elem || elem.closest("dialog, .loupe") || !carteDe(elem)) return;
     e.preventDefault();
     if (lien || Date.now() < ignorerMenuAvant) return; // clic droit sur un lieu : géré au pointerup (tracé ou menu)
     ouvrirMenu(elem, e.clientX, e.clientY);
+  });
+  // Appui long (tactile) sur un outil de table.
+  document.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "touch") return;
+    const outil = e.target.closest("[data-outil]");
+    if (!outil) return;
+    const t = setTimeout(() => ouvrirMenuOutil(outil.dataset.outil, e.clientX, e.clientY), 550);
+    const annuler = () => clearTimeout(t);
+    document.addEventListener("pointerup", annuler, { once: true });
+    document.addEventListener("pointermove", annuler, { once: true });
+  });
+
+  function ouvrirMenuOutil(outil, x, y) {
+    fermerMenu();
+    const state = ctx.etat.state;
+    const peut = assis();
+    const item = (libelle, action, options = {}) => el("button", { type: "button", class: `item${options.danger ? " danger" : ""}`, disabled: !peut || options.off,
+      onclick: () => { action(); fermerMenu(); } }, libelle);
+    const items = [];
+    if (outil === "pioche") {
+      const premiere = state.piles.encounter.length ? state.cards[state.piles.encounter[0]] : null;
+      items.push(el("p", { class: "titre-menu", text: `Pioche de rencontre — ${state.piles.encounter.length}` }));
+      items.push(item("Piocher (retourner la première carte)", () => ctx.envoyer({ t: "drawEncounter" }), { off: Boolean(premiere?.faceUp) || (!state.piles.encounter.length && !state.piles.encounterDiscard.length) }));
+      items.push(item("Chercher (puis mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: "encounter" }), { off: !state.piles.encounter.length }));
+      items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: "encounter" }), { off: !state.piles.encounter.length }));
+    } else if (outil === "defausse") {
+      const n = state.piles.encounterDiscard.length;
+      items.push(el("p", { class: "titre-menu", text: `Défausse de rencontre — ${n}` }));
+      items.push(item("Consulter", () => ctx.envoyer({ t: "searchEncounter", pile: "encounterDiscard" }), { off: !n }));
+      items.push(item("Remélanger dans la pioche", () => { if (confirm(`Remélanger les ${n} cartes de la défausse dans la pioche ?`)) ctx.envoyer({ t: "reshuffleDiscard" }); }, { off: !n }));
+    } else if (outil === "sac") {
+      items.push(el("p", { class: "titre-menu", text: `Sac du chaos — ${state.chaos.bag.length} jetons` }));
+      items.push(item("Tirer un jeton", () => ctx.envoyer({ t: "chaosDraw" }), { off: !state.chaos.bag.length }));
+      items.push(item("Tout remettre", () => ctx.envoyer({ t: "chaosReturn" }), { off: !state.chaos.drawn.length }));
+      items.push(item("Composition", () => document.querySelector("#chaos .sac-popover")?.classList.toggle("epingle"), { off: false }));
+      items.push(item("Ajuster…", () => ouvrirAjustementSac(ctx)));
+    }
+    menu = el("div", { class: "menu-carte", role: "menu" }, ...items);
+    menu.pos = null;
+    document.body.append(menu);
+    const r = menu.getBoundingClientRect();
+    menu.style.left = `${Math.min(x, window.innerWidth - r.width - 8)}px`;
+    menu.style.top = `${Math.min(y, window.innerHeight - r.height - 8)}px`;
+  }
+  // Composition épinglée : un clic ailleurs la referme.
+  document.addEventListener("pointerdown", (e) => {
+    const pop = document.querySelector("#chaos .sac-popover.epingle");
+    if (pop && !e.target.closest("#chaos, .menu-carte")) pop.classList.remove("epingle");
   });
 
   function fermerMenu() { menu?.remove(); menu = null; }
@@ -252,6 +303,7 @@ export function initInteractions(ctx) {
   // Les lignes ± du menu restent ouvertes : le menu est reconstruit à chaque delta.
   document.addEventListener("ahwa:etat", () => {
     if (!menu) return;
+    if (!menu.pos) { fermerMenu(); return; }
     const { elem, x, y } = menu.pos;
     if (document.contains(elem) && carteDe(elem)) ouvrirMenu(elem, x, y); else fermerMenu();
   });

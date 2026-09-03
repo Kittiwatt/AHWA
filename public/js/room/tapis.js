@@ -299,26 +299,16 @@ function rendrePioches(ctx) {
   const dessus = defausse.length ? state.cards[defausse[0]] : null;
   const premiere = pioche.length ? state.cards[pioche[0]] : null;
   sect.replaceChildren(
-    el("div", { class: "pioches-cartes" },
-      el("div", { class: "pile", "data-drop": "pile:encounter" },
-        el("div", { class: `dos-pile pioche-rencontre${pioche.length ? "" : " vide"}${premiere?.faceUp ? " revelee" : ""}`,
-          title: premiere?.faceUp ? "Carte révélée : glissez-la où il faut (zone de menace, tapis, défausse…)" : "Piocher = retourner la première carte" },
-          premiere?.faceUp ? carteEl(premiere, ctx)
-            : pioche.length ? el("button", { class: "dos-bouton", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "drawEncounter" }) }, el("img", { src: "/img/dos-rencontre.svg", alt: "pioche de rencontre" }))
-            : el("span", { class: "sous", text: "vide" })),
-        el("p", { class: "compte", html: `Pioche <strong>${pioche.length}</strong>` }),
-        el("div", { class: "ligne-boutons" },
-          el("button", { class: "lien-outil", type: "button", disabled: !peut || (!pioche.length && !defausse.length) || premiere?.faceUp, title: premiere?.faceUp ? "Glissez d'abord la carte révélée" : "Retourner la première carte", onclick: () => ctx.envoyer({ t: "drawEncounter" }) }, "Piocher"),
-          el("button", { class: "lien-outil", type: "button", disabled: !peut, title: "Regarder la pioche puis la mélanger", onclick: () => ctx.envoyer({ t: "searchEncounter", pile: "encounter" }) }, "Chercher"),
-          el("button", { class: "lien-outil", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "shufflePile", pile: "encounter" }) }, "Mélanger"))),
-      el("div", { class: "pile", "data-drop": "pile:encounterDiscard", title: "Déposez ici pour défausser" },
-        el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteEl(dessus, ctx) : null),
-        el("p", { class: "compte", html: `Défausse <strong>${defausse.length}</strong>` }),
-        el("div", { class: "ligne-boutons" },
-          el("button", { class: "lien-outil", type: "button", disabled: !peut || !defausse.length, onclick: () => ctx.envoyer({ t: "searchEncounter", pile: "encounterDiscard" }) }, "Consulter"),
-          el("button", { class: "lien-outil", type: "button", disabled: !peut || !defausse.length, title: "Toute la défausse retourne dans la pioche, mélangée",
-            onclick: () => { if (confirm(`Remélanger les ${defausse.length} cartes de la défausse dans la pioche ?`)) ctx.envoyer({ t: "reshuffleDiscard" }); } }, "Remélanger dans la pioche"))),
-    ),
+    el("div", { class: "pile", "data-drop": "pile:encounter", "data-outil": "pioche",
+      title: premiere?.faceUp ? "Carte révélée : glissez-la où il faut. Clic droit : chercher, mélanger." : "Clic : piocher (retourne la première carte). Clic droit : chercher, mélanger." },
+      el("div", { class: `dos-pile pioche-rencontre${pioche.length ? "" : " vide"}${premiere?.faceUp ? " revelee" : ""}` },
+        premiere?.faceUp ? carteEl(premiere, ctx)
+          : pioche.length ? el("button", { class: "dos-bouton", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "drawEncounter" }) }, el("img", { src: "/img/dos-rencontre.svg", alt: "pioche de rencontre" }))
+          : el("button", { class: "dos-bouton vide", type: "button", disabled: !peut || !defausse.length, title: defausse.length ? "Pioche vide : clic pour remélanger la défausse et piocher" : "Pioche et défausse vides", onclick: () => ctx.envoyer({ t: "drawEncounter" }) }, el("span", { class: "sous", text: "vide" }))),
+      el("span", { class: "badge", text: String(pioche.length) })),
+    el("div", { class: "pile", "data-drop": "pile:encounterDiscard", "data-outil": "defausse", title: "Déposez ici pour défausser. Clic droit : consulter, remélanger dans la pioche." },
+      el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteEl(dessus, ctx) : el("span", { class: "sous", text: "défausse" })),
+      el("span", { class: "badge", text: String(defausse.length) })),
   );
 }
 
@@ -330,26 +320,20 @@ function rendreChaos(ctx) {
   for (const t of state.chaos.bag) comptes.set(t, (comptes.get(t) ?? 0) + 1);
   const ordre = Object.keys(JETONS_CHAOS);
   const liste = [...comptes.entries()].sort((a, b) => ordre.indexOf(a[0]) - ordre.indexOf(b[0]));
-  const ouvert = sect.querySelector("details")?.open ?? false;
+  const epingle = sect.querySelector(".sac-popover.epingle") !== null;
   sect.replaceChildren(
-    el("div", { class: "sac" },
-      el("button", { class: "sac-forme", type: "button", disabled: !peut, title: state.chaos.drawn.length ? "Tirer un autre jeton" : "Tirer un jeton du chaos",
+    el("div", { class: "sac", "data-outil": "sac" },
+      el("button", { class: "sac-forme", type: "button", disabled: !peut, "aria-label": "Sac du chaos : tirer un jeton",
         onclick: () => ctx.envoyer({ t: "chaosDraw" }) }, el("span", { text: String(state.chaos.bag.length) })),
-      el("div", { class: "sac-info" },
-        el("p", { class: "compte", text: "Sac du chaos" }),
-        el("p", { class: "sous", text: `Difficulté ${libelleDifficulte(state.difficulty)}` }),
-        state.chaos.drawn.length
-          ? el("div", { class: "tires" }, ...state.chaos.drawn.map((t) => imgJetonChaos(t, 44)),
-            el("button", { class: "lien-outil", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "chaosReturn" }) }, "Tout remettre"))
-          : el("p", { class: "sous", text: "Cliquez le sac pour tirer." }),
-      ),
-    ),
-    el("div", { class: "ligne-boutons" },
-      el("details", { class: "composition-details", open: ouvert },
-        el("summary", { text: "Composition" }),
+      state.chaos.drawn.length
+        ? el("div", { class: "tires" }, ...state.chaos.drawn.map((t) => imgJetonChaos(t, 40)),
+          el("button", { class: "pm remettre", type: "button", disabled: !peut, title: "Tout remettre dans le sac", onclick: () => ctx.envoyer({ t: "chaosReturn" }) }, "↺"))
+        : null,
+      el("div", { class: `sac-popover${epingle ? " epingle" : ""}` },
+        el("p", { class: "compte", text: `Sac du chaos — ${libelleDifficulte(state.difficulty)}, ${state.chaos.bag.length} jetons` }),
         el("ul", { class: "composition" }, ...liste.map(([t, n]) => el("li", { class: "jeton-chaos", title: JETONS_CHAOS[t] },
-          imgJetonChaos(t, 26), el("span", { class: "nombre", text: `×${n}` }))))),
-      el("button", { class: "lien-outil", type: "button", disabled: !peut, onclick: () => ouvrirAjustementSac(ctx) }, "Ajuster"),
+          imgJetonChaos(t, 26), el("span", { class: "nombre", text: `×${n}` })))),
+        el("p", { class: "sous", text: "Clic : tirer un jeton. Clic droit : ajuster, composition." })),
     ),
   );
 }
