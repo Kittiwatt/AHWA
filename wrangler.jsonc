@@ -16,15 +16,9 @@
 
   // Une room = un Durable Object (stockage SQLite, obligatoire sur le plan gratuit).
   "durable_objects": {
-    "bindings": [{ "name": "ROOM", "class_name": "RoomV2" }]
+    "bindings": [{ "name": "ROOM", "class_name": "Room" }]
   },
-  // Remise à zéro complète (2026-09-03) : la classe Room est supprimée (tous ses objets et leur
-  // stockage avec elle) et le binding passe à RoomV2. Une classe supprimée ne se recrée pas sous
-  // le même nom : pour la prochaine remise à zéro, RoomV3 (index.ts + binding + nouveau tag).
-  "migrations": [
-    { "tag": "v1", "new_sqlite_classes": ["Room"] },
-    { "tag": "v2", "deleted_classes": ["Room"], "new_sqlite_classes": ["RoomV2"] }
-  ],
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
 
   "observability": { "enabled": true }
 }
