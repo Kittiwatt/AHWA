@@ -32,6 +32,10 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   `POST /api/rooms`, DO `Room` (partyserver, hibernation, snapshot SQLite,
   purge 7 j), page `/r/<code>` qui reçoit le `welcome`. Aucune action de
   jeu. Testé en local (`wrangler dev` + client WebSocket Node + captures).
+- 2026-09-03 : **déployé** sur `https://ahwa.rivardlaudelex.workers.dev`
+  (Workers Builds branché sur `main`, plan gratuit ; les previews sont
+  sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
+  pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
 - **Prochaine étape** : traiter les points ouverts de §7 (dos histoire,
   sac par difficulté, compteurs spécifiques) dans les données, puis
   maquette du tapis (lobby + tapis de `room.html`).

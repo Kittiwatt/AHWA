@@ -8,6 +8,11 @@ automatisée, la résolution des effets de cartes reste aux joueurs.
 Projet indépendant, sans lien avec Fantasy Flight Games. Aucun texte de carte
 n'est reproduit : seules les images (cdn.arkham.build) sont affichées en jeu.
 
+## Site
+
+https://ahwa.rivardlaudelex.workers.dev — Cloudflare Workers, plan gratuit,
+redéployé automatiquement à chaque push sur `main` (Workers Builds).
+
 ## État
 
 Squelette v0 : accueil, bibliothèque (catalogue complet, 8 scénarios marqués
