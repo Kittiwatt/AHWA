@@ -323,7 +323,10 @@ Implémentées : `place`, `minis`, `aside`, `story`, `buildEncounter`
 (The Gathering) ; `pickRandom {from, n, slot, zone, x, y}` (les non
 choisis sont retirés), `branch {on: questionId | "players", cases}`,
 `remove {codes}`, `toPile {set | codes, pile, shuffle}`, `spawn {code,
-at}`, `setStart {code}`, `log {text}` (The Midnight Masks). Une
+at}`, `setStart {code}`, `log {text}` (The Midnight Masks) ;
+`pickRandom {positions}`, `pickRandomSet {from: sets, n}` (sans révéler
+le set retenu), `addDoom {n}`, `chaosAdd {tokens}`, `reminder {text}`
+(The Devourer Below). Une
 référence `slot:<nom>` désigne la carte choisie par `pickRandom` ou
 `setStart` (`slot:start`). `extraCards` ajoute des codes hors sets ;
 `piles` déclare des piles supplémentaires. Tout ce qui n'est ni posé ni

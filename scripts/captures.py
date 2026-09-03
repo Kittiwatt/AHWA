@@ -352,6 +352,25 @@ with sync_playwright() as p:
     # Cultist deck : clic = retourner la première carte.
     hote.locator("#pioches .pile[data-outil='pile:cultist'] .dos-bouton").click()
     hote.wait_for_selector("#pioches .pile[data-outil='pile:cultist'] .revelee .carte")
+    assert hote.locator("#lien-guide").is_visible() and "campaign_guide.pdf" in hote.locator("#lien-guide").get_attribute("href"), "lien vers le guide"
+
+    # ---- The Devourer Below ----
+    code3, token3 = creer("notz_the_devourer_below")
+    print("room Devourer", code3)
+    h3 = page_pour(browser, "Hôte", host=True, code=code3, token=token3)
+    h3.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h3.get_by_role("button", name="Choisir un enquêteur").click(); h3.wait_for_selector("dialog.dialogue-inv[open]")
+    h3.locator("dialog .inv").first.click(); h3.wait_for_selector(".siege-lobby.moi .fiche")
+    h3.get_by_label("1 ou 2").check(); h3.get_by_label("est noté", exact=True).check(); h3.get_by_label("n'est pas noté comme en vie").check()
+    h3.wait_for_timeout(200)
+    h3.get_by_role("button", name="Lancer la mise en place").click()
+    h3.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h3.wait_for_load_state("networkidle"); h3.wait_for_timeout(1500)
+    assert h3.locator("#plateau .carte.kind-location").count() == 5, "Main Path + 4 bois"
+    assert h3.locator("#plateau .carte.kind-location.retournee").count() == 4, "bois face non révélée"
+    assert "1" in h3.locator("#histoire .carte.kind-agenda .jeton-doom").first.inner_text(), "1 doom de départ"
+    assert h3.locator("#chaos .sac-forme").inner_text().strip() == "17", "sac : 16 + jeton Ancien"
+    h3.screenshot(path=f"{OUT}/20_devourer_tapis.png")
     browser.close()
 
 if erreurs:

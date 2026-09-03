@@ -30,7 +30,11 @@ export type ScenarioCard = {
 // Les références « slot:<nom> » désignent une carte choisie plus tôt (pickRandom, setStart).
 export type SetupStep =
   | { op: "place"; code: string; zone: ZoneId; x: number; y: number; reveal?: boolean; faceUp?: boolean; log?: string }
-  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; faceUp?: boolean; log?: string }
+  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; log?: string }
+  | { op: "pickRandomSet"; from: string[]; n?: number; log?: string }   // garde n sets dans la pioche, retire les autres (sans révéler lesquels)
+  | { op: "addDoom"; n: number; log?: string }                          // doom sur l'agenda courant (après « story »)
+  | { op: "chaosAdd"; tokens: Token[]; log?: string }
+  | { op: "reminder"; text: string }                                    // encart éphémère + journal
   | { op: "branch"; on: string; cases: Record<string, SetupStep[]>; log?: string }   // on = id de question ou "players"
   | { op: "remove"; codes: string[]; log?: string }
   | { op: "toPile"; pile: string; set?: string; codes?: string[]; shuffle?: boolean; log?: string }

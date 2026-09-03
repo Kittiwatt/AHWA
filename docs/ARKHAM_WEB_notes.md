@@ -36,6 +36,20 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   (Workers Builds branché sur `main`, plan gratuit ; les previews sont
   sur `<hash>-ahwa.rivardlaudelex.workers.dev`). Vérifié en ligne :
   pages, `POST /api/rooms`, WebSocket hôte/spectateur, code inconnu 4404.
+- 2026-09-03 : **The Devourer Below (NotZ III) livré** — la campagne
+  Night of the Zealot est complète. Moteur : `pickRandom` avec
+  `positions` (4 des 6 Arkham Woods posés face non révélée, 2
+  retirés), `pickRandomSet` (un des 4 sets Agents mélangé **sans être
+  nommé** dans le journal — vérifié par test), `addDoom` (doom de
+  départ selon la question « Cultists Who Got Away »), `chaosAdd`
+  (jeton Elder Thing), `reminder` conditionnel (« past midnight » →
+  défausse hors application), Ghoul Priest via question. Pas de
+  diagramme dans le guide : Main Path au centre, bois aux quatre
+  coins. **Lien « Guide »** discret dans la barre de la table vers le
+  livret PDF, porté par `campaigns[].guide` dans `library.json` (à
+  renseigner pour chaque campagne à venir, adresses dans
+  `docs/AHLCG_livrets_regles_FFG.md`). Tests : 118 messages, trois
+  scénarios ; captures 20.
 - 2026-09-03 : **outil « Générer une carte »** (demande) : bouton ⊞ dans
   la barre de phase, identique dans toutes les tables. Fenêtre de
   recherche par nom (insensible à la casse et aux accents, préfixe
@@ -209,10 +223,12 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : retours de jeu réel sur The Gathering (2 navigateurs),
-  puis The Midnight Masks (diagramme de placement, cartes de côté selon
-  le journal → `pickRandom`, `questions`, `branch`) et The Devourer Below.
-  À faire au fil de l'eau : pincer pour zoomer sur tablette, hook
+- **Prochaine étape** : au choix de l'utilisateur — retours de jeu sur
+  les trois tables NotZ, ou nouvelle campagne (les 10 scénarios PCIO :
+  transcrire `scenarios_data.json` en `*.src.json`, saisir le sac par
+  difficulté et le lien du guide, marquer les dos histoire). À faire
+  au fil de l'eau : pincer pour zoomer sur tablette, chemins pré-tracés
+  depuis les connexions imprimées (saisie manuelle par scénario), hook
   `onChaosDraw` (jetons scellés), pioches multiples (v2).
 
 ## 1. Décisions d'architecture (prises, ne pas rouvrir sans raison)

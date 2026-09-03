@@ -32,6 +32,7 @@
 .barre .code-table { font-weight: 500; letter-spacing: 0.25em; color: var(--dorure-2); }
 .barre .lien { font: inherit; font-size: 0.85rem; color: var(--papier-2); background: none; border: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 0.15em; padding: 0; }
 .barre .lien:hover { color: var(--papier); }
+.barre a.lien { font-size: 0.85rem; }
 .barre .moi { color: var(--papier-2); font-size: 0.95rem; white-space: nowrap; }
 
 .bandeau { margin: 0; padding: 0.5rem 1rem; background: #4a3419; color: var(--papier); font-size: 0.95rem; }

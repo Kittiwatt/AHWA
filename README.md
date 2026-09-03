@@ -15,8 +15,11 @@ redéployé automatiquement à chaque push sur `main` (Workers Builds).
 
 ## État
 
-Tables jouables : *Night of the Zealot I — The Gathering* et *II — The
-Midnight Masks* (questions de journal au lobby, tirages au hasard, Cultist deck). Lobby
+Tables jouables : la campagne *Night of the Zealot* complète (I — The
+Gathering, II — The Midnight Masks, III — The Devourer Below), avec les
+questions de journal au lobby, les tirages au hasard et les piles propres à
+chaque scénario. Outil « Générer une carte » et lien vers le livret de
+campagne dans chaque table. Lobby
 (sièges, enquêteurs, difficulté, enquêteur principal), mise en place
 automatique par l'hôte, tapis complet : glisser-déposer des cartes et des
 pions, révélation des lieux avec indices, phases et tours, doom et agenda,

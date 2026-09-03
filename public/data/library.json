@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "description": "Catalogue de la bibliothèque : campagnes dans l'ordre de sortie, scénarios dans l'ordre du guide. Statuts : available (jouable : une définition existe dans public/scenarios/), wip (en cours), planned (prévu). Les id des scénarios importés correspondent aux clés de data/scenarios_data.json. Le statut est informatif : le Worker n'accepte que les scénarios du registre src/scenarios.generated.ts.",
+    "description": "Catalogue de la bibliothèque : campagnes dans l'ordre de sortie, scénarios dans l'ordre du guide. Statuts : available (jouable : une définition existe dans public/scenarios/), wip (en cours), planned (prévu). Les id des scénarios importés correspondent aux clés de data/scenarios_data.json. Le statut est informatif : le Worker n'accepte que les scénarios du registre src/scenarios.generated.ts. `guide` (par campagne) : adresse du livret de campagne FFG, affichée en lien discret dans la table.",
     "statuts": ["available", "wip", "planned"],
     "hors_perimetre": "Boîtes « Return to… » et scénarios promotionnels non listés pour l'instant."
   },
@@ -10,10 +10,11 @@
       "title": "Night of the Zealot",
       "box": "Boîte de base (2016)",
       "kind": "campaign",
+      "guide": "https://images-cdn.fantasyflightgames.com/filer_public/8d/30/8d308b73-92f1-4b1e-aa7f-ce39e8d79786/night_of_the_zealot_campaign_guide.pdf",
       "scenarios": [
         { "id": "notz_the_gathering", "num": "I", "title": "The Gathering", "status": "available", "note": "tapis en cours de validation (étape 1)" },
         { "id": "notz_the_midnight_masks", "num": "II", "title": "The Midnight Masks", "status": "available" },
-        { "id": "notz_the_devourer_below", "num": "III", "title": "The Devourer Below", "status": "planned" }
+        { "id": "notz_the_devourer_below", "num": "III", "title": "The Devourer Below", "status": "available" }
       ]
     },
     {

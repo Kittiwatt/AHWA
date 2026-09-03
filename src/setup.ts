@@ -192,15 +192,40 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         const choix = shuffle([...step.from], rng).slice(0, n);
         const noms = choix.map((c) => pool.def(c).name);
         for (const code of step.from) if (!choix.includes(code)) retirer(code);
-        if (step.zone !== undefined && step.x !== undefined && step.y !== undefined) {
+        if (step.zone !== undefined && (step.positions || (step.x !== undefined && step.y !== undefined))) {
           choix.forEach((code, i) => {
-            const card = poser(code, step.zone!, step.x! + i * (CARD_W + 32), step.y!, step.faceUp ?? false, false, step.log ?? `${pool.def(code).name} tiré au hasard et mis en jeu.`);
+            const pos = step.positions ? step.positions[i % step.positions.length] : { x: step.x! + i * (CARD_W + 32), y: step.y! };
+            const card = poser(code, step.zone!, pos.x, pos.y, step.faceUp ?? false, false, step.log ?? `${pool.def(code).name} tiré au hasard et mis en jeu.`);
             if (step.slot && i === 0) slots.set(step.slot, card.id);
           });
         } else if (step.slot) {
           slots.set(step.slot, choix[0]);
           addLog(state, "setup", step.log ?? `Tirage au hasard : ${noms.join(", ")}.`);
         }
+        break;
+      }
+      case "pickRandomSet": {
+        // Sans révéler le set retenu : le journal ne cite ni les gardés ni les retirés.
+        const n = step.n ?? 1;
+        const gardes = new Set(shuffle([...step.from], rng).slice(0, n));
+        for (const set of step.from) if (!gardes.has(set)) for (const c of def.cards) if (c.set === set) retirer(c.code);
+        addLog(state, "setup", step.log ?? `${n} des ${step.from.length} sets candidats rejoignent la pioche, sans être regardés ; les autres sont retirés de la partie.`);
+        break;
+      }
+      case "addDoom": {
+        const agenda = state.agendaId ? state.cards[state.agendaId] : null;
+        if (!agenda) throw new Error("setup : addDoom avant « story »");
+        agenda.tokens.doom = (agenda.tokens.doom ?? 0) + step.n;
+        addLog(state, "setup", step.log ?? `${step.n} doom placé${step.n > 1 ? "s" : ""} sur l'agenda de départ.`);
+        break;
+      }
+      case "chaosAdd": {
+        state.chaos.bag.push(...step.tokens);
+        addLog(state, "setup", step.log ?? `Jeton${step.tokens.length > 1 ? "s" : ""} ajouté${step.tokens.length > 1 ? "s" : ""} au sac du chaos : ${step.tokens.join(", ")}.`);
+        break;
+      }
+      case "reminder": {
+        reminders.push(addLog(state, "reminder", step.text));
         break;
       }
       case "branch": {

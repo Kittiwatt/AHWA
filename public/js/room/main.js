@@ -61,6 +61,8 @@ async function demarrer() {
       const data = await lib.json();
       const camp = data.campaigns.find((c) => c.id === ctx.scenario.campaignId);
       ctx.campagneBoite = camp?.box ?? "";
+      const lienGuide = document.getElementById("lien-guide");
+      if (camp?.guide) { lienGuide.href = camp.guide; lienGuide.hidden = false; }
     } catch { /* étiquette facultative */ }
     scenarioCharge = id;
     $titre.textContent = ctx.scenario.title;

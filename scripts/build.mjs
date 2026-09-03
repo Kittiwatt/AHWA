@@ -95,8 +95,11 @@ async function buildScenario(fichierSrc) {
 
   // Contrôles de cohérence entre la source et ArkhamDB.
   const codes = new Set(cards.map((c) => c.code));
-  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.from ?? []), s.at,
+  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), s.at,
     ...(s.cases ? Object.values(s.cases).flatMap(citesDe) : [])]).filter((c) => c && !String(c).startsWith("slot:"));
+  for (const s of src.setup.flatMap(function aplat(x) { return [x, ...(x.cases ? Object.values(x.cases).flat().flatMap(aplat) : [])]; })) {
+    if (s.op === "pickRandomSet") for (const set of s.from) if (!src.encounterSets.includes(set)) throw new Error(`${src.id} : set ${set} absent de encounterSets`);
+  }
   const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup)].filter(Boolean);
   for (const code of cites) if (!codes.has(code)) throw new Error(`${src.id} : code ${code} absent des sets de rencontre`);
 

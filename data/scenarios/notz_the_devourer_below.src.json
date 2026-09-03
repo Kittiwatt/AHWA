@@ -1,0 +1,75 @@
+{
+  "_source": "Guide de campagne Night of the Zealot (FFG, 2017) : Part III, section « Setup » p. 6 ; sac du chaos p. 1. Pas de diagramme de placement dans le guide : disposition choisie (Main Path au centre, les bois autour). Aucun texte de carte ; les questions reprennent uniquement les points du journal que la mise en place vérifie.",
+  "id": "notz_the_devourer_below",
+  "title": "The Devourer Below",
+  "campaign": "Night of the Zealot",
+  "campaignId": "notz",
+  "order": 3,
+  "pack": "core",
+  "encounterSets": ["tentacles", "ancient_evils", "striking_fear", "ghouls", "pentagram", "agents_of_yog", "agents_of_shub", "agents_of_cthulhu", "agents_of_hastur"],
+  "extraCards": ["01116"],
+  "scenarioCard": "01142",
+  "agendaDeck": ["01143", "01144", "01145"],
+  "actDeck": ["01146", "01147", "01148"],
+  "startLocation": "01149",
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-5", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "-8", "skull", "skull", "cultist", "tablet", "auto_fail", "elder_sign"]
+  },
+  "layout": [
+    { "code": "01149", "x": 737, "y": 411 },
+    { "code": "01150", "x": 551, "y": 173 }, { "code": "01151", "x": 923, "y": 173 },
+    { "code": "01152", "x": 551, "y": 649 }, { "code": "01153", "x": 923, "y": 649 }
+  ],
+  "questions": [
+    { "id": "cultists", "text": "Journal de campagne — noms notés sous « Cultists Who Got Away » :", "options": [
+      { "id": "0", "label": "aucun" },
+      { "id": "1-2", "label": "1 ou 2" },
+      { "id": "3-4", "label": "3 ou 4" },
+      { "id": "5-6", "label": "5 ou 6" } ] },
+    { "id": "midnight", "text": "Journal de campagne — « it is past midnight » :", "options": [
+      { "id": "yes", "label": "est noté" },
+      { "id": "no", "label": "n'est pas noté" } ] },
+    { "id": "ghoul_priest", "text": "Journal de campagne — le Ghoul Priest :", "options": [
+      { "id": "alive", "label": "est encore en vie" },
+      { "id": "gone", "label": "n'est pas noté comme en vie" } ] }
+  ],
+  "setup": [
+    { "op": "place", "code": "01149", "zone": "board", "x": 737, "y": 411, "reveal": true,
+      "log": "Main Path est mis en jeu : chaque enquêteur y commence la partie." },
+    { "op": "pickRandom", "from": ["01150", "01151", "01152", "01153", "01154", "01155"], "n": 4, "zone": "board",
+      "positions": [ { "x": 551, "y": 173 }, { "x": 923, "y": 173 }, { "x": 551, "y": 649 }, { "x": 923, "y": 649 } ],
+      "log": "Arkham Woods : 4 des 6 bois sont tirés au hasard et mis en jeu sans regarder leur face révélée ; les 2 autres sont retirés de la partie." },
+    { "op": "minis", "code": "01149" },
+    { "op": "aside", "codes": ["01156", "01157"], "faceUp": false,
+      "log": "Ritual Site et Umôrdhoth sont mis de côté, hors jeu." },
+    { "op": "pickRandomSet", "from": ["agents_of_yog", "agents_of_shub", "agents_of_cthulhu", "agents_of_hastur"], "n": 1,
+      "log": "Un des quatre sets « Agents » est choisi au hasard et mélangé dans la pioche sans être regardé ; les trois autres sont retirés de la partie." },
+    { "op": "branch", "on": "ghoul_priest", "cases": {
+      "alive": [ { "op": "log", "text": "Le Ghoul Priest est encore en vie : il est mélangé dans la pioche de rencontre." } ],
+      "gone": [ { "op": "remove", "codes": ["01116"], "log": "Le Ghoul Priest ne rejoint pas la pioche : retiré de la partie." } ] } },
+    { "op": "story" },
+    { "op": "branch", "on": "cultists", "cases": {
+      "0": [ { "op": "log", "text": "Aucun cultiste échappé : pas de doom de départ." } ],
+      "1-2": [ { "op": "addDoom", "n": 1, "log": "1 ou 2 cultistes échappés : 1 doom sur l'agenda de départ." } ],
+      "3-4": [ { "op": "addDoom", "n": 2, "log": "3 ou 4 cultistes échappés : 2 doom sur l'agenda de départ." } ],
+      "5-6": [ { "op": "addDoom", "n": 3, "log": "5 ou 6 cultistes échappés : 3 doom sur l'agenda de départ." } ] } },
+    { "op": "chaosAdd", "tokens": ["elder_thing"],
+      "log": "Un jeton Ancien (Elder Thing) est ajouté au sac du chaos, pour le reste de la campagne." },
+    { "op": "branch", "on": "midnight", "cases": {
+      "yes": [ { "op": "reminder", "text": "Hors application — il est passé minuit : chaque joueur défausse 2 cartes au hasard de sa main de départ." } ],
+      "no": [] } },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

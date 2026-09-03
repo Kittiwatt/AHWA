@@ -432,5 +432,61 @@ async function tableMasks({ joueurs, answers }) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ The Devourer Below : bois au hasard, set Agents, doom initial, jeton, rappel ============
+async function tableDevourer({ joueurs, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "notz_the_devourer_below" }) });
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  let d = await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    d = await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  h.envoyer({ t: "startSetup", answers });
+  await h.attendre((m) => m.t === "delta" && m.rev === joueurs + 1);
+  await new Promise((r) => setTimeout(r, 200));
+  return { code, h };
+}
+{
+  const { h } = await tableDevourer({ joueurs: 2, answers: { cultists: "3-4", midnight: "yes", ghoul_priest: "alive" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const surTapis = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  assert.ok(surTapis("01149")?.faceUp, "Main Path en jeu et révélé");
+  const bois = cartes.filter((c) => c.loc.zone === "board" && c.kind === "location" && c.code !== "01149");
+  assert.equal(bois.length, 4, "4 Arkham Woods en jeu");
+  assert.ok(bois.every((b) => !b.faceUp), "bois face non révélée");
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed" && c.code >= "01150" && c.code <= "01155").length, 2, "2 bois retirés");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.y === 411 - 22 && m.loc.x >= 737), "pions sur Main Path");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["01156", "01157"], "Ritual Site et Umôrdhoth de côté");
+  const setsDansPioche = new Set(s.piles.encounter.map((id) => s.cards[id].code).filter((c) => c >= "01175" && c <= "01182").map((c) => ({ "01175": "hastur", "01176": "hastur", "01177": "yog", "01178": "yog", "01179": "shub", "01180": "shub", "01181": "cthulhu", "01182": "cthulhu" })[c]));
+  assert.equal(setsDansPioche.size, 1, "un seul set Agents dans la pioche");
+  const agentsRetires = cartes.filter((c) => c.loc.pile === "removed" && c.code >= "01175" && c.code <= "01182");
+  assert.ok(agentsRetires.length >= 4, "les 3 autres sets retirés");
+  assert.ok(s.piles.encounter.some((id) => s.cards[id].code === "01116"), "Ghoul Priest dans la pioche");
+  assert.equal(s.cards[s.agendaId].code, "01143");
+  assert.equal(s.cards[s.agendaId].tokens.doom, 2, "3-4 cultistes échappés : 2 doom");
+  assert.equal(s.chaos.bag.filter((t) => t === "elder_thing").length, 1, "jeton Ancien ajouté");
+  assert.equal(s.chaos.bag.length, 17);
+  const rappels = h.recus.filter((m) => m.t === "reminder");
+  assert.ok(rappels.some((m) => m.entry.text.includes("passé minuit")), "rappel « past midnight »");
+  assert.ok(!s.log.some((e) => /hastur|yog|shub|cthulhu|Byakhee|Yithian|Dark Young|Deep One/i.test(e.text)), "le journal ne révèle pas le set Agents");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+{
+  const { h } = await tableDevourer({ joueurs: 1, answers: { cultists: "0", midnight: "no", ghoul_priest: "gone" } });
+  const s = h.state;
+  assert.equal(s.cards[s.agendaId].tokens.doom, 0);
+  assert.equal(Object.values(s.cards).find((c) => c.code === "01116").loc.pile, "removed");
+  assert.equal(s.chaos.bag.length, 17);
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);
