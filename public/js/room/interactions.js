@@ -234,6 +234,8 @@ export function initInteractions(ctx) {
         items.push(item("Piocher (retourner la première carte)", () => ctx.envoyer({ t: "drawEncounter", pile: id }), { off: Boolean(haut?.faceUp) || (!ids.length && !defausse.length) }));
         items.push(item("Chercher (puis mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
         items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: id }), { off: !ids.length }));
+        // Tirage au hasard sans sortir la carte (« choisir un lieu au hasard ») : le nom s'affiche pour tous.
+        for (const n of [1, 2, 3]) if (ids.length >= n) items.push(item(`Tirer ${n} au hasard (sans sortir)`, () => ctx.envoyer({ t: "randomPick", pile: id, n })));
       }
     } else if (outil === "sac") {
       items.push(el("p", { class: "titre-menu", text: `Sac du chaos — ${state.chaos.bag.length} jetons` }));

@@ -227,10 +227,12 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
         case "mythos": {
           state.round++;
           const agenda = state.agendaId ? state.cards[state.agendaId] : null;
-          if (agenda) agenda.tokens.doom = (agenda.tokens.doom ?? 0) + 1;
+          // Certains scénarios remplacent le doom de la phase du mythe par autre chose (brèches d'In the Clutches of Chaos) : mythosDoom: false.
+          const doomAuto = def.mythosDoom !== false;
+          if (agenda && doomAuto) agenda.tokens.doom = (agenda.tokens.doom ?? 0) + 1;
           const total = doomTotal(state);
           const seuil = agenda ? def.cards.find((c) => c.code === agenda.code)?.doom ?? null : null;
-          addLog(state, "phase", `Manche ${state.round} — phase du mythe : 1 doom ajouté sur l'agenda (${total} doom en jeu${seuil ? ` / seuil ${seuil}` : ""}).`);
+          addLog(state, "phase", `Manche ${state.round} — phase du mythe : ${doomAuto ? "1 doom ajouté sur l'agenda" : "pas de doom automatique (voir l'agenda)"} (${total} doom en jeu${seuil ? ` / seuil ${seuil}` : ""}).`);
           if (seuil !== null && total >= seuil) reminders.push(addLog(state, "reminder", `Le doom en jeu (${total}) atteint le seuil de l'agenda (${seuil}) : avancez l'agenda.`));
           reminders.push(...rappels(state, def, "mythos"), ...rappels(state, def, `round:${state.round}`));
           break;
@@ -386,6 +388,16 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const c = carte(state, msg.id);
       c.exhausted = msg.v === undefined ? !c.exhausted : Boolean(msg.v);
       return {};
+    }
+    case "randomPick": {
+      // {pile, n} : nomme n cartes distinctes tirées au hasard dans la pile, sans la modifier (« choisir un lieu au hasard »).
+      const pile = String(msg.pile);
+      if (!(pile in state.piles) || pile === "removed") refuser("pile inconnue");
+      const n = Math.max(1, Math.min(Number(msg.n) || 1, state.piles[pile].length));
+      if (!state.piles[pile].length) refuser("cette pile est vide");
+      const tires = shuffle([...state.piles[pile]], rng).slice(0, n).map((id) => nomCarte(def, state.cards[id]));
+      const entry = addLog(state, "action", `Tirage au hasard dans ${nomPile(def, pile)} (sans la modifier) : ${tires.join(", ")}.`);
+      return { reminders: [entry] };
     }
     case "shufflePile": {
       const pile = String(msg.pile);

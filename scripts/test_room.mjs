@@ -1041,5 +1041,84 @@ async function tableUnion({ answers }) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ In the Clutches of Chaos (TCU VII) : versions au hasard vers une pile, deux mises en place, brèches, tirage au hasard sans sortir ============
+async function tableClutches({ joueurs, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tcu_in_the_clutches_of_chaos" }) });
+  assert.equal(r.status, 200, "In the Clutches of Chaos est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "05001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["05001", "05002", "05003", "05004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === joueurs + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+{
+  const { h } = await tableClutches({ joueurs: 2, answers: { outcome: "anette", fate: "accepted", lodge: "members_told", blackbook: "yes" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux.length, 8, "8 lieux en jeu");
+  const southside = lieux.find((c) => ["05294", "05295"].includes(c.code));
+  assert.ok(southside.faceUp && southside.loc.x === 737 && southside.loc.y === 411, "Southside révélé au centre");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.y === 411 - 22), "pions sur Southside");
+  assert.ok(lieux.some((c) => c.code === "05302") && lieux.some((c) => c.code === "05303"), "Hangman's Hill (Where It All Ends) et Lodge (Shrouded)");
+  assert.equal(s.piles.random_locations.length, 8, "pile Lieux au hasard : 8 versions non utilisées");
+  assert.ok(s.piles.random_locations.every((id) => s.cards[id].kind === "location" && !s.cards[id].faceUp));
+  assert.equal(s.cards[s.actId].code, "05286a", "acte 1 Dark Knowledge (v. I)");
+  assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["05287"], "acte 2 Beyond the Grave");
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed" && ["05288a", "05289"].includes(c.code)).length, 2, "autres actes retirés");
+  assert.equal(s.piles.encounter.length, 35, "pioche : 35 (branche Anette)");
+  assert.equal(cartes.filter((c) => c.loc.zone === "aside").map((c) => c.code).join(), "05088", "Piper de côté");
+  const breches = lieux.reduce((n, l) => n + (l.tokens.resource ?? 0), 0);
+  assert.equal(breches, 4, "2 joueurs : 2 tirages de 2 lieux = 4 brèches");
+  assert.ok(lieux.every((l) => (l.tokens.resource ?? 0) <= 2));
+  assert.equal(s.chaos.bag.length, 18, "sac 13 + 2 tablettes + 2 cultistes + 1 crâne");
+  // Tirage au hasard sans sortir : 2 noms distincts, la pile inchangée, rappel diffusé.
+  const avant = [...s.piles.random_locations];
+  h.recus = h.recus.filter((m) => m.t !== "reminder");
+  let d = await h.action({ t: "randomPick", pile: "random_locations", n: 2 });
+  assert.equal(d.t, "delta");
+  assert.deepEqual(h.state.piles.random_locations, avant, "la pile n'a pas bougé");
+  await new Promise((r) => setTimeout(r, 200));
+  const rappel = h.recus.find((m) => m.t === "reminder");
+  assert.ok(rappel && rappel.entry.text.includes("Tirage au hasard dans Lieux au hasard"), "tirage annoncé à tous");
+  // Phase du mythe sans doom automatique (on avance jusqu'à la phase du mythe).
+  for (let i = 0; i < 4 && h.state.phase !== "mythos"; i++) d = await h.action({ t: "nextPhase" });
+  assert.equal(h.state.cards[h.state.agendaId].tokens.doom, 0, "pas de doom automatique");
+  assert.ok(h.state.log.some((e) => e.text.includes("pas de doom automatique")), `journal du mythe : ${h.state.phase} / ${h.state.log.slice(-3).map((e) => e.text).join(" | ")}`);
+  // Verso de l'acte 1 = ennemi : retournement puis avancement laissent l'ennemi en jeu.
+  const acte1 = s.actId; // (état mis à jour en place : on fige l'id)
+  d = await h.action({ t: "flipCard", id: acte1 });
+  d = await h.action({ t: "moveCard", id: acte1, zone: "board", x: 365, y: 100 });
+  d = await h.action({ t: "advanceAct" });
+  assert.ok(h.state.cards[acte1].loc.zone === "board" && h.state.cards[h.state.actId].code === "05287", "l'acte 1 retourné reste sur le tapis, acte 2 courant");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+{
+  const { h } = await tableClutches({ joueurs: 4, answers: { outcome: "sanford", fate: "standalone", lodge: "standalone", blackbook: "no" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.ok(lieux.some((c) => c.code === "05304") && lieux.some((c) => c.code === "05305"), "versions Sanford de Hangman's Hill et Lodge");
+  assert.equal(s.cards[s.actId].code, "05288a", "acte 1 Dark Knowledge (v. II)");
+  assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["05289"]);
+  assert.equal(s.piles.encounter.length, 37, "pioche : 37 (branche Sanford, avec les 5 traîtrises de Midnight Masks)");
+  assert.equal(lieux.reduce((n, l) => n + (l.tokens.resource ?? 0), 0), 9, "4 joueurs : 3 tirages de 3 lieux = 9 brèches");
+  assert.equal(s.piles.random_locations.length, 8);
+  assert.equal(s.chaos.bag.length, 16, "sac autonome");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

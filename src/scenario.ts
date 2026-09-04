@@ -34,8 +34,10 @@ export type ScenarioCard = {
 // Les références « slot:<nom> » désignent une carte choisie plus tôt (pickRandom, setStart).
 export type SetupStep =
   | { op: "place"; code: string; zone: ZoneId; x: number; y: number; reveal?: boolean; faceUp?: boolean; log?: string }
-  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; rest?: "remove" | "aside"; log?: string }
-    // slot : « slot:<nom> » = première carte tirée, « slot:<nom>:<i> » = i-ème ; rest : sort des cartes non tirées (retirées par défaut, ou de côté)
+  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; rest?: "remove" | "aside" | "pile"; restPile?: string; log?: string }
+    // slot : « slot:<nom> » = première carte tirée, « slot:<nom>:<i> » = i-ème ; rest : sort des cartes non tirées (retirées par défaut, de côté, ou dans la pile restPile)
+  | { op: "randomTokens"; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic"; n?: number; picks: number[]; rounds: number[]; log?: string }
+    // jetons posés au hasard sur des lieux du tapis : à chaque manche (rounds[joueurs-1]), picks[joueurs-1] lieux distincts reçoivent n jetons (brèches d'In the Clutches of Chaos)
   | { op: "pickRandomSet"; from: string[]; n?: number; log?: string }   // garde n sets dans la pioche, retire les autres (sans révéler lesquels)
   | { op: "addDoom"; n?: number; nFrom?: string; log?: string }         // doom sur l'agenda courant (après « story ») ; nFrom = réponse numérique
   | { op: "addTokens"; at: string; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic"; n: number; log?: string }   // jetons sur une carte en jeu (code ou slot), ex. ressource = brasero allumé
@@ -123,6 +125,7 @@ export type ScenarioDef = {
   setup: SetupStep[];
   questions: Question[];
   swaps?: { pair: [string, string]; labels: [string, string] }[];   // lieux qui se remplacent (normal ↔ Spectral), avec le libellé de chaque version
+  mythosDoom?: boolean;     // false : la phase du mythe n'ajoute pas de doom automatiquement (brèches d'In the Clutches of Chaos)
   seatCounters: { key: string; label: string; icon?: string; initial: number }[];
   tableCounters: { key: string; label: string; icon?: string; initial: number }[];
   reminders: Reminder[];

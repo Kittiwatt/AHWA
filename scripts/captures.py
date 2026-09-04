@@ -633,6 +633,41 @@ with sync_playwright() as p:
     assert h9.locator(".menu-carte").get_by_role("button", name="Retourner", exact=True).count() == 0
     h9.screenshot(path=f"{OUT}/41_union_menu_fate.png")
     h9.keyboard.press("Escape")
+
+    # ---- In the Clutches of Chaos (TCU VII) : huit lieux dont versions au hasard, brèches, pile « Lieux au hasard » ----
+    code10, token10 = creer("tcu_in_the_clutches_of_chaos")
+    print("room Clutches", code10)
+    h10 = page_pour(browser, "Hôte", host=True, code=code10, token=token10)
+    h10.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h10.get_by_role("button", name="Choisir un enquêteur").click(); h10.wait_for_selector("dialog.dialogue-inv[open]")
+    h10.fill("dialog .recherche", "daisy"); h10.wait_for_timeout(300); h10.locator("dialog .inv").first.click()
+    h10.wait_for_selector(".siege-lobby.moi .fiche")
+    j10 = page_pour(browser, "Bob", code=code10, token=None)
+    j10.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j10.get_by_role("button", name="Choisir un enquêteur").click(); j10.wait_for_selector("dialog.dialogue-inv[open]")
+    j10.fill("dialog .recherche", "roland"); j10.wait_for_timeout(300); j10.locator("dialog .inv").first.click()
+    j10.wait_for_selector(".siege-lobby.moi .fiche")
+    h10.wait_for_timeout(400)
+    for q, v in (("outcome", "anette"), ("fate", "rejected"), ("lodge", "enemies"), ("blackbook", "no")):
+        h10.locator(f"input[name='q-{q}'][value='{v}']").check()
+    h10.wait_for_timeout(200)
+    h10.locator(".reglage.questions").screenshot(path=f"{OUT}/42_clutches_lobby_questions.png")
+    h10.get_by_role("button", name="Lancer la mise en place").click()
+    h10.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h10.wait_for_load_state("networkidle"); h10.wait_for_timeout(1500)
+    assert h10.locator("#plateau .carte.kind-location").count() == 8, "8 lieux"
+    assert h10.locator("#pioches .pile[data-outil='pile:random_locations'] .badge").inner_text() == "8", "pile Lieux au hasard : 8"
+    assert h10.locator("#chaos .sac-forme").inner_text().strip() == "15", "sac 13 + 2 anciens"
+    h10.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h10.screenshot(path=f"{OUT}/43_clutches_tapis.png")
+    # Menu de la pile : tirage au hasard sans sortir → encart pour tous.
+    h10.locator("#pioches .pile[data-outil='pile:random_locations']").dispatch_event("contextmenu"); h10.wait_for_selector(".menu-carte")
+    assert h10.locator(".menu-carte").get_by_role("button", name="Tirer 2 au hasard (sans sortir)").count() == 1, "menu : tirage au hasard"
+    h10.locator(".menu-carte").get_by_role("button", name="Tirer 2 au hasard (sans sortir)").click()
+    h10.wait_for_timeout(600)
+    assert "Tirage au hasard dans Lieux au hasard" in h10.locator("#rappels").inner_text(), "encart du tirage"
+    assert "Tirage au hasard dans Lieux au hasard" in j10.locator("#rappels").inner_text(), "les autres le voient"
+    h10.screenshot(path=f"{OUT}/44_clutches_tirage.png")
     browser.close()
 
 if erreurs:

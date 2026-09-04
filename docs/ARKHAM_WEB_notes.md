@@ -17,6 +17,33 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-04 : **In the Clutches of Chaos (TCU VII) livré** (choix
+  laissés à Claude). Guide p. 30‑32 : **une version sur deux** pour six
+  lieux (`pickRandom` par paire, `rest: "pile"` → les versions non
+  utilisées, plus celles de Hangman's Hill / Silver Twilight Lodge de
+  l'autre branche, forment la **pile « Lieux au hasard »**, mélangée),
+  Southside révélé (`slot:southside`, pions) ; **deux mises en place
+  selon la résolution du VI** (question « Anette possédée / Sanford
+  détenteur des secrets ») : sets additionnels et actes 1‑2 (Music of
+  the Damned ou Secrets of the Universe, actes 05286a/05287 ou
+  05288a/05289 — verso de l'acte 1 = ennemi lié Anette / Sanford, santé
+  6, flux « Retourner » puis « Avancer »), versions de Hangman's Hill et
+  de la Loge, retraits par codes (les 5 traîtrises de The Midnight Masks
+  01135 ×3 / 01136 ×2 via `extraCards` ; Nightgaunts = `nightgaunts`,
+  Music/Secrets = `music_of_the_damned` / `secrets_of_the_universe`
+  dans le pack **`icc`**). Piper of Azathoth de côté. **Brèches** :
+  `randomTokens {token: resource, picks: [2,2,2,3], rounds: [1,2,3,3]}`
+  au setup ; **`mythosDoom: false`** (la phase du mythe n'ajoute pas de
+  doom, journal explicite) ; nouvelle action **`randomPick {pile, n}`**
+  (menu de pile « Tirer 1/2/3 au hasard (sans sortir) » → noms dans le
+  journal et encart pour tous) pour « choisir un lieu au hasard ».
+  Rappels : brèches/incursions paraphrasés (jeton ressource = brèche,
+  chemins pour les lieux reliés), verso-ennemi de l'acte 1. Pioche : 35
+  (Anette) / 37 (Sanford). Tests : 253 messages, dix scénarios (2 et 4
+  joueurs) ; captures 42‑44. Piège : le serveur local peut mourir
+  pendant une longue série de captures (≈ 10 tables) — relancer et
+  passer les captures en arrière-plan (`setsid`, journal dans
+  /tmp/captures.log).
 - 2026-09-04 : **Union and Disillusion (TCU VI) livré** (choix laissés
   à Claude). Guide p. 26‑27 : Miskatonic River (révélé, pions) et
   Forbidding Shore, **deux Unvisited Isle sur six au hasard** en bas
@@ -419,11 +446,12 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : retours de l'utilisateur sur les six tables
-  TCU, puis TCU VII In the Clutches of Chaos (pack `icc`) — vérifier
-  les jetons ajoutés par la résolution du VI — ou le prologue. La
-  zone de côté devient longue (VI : jusqu'à 26 cartes) : un tri par
-  groupes ou des piles nommées sont à envisager. Jetons de campagne : reportés par les questions
+- **Prochaine étape** : TCU VIII Before the Black Throne (pack `bbt`,
+  dernier scénario ; vérifier les jetons ajoutés par la résolution du
+  VII et l'Interlude IV), puis le prologue Disappearance at the
+  Twilight Estate. Ensuite, chantier convenu avec l'utilisateur :
+  **rangement de la zone hors jeu** (tri par groupes ou piles nommées ;
+  VI atteint 26 cartes de côté). Jetons de campagne : reportés par les questions
   d'introduction, de la Loge et de The Black Book ; à chaque nouveau
   scénario, relire les résolutions précédentes pour les ajouts.
   Chantier possible : un compteur de doom / une ligne de journal par

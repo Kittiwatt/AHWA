@@ -248,6 +248,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `linkLocations {a, b}` / `unlink {id?}` | J | chemin entre deux lieux (`state.links`, bascule) / efface les chemins d'un lieu ou tous |
 | `swapLocation {id}` / `swapLocation {all}` | J | lieux qui se remplacent (`swaps`) : la version jumelle prend la place, les jetons, les chemins et ce qui est posé ; elle entre non révélée, sauf si un pion s'y trouve (révélée, indices) ; l'ancien lieu part de côté. `all` : tous les lieux du tapis qui ont une jumelle disponible |
 | `clearClues` | J | retire tous les indices des lieux en jeu |
+| `randomPick {pile, n}` | J | nomme n cartes distinctes tirées au hasard dans une pile sans la modifier (journal + encart pour tous) — « choisir un lieu au hasard » |
 | `removeLocations {keep}` | J | retire de la partie tous les lieux du tapis sauf un (jetons et chemins effacés) |
 | `createCard {code}` | J | génère n'importe quelle carte du jeu (index `cards_index.json`) dans la zone de menace du demandeur ; définition dans `state.extraDefs` |
 | `searchEncounter {pile?}` | J | envoie la pioche (ou la défausse) au demandeur (`peek`) ; le client remélange à la fermeture (`shufflePile`) et permet de prendre une carte (`moveCard`) |
@@ -384,7 +385,12 @@ de les retirer, et `slot:<nom>:<i>` désigne la i-ème carte tirée ;
 allumés = ressource) ; `addDoom {nFrom}` lit une réponse numérique. Un
 dos histoire face cachée se révèle par `flipCard {reveal: true}` (menu
 « Révéler (quand une carte l'indique) »), jamais par simple
-retournement. Le build synthétise le recto d'une carte dont
+retournement. `pickRandom {rest: "pile", restPile}` envoie les cartes
+non tirées dans une pile (les huit versions non utilisées d'In the
+Clutches of Chaos, pile « Lieux au hasard ») ; `randomTokens {token,
+picks, rounds}` pose des jetons sur des lieux du tapis tirés au hasard
+selon le nombre de joueurs (brèches initiales) ; `mythosDoom: false`
+supprime le doom automatique de la phase du mythe. Le build synthétise le recto d'une carte dont
 ArkhamDB ne connaît que le verso (`<code>b` avec `linked_card`, ex.
 Josef Meiger 05085).
 

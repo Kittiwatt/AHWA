@@ -1,0 +1,1279 @@
+{
+ "id": "tcu_in_the_clutches_of_chaos",
+ "title": "In the Clutches of Chaos",
+ "campaign": "The Circle Undone",
+ "campaignId": "tcu",
+ "order": 7,
+ "packs": [
+  "icc",
+  "tcu",
+  "core"
+ ],
+ "encounterSets": [
+  "in_the_clutches_of_chaos",
+  "agents_of_azathoth",
+  "nightgaunts",
+  "music_of_the_damned",
+  "anettes_coven",
+  "city_of_sins",
+  "witchcraft",
+  "secrets_of_the_universe",
+  "silver_twilight_lodge",
+  "striking_fear"
+ ],
+ "extraCards": [
+  "01135",
+  "01136"
+ ],
+ "scenarioCard": "05284",
+ "agendaDeck": [
+  "05285"
+ ],
+ "actDeck": [
+  "05286a",
+  "05287",
+  "05288a",
+  "05289"
+ ],
+ "piles": [
+  {
+   "id": "random_locations",
+   "label": "Lieux au hasard"
+  }
+ ],
+ "mythosDoom": false,
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-3",
+   "skull",
+   "skull",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "layout": [],
+ "questions": [
+  {
+   "id": "outcome",
+   "text": "Journal de campagne (résolution du scénario VI) :",
+   "options": [
+    {
+     "id": "anette",
+     "label": "Anette Mason est possédée par le mal"
+    },
+    {
+     "id": "sanford",
+     "label": "Carl Sanford possède les secrets de l'univers"
+    }
+   ]
+  },
+  {
+   "id": "fate",
+   "text": "Journal de campagne (introduction du scénario I) — l'enquêteur principal :",
+   "options": [
+    {
+     "id": "accepted",
+     "label": "a accepté son destin"
+    },
+    {
+     "id": "rejected",
+     "label": "a rejeté son destin"
+    },
+    {
+     "id": "standalone",
+     "label": "partie autonome (hors campagne)"
+    }
+   ]
+  },
+  {
+   "id": "lodge",
+   "text": "Journal de campagne (Interlude II et introduction du scénario III) — les enquêteurs :",
+   "options": [
+    {
+     "id": "members_told",
+     "label": "sont membres de la Loge, et ont parlé du coven à la Loge"
+    },
+    {
+     "id": "members_hid",
+     "label": "sont membres de la Loge, et ont caché ce qu'ils savent du coven"
+    },
+    {
+     "id": "enemies",
+     "label": "sont ennemis de la Loge"
+    },
+    {
+     "id": "nothing",
+     "label": "n'ont rien appris des projets de la Loge"
+    },
+    {
+     "id": "gone",
+     "label": "ne sont jamais revus"
+    },
+    {
+     "id": "standalone",
+     "label": "partie autonome (hors campagne)"
+    }
+   ]
+  },
+  {
+   "id": "blackbook",
+   "text": "Journal de campagne (résolution du scénario III) — The Black Book :",
+   "options": [
+    {
+     "id": "yes",
+     "label": "a rejoint le deck d'un enquêteur"
+    },
+    {
+     "id": "no",
+     "label": "n'a rejoint aucun deck (ou partie autonome)"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "pickRandom",
+   "from": [
+    "05300",
+    "05301"
+   ],
+   "n": 1,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 551,
+     "y": 173
+    }
+   ],
+   "rest": "pile",
+   "restPile": "random_locations"
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "05292",
+    "05293"
+   ],
+   "n": 1,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 923,
+     "y": 173
+    }
+   ],
+   "rest": "pile",
+   "restPile": "random_locations"
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "05296",
+    "05297"
+   ],
+   "n": 1,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 551,
+     "y": 411
+    }
+   ],
+   "rest": "pile",
+   "restPile": "random_locations"
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "05294",
+    "05295"
+   ],
+   "n": 1,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 737,
+     "y": 411
+    }
+   ],
+   "rest": "pile",
+   "restPile": "random_locations",
+   "slot": "southside",
+   "reveal": true
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "05290",
+    "05291"
+   ],
+   "n": 1,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 923,
+     "y": 411
+    }
+   ],
+   "rest": "pile",
+   "restPile": "random_locations"
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "05298",
+    "05299"
+   ],
+   "n": 1,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 737,
+     "y": 649
+    }
+   ],
+   "rest": "pile",
+   "restPile": "random_locations"
+  },
+  {
+   "op": "log",
+   "text": "Merchant District, Rivertown, Uptown, Southside, French Hill et South Church : une des deux versions de chacun a été tirée au hasard et mise en jeu selon le diagramme ; Southside est révélé, chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "minis",
+   "code": "slot:southside"
+  },
+  {
+   "op": "branch",
+   "on": "outcome",
+   "cases": {
+    "anette": [
+     {
+      "op": "remove",
+      "codes": [
+       "05288a",
+       "05289",
+       "05309",
+       "05310",
+       "05095",
+       "05096",
+       "05097",
+       "01163",
+       "01164",
+       "01165",
+       "01135",
+       "01136"
+      ],
+      "log": "Anette Mason possédée : les sets Music of the Damned, Anette's Coven, City of Sins et Witchcraft rejoignent la rencontre ; l'acte 1 « Dark Knowledge (v. I) » et l'acte 2 « Beyond the Grave » sont utilisés ; l'autre version des actes, Secrets of the Universe, Silver Twilight Lodge, Striking Fear et les traîtrises de The Midnight Masks sont retirés de la partie."
+     },
+     {
+      "op": "place",
+      "code": "05302",
+      "zone": "board",
+      "x": 365,
+      "y": 411,
+      "log": "Hangman's Hill (Where It All Ends) est mis en jeu à gauche, non révélé."
+     },
+     {
+      "op": "place",
+      "code": "05303",
+      "zone": "board",
+      "x": 1109,
+      "y": 411,
+      "log": "Silver Twilight Lodge (Shrouded In Mystery) est mis en jeu à droite, non révélé."
+     },
+     {
+      "op": "toPile",
+      "codes": [
+       "05304",
+       "05305"
+      ],
+      "pile": "random_locations",
+      "shuffle": true,
+      "log": "Les versions non utilisées de Hangman's Hill et Silver Twilight Lodge rejoignent la pile « Lieux au hasard », qui est mélangée."
+     }
+    ],
+    "sanford": [
+     {
+      "op": "remove",
+      "codes": [
+       "05286a",
+       "05287",
+       "05311",
+       "05312",
+       "05090",
+       "05091",
+       "05098",
+       "05099",
+       "05092",
+       "05093",
+       "05094"
+      ],
+      "log": "Carl Sanford détenteur des secrets : les sets Secrets of the Universe, Silver Twilight Lodge, Striking Fear et les cinq traîtrises de The Midnight Masks rejoignent la rencontre ; l'acte 1 « Dark Knowledge (v. II) » et l'acte 2 « New World Order » sont utilisés ; l'autre version des actes, Music of the Damned, Anette's Coven, City of Sins et Witchcraft sont retirés de la partie."
+     },
+     {
+      "op": "place",
+      "code": "05305",
+      "zone": "board",
+      "x": 1109,
+      "y": 411,
+      "log": "Silver Twilight Lodge (Where It All Ends) est mis en jeu à droite, non révélé."
+     },
+     {
+      "op": "place",
+      "code": "05304",
+      "zone": "board",
+      "x": 365,
+      "y": 411,
+      "log": "Hangman's Hill (Shrouded In Mystery) est mis en jeu à gauche, non révélé."
+     },
+     {
+      "op": "toPile",
+      "codes": [
+       "05302",
+       "05303"
+      ],
+      "pile": "random_locations",
+      "shuffle": true,
+      "log": "Les versions non utilisées de Hangman's Hill et Silver Twilight Lodge rejoignent la pile « Lieux au hasard », qui est mélangée."
+     }
+    ]
+   }
+  },
+  {
+   "op": "log",
+   "text": "Pile « Lieux au hasard » : les huit versions non utilisées, mélangées ; quand une carte demande de choisir un ou plusieurs lieux au hasard, menu de la pile → « Tirer n au hasard (sans sortir) » — le nom des lieux tirés s'affiche pour tous."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "05088"
+   ],
+   "faceUp": true,
+   "log": "Piper of Azathoth est mis de côté, hors jeu."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "randomTokens",
+   "token": "resource",
+   "n": 1,
+   "picks": [
+    2,
+    2,
+    2,
+    3
+   ],
+   "rounds": [
+    1,
+    2,
+    3,
+    3
+   ],
+   "log": "Brèches initiales (jetons ressource) selon le nombre d'enquêteurs"
+  },
+  {
+   "op": "branch",
+   "on": "fate",
+   "cases": {
+    "accepted": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "tablet",
+       "tablet"
+      ],
+      "log": "Destin accepté (scénario I) : les 2 jetons Tablette de la campagne sont dans le sac."
+     }
+    ],
+    "rejected": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "elder_thing",
+       "elder_thing"
+      ],
+      "log": "Destin rejeté (scénario I) : les 2 jetons Ancien de la campagne sont dans le sac."
+     }
+    ],
+    "standalone": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "tablet",
+       "elder_thing"
+      ],
+      "log": "Partie autonome : 1 jeton Tablette et 1 jeton Ancien ajoutés au sac, comme l'indique le guide."
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "lodge",
+   "cases": {
+    "members_told": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist",
+       "cultist"
+      ],
+      "log": "Membres de la Loge et coven dévoilé : 2 jetons Cultiste de la campagne sont dans le sac."
+     }
+    ],
+    "members_hid": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist"
+      ],
+      "log": "Membres de la Loge : 1 jeton Cultiste de la campagne est dans le sac."
+     }
+    ],
+    "enemies": [
+     {
+      "op": "log",
+      "text": "Ennemis de la Loge : aucun jeton Cultiste de campagne."
+     }
+    ],
+    "nothing": [
+     {
+      "op": "log",
+      "text": "Rien appris des projets de la Loge : aucun jeton Cultiste de campagne."
+     }
+    ],
+    "gone": [
+     {
+      "op": "log",
+      "text": "Jamais revus : aucun jeton Cultiste de campagne."
+     }
+    ],
+    "standalone": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist"
+      ],
+      "log": "Partie autonome : 1 jeton Cultiste ajouté au sac, comme l'indique le guide."
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "blackbook",
+   "cases": {
+    "yes": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "skull"
+      ],
+      "log": "The Black Book dans un deck (résolution du scénario III) : 1 jeton Crâne de campagne est dans le sac."
+     }
+    ],
+    "no": [
+     {
+      "op": "log",
+      "text": "The Black Book dans aucun deck : pas de jeton Crâne supplémentaire."
+     }
+    ]
+   }
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée."
+  },
+  {
+   "when": "setup",
+   "text": "Brèches et incursions (guide) : le doom n'avance pas comme d'habitude ; des brèches — jetons ressource — se posent sur les lieux (menu du lieu → Marqueur ± pour en ajouter ou en retirer). Quand une brèche devrait se poser sur un lieu qui en a déjà trois, une incursion s'y produit : on retire ses brèches, on y pose 1 doom, puis 1 brèche sur chaque lieu relié — cela peut s'enchaîner ; un lieu déjà touché par une incursion n'en reçoit plus des autres pendant le reste de la manche. Les chemins dessinés entre lieux aident à voir les lieux reliés."
+  },
+  {
+   "when": "setup",
+   "text": "Choisir un lieu au hasard (guide) : menu de la pile « Lieux au hasard » → « Tirer 1, 2 ou 3 au hasard (sans sortir) » ; le résultat s'affiche pour tout le monde. Piper of Azathoth attend dans la zone de côté."
+  },
+  {
+   "when": "act:2",
+   "text": "Acte 2 : le verso de l'acte 1 est un ennemi — clic droit sur l'acte → « Retourner (lire le verso) », puis glissez-le sur le lieu indiqué avant d'avancer ; l'acte suivant sort et l'ennemi reste en jeu."
+  },
+  {
+   "when": "mythos",
+   "text": "Phase du Mythe de ce scénario : pas de doom automatique sur l'agenda — à la place, l'agenda demande des brèches sur des lieux tirés au hasard (menu de la pile « Lieux au hasard » → « Tirer n au hasard », puis Marqueur + sur chaque lieu nommé). Chaque enquêteur pioche ensuite une carte rencontre et la résout."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-04",
+ "encounterSetNames": {
+  "in_the_clutches_of_chaos": "In the Clutches of Chaos",
+  "music_of_the_damned": "Music of the Damned",
+  "secrets_of_the_universe": "Secrets of the Universe",
+  "agents_of_azathoth": "Agents of Azathoth",
+  "anettes_coven": "Anette's Coven",
+  "witchcraft": "Witchcraft",
+  "silver_twilight_lodge": "Silver Twilight Lodge",
+  "city_of_sins": "City of Sins",
+  "striking_fear": "Striking Fear",
+  "nightgaunts": "Nightgaunts"
+ },
+ "cards": [
+  {
+   "code": "01135",
+   "name": "Hunting Shadow",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "arkham",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "01136",
+   "name": "False Lead",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "arkham",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01163",
+   "name": "Rotting Remains",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "striking_fear",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "01164",
+   "name": "Frozen in Fear",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "striking_fear",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "01165",
+   "name": "Dissonant Voices",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "striking_fear",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "01172",
+   "name": "Hunting Nightgaunt",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "nightgaunts",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Nightgaunt"
+   ],
+   "health": 4
+  },
+  {
+   "code": "01173",
+   "name": "On Wings of Darkness",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "nightgaunts",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "05088",
+   "name": "Piper of Azathoth",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "agents_of_azathoth",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Elite"
+   ],
+   "health": 7,
+   "victory": 2
+  },
+  {
+   "code": "05089",
+   "name": "Daemonic Piping",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "agents_of_azathoth",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power",
+    "Terror"
+   ]
+  },
+  {
+   "code": "05090",
+   "name": "Coven Initiate",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "anettes_coven",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Witch"
+   ],
+   "health": 2
+  },
+  {
+   "code": "05091",
+   "name": "Priestess of the Coven",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "anettes_coven",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Witch"
+   ],
+   "health": 3
+  },
+  {
+   "code": "05092",
+   "name": "Diabolic Voices",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "witchcraft",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "05093",
+   "name": "Wracked",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "witchcraft",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  },
+  {
+   "code": "05094",
+   "name": "Bedeviled",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "witchcraft",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  },
+  {
+   "code": "05095",
+   "name": "Lodge Neophyte",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "silver_twilight_lodge",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist",
+    "Silver Twilight"
+   ],
+   "health": 1
+  },
+  {
+   "code": "05096",
+   "name": "Keeper of Secrets",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "silver_twilight_lodge",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist",
+    "Silver Twilight"
+   ],
+   "health": 2
+  },
+  {
+   "code": "05097",
+   "name": "Mysteries of the Lodge",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "silver_twilight_lodge",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "05098",
+   "name": "Evil Past",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "city_of_sins",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "05099",
+   "name": "Centuries of Secrets",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "city_of_sins",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "05284",
+   "name": "In the Clutches of Chaos",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "05285",
+   "name": "THE CHARIOT · VII",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "backName": "The Final Incantation",
+   "doom": 7,
+   "stage": 1
+  },
+  {
+   "code": "05286a",
+   "name": "Dark Knowledge (v. I)",
+   "kind": "act",
+   "qty": 1,
+   "set": "music_of_the_damned",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "backCode": "05286b",
+   "backKind": "enemy",
+   "backName": "Anette Mason",
+   "backSubname": "Reincarnated Evil",
+   "backHealth": 6,
+   "backHealthPerInvestigator": true,
+   "backVictory": 2,
+   "stage": 1
+  },
+  {
+   "code": "05287",
+   "name": "Beyond the Grave",
+   "kind": "act",
+   "qty": 1,
+   "set": "music_of_the_damned",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "The Living and the Dead",
+   "stage": 2
+  },
+  {
+   "code": "05288a",
+   "name": "Dark Knowledge (v. II)",
+   "kind": "act",
+   "qty": 1,
+   "set": "secrets_of_the_universe",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "backCode": "05288b",
+   "backKind": "enemy",
+   "backName": "Carl Sanford",
+   "backSubname": "Deathless Fanatic",
+   "backHealth": 6,
+   "backHealthPerInvestigator": true,
+   "backVictory": 2,
+   "stage": 1
+  },
+  {
+   "code": "05289",
+   "name": "New World Order",
+   "kind": "act",
+   "qty": 1,
+   "set": "secrets_of_the_universe",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Of Gods and Mortals",
+   "stage": 2
+  },
+  {
+   "code": "05290",
+   "name": "French Hill",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05291",
+   "name": "French Hill",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05292",
+   "name": "Rivertown",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05293",
+   "name": "Rivertown",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05294",
+   "name": "Southside",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham",
+    "Central"
+   ]
+  },
+  {
+   "code": "05295",
+   "name": "Southside",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham",
+    "Central"
+   ]
+  },
+  {
+   "code": "05296",
+   "name": "Uptown",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05297",
+   "name": "Uptown",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05298",
+   "name": "South Church",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05299",
+   "name": "South Church",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05300",
+   "name": "Merchant District",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05301",
+   "name": "Merchant District",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_the_clutches_of_chaos",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05302",
+   "name": "Hangman's Hill",
+   "kind": "location",
+   "qty": 1,
+   "set": "music_of_the_damned",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "subname": "Where It All Ends",
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05303",
+   "name": "Silver Twilight Lodge",
+   "kind": "location",
+   "qty": 1,
+   "set": "music_of_the_damned",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "Shrouded In Mystery",
+   "traits": [
+    "Arkham"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "05304",
+   "name": "Hangman's Hill",
+   "kind": "location",
+   "qty": 1,
+   "set": "secrets_of_the_universe",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "Shrouded In Mystery",
+   "traits": [
+    "Arkham"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "05305",
+   "name": "Silver Twilight Lodge",
+   "kind": "location",
+   "qty": 1,
+   "set": "secrets_of_the_universe",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "subname": "Where It All Ends",
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "05306",
+   "name": "Chaos Manifest",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "in_the_clutches_of_chaos",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power"
+   ]
+  },
+  {
+   "code": "05307",
+   "name": "Primordial Gateway",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "in_the_clutches_of_chaos",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power"
+   ]
+  },
+  {
+   "code": "05308",
+   "name": "Terror Unleashed",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "in_the_clutches_of_chaos",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "05309",
+   "name": "Lodge Enforcer",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "secrets_of_the_universe",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist",
+    "Silver Twilight"
+   ],
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "05310",
+   "name": "Secrets of the Beyond",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "secrets_of_the_universe",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  },
+  {
+   "code": "05311",
+   "name": "Witness of Chaos",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "music_of_the_damned",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Witch"
+   ],
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "05312",
+   "name": "Toil and Trouble",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "music_of_the_damned",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  }
+ ]
+}

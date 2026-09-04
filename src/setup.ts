@@ -221,7 +221,12 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         const choix = shuffle([...step.from], rng).slice(0, n);
         const noms = choix.map((c) => pool.def(c).name);
         const restes = step.from.filter((code) => !choix.includes(code));
-        if (step.rest === "aside") {
+        if (step.rest === "pile") {
+          // Les cartes non tirées forment (ou rejoignent) une pile, ex. lieux pour « choisir un lieu au hasard ».
+          const pile = step.restPile ?? "rest";
+          if (!(pile in state.piles)) state.piles[pile] = [];
+          for (const code of restes) for (const id of pool.takeAll(code)) { state.cards[id] = newCard(pool, code, id, { pile }, false); state.piles[pile].push(id); }
+        } else if (step.rest === "aside") {
           // Les cartes non tirées sont mises de côté, hors jeu (face cachée), au lieu d'être retirées.
           const deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
           restes.forEach((code, i) => {
@@ -261,6 +266,21 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
           agenda.tokens.doom = (agenda.tokens.doom ?? 0) + n;
           addLog(state, "setup", step.log ? `${step.log} ${n} doom placé${n > 1 ? "s" : ""} sur l'agenda de départ.` : `${n} doom placé${n > 1 ? "s" : ""} sur l'agenda de départ.`);
         } else if (step.nFrom !== undefined) addLog(state, "setup", `${step.log ?? "Doom selon le journal :"} aucun.`);
+        break;
+      }
+      case "randomTokens": {
+        // Brèches et semblables : à chaque manche, des lieux distincts du tapis tirés au hasard reçoivent des jetons.
+        const idx = Math.min(Math.max(state.playerCount, 1), 4) - 1;
+        const manches = step.rounds[idx] ?? step.rounds[step.rounds.length - 1];
+        const parManche = step.picks[idx] ?? step.picks[step.picks.length - 1];
+        const lieux = Object.values(state.cards).filter((c) => c.kind === "location" && "zone" in c.loc && c.loc.zone === "board");
+        const bilan: string[] = [];
+        for (let m = 0; m < manches; m++) {
+          const choisis = shuffle([...lieux], rng).slice(0, parManche);
+          for (const l of choisis) l.tokens[step.token] = (l.tokens[step.token] ?? 0) + (step.n ?? 1);
+          bilan.push(choisis.map((l) => nomVisible(def, l)).join(" + "));
+        }
+        addLog(state, "setup", `${step.log ?? `Jetons ${step.token} posés au hasard`} : ${manches} tirage${manches > 1 ? "s" : ""} de ${parManche} lieux — ${bilan.join(" ; ")}.`);
         break;
       }
       case "addTokens": {

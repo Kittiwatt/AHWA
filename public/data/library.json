@@ -80,7 +80,7 @@
         { "id": "tcu_wages_of_sin", "num": "IV", "title": "The Wages of Sin", "status": "available" },
         { "id": "tcu_for_the_greater_good", "num": "V", "title": "For the Greater Good", "status": "available" },
         { "id": "tcu_union_and_disillusion", "num": "VI", "title": "Union and Disillusion", "status": "available" },
-        { "id": "tcu_in_the_clutches_of_chaos", "num": "VII", "title": "In the Clutches of Chaos", "status": "planned" },
+        { "id": "tcu_in_the_clutches_of_chaos", "num": "VII", "title": "In the Clutches of Chaos", "status": "available" },
         { "id": "tcu_before_the_black_throne", "num": "VIII", "title": "Before the Black Throne", "status": "planned" }
       ]
     },
