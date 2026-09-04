@@ -162,7 +162,7 @@ with sync_playwright() as p:
     alice.wait_for_timeout(300)
     assert alice.locator("#pioches .pioche-rencontre.revelee .carte").count() == 1, "toujours la même carte révélée"
     assert alice.locator("#sieges .siege").nth(0).locator(".menace .carte").count() == 1, "rien n'est parti en zone de menace"
-    alice.locator("#pioches .pile").nth(0).click(button="right")
+    alice.locator("#pioches .pile").nth(0).dispatch_event("contextmenu")  # sur la pile elle-même (la carte révélée dessus a son propre menu)
     alice.wait_for_selector(".menu-carte")
     assert alice.locator(".menu-carte").get_by_role("button", name="Piocher (retourner la première carte)").is_disabled()
     alice.keyboard.press("Escape")
@@ -173,7 +173,7 @@ with sync_playwright() as p:
     alice.wait_for_timeout(400)
     assert alice.locator("#pioches .pioche-rencontre.revelee").count() == 0
     assert alice.evaluate("[...document.querySelectorAll('#pioches .pioche-rencontre .carte')].length") == 0, "aucune carte révélée ne reste sur la pioche"
-    alice.locator("#pioches .pile").nth(1).click(button="right")
+    alice.locator("#pioches .pile").nth(1).dispatch_event("contextmenu")  # la défausse elle-même (sa carte du dessus a son propre menu)
     alice.wait_for_selector(".menu-carte")
     alice.locator(".menu-carte").get_by_role("button", name="Remélanger dans la pioche").click()
     alice.wait_for_timeout(400)
@@ -241,7 +241,7 @@ with sync_playwright() as p:
     alice.wait_for_timeout(400)
     assert alice.locator("#pioches .pile").nth(1).locator(".badge").inner_text() == "2", "défausse : 2 (dépôt sur le bloc)"
     assert alice.locator("#pioches .defausse-rencontre .carte").count() == 1, "la carte du dessus de la défausse est visible"
-    alice.locator("#pioches .pile").nth(1).click(button="right")
+    alice.locator("#pioches .pile").nth(1).dispatch_event("contextmenu")  # la défausse elle-même (sa carte du dessus a son propre menu)
     alice.wait_for_selector(".menu-carte")
     alice.locator(".menu-carte").get_by_role("button", name="Consulter").click()
     alice.wait_for_selector("dialog.dialogue[open]")
@@ -505,6 +505,55 @@ with sync_playwright() as p:
     assert src_tire.endswith("b.webp") and alt_tire == "Unknown Places", f"tirage : {src_tire} / {alt_tire}"
     h6.wait_for_load_state("networkidle"); h6.wait_for_timeout(600)
     h6.screenshot(path=f"{OUT}/31_secret_unknown_places_tire.png")
+
+    # ---- The Wages of Sin (TCU IV) : lieux à deux faces, deux pioches avec défausses, hérétiques en pile ----
+    code7, token7 = creer("tcu_wages_of_sin")
+    print("room Wages", code7)
+    h7 = page_pour(browser, "Hôte", host=True, code=code7, token=token7)
+    h7.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h7.get_by_role("button", name="Choisir un enquêteur").click(); h7.wait_for_selector("dialog.dialogue-inv[open]")
+    h7.fill("dialog .recherche", "zoey"); h7.wait_for_timeout(300); h7.locator("dialog .inv").first.click()
+    h7.wait_for_selector(".siege-lobby.moi .fiche")
+    j7 = page_pour(browser, "Bob", code=code7, token=None)
+    j7.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j7.get_by_role("button", name="Choisir un enquêteur").click(); j7.wait_for_selector("dialog.dialogue-inv[open]")
+    j7.fill("dialog .recherche", "rex"); j7.wait_for_timeout(300); j7.locator("dialog .inv").first.click()
+    j7.wait_for_selector(".siege-lobby.moi .fiche")
+    h7.wait_for_timeout(400)
+    h7.locator("input[name='q-fate'][value='accepted']").check()
+    h7.locator("input[name='q-lodge'][value='members_hid']").check()
+    h7.locator("input[name='q-blackbook'][value='no']").check()
+    h7.wait_for_timeout(200)
+    h7.locator(".reglage.questions").screenshot(path=f"{OUT}/32_wages_lobby_questions.png")
+    h7.get_by_role("button", name="Lancer la mise en place").click()
+    h7.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h7.wait_for_load_state("networkidle"); h7.wait_for_timeout(1500)
+    assert h7.locator("#plateau .carte.kind-location").count() == 7, "7 lieux"
+    assert h7.locator("#plateau .carte.kind-location.retournee").count() == 0, "tous révélés"
+    assert h7.locator("#pioches .pile[data-outil='pile:spectral'] .badge").inner_text() == "20", "pioche spectrale 20"
+    assert h7.locator("#pioches .pile[data-outil='pile:spectral_discard'] .badge").inner_text() == "0", "défausse spectrale vide"
+    assert h7.locator("#pioches .pile[data-outil='pile:heretics'] .badge").inner_text() == "4", "4 hérétiques"
+    assert h7.locator("#chaos .sac-forme").inner_text().strip() == "16", "sac 13 + 2 + 1"
+    h7.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h7.screenshot(path=f"{OUT}/33_wages_tapis.png")
+    # Menu d'un lieu : « Autre face (Spectral) », pas de « Retourner ».
+    h7.locator("#plateau .carte.kind-location").first.click(button="right"); h7.wait_for_selector(".menu-carte")
+    assert h7.locator(".menu-carte").get_by_role("button", name="Autre face (Spectral)").count() == 1, "menu : autre face"
+    assert h7.locator(".menu-carte").get_by_role("button", name="Retourner", exact=True).count() == 0, "pas de retournement"
+    h7.locator(".menu-carte").get_by_role("button", name="Autre face (Spectral)").click()
+    h7.wait_for_load_state("networkidle"); h7.wait_for_timeout(800)
+    # Tirer de la pioche spectrale, menu de la carte : défausse spectrale.
+    h7.locator("#pioches .pile[data-outil='pile:spectral'] .dos-bouton").click()
+    h7.wait_for_selector("#pioches .pile[data-outil='pile:spectral'] .revelee .carte")
+    h7.locator("#pioches .pile[data-outil='pile:spectral'] .revelee .carte").click(button="right"); h7.wait_for_selector(".menu-carte")
+    assert h7.locator(".menu-carte").get_by_role("button", name="Défausser (Défausse spectrale)").count() == 1, "menu : défausse spectrale"
+    assert h7.locator(".menu-carte").get_by_role("button", name="Mélanger dans Pioche spectrale").count() == 1, "menu : pioche spectrale"
+    h7.screenshot(path=f"{OUT}/34_wages_menu_carte_spectrale.png")
+    h7.locator(".menu-carte").get_by_role("button", name="Défausser (Défausse spectrale)").click()
+    h7.wait_for_timeout(500)
+    assert h7.locator("#pioches .pile[data-outil='pile:spectral_discard'] .badge").inner_text() == "1", "défausse spectrale 1"
+    h7.wait_for_load_state("networkidle"); h7.wait_for_timeout(600)
+    h7.screenshot(path=f"{OUT}/35_wages_piles.png")
     browser.close()
 
 if erreurs:

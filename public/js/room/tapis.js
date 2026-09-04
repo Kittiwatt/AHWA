@@ -328,14 +328,23 @@ function rendrePioches(ctx) {
     el("div", { class: "pile", "data-drop": "pile:encounterDiscard", "data-outil": "defausse", title: "Déposez ici pour défausser. Clic droit : consulter, remélanger dans la pioche." },
       el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteEl(dessus, ctx) : el("span", { class: "sous", text: "défausse" })),
       el("span", { class: "badge", text: String(defausse.length) })),
-    // Piles déclarées par le scénario (ex. « Cultist deck ») : mêmes gestes que la pioche.
+    // Piles déclarées par le scénario (ex. « Cultist deck ») : mêmes gestes que la pioche. Une seconde pioche de
+    // rencontre peut avoir sa défausse (pile `isDiscard`), rendue comme la défausse principale.
     ...(ctx.scenario.piles ?? []).map((p) => {
       const ids = state.piles[p.id] ?? [];
       const haut = ids.length ? state.cards[ids[0]] : null;
+      if (p.isDiscard) {
+        return el("div", { class: "pile", "data-drop": `pile:${p.id}`, "data-outil": `pile:${p.id}`, title: `${p.label} — déposez ici pour défausser. Clic droit : consulter, remélanger.` },
+          el("div", { class: `dos-pile defausse-rencontre${haut ? "" : " vide"}` }, haut ? carteEl(haut, ctx) : el("span", { class: "sous", text: "défausse" })),
+          el("span", { class: "badge", text: String(ids.length) }),
+          el("span", { class: "etiquette-pile", text: p.label }));
+      }
+      const defausse = p.discard ? (state.piles[p.discard] ?? []) : [];
       return el("div", { class: "pile", "data-drop": `pile:${p.id}`, "data-outil": `pile:${p.id}`, title: `${p.label} — clic : retourner la première carte ; clic droit : chercher, mélanger.` },
         el("div", { class: `dos-pile pile-scenario${ids.length ? "" : " vide"}${haut?.faceUp ? " revelee" : ""}` },
           haut?.faceUp ? carteEl(haut, ctx)
             : ids.length ? el("button", { class: "dos-bouton", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "drawEncounter", pile: p.id }) }, el("img", { src: "/img/dos-rencontre.svg", alt: p.label }))
+            : defausse.length ? el("button", { class: "dos-bouton vide", type: "button", disabled: !peut, title: "Pioche vide : clic pour remélanger sa défausse et piocher", onclick: () => ctx.envoyer({ t: "drawEncounter", pile: p.id }) }, el("span", { class: "sous", text: "vide" }))
             : el("span", { class: "sous", text: "vide" })),
         el("span", { class: "badge", text: String(ids.length) }),
         el("span", { class: "etiquette-pile", text: p.label }));

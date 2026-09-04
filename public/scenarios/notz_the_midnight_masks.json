@@ -420,6 +420,12 @@
    "set": "torch",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Ghoul",
+    "Elite"
+   ],
    "health": 5,
    "healthPerInvestigator": true,
    "victory": 2
@@ -487,7 +493,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Arkham"
+   ]
   },
   {
    "code": "01125",
@@ -500,7 +509,11 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Arkham",
+    "Central"
+   ]
   },
   {
    "code": "01126",
@@ -513,7 +526,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Arkham"
+   ]
   },
   {
    "code": "01127",
@@ -526,7 +542,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Arkham"
+   ]
   },
   {
    "code": "01128",
@@ -539,7 +558,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Arkham"
+   ]
   },
   {
    "code": "01129",
@@ -553,6 +575,9 @@
     "value": 2,
     "perInvestigator": true
    },
+   "traits": [
+    "Arkham"
+   ],
    "victory": 1
   },
   {
@@ -566,7 +591,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Arkham"
+   ]
   },
   {
    "code": "01131",
@@ -580,6 +608,9 @@
     "value": 2,
     "perInvestigator": true
    },
+   "traits": [
+    "Arkham"
+   ],
    "victory": 1
   },
   {
@@ -593,7 +624,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Arkham"
+   ]
   },
   {
    "code": "01133",
@@ -607,6 +641,9 @@
     "value": 2,
     "perInvestigator": true
    },
+   "traits": [
+    "Arkham"
+   ],
    "victory": 1
   },
   {
@@ -621,6 +658,9 @@
     "value": 2,
     "perInvestigator": true
    },
+   "traits": [
+    "Arkham"
+   ],
    "victory": 1
   },
   {
@@ -630,7 +670,10 @@
    "qty": 3,
    "set": "arkham",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
   },
   {
    "code": "01136",
@@ -649,6 +692,10 @@
    "set": "cultists",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
    "health": 4,
    "victory": 1
   },
@@ -660,6 +707,10 @@
    "set": "cultists",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
    "health": 4,
    "victory": 1
   },
@@ -671,6 +722,10 @@
    "set": "cultists",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
    "health": 3,
    "victory": 1
   },
@@ -682,6 +737,10 @@
    "set": "cultists",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
    "health": 3,
    "victory": 1
   },
@@ -693,6 +752,10 @@
    "set": "cultists",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
    "health": 4,
    "victory": 1
   },
@@ -703,7 +766,10 @@
    "qty": 2,
    "set": "chilling_cold",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
   },
   {
    "code": "01168",
@@ -712,7 +778,10 @@
    "qty": 2,
    "set": "chilling_cold",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
   },
   {
    "code": "01169",
@@ -722,6 +791,10 @@
    "set": "pentagram",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
    "health": 1
   },
   {
@@ -732,6 +805,10 @@
    "set": "pentagram",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
    "health": 2
   },
   {
@@ -741,7 +818,10 @@
    "qty": 2,
    "set": "pentagram",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
   },
   {
    "code": "01172",
@@ -751,6 +831,10 @@
    "set": "nightgaunts",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Monster",
+    "Nightgaunt"
+   ],
    "health": 4
   },
   {
@@ -769,7 +853,10 @@
    "qty": 2,
    "set": "locked_doors",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Obstacle"
+   ]
   }
  ]
 }

@@ -17,6 +17,37 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-04 : **The Wages of Sin (TCU IV) livré** (pile « Hérétiques »
+  et défausse par trait validées par l'utilisateur). Guide p. 19‑20 :
+  sept lieux selon le diagramme (Gallows / Chapel Attic en haut,
+  Heretics' Graves / Haunted Fields / Abandoned Chapel / Chapel Crypt au
+  milieu, Hangman's Brook en bas avec les pions) ; **une version sur
+  deux** tirée au hasard pour quatre d'entre eux (`pickRandom` avec
+  `reveal`, l'autre retirée), tous posés révélés face normale avec
+  indices. Chez ArkhamDB ces lieux (05166‑76) sont des **cartes liées**
+  dont le verso est la version Spectral (`<code>b`) : menu « Autre face
+  (Spectral) » (`toggleSide`, sans révélation ni indices), « Retourner »
+  masqué pour ces cartes. **Deux pioches de rencontre** : le build
+  exporte `traits`, `buildEncounter {split}` scinde par trait (pioche
+  spectrale 20, standard 24), `piles` déclare pioche + défausse
+  (`discard`/`isDiscard`/`trait`), serveur (`defausseDe`, `estDefausse`,
+  `remelangerDefausse` généralisé, `reshuffleDiscard {deck}`, tirage
+  refusé sur une défausse, remélange automatique de la défausse
+  spectrale quand sa pioche se vide) et client (rendu de la défausse
+  déclarée, menus « Défausser (Défausse spectrale) » / « Sur / Sous /
+  Mélanger dans Pioche spectrale » choisis d'après les traits, glisser
+  libre). **Heretics** 05178a/c/e/g/i/k (codes à lettre, verso
+  05178b… = carte histoire, `storyBack`) : quatre tirés au hasard
+  (`pickRandom` sans zone, avec `log`), deux retirés, pile
+  « Hérétiques » mélangée (clic = tirer côté ennemi, côté histoire par
+  le menu). Spectral Web ×4 et The Watcher de côté face visible.
+  Questions : introduction du scénario I, Loge (+ « partie autonome » :
+  1 cultiste, sac autonome p. 19 vérifié = tablette + ancien +
+  cultiste), **The Black Book** (résolution du III : +1 Crâne, icône
+  vérifiée). Pack ArkhamDB **`wos`** (pas `twos`). Clic droit sur la
+  carte révélée d'une pile → menu de la carte (captures NotZ adaptées :
+  `dispatch_event("contextmenu")` sur la pile). Tests : 211 messages,
+  sept scénarios ; captures 32‑35. Régression au vert.
 - 2026-09-04 : **The Secret Name (TCU III) livré** (question unique de
   la Loge validée par l'utilisateur, le reste laissé à Claude). Guide
   p. 17 : Walter Gilman's Room en haut (non révélé), Moldy Halls au
@@ -332,16 +363,14 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : retours de l'utilisateur sur les trois tables
-  TCU (choix faits par Claude : rangées par enquêteur, piles Arkham
-  Woods / Unknown Places, sets de côté face visible, verso-lieu
-  automatique, questions « Missing Persons » + numérique, lieux qui se
-  remplacent par le menu, portes au nom de verso), puis TCU IV The
-  Wages of Sin (pack `twos`) ou le prologue. Jetons de campagne :
-  reportés jusqu'ici par les questions d'introduction et de la Loge ;
-  vérifier à chaque scénario les ajouts des résolutions précédentes
-  (TCU III : The Black Book ajouté à un deck en résolution → 1 jeton,
-  à demander au lobby de TCU IV). À faire au fil de
+- **Prochaine étape** : retours de l'utilisateur sur les quatre tables
+  TCU, puis TCU V For the Greater Good (pack `fgg` ; intro selon la
+  Loge ; vérifier les jetons ajoutés par la résolution du IV) ou le
+  prologue. Jetons de campagne : reportés par les questions
+  d'introduction, de la Loge et de The Black Book ; à chaque nouveau
+  scénario, relire les résolutions précédentes pour les ajouts.
+  Chantier possible : un compteur de doom / une ligne de journal par
+  pioche pour les scénarios à deux pioches. À faire au fil de
   l'eau : étiquette de rangée sur le tapis (« devant X »), pincer pour
   zoomer sur tablette, chemins pré-tracés depuis les connexions
   imprimées, hook `onChaosDraw` (jetons scellés), pioches multiples
@@ -750,6 +779,18 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
 - Le test `test_room.mjs` utilise un scénario **hors registre** pour
   vérifier le refus 400 : le changer quand ce scénario est livré (fait
   pour `tcu_witching_hour` → `tcu_prologue`).
+- Codes ArkhamDB des packs Mythos de TCU : `tsn`, **`wos`** (et non
+  `twos`), `fgg`, `uad`, `icc`, `bbt` (`GET /api/public/packs/`).
+- Codes à lettre (05178a…k) : la CDN a bien `05178a.webp` et le verso
+  `05178b.webp` ; le build les traite comme des cartes liées (`back:
+  "b"`, `backCode`), et `storyBack` protège le dos.
+- Les lieux « à deux faces révélées » d'ArkhamDB sont des cartes liées
+  (`linked_card` de type location) : `backClue` vaut 0, et le clic droit
+  ne doit pas proposer « Retourner » (face cachée = image du verso,
+  trompeuse).
+- Un clic droit sur la carte révélée d'une pile ouvre le menu de la
+  carte ; pour viser la pile dans Playwright, `dispatch_event
+  ("contextmenu")` sur l'élément de la pile.
 - Lieux dont le dos cache l'identité (Decrepit Door, Unknown Places) :
   c'est `back_name` d'ArkhamDB ; sans `nomVisible`/`faceVisible`, le
   journal (« X est mis en jeu ») et l'attribut `alt` dévoilaient la

@@ -178,9 +178,10 @@ export function initInteractions(ctx) {
 
   // ---- Menu contextuel ----
   document.addEventListener("contextmenu", (e) => {
-    const outil = e.target.closest("[data-outil]");
-    if (outil) { e.preventDefault(); ouvrirMenuOutil(outil.dataset.outil, e.clientX, e.clientY); return; }
     const elem = e.target.closest(".carte, .mini");
+    // Une carte révélée sur une pile a son propre menu (défausser, mélanger…) ; ailleurs sur la pile, le menu de la pile.
+    const outil = e.target.closest("[data-outil]");
+    if (outil && !(elem && carteDe(elem))) { e.preventDefault(); ouvrirMenuOutil(outil.dataset.outil, e.clientX, e.clientY); return; }
     if (!elem || elem.closest("dialog, .loupe") || !carteDe(elem)) return;
     e.preventDefault();
     if (lien || Date.now() < ignorerMenuAvant) return; // clic droit sur un lieu : géré au pointerup (tracé ou menu)
@@ -221,9 +222,17 @@ export function initInteractions(ctx) {
       const ids = state.piles[id] ?? [];
       const haut = ids.length ? state.cards[ids[0]] : null;
       items.push(el("p", { class: "titre-menu", text: `${def?.label ?? id} — ${ids.length}` }));
-      items.push(item("Piocher (retourner la première carte)", () => ctx.envoyer({ t: "drawEncounter", pile: id }), { off: Boolean(haut?.faceUp) || !ids.length }));
-      items.push(item("Chercher (puis mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
-      items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: id }), { off: !ids.length }));
+      if (def?.isDiscard) {
+        // Défausse d'une seconde pioche : consulter, remélanger dans sa pioche.
+        const pioche = ctx.scenario.piles?.find((p) => p.discard === id);
+        items.push(item("Consulter", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
+        if (pioche) items.push(item(`Remélanger dans ${pioche.label}`, () => { if (confirm(`Remélanger les ${ids.length} cartes de ${def.label} dans ${pioche.label} ?`)) ctx.envoyer({ t: "reshuffleDiscard", deck: pioche.id }); }, { off: !ids.length }));
+      } else {
+        const defausse = def?.discard ? (state.piles[def.discard] ?? []) : [];
+        items.push(item("Piocher (retourner la première carte)", () => ctx.envoyer({ t: "drawEncounter", pile: id }), { off: Boolean(haut?.faceUp) || (!ids.length && !defausse.length) }));
+        items.push(item("Chercher (puis mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
+        items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: id }), { off: !ids.length }));
+      }
     } else if (outil === "sac") {
       items.push(el("p", { class: "titre-menu", text: `Sac du chaos — ${state.chaos.bag.length} jetons` }));
       items.push(item("Tirer un jeton", () => ctx.envoyer({ t: "chaosDraw" }), { off: !state.chaos.bag.length }));
@@ -291,7 +300,10 @@ export function initInteractions(ctx) {
         items.push(item("Retirer tous les indices des lieux", () => { if (confirm("Retirer tous les indices de tous les lieux en jeu ?")) ctx.envoyer({ t: "clearClues" }); }));
         items.push(item("Retirer de la partie tous les autres lieux", () => { if (confirm(`Retirer de la partie tous les lieux du tapis sauf ${nom} ?`)) ctx.envoyer({ t: "removeLocations", keep: carte.id }); }));
       }
-      if (!carte.storyBack && carte.kind !== "investigator") items.push(item("Retourner", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
+      // Lieu dont les deux faces sont des faces révélées (verso = lieu lié, ex. face Spectral) : on bascule, on ne retourne pas.
+      const deuxFaces = carte.kind === "location" && def?.backCode && def?.backKind === "location";
+      if (deuxFaces && carte.faceUp) items.push(item(carte.side === "b" ? `Face ${def.name === def.backName ? "normale" : def.name}` : `Autre face (${def.backName === def.name ? "Spectral" : def.backName})`, () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
+      if (!carte.storyBack && carte.kind !== "investigator" && !deuxFaces) items.push(item("Retourner", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
       if (carte.kind === "scenario" || carte.kind === "story") items.push(item("Autre face", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
       // Dos « histoire » : lisible seulement sur demande explicite (une carte l'indique), jamais par retournement.
       if (carte.storyBack && carte.faceUp && def?.back === "b") items.push(item(carte.side === "b" ? "Revenir au recto" : "Lire le côté histoire (quand une carte l'indique)", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
@@ -301,10 +313,16 @@ export function initInteractions(ctx) {
         : ["damage", "horror", "doom", "clue", "generic"];
       for (const t of jetons) items.push(jeton(t));
       if (rencontre) {
-        items.push(item("Défausser", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "encounterDiscard" })));
-        items.push(item("Sur la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "encounter", top: true })));
-        items.push(item("Sous la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "encounter", top: false })));
-        items.push(item("Mélanger dans la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "encounter", shuffle: true })));
+        // Seconde pioche de rencontre par trait (The Wages of Sin : les cartes Spectral vont dans la pioche et la
+        // défausse spectrales) : la pioche et la défausse visées suivent les traits de la carte.
+        const piocheTrait = (ctx.scenario.piles ?? []).find((p) => p.trait && !p.isDiscard && def?.traits?.includes(p.trait));
+        const pioche = piocheTrait?.id ?? "encounter";
+        const defausse = piocheTrait?.discard ?? "encounterDiscard";
+        const nomPioche = piocheTrait ? piocheTrait.label : "la pioche";
+        items.push(item(piocheTrait ? `Défausser (${ctx.scenario.piles.find((p) => p.id === defausse)?.label ?? "défausse"})` : "Défausser", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: defausse })));
+        items.push(item(`Sur ${nomPioche}`, () => ctx.envoyer({ t: "toPile", id: carte.id, pile: pioche, top: true })));
+        items.push(item(`Sous ${nomPioche}`, () => ctx.envoyer({ t: "toPile", id: carte.id, pile: pioche, top: false })));
+        items.push(item(`Mélanger dans ${nomPioche}`, () => ctx.envoyer({ t: "toPile", id: carte.id, pile: pioche, shuffle: true })));
       }
       if (carte.kind !== "investigator" && carte.kind !== "agenda" && carte.kind !== "act" && carte.kind !== "scenario") {
         if (carte.loc.zone !== "victory") items.push(item("Zone de victoire", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "victory", x: 9999, y: 0 })));

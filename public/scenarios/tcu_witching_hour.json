@@ -289,7 +289,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01151",
@@ -302,7 +305,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01152",
@@ -315,7 +321,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01153",
@@ -328,7 +337,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01154",
@@ -341,7 +353,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01155",
@@ -354,7 +369,10 @@
    "clue": {
     "value": 0,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01163",
@@ -363,7 +381,10 @@
    "qty": 3,
    "set": "striking_fear",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
   },
   {
    "code": "01164",
@@ -372,7 +393,10 @@
    "qty": 2,
    "set": "striking_fear",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
   },
   {
    "code": "01165",
@@ -381,7 +405,10 @@
    "qty": 2,
    "set": "striking_fear",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
   },
   {
    "code": "01166",
@@ -390,7 +417,10 @@
    "qty": 3,
    "set": "ancient_evils",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
   },
   {
    "code": "01179",
@@ -400,6 +430,10 @@
    "set": "agents_of_shub",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Monster",
+    "Dark Young"
+   ],
    "health": 5,
    "victory": 1
   },
@@ -411,6 +445,10 @@
    "set": "agents_of_shub",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster"
+   ],
    "health": 3
   },
   {
@@ -521,6 +559,11 @@
    "set": "the_witching_hour",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Witch",
+    "Elite"
+   ],
    "health": 4,
    "healthPerInvestigator": true,
    "victory": 2
@@ -537,6 +580,9 @@
     "value": 1,
     "perInvestigator": true
    },
+   "traits": [
+    "Woods"
+   ],
    "victory": 1
   },
   {
@@ -551,6 +597,9 @@
     "value": 2,
     "perInvestigator": true
    },
+   "traits": [
+    "Woods"
+   ],
    "victory": 1
   },
   {
@@ -565,6 +614,9 @@
     "value": 1,
     "perInvestigator": true
    },
+   "traits": [
+    "Woods"
+   ],
    "victory": 1
   },
   {
@@ -579,6 +631,9 @@
     "value": 2,
     "perInvestigator": true
    },
+   "traits": [
+    "Woods"
+   ],
    "victory": 1
   },
   {
@@ -593,6 +648,9 @@
     "value": 1,
     "perInvestigator": true
    },
+   "traits": [
+    "Woods"
+   ],
    "victory": 1
   },
   {
@@ -607,6 +665,9 @@
     "value": 2,
     "perInvestigator": true
    },
+   "traits": [
+    "Woods"
+   ],
    "victory": 1
   },
   {
@@ -621,6 +682,9 @@
     "value": 1,
     "perInvestigator": true
    },
+   "traits": [
+    "Woods"
+   ],
    "victory": 1
   },
   {
@@ -631,6 +695,10 @@
    "set": "agents_of_azathoth",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Monster",
+    "Elite"
+   ],
    "health": 7,
    "victory": 2
   },
@@ -641,7 +709,11 @@
    "qty": 3,
    "set": "agents_of_azathoth",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Power",
+    "Terror"
+   ]
   },
   {
    "code": "05090",
@@ -651,6 +723,10 @@
    "set": "anettes_coven",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Witch"
+   ],
    "health": 2
   },
   {
@@ -661,6 +737,10 @@
    "set": "anettes_coven",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Witch"
+   ],
    "health": 3
   },
   {
@@ -670,7 +750,10 @@
    "qty": 3,
    "set": "witchcraft",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
   },
   {
    "code": "05093",
@@ -679,7 +762,10 @@
    "qty": 2,
    "set": "witchcraft",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
   },
   {
    "code": "05094",
@@ -688,7 +774,10 @@
    "qty": 2,
    "set": "witchcraft",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
   },
   {
    "code": "05098",
@@ -697,7 +786,10 @@
    "qty": 2,
    "set": "city_of_sins",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
   },
   {
    "code": "05099",
@@ -706,7 +798,10 @@
    "qty": 3,
    "set": "city_of_sins",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
   }
  ]
 }

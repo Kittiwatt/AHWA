@@ -113,6 +113,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
   // Table vierge (une réinitialisation a pu laisser des cartes).
   state.cards = {};
   state.piles = { encounter: [], encounterDiscard: [], removed: [], agendaDeck: [], actDeck: [] };
+  for (const p of def.piles ?? []) state.piles[p.id] = []; // piles déclarées, même vides (défausse spectrale…)
   for (const p of def.piles ?? []) state.piles[p.id] = [];
   state.links = [];
   state.extraDefs = {};
@@ -219,14 +220,15 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
           if (step.log) addLog(state, "setup", step.log);
           choix.forEach((code, i) => {
             const pos = step.positions ? step.positions[i % step.positions.length] : { x: step.x! + i * (CARD_W + 32), y: step.y! };
-            const card = poser(code, step.zone!, pos.x, pos.y, step.faceUp ?? false, false, step.log ? "" : undefined);
-            if (step.log) state.log.pop(); // ligne vide non conservée
-            else state.log[state.log.length - 1].text = `${nomVisible(def, card)} tiré au hasard et mis en jeu.`;
+            const card = poser(code, step.zone!, pos.x, pos.y, step.faceUp ?? false, step.reveal, step.log ? "" : undefined);
+            const derniere = state.log[state.log.length - 1];
+            if (step.log) state.log.pop(); // ligne vide non conservée (les indices posés sont comptés dans revealLocation)
+            else derniere.text = `${nomVisible(def, card)} tiré au hasard et mis en jeu.${derniere.text.replace(/^[^.]*\./, "")}`;
             if (step.slot && i === 0) slots.set(step.slot, card.id);
           });
-        } else if (step.slot) {
-          slots.set(step.slot, choix[0]);
-          addLog(state, "setup", step.log ?? `Tirage au hasard : ${noms.join(", ")}.`);
+        } else {
+          if (step.slot) slots.set(step.slot, choix[0]);
+          if (step.slot || step.log) addLog(state, "setup", step.log ?? `Tirage au hasard : ${noms.join(", ")}.`);
         }
         break;
       }
@@ -425,16 +427,26 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       }
       case "buildEncounter": {
         const ids: CardId[] = [];
+        const scindees = new Map<string, CardId[]>();
         for (const { code, ids: restants } of pool.remaining()) {
           const d = pool.def(code);
           if (d.kind === "enemy" || d.kind === "treachery") {
+            // Seconde pioche par trait (ex. pioche spectrale) : les cartes portant le trait y vont.
+            const cible = step.split?.find((sp) => d.traits?.includes(sp.trait))?.pile;
             for (const id of pool.takeAll(code)) {
-              state.cards[id] = newCard(pool, code, id, { pile: "encounter" }, false);
-              ids.push(id);
+              state.cards[id] = newCard(pool, code, id, { pile: cible ?? "encounter" }, false);
+              if (cible) scindees.set(cible, [...(scindees.get(cible) ?? []), id]); else ids.push(id);
             }
           } else {
             void restants;
           }
+        }
+        for (const [pile, cartes] of scindees) {
+          if (!(pile in state.piles)) state.piles[pile] = [];
+          state.piles[pile].push(...shuffle(cartes, rng));
+          const decl = def.piles?.find((p) => p.id === pile);
+          if (decl?.discard && !(decl.discard in state.piles)) state.piles[decl.discard] = [];
+          addLog(state, "setup", `${cartes.length} cartes portant le trait ${step.split!.find((sp) => sp.pile === pile)!.trait} forment ${decl?.label ?? pile}, mélangée.`);
         }
         state.piles.encounter = shuffle(ids, rng);
         addLog(state, "setup", step.log ?? `Pioche de rencontre mélangée : ${ids.length} cartes.`);

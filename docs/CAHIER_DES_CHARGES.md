@@ -241,7 +241,8 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `addToken {id, token, delta}` | J | jetons ± sur une carte |
 | `setSeatCounter {seat, key, delta}` | J | vie, santé mentale, indices, actions, spécifiques |
 | `setCounter {key, delta}` | J | compteur de table |
-| `drawEncounter {seat?, pile?}` | J | retourne la première carte de la pioche ou d'une pile déclarée (elle y reste, le joueur la glisse ensuite) ; un lieu tiré montre son côté non révélé ; refusé tant qu'une carte révélée est dessus ; défausse remélangée si pioche vide |
+| `drawEncounter {seat?, pile?}` | J | retourne la première carte de la pioche ou d'une pile déclarée (elle y reste, le joueur la glisse ensuite) ; un lieu à double face tiré montre son côté non révélé ; refusé tant qu'une carte révélée est dessus, et sur une défausse ; pioche vide : sa défausse (encounterDiscard, ou `discard` déclaré) est remélangée |
+| `reshuffleDiscard {deck?}` | J | remélange la défausse d'une pioche dans celle-ci (`encounter` par défaut, ou une seconde pioche déclarée) |
 | `reshuffleDiscard` | J | toute la défausse de rencontre retourne dans la pioche, mélangée, face cachée |
 | `takeClue {id, n?}` | J | déplace `n` (1) indice d'un lieu vers la réserve du siège (double-clic sur les indices) |
 | `linkLocations {a, b}` / `unlink {id?}` | J | chemin entre deux lieux (`state.links`, bascule) / efface les chemins d'un lieu ou tous |
@@ -354,7 +355,18 @@ couche prenant ses cartes imposées plus `n` au hasard, mélangée (le
 `backName` (nom du verso : « Decrepit Door », « Unknown Places », titre
 du verso d'un agenda) ; serveur et client nomment toujours **la face
 visible** (`nomVisible` / `faceVisible`), si bien qu'un lieu non révélé
-garde son secret dans le journal, les infobulles et les menus. Le build synthétise le recto d'une carte dont
+garde son secret dans le journal, les infobulles et les menus. Le build
+exporte aussi `traits` ; `buildEncounter {split: [{trait, pile}]}`
+envoie les cartes portant un trait dans une seconde pioche (The Wages
+of Sin : pioche spectrale). `piles` déclare alors la pioche avec sa
+défausse (`{id, label, discard, trait}` et `{id, label, isDiscard}`) ;
+le client choisit pioche et défausse d'après les traits de la carte
+dans les menus « Défausser » / « Sur… » / « Mélanger dans… » ; le
+glisser-déposer reste libre. `pickRandom {reveal}` pose un lieu tiré au
+hasard révélé (indices posés). Un lieu dont le verso est un lieu lié
+(deux faces révélées, ex. face Spectral) se bascule par `toggleSide`
+(menu « Autre face »), sans révélation ni nouveaux indices ;
+« Retourner » n'est pas proposé pour ces cartes. Le build synthétise le recto d'une carte dont
 ArkhamDB ne connaît que le verso (`<code>b` avec `linked_card`, ex.
 Josef Meiger 05085).
 

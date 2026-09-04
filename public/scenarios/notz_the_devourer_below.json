@@ -379,6 +379,12 @@
    "set": "torch",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Ghoul",
+    "Elite"
+   ],
    "health": 5,
    "healthPerInvestigator": true,
    "victory": 2
@@ -484,7 +490,10 @@
    "clue": {
     "value": 0,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01150",
@@ -497,7 +506,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01151",
@@ -510,7 +522,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01152",
@@ -523,7 +538,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01153",
@@ -536,7 +554,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01154",
@@ -549,7 +570,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01155",
@@ -562,7 +586,10 @@
    "clue": {
     "value": 0,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Woods"
+   ]
   },
   {
    "code": "01156",
@@ -575,7 +602,10 @@
    "clue": {
     "value": 2,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Cave"
+   ]
   },
   {
    "code": "01157",
@@ -585,6 +615,10 @@
    "set": "tentacles",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Ancient One",
+    "Elite"
+   ],
    "health": 6
   },
   {
@@ -594,7 +628,10 @@
    "qty": 2,
    "set": "tentacles",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
   },
   {
    "code": "01160",
@@ -604,6 +641,11 @@
    "set": "ghouls",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Ghoul"
+   ],
    "health": 2
   },
   {
@@ -614,6 +656,11 @@
    "set": "ghouls",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Ghoul"
+   ],
    "health": 3
   },
   {
@@ -623,7 +670,10 @@
    "qty": 3,
    "set": "ghouls",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
   },
   {
    "code": "01163",
@@ -632,7 +682,10 @@
    "qty": 3,
    "set": "striking_fear",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
   },
   {
    "code": "01164",
@@ -641,7 +694,10 @@
    "qty": 2,
    "set": "striking_fear",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
   },
   {
    "code": "01165",
@@ -650,7 +706,10 @@
    "qty": 2,
    "set": "striking_fear",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
   },
   {
    "code": "01166",
@@ -659,7 +718,10 @@
    "qty": 3,
    "set": "ancient_evils",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
   },
   {
    "code": "01169",
@@ -669,6 +731,10 @@
    "set": "pentagram",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
    "health": 1
   },
   {
@@ -679,6 +745,10 @@
    "set": "pentagram",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
    "health": 2
   },
   {
@@ -688,7 +758,10 @@
    "qty": 2,
    "set": "pentagram",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
   },
   {
    "code": "01175",
@@ -698,6 +771,10 @@
    "set": "agents_of_hastur",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Monster",
+    "Byakhee"
+   ],
    "health": 4,
    "victory": 1
   },
@@ -708,7 +785,10 @@
    "qty": 2,
    "set": "agents_of_hastur",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
   },
   {
    "code": "01177",
@@ -718,6 +798,10 @@
    "set": "agents_of_yog",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Monster",
+    "Yithian"
+   ],
    "health": 4,
    "victory": 1
   },
@@ -728,7 +812,10 @@
    "qty": 2,
    "set": "agents_of_yog",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Pact"
+   ]
   },
   {
    "code": "01179",
@@ -738,6 +825,10 @@
    "set": "agents_of_shub",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Monster",
+    "Dark Young"
+   ],
    "health": 5,
    "victory": 1
   },
@@ -749,6 +840,10 @@
    "set": "agents_of_shub",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster"
+   ],
    "health": 3
   },
   {
@@ -759,6 +854,11 @@
    "set": "agents_of_cthulhu",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
    "health": 3
   },
   {
@@ -768,7 +868,10 @@
    "qty": 2,
    "set": "agents_of_cthulhu",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
   }
  ]
 }

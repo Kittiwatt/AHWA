@@ -567,7 +567,10 @@
    "qty": 2,
    "set": "chilling_cold",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
   },
   {
    "code": "01168",
@@ -576,7 +579,10 @@
    "qty": 2,
    "set": "chilling_cold",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
   },
   {
    "code": "05065",
@@ -758,7 +764,10 @@
    "clue": {
     "value": 0,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Spectral"
+   ]
   },
   {
    "code": "05079",
@@ -771,7 +780,10 @@
    "clue": {
     "value": 0,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Spectral"
+   ]
   },
   {
    "code": "05080",
@@ -784,7 +796,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Spectral"
+   ]
   },
   {
    "code": "05081",
@@ -798,6 +813,9 @@
     "value": 1,
     "perInvestigator": true
    },
+   "traits": [
+    "Spectral"
+   ],
    "victory": 1
   },
   {
@@ -812,6 +830,9 @@
     "value": 1,
     "perInvestigator": true
    },
+   "traits": [
+    "Spectral"
+   ],
    "victory": 1
   },
   {
@@ -825,7 +846,10 @@
    "clue": {
     "value": 1,
     "perInvestigator": true
-   }
+   },
+   "traits": [
+    "Spectral"
+   ]
   },
   {
    "code": "05084",
@@ -839,6 +863,9 @@
     "value": 2,
     "perInvestigator": true
    },
+   "traits": [
+    "Spectral"
+   ],
    "victory": 2
   },
   {
@@ -849,6 +876,12 @@
    "set": "at_deaths_doorstep",
    "back": "b",
    "storyBack": true,
+   "traits": [
+    "Humanoid",
+    "Cultist",
+    "Silver Twilight",
+    "Elite"
+   ],
    "health": 3,
    "victory": 2
   },
@@ -860,6 +893,11 @@
    "set": "the_watcher",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Ancient One",
+    "Spectral",
+    "Elite"
+   ],
    "health": 5
   },
   {
@@ -869,7 +907,11 @@
    "qty": 2,
    "set": "the_watcher",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Power",
+    "Spectral"
+   ]
   },
   {
    "code": "05095",
@@ -879,6 +921,11 @@
    "set": "silver_twilight_lodge",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist",
+    "Silver Twilight"
+   ],
    "health": 1
   },
   {
@@ -889,6 +936,11 @@
    "set": "silver_twilight_lodge",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist",
+    "Silver Twilight"
+   ],
    "health": 2
   },
   {
@@ -898,7 +950,10 @@
    "qty": 2,
    "set": "silver_twilight_lodge",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
   },
   {
    "code": "05100",
@@ -908,6 +963,10 @@
    "set": "spectral_predators",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Monster",
+    "Spectral"
+   ],
    "health": 4,
    "victory": 1
   },
@@ -919,6 +978,10 @@
    "set": "spectral_predators",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Monster",
+    "Spectral"
+   ],
    "health": 3
   },
   {
@@ -928,7 +991,11 @@
    "qty": 2,
    "set": "spectral_predators",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Omen",
+    "Spectral"
+   ]
   },
   {
    "code": "05103",
@@ -938,6 +1005,11 @@
    "set": "trapped_spirits",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Monster",
+    "Geist",
+    "Spectral"
+   ],
    "health": 2
   },
   {
@@ -947,7 +1019,11 @@
    "qty": 2,
    "set": "trapped_spirits",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror",
+    "Spectral"
+   ]
   },
   {
    "code": "05105",
@@ -956,7 +1032,11 @@
    "qty": 2,
    "set": "realm_of_death",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror",
+    "Spectral"
+   ]
   },
   {
    "code": "05106",
@@ -965,7 +1045,11 @@
    "qty": 2,
    "set": "realm_of_death",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror",
+    "Spectral"
+   ]
   },
   {
    "code": "05107",
@@ -974,7 +1058,11 @@
    "qty": 3,
    "set": "inexorable_fate",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror",
+    "Spectral"
+   ]
   },
   {
    "code": "05108",
@@ -983,7 +1071,11 @@
    "qty": 3,
    "set": "inexorable_fate",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Omen",
+    "Spectral"
+   ]
   }
  ]
 }

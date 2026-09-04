@@ -809,5 +809,83 @@ async function tableDoorstep({ joueurs, answers }) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ The Wages of Sin (TCU IV) : lieux à deux faces révélées, deux pioches par trait, hérétiques en pile ============
+{
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tcu_wages_of_sin" }) });
+  assert.equal(r.status, 200, "The Wages of Sin est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "05001" });
+  const j2 = client(code, { seat: 1, name: "J2" });
+  await j2.attendre((m) => m.t === "welcome");
+  await j2.action({ t: "chooseInvestigator", code: "05002" });
+  await h.attendre((m) => m.t === "delta" && m.rev === 2);
+  h.envoyer({ t: "startSetup", answers: { fate: "rejected", lodge: "members_told", blackbook: "yes" } });
+  await h.attendre((m) => (m.t === "delta" && m.rev === 3) || m.t === "nack");
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux.length, 7, "7 lieux en jeu");
+  assert.ok(lieux.every((c) => c.faceUp && c.side === "a"), "tous révélés, face normale");
+  const codes = lieux.map((c) => c.code).sort();
+  assert.ok(codes.filter((c) => ["05169", "05170"].includes(c)).length === 1 && codes.filter((c) => ["05175", "05176"].includes(c)).length === 1
+    && codes.filter((c) => ["05171", "05172"].includes(c)).length === 1 && codes.filter((c) => ["05173", "05174"].includes(c)).length === 1, "une version sur deux pour quatre lieux");
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed" && c.kind === "location").length, 4, "les quatre autres versions retirées");
+  const brook = lieux.find((c) => c.code === "05166");
+  assert.ok(brook.tokens.clue === 2 && brook.loc.x === 737 && brook.loc.y === 649, "Hangman's Brook : 1 indice par enquêteur, en bas");
+  assert.equal(lieux.find((c) => c.code === "05167").tokens.clue, 4, "Haunted Fields : 2 par enquêteur");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.y === 649 - 22), "pions sur Hangman's Brook");
+  assert.equal(s.piles.heretics.length, 4, "4 hérétiques en pile");
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed" && c.code.startsWith("05178")).length, 2, "2 hérétiques retirés");
+  const cote = cartes.filter((c) => c.loc.zone === "aside").map((c) => c.code).sort();
+  assert.deepEqual(cote, ["05086", "05087", "05087", "05177", "05177", "05177", "05177"], "de côté : Spectral Web ×4 et The Watcher");
+  assert.equal(s.piles.encounter.length, 24, "pioche standard : 24");
+  assert.equal(s.piles.spectral.length, 20, "pioche spectrale : 20");
+  assert.deepEqual(s.piles.spectral_discard, [], "défausse spectrale déclarée, vide");
+  assert.ok(s.piles.spectral.every((id) => s.cards[id].kind !== "location"), "pas de lieu dans la pioche spectrale");
+  assert.equal(s.chaos.bag.length, 18, "sac 13 + 2 anciens + 2 cultistes + 1 crâne");
+  assert.equal(s.chaos.bag.filter((t) => t === "skull").length, 3);
+  assert.ok(s.log.some((e) => e.text.includes("20 cartes portant le trait Spectral")), "journal : pioche spectrale");
+
+  // Basculer un lieu sur sa face spectrale : pas de nouveaux indices.
+  let d = await h.action({ t: "toggleSide", id: brook.id });
+  assert.ok(h.state.cards[brook.id].side === "b" && h.state.cards[brook.id].faceUp && h.state.cards[brook.id].tokens.clue === 2, "face spectrale, indices inchangés");
+  await h.action({ t: "toggleSide", id: brook.id });
+  // Hérétique : tiré de la pile (côté ennemi), posé sur le tapis, côté histoire sur demande, retournement refusé.
+  d = await h.action({ t: "drawEncounter", pile: "heretics" });
+  const heretic = h.state.cards[h.state.piles.heretics[0]];
+  assert.ok(heretic.faceUp && heretic.side === "a" && heretic.storyBack, "hérétique tiré côté ennemi");
+  d = await h.action({ t: "moveCard", id: heretic.id, zone: "board", x: 737, y: 411 });
+  assert.equal(h.state.piles.heretics.length, 3);
+  d = await h.action({ t: "flipCard", id: heretic.id });
+  assert.equal(d.t, "nack", "pas de retournement d'un dos histoire");
+  d = await h.action({ t: "toggleSide", id: heretic.id });
+  assert.equal(h.state.cards[heretic.id].side, "b", "côté histoire lu sur demande");
+  await h.action({ t: "toggleSide", id: heretic.id });
+  // Deux pioches : tirer de la spectrale, défausser dans la défausse spectrale (face visible), remélanger.
+  d = await h.action({ t: "drawEncounter", pile: "spectral" });
+  const tiree = h.state.cards[h.state.piles.spectral[0]];
+  assert.ok(tiree.faceUp);
+  d = await h.action({ t: "toPile", id: tiree.id, pile: "spectral_discard" });
+  assert.ok(h.state.piles.spectral_discard.length === 1 && h.state.cards[tiree.id].faceUp, "défausse spectrale : face visible");
+  d = await h.action({ t: "drawEncounter", pile: "spectral_discard" });
+  assert.equal(d.t, "nack", "on ne pioche pas dans une défausse");
+  d = await h.action({ t: "reshuffleDiscard", deck: "spectral" });
+  assert.ok(h.state.piles.spectral.length === 20 && h.state.piles.spectral_discard.length === 0, "défausse spectrale remélangée dans la pioche spectrale");
+  assert.ok(h.state.log.some((e) => e.text.includes("remélangée dans Pioche spectrale")), "journal du remélange");
+  // Pioche spectrale vide → sa défausse est remélangée au tirage.
+  for (const id of [...h.state.piles.spectral]) await h.action({ t: "toPile", id, pile: "spectral_discard" });
+  assert.equal(h.state.piles.spectral.length, 0);
+  d = await h.action({ t: "drawEncounter", pile: "spectral" });
+  assert.equal(d.t, "delta");
+  assert.ok(h.state.piles.spectral.length === 20 && h.state.cards[h.state.piles.spectral[0]].faceUp, "remélange automatique puis tirage");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.piles.spectral, h.state.piles.spectral, "les autres clients voient la même chose");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

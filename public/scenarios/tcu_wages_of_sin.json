@@ -1,0 +1,1222 @@
+{
+ "id": "tcu_wages_of_sin",
+ "title": "The Wages of Sin",
+ "campaign": "The Circle Undone",
+ "campaignId": "tcu",
+ "order": 4,
+ "packs": [
+  "wos",
+  "tcu"
+ ],
+ "encounterSets": [
+  "the_wages_of_sin",
+  "anettes_coven",
+  "city_of_sins",
+  "inexorable_fate",
+  "realm_of_death",
+  "trapped_spirits",
+  "witchcraft",
+  "the_watcher"
+ ],
+ "storyBack": [
+  "05178a",
+  "05178c",
+  "05178e",
+  "05178g",
+  "05178i",
+  "05178k"
+ ],
+ "scenarioCard": "05161",
+ "agendaDeck": [
+  "05162",
+  "05163"
+ ],
+ "actDeck": [
+  "05164",
+  "05165"
+ ],
+ "startLocation": "05166",
+ "piles": [
+  {
+   "id": "spectral",
+   "label": "Pioche spectrale",
+   "discard": "spectral_discard",
+   "trait": "Spectral"
+  },
+  {
+   "id": "spectral_discard",
+   "label": "Défausse spectrale",
+   "isDiscard": true
+  },
+  {
+   "id": "heretics",
+   "label": "Hérétiques"
+  }
+ ],
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-3",
+   "skull",
+   "skull",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "layout": [
+  {
+   "code": "05167",
+   "x": 551,
+   "y": 411
+  },
+  {
+   "code": "05168",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "code": "05166",
+   "x": 737,
+   "y": 649
+  }
+ ],
+ "questions": [
+  {
+   "id": "fate",
+   "text": "Journal de campagne (introduction du scénario I) — l'enquêteur principal :",
+   "options": [
+    {
+     "id": "accepted",
+     "label": "a accepté son destin"
+    },
+    {
+     "id": "rejected",
+     "label": "a rejeté son destin"
+    },
+    {
+     "id": "standalone",
+     "label": "partie autonome (hors campagne)"
+    }
+   ]
+  },
+  {
+   "id": "lodge",
+   "text": "Journal de campagne (Interlude II et introduction du scénario III) — les enquêteurs :",
+   "options": [
+    {
+     "id": "members_told",
+     "label": "sont membres de la Loge, et ont parlé du coven à la Loge"
+    },
+    {
+     "id": "members_hid",
+     "label": "sont membres de la Loge, et ont caché ce qu'ils savent du coven"
+    },
+    {
+     "id": "enemies",
+     "label": "sont ennemis de la Loge"
+    },
+    {
+     "id": "nothing",
+     "label": "n'ont rien appris des projets de la Loge"
+    },
+    {
+     "id": "gone",
+     "label": "ne sont jamais revus"
+    },
+    {
+     "id": "standalone",
+     "label": "partie autonome (hors campagne)"
+    }
+   ]
+  },
+  {
+   "id": "blackbook",
+   "text": "Journal de campagne (résolution du scénario III) — The Black Book :",
+   "options": [
+    {
+     "id": "yes",
+     "label": "a rejoint le deck d'un enquêteur"
+    },
+    {
+     "id": "no",
+     "label": "n'a rejoint aucun deck (ou partie autonome)"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "pickRandom",
+   "from": [
+    "05169",
+    "05170"
+   ],
+   "n": 1,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 551,
+     "y": 173
+    }
+   ],
+   "reveal": true
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "05175",
+    "05176"
+   ],
+   "n": 1,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 923,
+     "y": 173
+    }
+   ],
+   "reveal": true
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "05171",
+    "05172"
+   ],
+   "n": 1,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 365,
+     "y": 411
+    }
+   ],
+   "reveal": true
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "05173",
+    "05174"
+   ],
+   "n": 1,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 1109,
+     "y": 411
+    }
+   ],
+   "reveal": true
+  },
+  {
+   "op": "log",
+   "text": "The Gallows, Chapel Attic, Heretics' Graves et Chapel Crypt : une des deux versions de chacun a été tirée au hasard et mise en jeu, l'autre retirée de la partie."
+  },
+  {
+   "op": "place",
+   "code": "05167",
+   "zone": "board",
+   "x": 551,
+   "y": 411,
+   "reveal": true
+  },
+  {
+   "op": "place",
+   "code": "05168",
+   "zone": "board",
+   "x": 923,
+   "y": 411,
+   "reveal": true
+  },
+  {
+   "op": "place",
+   "code": "05166",
+   "zone": "board",
+   "x": 737,
+   "y": 649,
+   "reveal": true,
+   "log": "Hangman's Brook est mis en jeu en bas du diagramme : chaque enquêteur y commence la partie. Tous les lieux sont posés sur leur face révélée sans le trait Spectral, comme le demande le guide."
+  },
+  {
+   "op": "minis",
+   "code": "05166"
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "05177",
+    "05177",
+    "05177",
+    "05177"
+   ],
+   "faceUp": true,
+   "log": "Les quatre Spectral Web sont mis de côté, hors jeu."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "05178a",
+    "05178c",
+    "05178e",
+    "05178g",
+    "05178i",
+    "05178k"
+   ],
+   "n": 4,
+   "log": "Heretics : quatre des six sont mis de côté au hasard, les deux autres sont retirés de la partie ; leur dos est une carte histoire qui ne se lit que lorsqu'une carte l'indique."
+  },
+  {
+   "op": "toPile",
+   "codes": [
+    "05178a",
+    "05178c",
+    "05178e",
+    "05178g",
+    "05178i",
+    "05178k"
+   ],
+   "pile": "heretics",
+   "shuffle": true,
+   "log": "Les quatre Heretics forment une pile « Hérétiques » à côté de la pioche, mélangée, face cachée : un clic y tire un Heretic quand une carte le demande."
+  },
+  {
+   "op": "aside",
+   "sets": [
+    "the_watcher"
+   ],
+   "faceUp": true,
+   "log": "Le set The Watcher est mis de côté, hors jeu, face visible."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "branch",
+   "on": "fate",
+   "cases": {
+    "accepted": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "tablet",
+       "tablet"
+      ],
+      "log": "Destin accepté (scénario I) : les 2 jetons Tablette de la campagne sont dans le sac."
+     }
+    ],
+    "rejected": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "elder_thing",
+       "elder_thing"
+      ],
+      "log": "Destin rejeté (scénario I) : les 2 jetons Ancien de la campagne sont dans le sac."
+     }
+    ],
+    "standalone": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "tablet",
+       "elder_thing"
+      ],
+      "log": "Partie autonome : 1 jeton Tablette et 1 jeton Ancien ajoutés au sac, comme l'indique le guide."
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "lodge",
+   "cases": {
+    "members_told": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist",
+       "cultist"
+      ],
+      "log": "Membres de la Loge et coven dévoilé : 2 jetons Cultiste de la campagne sont dans le sac."
+     }
+    ],
+    "members_hid": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist"
+      ],
+      "log": "Membres de la Loge : 1 jeton Cultiste de la campagne est dans le sac."
+     }
+    ],
+    "enemies": [
+     {
+      "op": "log",
+      "text": "Ennemis de la Loge : aucun jeton Cultiste de campagne."
+     }
+    ],
+    "nothing": [
+     {
+      "op": "log",
+      "text": "Rien appris des projets de la Loge : aucun jeton Cultiste de campagne."
+     }
+    ],
+    "gone": [
+     {
+      "op": "log",
+      "text": "Jamais revus : aucun jeton Cultiste de campagne."
+     }
+    ],
+    "standalone": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist"
+      ],
+      "log": "Partie autonome : 1 jeton Cultiste ajouté au sac, comme l'indique le guide."
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "blackbook",
+   "cases": {
+    "yes": [
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "skull"
+      ],
+      "log": "The Black Book dans un deck (résolution du scénario III) : 1 jeton Crâne de campagne est dans le sac."
+     }
+    ],
+    "no": [
+     {
+      "op": "log",
+      "text": "The Black Book dans aucun deck : pas de jeton Crâne supplémentaire."
+     }
+    ]
+   }
+  },
+  {
+   "op": "buildEncounter",
+   "split": [
+    {
+     "trait": "Spectral",
+     "pile": "spectral"
+    }
+   ]
+  }
+ ],
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée."
+  },
+  {
+   "when": "setup",
+   "text": "Deux pioches de rencontre (guide) : la pioche standard sert par défaut ; un enquêteur qui se trouve dans un lieu au trait Spectral utilise la pioche spectrale à la place, pour tout (piocher, chercher, regarder…), sauf mention contraire. Chaque pioche a sa défausse : les cartes Spectral vont dans la défausse spectrale, les autres dans la défausse standard — les menus « Défausser » et « Mélanger dans… » choisissent la bonne pioche d'après le trait de la carte."
+  },
+  {
+   "when": "setup",
+   "text": "Les lieux ont deux faces révélées, normale et Spectral : quand une carte fait basculer un lieu, menu du lieu → « Autre face (Spectral) » ; basculer ne révèle pas le lieu (pas de nouveaux indices). La pile « Hérétiques » sert quand une carte demande un Heretic mis de côté : clic pour tirer, glisser sur le tapis ; son côté histoire se lit par le menu, seulement quand une carte l'indique. Spectral Web et le set The Watcher attendent dans la zone de côté."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout — pioche spectrale s'il se trouve dans un lieu Spectral."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-04",
+ "encounterSetNames": {
+  "the_wages_of_sin": "The Wages of Sin",
+  "the_watcher": "The Watcher",
+  "anettes_coven": "Anette's Coven",
+  "witchcraft": "Witchcraft",
+  "city_of_sins": "City of Sins",
+  "trapped_spirits": "Trapped Spirits",
+  "realm_of_death": "Realm of Death",
+  "inexorable_fate": "Inexorable Fate"
+ },
+ "cards": [
+  {
+   "code": "05086",
+   "name": "The Spectral Watcher",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_watcher",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Ancient One",
+    "Spectral",
+    "Elite"
+   ],
+   "health": 5
+  },
+  {
+   "code": "05087",
+   "name": "Watcher's Grasp",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_watcher",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power",
+    "Spectral"
+   ]
+  },
+  {
+   "code": "05090",
+   "name": "Coven Initiate",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "anettes_coven",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Witch"
+   ],
+   "health": 2
+  },
+  {
+   "code": "05091",
+   "name": "Priestess of the Coven",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "anettes_coven",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Witch"
+   ],
+   "health": 3
+  },
+  {
+   "code": "05092",
+   "name": "Diabolic Voices",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "witchcraft",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "05093",
+   "name": "Wracked",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "witchcraft",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  },
+  {
+   "code": "05094",
+   "name": "Bedeviled",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "witchcraft",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  },
+  {
+   "code": "05098",
+   "name": "Evil Past",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "city_of_sins",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "05099",
+   "name": "Centuries of Secrets",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "city_of_sins",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "05103",
+   "name": "Wraith",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "trapped_spirits",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Geist",
+    "Spectral"
+   ],
+   "health": 2
+  },
+  {
+   "code": "05104",
+   "name": "Trapped Spirits",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "trapped_spirits",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror",
+    "Spectral"
+   ]
+  },
+  {
+   "code": "05105",
+   "name": "Realm of Torment",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "realm_of_death",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror",
+    "Spectral"
+   ]
+  },
+  {
+   "code": "05106",
+   "name": "Shapes in the Mist",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "realm_of_death",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror",
+    "Spectral"
+   ]
+  },
+  {
+   "code": "05107",
+   "name": "Terror in the Night",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "inexorable_fate",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror",
+    "Spectral"
+   ]
+  },
+  {
+   "code": "05108",
+   "name": "Fate of All Fools",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "inexorable_fate",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen",
+    "Spectral"
+   ]
+  },
+  {
+   "code": "05161",
+   "name": "The Wages of Sin",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "05162",
+   "name": "THE HANGED MAN · XII",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Death's Descent",
+   "doom": 8,
+   "stage": 1
+  },
+  {
+   "code": "05163",
+   "name": "Death's Approach",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Death's Embrace",
+   "doom": 7,
+   "stage": 2
+  },
+  {
+   "code": "05164",
+   "name": "In Pursuit of the Dead",
+   "kind": "act",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "backName": "The Barrier Between",
+   "stage": 1
+  },
+  {
+   "code": "05165",
+   "name": "In Pursuit of the Living",
+   "kind": "act",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Was it Worth It?",
+   "stage": 2
+  },
+  {
+   "code": "05166",
+   "name": "Hangman's Brook",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05166b",
+   "backKind": "location",
+   "backName": "Hangman's Brook"
+  },
+  {
+   "code": "05167",
+   "name": "Haunted Fields",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05167b",
+   "backKind": "location",
+   "backName": "Haunted Fields",
+   "backVictory": 1,
+   "victory": 1
+  },
+  {
+   "code": "05168",
+   "name": "Abandoned Chapel",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05168b",
+   "backKind": "location",
+   "backName": "Abandoned Chapel",
+   "backVictory": 1,
+   "victory": 1
+  },
+  {
+   "code": "05169",
+   "name": "The Gallows",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05169b",
+   "backKind": "location",
+   "backName": "The Gallows"
+  },
+  {
+   "code": "05170",
+   "name": "The Gallows",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05170b",
+   "backKind": "location",
+   "backName": "The Gallows"
+  },
+  {
+   "code": "05171",
+   "name": "Heretics' Graves",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05171b",
+   "backKind": "location",
+   "backName": "Heretics' Graves"
+  },
+  {
+   "code": "05172",
+   "name": "Heretics' Graves",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05172b",
+   "backKind": "location",
+   "backName": "Heretics' Graves"
+  },
+  {
+   "code": "05173",
+   "name": "Chapel Crypt",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05173b",
+   "backKind": "location",
+   "backName": "Chapel Crypt"
+  },
+  {
+   "code": "05174",
+   "name": "Chapel Crypt",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05174b",
+   "backKind": "location",
+   "backName": "Chapel Crypt"
+  },
+  {
+   "code": "05175",
+   "name": "Chapel Attic",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05175b",
+   "backKind": "location",
+   "backName": "Chapel Attic"
+  },
+  {
+   "code": "05176",
+   "name": "Chapel Attic",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "05176b",
+   "backKind": "location",
+   "backName": "Chapel Attic"
+  },
+  {
+   "code": "05177",
+   "name": "Spectral Web",
+   "kind": "asset",
+   "qty": 4,
+   "set": "the_wages_of_sin",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Spell"
+   ]
+  },
+  {
+   "code": "05178a",
+   "name": "Heretic",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Monster",
+    "Geist",
+    "Witch",
+    "Spectral",
+    "Elite"
+   ],
+   "backCode": "05178b",
+   "backKind": "story",
+   "backName": "Unfinished Business",
+   "backVictory": 1,
+   "health": 2
+  },
+  {
+   "code": "05178c",
+   "name": "Heretic",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Monster",
+    "Geist",
+    "Witch",
+    "Spectral",
+    "Elite"
+   ],
+   "backCode": "05178d",
+   "backKind": "story",
+   "backName": "Unfinished Business",
+   "backVictory": 1,
+   "health": 2
+  },
+  {
+   "code": "05178e",
+   "name": "Heretic",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Monster",
+    "Geist",
+    "Witch",
+    "Spectral",
+    "Elite"
+   ],
+   "backCode": "05178f",
+   "backKind": "story",
+   "backName": "Unfinished Business",
+   "backVictory": 1,
+   "health": 2
+  },
+  {
+   "code": "05178g",
+   "name": "Heretic",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Monster",
+    "Geist",
+    "Witch",
+    "Spectral",
+    "Elite"
+   ],
+   "backCode": "05178h",
+   "backKind": "story",
+   "backName": "Unfinished Business",
+   "backVictory": 1,
+   "health": 2
+  },
+  {
+   "code": "05178i",
+   "name": "Heretic",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Monster",
+    "Geist",
+    "Witch",
+    "Spectral",
+    "Elite"
+   ],
+   "backCode": "05178j",
+   "backKind": "story",
+   "backName": "Unfinished Business",
+   "backVictory": 1,
+   "health": 2
+  },
+  {
+   "code": "05178k",
+   "name": "Heretic",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_wages_of_sin",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Monster",
+    "Geist",
+    "Witch",
+    "Spectral",
+    "Elite"
+   ],
+   "backCode": "05178l",
+   "backKind": "story",
+   "backName": "Unfinished Business",
+   "backVictory": 1,
+   "health": 2
+  },
+  {
+   "code": "05179",
+   "name": "Vengeful Witch",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "the_wages_of_sin",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Witch"
+   ],
+   "health": 3
+  },
+  {
+   "code": "05180",
+   "name": "Malevolent Spirit",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "the_wages_of_sin",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Geist",
+    "Spectral"
+   ],
+   "health": 2
+  },
+  {
+   "code": "05181",
+   "name": "Punishment",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_wages_of_sin",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  },
+  {
+   "code": "05182",
+   "name": "Burdens of the Past",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_wages_of_sin",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse",
+    "Spectral"
+   ]
+  },
+  {
+   "code": "05183",
+   "name": "Ominous Portents",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_wages_of_sin",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
+  },
+  {
+   "code": "05184",
+   "name": "Grave-Light",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_wages_of_sin",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "05185",
+   "name": "Bane of the Living",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_wages_of_sin",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse",
+    "Spectral"
+   ]
+  }
+ ]
+}

@@ -68,10 +68,19 @@ function boutDeMenace(state: RoomState, zone: ZoneId): number {
 }
 
 /** Défausse de rencontre → pioche (le tout mélangé, face cachée). */
-function remelangerDefausse(state: RoomState, rng: Rng) {
-  state.piles.encounter.push(...state.piles.encounterDiscard.splice(0));
-  shuffle(state.piles.encounter, rng);
-  for (const id of state.piles.encounter) state.cards[id].faceUp = false;
+/** Défausse associée à une pioche : encounterDiscard pour la pioche de rencontre, `discard` déclaré pour une seconde pioche. */
+function defausseDe(def: ScenarioDef, pile: string): string | null {
+  if (pile === "encounter") return "encounterDiscard";
+  return def.piles?.find((p) => p.id === pile)?.discard ?? null;
+}
+function estDefausse(def: ScenarioDef, pile: string): boolean {
+  return pile === "encounterDiscard" || Boolean(def.piles?.find((p) => p.id === pile)?.isDiscard);
+}
+
+function remelangerDefausse(state: RoomState, rng: Rng, pioche = "encounter", defausse = "encounterDiscard") {
+  state.piles[pioche].push(...state.piles[defausse].splice(0));
+  shuffle(state.piles[pioche], rng);
+  for (const id of state.piles[pioche]) state.cards[id].faceUp = false;
 }
 
 /** Bord droit de la zone « de côté » (pour y ranger une carte en fin de rangée). */
@@ -335,13 +344,13 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       retirerDesPiles(state, c.id);
       state.links = state.links.filter((l) => l.a !== c.id && l.b !== c.id);
       c.loc = { pile };
-      c.faceUp = pile === "encounterDiscard"; // la défausse est consultable, face visible
+      c.faceUp = estDefausse(def, pile); // une défausse est consultable, face visible
       if (c.kind === "location") c.side = "a";
       c.exhausted = false;
       c.tokens = {};
       delete c.ownerSeat;
       if (msg.top === false) state.piles[pile].push(c.id); else state.piles[pile].unshift(c.id);
-      if (msg.shuffle === true && pile !== "encounterDiscard") {
+      if (msg.shuffle === true && !estDefausse(def, pile)) {
         shuffle(state.piles[pile], rng);
         addLog(state, "action", `${nomCarte(def, c)} mélangé dans ${pile === "encounter" ? "la pioche de rencontre" : nomPile(def, pile)}.`);
       } else if (pile === "encounterDiscard") addLog(state, "action", `${nomCarte(def, c)} défaussé.`);
@@ -377,7 +386,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const pile = String(msg.pile);
       if (!(pile in state.piles)) refuser("pile inconnue");
       shuffle(state.piles[pile], rng);
-      if (pile !== "encounterDiscard") for (const id of state.piles[pile]) { state.cards[id].faceUp = false; if (state.cards[id].kind === "location") state.cards[id].side = "a"; }
+      if (!estDefausse(def, pile)) for (const id of state.piles[pile]) { state.cards[id].faceUp = false; if (state.cards[id].kind === "location") state.cards[id].side = "a"; }
       addLog(state, "action", pile === "encounter" ? "Pioche de rencontre mélangée." : `${nomPile(def, pile)} : mélangée.`);
       return {};
     }
@@ -387,13 +396,14 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       // Tant qu'une carte révélée est dessus, la pile attend.
       const s = msg.seat === undefined ? monSiege() : siege(state, msg.seat);
       const pile = String(msg.pile ?? "encounter");
-      if (!(pile in state.piles) || ["encounterDiscard", "removed", "agendaDeck", "actDeck"].includes(pile)) refuser("pile inconnue");
+      if (!(pile in state.piles) || ["removed", "agendaDeck", "actDeck"].includes(pile) || estDefausse(def, pile)) refuser("pile inconnue");
       const dessus = state.piles[pile].length ? state.cards[state.piles[pile][0]] : null;
       if (dessus?.faceUp) refuser(`${nomCarte(def, dessus)} est déjà révélé : glissez-le où il faut avant de piocher`);
       if (!state.piles[pile].length) {
-        if (pile !== "encounter" || !state.piles.encounterDiscard.length) refuser(pile === "encounter" ? "pioche et défausse vides" : "cette pile est vide");
-        remelangerDefausse(state, rng);
-        addLog(state, "action", "Pioche de rencontre vide : la défausse est remélangée.");
+        const defausse = defausseDe(def, pile) ?? refuser("cette pile est vide");
+        if (!state.piles[defausse]?.length) refuser("pioche et défausse vides");
+        remelangerDefausse(state, rng, pile, defausse);
+        addLog(state, "action", pile === "encounter" ? "Pioche de rencontre vide : la défausse est remélangée." : `${nomPile(def, pile)} vide : sa défausse est remélangée.`);
       }
       const c = state.cards[state.piles[pile][0]];
       c.faceUp = true;
@@ -403,10 +413,13 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       return {};
     }
     case "reshuffleDiscard": {
-      if (!state.piles.encounterDiscard.length) refuser("la défausse est vide");
-      const n = state.piles.encounterDiscard.length;
-      remelangerDefausse(state, rng);
-      addLog(state, "action", `${n} carte${n > 1 ? "s" : ""} de la défausse remélangée${n > 1 ? "s" : ""} dans la pioche.`);
+      // {deck?} : pioche de rencontre par défaut, ou une seconde pioche déclarée avec sa défausse.
+      const pioche = String(msg.deck ?? "encounter");
+      const defausse = defausseDe(def, pioche) ?? refuser("cette pioche n'a pas de défausse");
+      if (!state.piles[defausse]?.length) refuser("la défausse est vide");
+      const n = state.piles[defausse].length;
+      remelangerDefausse(state, rng, pioche, defausse);
+      addLog(state, "action", `${n} carte${n > 1 ? "s" : ""} de la défausse remélangée${n > 1 ? "s" : ""} dans ${pioche === "encounter" ? "la pioche" : nomPile(def, pioche)}.`);
       return {};
     }
     case "takeClue": {

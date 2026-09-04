@@ -354,6 +354,12 @@
    "set": "torch",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Ghoul",
+    "Elite"
+   ],
    "health": 5,
    "healthPerInvestigator": true,
    "victory": 2
@@ -366,6 +372,9 @@
    "set": "torch",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Ally"
+   ],
    "health": 3,
    "sanity": 3
   },
@@ -377,6 +386,11 @@
    "set": "torch",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Ghoul"
+   ],
    "health": 4,
    "victory": 1
   },
@@ -388,6 +402,11 @@
    "set": "torch",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Ghoul"
+   ],
    "health": 4,
    "victory": 1
   },
@@ -399,6 +418,9 @@
    "set": "rats",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Creature"
+   ],
    "health": 1
   },
   {
@@ -409,6 +431,11 @@
    "set": "ghouls",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Ghoul"
+   ],
    "health": 2
   },
   {
@@ -419,6 +446,11 @@
    "set": "ghouls",
    "back": "encounter",
    "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Ghoul"
+   ],
    "health": 3
   },
   {
@@ -428,7 +460,10 @@
    "qty": 3,
    "set": "ghouls",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
   },
   {
    "code": "01163",
@@ -437,7 +472,10 @@
    "qty": 3,
    "set": "striking_fear",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
   },
   {
    "code": "01164",
@@ -446,7 +484,10 @@
    "qty": 2,
    "set": "striking_fear",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
   },
   {
    "code": "01165",
@@ -455,7 +496,10 @@
    "qty": 2,
    "set": "striking_fear",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
   },
   {
    "code": "01166",
@@ -464,7 +508,10 @@
    "qty": 3,
    "set": "ancient_evils",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
   },
   {
    "code": "01167",
@@ -473,7 +520,10 @@
    "qty": 2,
    "set": "chilling_cold",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
   },
   {
    "code": "01168",
@@ -482,7 +532,10 @@
    "qty": 2,
    "set": "chilling_cold",
    "back": "encounter",
-   "storyBack": false
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
   }
  ]
 }

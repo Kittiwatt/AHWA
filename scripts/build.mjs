@@ -64,6 +64,8 @@ function carte(c, src) {
     out.backClue = { value: c.linked_card.clues ?? 0, perInvestigator: !c.linked_card.clues_fixed };
   }
   // Carte liée (ex. agenda dont le verso est un ennemi) : le verso est une autre carte ArkhamDB.
+  // Traits (« Spectral », « Witch »…) : servent à scinder les pioches (The Wages of Sin) et à choisir la défausse.
+  if (c.traits) out.traits = c.traits.split(".").map((t) => t.trim()).filter(Boolean);
   // Nom du côté non révélé (« Decrepit Door », « Unknown Places », titre du verso d'un agenda) : affiché tant que le verso est montré.
   if (c.back_name && !c.linked_card) out.backName = c.back_name;
   if (c.linked_card) {
@@ -123,6 +125,9 @@ async function buildScenario(fichierSrc) {
     }
   }
   for (const code of Object.keys(src.backPlacement ?? {})) if (!cartesPack.some((c) => c.code === code && c.linked_card)) throw new Error(`${src.id} : backPlacement ${code} n'est pas une carte liée`);
+  for (const p of src.piles ?? []) {
+    if (p.discard && !(src.piles ?? []).some((q) => q.id === p.discard && q.isDiscard)) throw new Error(`${src.id} : pile ${p.id} — défausse ${p.discard} non déclarée`);
+  }
   for (const p of src.swaps ?? []) {
     if (!Array.isArray(p.pair) || p.pair.length !== 2 || !Array.isArray(p.labels) || p.labels.length !== 2) throw new Error(`${src.id} : swaps mal formé`);
     for (const code of p.pair) if (!codes.has(code)) throw new Error(`${src.id} : swaps ${code} absent des sets de rencontre`);

@@ -22,6 +22,7 @@ export type ScenarioCard = {
   backCode?: string;      // carte liée : le verso est une autre carte (ex. agenda → ennemi)
   backKind?: CardKind;
   backName?: string;        // nom du verso : carte liée, ou côté non révélé d'un lieu/agenda/acte (« Decrepit Door », « Unknown Places »)
+  traits?: string[];        // traits imprimés (« Spectral », « Witch »…)
   backHealth?: number;
   backHealthPerInvestigator?: boolean;
   backVictory?: number;
@@ -31,7 +32,7 @@ export type ScenarioCard = {
 // Les références « slot:<nom> » désignent une carte choisie plus tôt (pickRandom, setStart).
 export type SetupStep =
   | { op: "place"; code: string; zone: ZoneId; x: number; y: number; reveal?: boolean; faceUp?: boolean; log?: string }
-  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; log?: string }
+  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; log?: string }
   | { op: "pickRandomSet"; from: string[]; n?: number; log?: string }   // garde n sets dans la pioche, retire les autres (sans révéler lesquels)
   | { op: "addDoom"; n: number; log?: string }                          // doom sur l'agenda courant (après « story »)
   | { op: "chaosAdd"; tokens: Token[]; log?: string }
@@ -48,7 +49,7 @@ export type SetupStep =
     // (principal d'abord) ; rangée i = i-ème enquêteur servi ; le reste est retiré ; start : chacun commence
     // sur l'une de ses cartes, tirée au hasard, révélée, avec son pion dessus
   | { op: "story"; log?: string }
-  | { op: "buildEncounter"; log?: string }
+  | { op: "buildEncounter"; split?: { trait: string; pile: string }[]; log?: string }   // split : les cartes portant le trait vont dans cette pile (mélangée)
   | { op: "layeredPile"; pile: string; pool: string[]; layers: { n?: number; with?: string[] }[]; log?: string }
     // pile construite par couches, du dessus vers le dessous : chaque couche prend les codes `with` (imposés) plus
     // `n` cartes tirées au hasard dans ce qui reste de `pool`, puis est mélangée ; tout le pool doit être consommé
@@ -90,7 +91,10 @@ export type ScenarioDef = {
   actDeck: string[];
   startLocation?: string;
   extraCards?: string[];
-  piles?: { id: string; label: string }[];   // piles supplémentaires (ex. « Cultist deck »)
+  piles?: { id: string; label: string; discard?: string; isDiscard?: boolean; trait?: string }[];
+    // piles supplémentaires : pioche déclarée (ex. « Cultist deck »), ou seconde pioche de rencontre avec sa défausse
+    // (`discard` = id de la défausse, `isDiscard` sur celle-ci) ; `trait` : les cartes portant ce trait vont dans
+    // cette pioche/défausse par défaut (The Wages of Sin : pioche et défausse spectrales)
   backPlacement?: Record<string, { x: number; y: number }>;   // où un verso-lieu entre en jeu quand l'acte/agenda avance (défaut : centre)
   chaosBag: Record<Difficulty, Token[]>;
   layout: { code: string; x: number; y: number }[];
