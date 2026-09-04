@@ -373,7 +373,11 @@ export class Room extends Server<Env> {
           this.state = before; // une action refusée en cours de route ne laisse aucune trace
           throw e;
         }
-        if (res.peek) { this.send(conn, { t: "peek", pile: res.peek.pile, cards: res.peek.cards }); return; }
+        if (res.peek) {
+          // L'aperçu ne va qu'au demandeur ; s'il a laissé une trace au journal (« regarde les X premières »), on la diffuse aussi.
+          this.send(conn, { t: "peek", pile: res.peek.pile, cards: res.peek.cards });
+          if (state.log.length === before.log.length) return;
+        }
         this.commit(before, res.reminders ?? []);
       }
     }

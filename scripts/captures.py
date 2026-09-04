@@ -668,6 +668,44 @@ with sync_playwright() as p:
     assert "Tirage au hasard dans Lieux au hasard" in h10.locator("#rappels").inner_text(), "encart du tirage"
     assert "Tirage au hasard dans Lieux au hasard" in j10.locator("#rappels").inner_text(), "les autres le voient"
     h10.screenshot(path=f"{OUT}/44_clutches_tirage.png")
+
+    # ---- Before the Black Throne (TCU VIII) : grille avec espaces vides, deux cartes Cosmos, pile Cosmos, Azathoth ----
+    code11, token11 = creer("tcu_before_the_black_throne")
+    print("room Black Throne", code11)
+    h11 = page_pour(browser, "Hôte", host=True, code=code11, token=token11)
+    h11.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h11.get_by_role("button", name="Choisir un enquêteur").click(); h11.wait_for_selector("dialog.dialogue-inv[open]")
+    h11.fill("dialog .recherche", "agnes"); h11.wait_for_timeout(300); h11.locator("dialog .inv").first.click()
+    h11.wait_for_selector(".siege-lobby.moi .fiche")
+    j11 = page_pour(browser, "Bob", code=code11, token=None)
+    j11.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j11.get_by_role("button", name="Choisir un enquêteur").click(); j11.wait_for_selector("dialog.dialogue-inv[open]")
+    j11.fill("dialog .recherche", "wendy"); j11.wait_for_timeout(300); j11.locator("dialog .inv").first.click()
+    j11.wait_for_selector(".siege-lobby.moi .fiche")
+    h11.wait_for_timeout(400)
+    h11.locator("input[name='q-tally']").fill("3"); h11.locator("input[name='q-tally']").dispatch_event("change")
+    for q, v in (("asked", "yes"), ("fate", "accepted"), ("lodge", "members_told"), ("blackbook", "yes")):
+        h11.locator(f"input[name='q-{q}'][value='{v}']").check()
+    h11.wait_for_timeout(200)
+    h11.locator(".reglage.questions").screenshot(path=f"{OUT}/45_throne_lobby_questions.png")
+    h11.get_by_role("button", name="Lancer la mise en place").click()
+    h11.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h11.wait_for_load_state("networkidle"); h11.wait_for_timeout(1500)
+    assert h11.locator("#plateau .carte.kind-location").count() == 3, "3 lieux"
+    assert h11.locator("#plateau .carte.kind-proxy").count() == 6, "6 espaces vides"
+    assert h11.locator("#plateau .carte.kind-proxy img[src='/img/dos-joueur.svg']").count() == 6, "dos de carte joueur"
+    assert h11.locator("#pioches .pile[data-outil='pile:cosmos'] .badge").inner_text() == "11", "Cosmos : 11"
+    assert h11.locator("#chaos .sac-forme").inner_text().strip() == "19", "sac 13 + −4 + 2 tablettes + 2 cultistes + 1 crâne"
+    assert h11.locator("#plateau .carte.kind-location img[alt='Cosmos']").count() == 2, "les deux cartes Cosmos s'appellent Cosmos"
+    h11.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h11.screenshot(path=f"{OUT}/46_throne_tapis.png")
+    # Menu de la pile Cosmos : regarder les 2 premières.
+    h11.locator("#pioches .pile[data-outil='pile:cosmos']").dispatch_event("contextmenu"); h11.wait_for_selector(".menu-carte")
+    assert h11.locator(".menu-carte").get_by_role("button", name="Regarder les 2 premières").count() == 1, "menu : regarder les premières"
+    h11.locator(".menu-carte").get_by_role("button", name="Regarder les 2 premières").click()
+    h11.wait_for_selector("dialog[open]", timeout=5000)
+    h11.screenshot(path=f"{OUT}/47_throne_apercu_cosmos.png")
+    h11.keyboard.press("Escape")
     browser.close()
 
 if erreurs:

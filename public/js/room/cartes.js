@@ -15,13 +15,14 @@ export const FACTIONS = {
 };
 
 export const JETONS_CHAOS = {
-  "+1": "+1", "0": "0", "-1": "−1", "-2": "−2", "-3": "−3", "-4": "−4", "-5": "−5", "-6": "−6", "-8": "−8",
+  "+1": "+1", "0": "0", "-1": "−1", "-2": "−2", "-3": "−3", "-4": "−4", "-5": "−5", "-6": "−6", "-7": "−7", "-8": "−8",
   skull: "Crâne", cultist: "Cultiste", tablet: "Tablette", elder_thing: "Ancien", auto_fail: "Échec auto",
   elder_sign: "Signe des anciens", bless: "Bénédiction", curse: "Malédiction", frost: "Givre",
 };
 
 /** URL de l'image à afficher pour une carte selon sa face et son côté. */
 export function urlImage(carte, def) {
+  if (carte.kind === "proxy" && carte.code === "empty:space") return "/img/dos-joueur.svg"; // espace vide (Before the Black Throne)
   const dos = def?.back ?? "b";
   const verso = def?.backCode ? `${CDN}${def.backCode}.webp` : `${CDN}${carte.code}b.webp`;
   if (carte.faceUp) return carte.side === "b" ? verso : `${CDN}${carte.code}.webp`;
@@ -34,6 +35,7 @@ export function urlImage(carte, def) {
 export function faceVisible(carte, def) {
   const versoVisible = def?.backCode && (carte.faceUp ? carte.side === "b" : !carte.storyBack);
   if (carte.kind === "key") return { kind: "key", name: `Clé ${LIBELLES_CLES[carte.code.replace(/^key:/, "")] ?? carte.code}`, liee: false };
+  if (carte.kind === "proxy" && carte.code === "empty:space") return { kind: "proxy", name: "Espace vide", liee: false };
   if (versoVisible) return { kind: def.backKind ?? carte.kind, name: def.backName ?? def?.name, health: def.backHealth, sanity: undefined, healthPerInvestigator: def.backHealthPerInvestigator, liee: true };
   // Verso montré (lieu non révélé, agenda retourné…) : son propre nom s'il en a un (« Decrepit Door »), sans dévoiler le recto.
   const versoMontre = def?.backName && (carte.faceUp ? carte.side === "b" : !carte.storyBack);

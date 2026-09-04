@@ -1,0 +1,96 @@
+{
+  "_source": "Guide de campagne The Circle Undone (FFG, 2019) : Scenario VIII, section « Setup » p. 36 (sets, Hideous Palace / Court of the Great Old Ones / The Black Throne de côté, Cosmic Ingress, Cosmos, deux cartes « Cosmos » indistinguables, espaces vides, Piper of Azathoth, Azathoth près de l'agenda, marques du journal), encadrés « The Cosmos » et « Empty Space » p. 36, diagramme « Location Placement for Setup / Act 1 » p. 37 ; Interlude IV p. 35 (jeton selon la difficulté) ; sac de campagne p. 4 + jetons des scénarios précédents ; sac du mode autonome p. 36. Aucun texte de carte ; les rappels paraphrasent le guide ou décrivent les gestes de l'application.",
+  "id": "tcu_before_the_black_throne",
+  "title": "Before the Black Throne",
+  "campaign": "The Circle Undone",
+  "campaignId": "tcu",
+  "order": 8,
+  "packs": ["bbt", "tcu", "core"],
+  "encounterSets": ["before_the_black_throne", "agents_of_azathoth", "inexorable_fate", "ancient_evils", "pentagram"],
+  "scenarioCard": "05325",
+  "agendaDeck": ["05326", "05327", "05328"],
+  "actDeck": ["05329", "05330", "05331"],
+  "startLocation": "05332",
+  "piles": [{ "id": "cosmos", "label": "Cosmos" }],
+  "emptySpace": true,
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-2", "-3", "skull", "skull", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "-1", "-1", "-2", "-2", "-3", "-4", "-5", "skull", "skull", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-4", "-6", "-8", "skull", "skull", "auto_fail", "elder_sign"]
+  },
+  "layout": [ { "code": "05332", "x": 551, "y": 411 } ],
+  "questions": [
+    { "id": "tally", "type": "number", "min": 0, "max": 8, "default": 0, "text": "Journal de campagne (Interlude IV) — nombre de marques à côté de « the path winds before you » (en partie autonome, choisissez entre 0 et 6 selon le guide) :" },
+    { "id": "asked", "text": "Journal de campagne (Interlude IV) — les enquêteurs ont demandé l'aide d'Anette ou de Sanford :", "options": [
+      { "id": "yes", "label": "oui (un jeton selon la difficulté a été ajouté au sac)" },
+      { "id": "no", "label": "non (ou partie autonome)" } ] },
+    { "id": "fate", "text": "Journal de campagne (introduction du scénario I) — l'enquêteur principal :", "options": [
+      { "id": "accepted", "label": "a accepté son destin" },
+      { "id": "rejected", "label": "a rejeté son destin" },
+      { "id": "standalone", "label": "partie autonome (hors campagne)" } ] },
+    { "id": "lodge", "text": "Journal de campagne (Interlude II et introduction du scénario III) — les enquêteurs :", "options": [
+      { "id": "members_told", "label": "sont membres de la Loge, et ont parlé du coven à la Loge" },
+      { "id": "members_hid", "label": "sont membres de la Loge, et ont caché ce qu'ils savent du coven" },
+      { "id": "enemies", "label": "sont ennemis de la Loge" },
+      { "id": "nothing", "label": "n'ont rien appris des projets de la Loge" },
+      { "id": "gone", "label": "ne sont jamais revus" },
+      { "id": "standalone", "label": "partie autonome (hors campagne)" } ] },
+    { "id": "blackbook", "text": "Journal de campagne (résolution du scénario III) — The Black Book :", "options": [
+      { "id": "yes", "label": "a rejoint le deck d'un enquêteur" },
+      { "id": "no", "label": "n'a rejoint aucun deck (ou partie autonome)" } ] }
+  ],
+  "setup": [
+    { "op": "aside", "codes": ["05334", "05335"], "faceUp": false,
+      "log": "Court of the Great Old Ones et The Black Throne sont mis de côté, hors jeu, côté « Cosmos »." },
+    { "op": "place", "code": "05332", "zone": "board", "x": 551, "y": 411, "reveal": true,
+      "log": "Cosmic Ingress est mis en jeu, révélé : chaque enquêteur y commence la partie." },
+    { "op": "minis", "code": "05332" },
+    { "op": "pickRandom", "from": ["05336", "05336", "05336", "05337", "05337", "05337", "05338", "05338", "05338", "05339", "05340", "05340"], "n": 1, "slot": "cosmosTop", "rest": "pile", "restPile": "cosmos",
+      "log": "Les autres lieux forment le Cosmos, une pile séparée côté « Cosmos » ; sa première carte est tirée." },
+    { "op": "pickRandom", "from": ["05333", "slot:cosmosTop"], "n": 2, "zone": "board", "positions": [ { "x": 923, "y": 173 }, { "x": 923, "y": 649 } ],
+      "log": "Hideous Palace et la première carte du Cosmos sont mélangés puis posés côté « Cosmos » en haut et en bas à droite : impossible de savoir lequel est lequel avant de les révéler." },
+    { "op": "toPile", "codes": ["05336", "05337", "05338", "05339", "05340"], "pile": "cosmos", "shuffle": true, "log": "Le Cosmos (onze lieux) est mélangé." },
+    { "op": "emptySpace", "positions": [ { "x": 551, "y": 173 }, { "x": 737, "y": 173 }, { "x": 737, "y": 411 }, { "x": 923, "y": 411 }, { "x": 551, "y": 649 }, { "x": 737, "y": 649 } ],
+      "log": "Six espaces vides (dos de carte joueur) complètent la grille du diagramme « Setup / Act 1 »." },
+    { "op": "aside", "codes": ["05088"], "faceUp": true, "log": "Piper of Azathoth est mis de côté, hors jeu." },
+    { "op": "place", "code": "05346", "zone": "board", "x": 120, "y": 173, "faceUp": true,
+      "log": "Azathoth est mis en jeu à gauche du tapis, près de l'histoire : en jeu, mais à aucun lieu." },
+    { "op": "story" },
+    { "op": "addTokens", "at": "05325", "token": "resource", "nFrom": "tally",
+      "log": "Marques du journal « the path winds before you » : jetons ressource posés sur la carte de scénario" },
+    { "op": "branch", "on": "asked", "cases": {
+      "yes": [ { "op": "chaosAdd", "byDifficulty": { "easy": ["-3"], "standard": ["-4"], "hard": ["-5"], "expert": ["-7"] },
+                "log": "Aide demandée à Anette ou Sanford (Interlude IV) : jeton de campagne ajouté au sac selon la difficulté" } ],
+      "no": [ { "op": "log", "text": "Pas d'aide demandée (Interlude IV) : aucun jeton supplémentaire." } ] } },
+    { "op": "branch", "on": "fate", "cases": {
+      "accepted": [ { "op": "chaosAdd", "tokens": ["tablet", "tablet"], "log": "Destin accepté (scénario I) : les 2 jetons Tablette de la campagne sont dans le sac." } ],
+      "rejected": [ { "op": "chaosAdd", "tokens": ["elder_thing", "elder_thing"], "log": "Destin rejeté (scénario I) : les 2 jetons Ancien de la campagne sont dans le sac." } ],
+      "standalone": [ { "op": "chaosAdd", "tokens": ["tablet", "elder_thing"], "log": "Partie autonome : 1 jeton Tablette et 1 jeton Ancien ajoutés au sac, comme l'indique le guide." } ] } },
+    { "op": "branch", "on": "lodge", "cases": {
+      "members_told": [ { "op": "chaosAdd", "tokens": ["cultist", "cultist"], "log": "Membres de la Loge et coven dévoilé : 2 jetons Cultiste de la campagne sont dans le sac." } ],
+      "members_hid": [ { "op": "chaosAdd", "tokens": ["cultist"], "log": "Membres de la Loge : 1 jeton Cultiste de la campagne est dans le sac." } ],
+      "enemies": [ { "op": "log", "text": "Ennemis de la Loge : aucun jeton Cultiste de campagne." } ],
+      "nothing": [ { "op": "log", "text": "Rien appris des projets de la Loge : aucun jeton Cultiste de campagne." } ],
+      "gone": [ { "op": "log", "text": "Jamais revus : aucun jeton Cultiste de campagne." } ],
+      "standalone": [ { "op": "chaosAdd", "tokens": ["cultist"], "log": "Partie autonome : 1 jeton Cultiste ajouté au sac, comme l'indique le guide." } ] } },
+    { "op": "branch", "on": "blackbook", "cases": {
+      "yes": [ { "op": "chaosAdd", "tokens": ["skull"], "log": "The Black Book dans un deck (résolution du scénario III) : 1 jeton Crâne de campagne est dans le sac." } ],
+      "no": [ { "op": "log", "text": "The Black Book dans aucun deck : pas de jeton Crâne supplémentaire." } ] } },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée." },
+    { "when": "setup", "text": "Le Cosmos (guide) : les nouveaux lieux viennent de la pile « Cosmos ». Quand l'acte le permet, menu de la pile → « Regarder les X premières » : choisissez-en un, glissez-le sur le tapis à la position que dicte son instruction « Cosmos – » (au-dessus, à droite… de votre lieu), cliquez-le pour le révéler et déplacez votre pion ; puis « Mélanger » la pile pour y remettre les autres. Un lieu ne peut pas entrer à une position déjà occupée par un lieu ; si l'instruction est impossible, il retourne dans le Cosmos (glisser sur la pile, puis « Mélanger »). Ces instructions ne valent qu'au moment du tirage." },
+    { "when": "setup", "text": "Espaces vides (guide) : les dos de carte joueur sur le tapis sont des espaces vides — pas des lieux, infranchissables sauf mention contraire, mais ils comptent pour les distances. Pour en poser un : menu d'un lieu → « Espace vide au-dessus / au-dessous / à gauche / à droite » ; quand un lieu prend la place d'un espace vide, retirez celui-ci (menu → Retirer) — hors application, la carte joueur retourne dans le deck de son propriétaire." },
+    { "when": "setup", "text": "Azathoth est en jeu sans être à aucun lieu (posé à gauche du tapis). Les jetons ressource sur la carte de scénario sont les marques du journal. Court of the Great Old Ones, The Black Throne (côté Cosmos) et Piper of Azathoth attendent dans la zone de côté." },
+    { "when": "act:2", "text": "Acte 2 : le verso de l'acte 1 réorganise le tapis — reportez-vous au diagramme « Location Placement for Act 2 » du guide (p. 37) ; déplacez lieux, pions et espaces vides par glisser, retirez les espaces vides remplacés, révélez les lieux d'un clic." },
+    { "when": "act:3", "text": "Acte 3 : les lieux de côté (côté Cosmos) entrent en jeu par glisser depuis la zone de côté, clic pour les révéler." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

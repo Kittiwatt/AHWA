@@ -236,6 +236,8 @@ export function initInteractions(ctx) {
         items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: id }), { off: !ids.length }));
         // Tirage au hasard sans sortir la carte (« choisir un lieu au hasard ») : le nom s'affiche pour tous.
         for (const n of [1, 2, 3]) if (ids.length >= n) items.push(item(`Tirer ${n} au hasard (sans sortir)`, () => ctx.envoyer({ t: "randomPick", pile: id, n })));
+        // Regarder seulement les premières cartes (« regardez les X premières cartes du Cosmos ») : aperçu privé, puis on glisse celle qu'on garde.
+        for (const n of [1, 2, 3, 4]) if (ids.length >= n) items.push(item(`Regarder les ${n} première${n > 1 ? "s" : ""}`, () => ctx.envoyer({ t: "searchEncounter", pile: id, n })));
       }
     } else if (outil === "sac") {
       items.push(el("p", { class: "titre-menu", text: `Sac du chaos — ${state.chaos.bag.length} jetons` }));
@@ -287,6 +289,8 @@ export function initInteractions(ctx) {
       if (carte.loc.zone !== "board") items.push(item("Sur le tapis (pour lire)", () => ctx.envoiSurTapis(carte)));
       if (carte.loc.zone !== "story") items.push(item("Ramener dans l'histoire", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "story", x: 0, y: 0 })));
       for (const t of agenda ? ["doom"] : ["clue"]) items.push(jeton(t));
+    } else if (carte.kind === "proxy") {
+      items.push(item("Retirer (un lieu prend sa place)", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "removed" }), { danger: true }));
     } else if (carte.kind === "key") {
       if (carte.loc.zone !== "aside") items.push(item("Mettre de côté", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "aside", x: 9999, y: 0 })));
       if (carte.loc.zone !== "board") items.push(item("Sur le tapis", () => ctx.envoiSurTapis(carte)));
@@ -306,6 +310,12 @@ export function initInteractions(ctx) {
         }
         items.push(item("Retirer tous les indices des lieux", () => { if (confirm("Retirer tous les indices de tous les lieux en jeu ?")) ctx.envoyer({ t: "clearClues" }); }));
         items.push(item("Retirer de la partie tous les autres lieux", () => { if (confirm(`Retirer de la partie tous les lieux du tapis sauf ${nom} ?`)) ctx.envoyer({ t: "removeLocations", keep: carte.id }); }));
+        if (ctx.scenario.emptySpace) {
+          // Espace vide (dos de carte joueur) posé à côté de ce lieu, sur la grille du diagramme.
+          for (const [lib, dx, dy] of [["au-dessus", 0, -238], ["au-dessous", 0, 238], ["à gauche", -186, 0], ["à droite", 186, 0]]) {
+            items.push(item(`Espace vide ${lib}`, () => ctx.envoyer({ t: "emptySpace", x: carte.loc.x + dx, y: carte.loc.y + dy })));
+          }
+        }
       }
       // Carte dont les deux faces sont des faces de jeu (verso = lieu lié, ex. face Spectral ; ennemi à deux faces,
       // ex. Nathan Wick) : on bascule, on ne retourne pas.

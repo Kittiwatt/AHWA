@@ -17,7 +17,7 @@ const NOMS_PHASES: Record<string, string> = {
 };
 const ZONES = new Set<string>(["board", "seat0", "seat1", "seat2", "seat3", "story", "aside", "victory"]);
 const TOKENS = new Set(["doom", "clue", "damage", "horror", "resource", "generic"]);
-const CHAOS_TOKENS = new Set<string>(["+1", "0", "-1", "-2", "-3", "-4", "-5", "-6", "-8", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign", "bless", "curse", "frost"]);
+const CHAOS_TOKENS = new Set<string>(["+1", "0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign", "bless", "curse", "frost"]);
 
 function carte(state: RoomState, id: unknown): CardState {
   const c = state.cards[String(id)];
@@ -453,9 +453,12 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       return {};
     }
     case "searchEncounter": {
+      // {pile, n?} : consulte la pile (ou seulement ses n premières cartes : « regardez les X premières cartes du Cosmos »).
       const pile = String(msg.pile ?? "encounter");
       if (!(pile in state.piles) || pile === "removed") refuser("pile inconnue");
-      return { peek: { pile, cards: state.piles[pile].map((id) => ({ id, code: state.cards[id].code })) } };
+      const n = Number(msg.n) > 0 ? Math.min(Number(msg.n), state.piles[pile].length) : state.piles[pile].length;
+      if (Number(msg.n) > 0) addLog(state, "action", `${moi !== null ? nomSiege(state, moi, def) : "Un joueur"} regarde les ${n} première${n > 1 ? "s" : ""} carte${n > 1 ? "s" : ""} de ${pile === "encounter" ? "la pioche" : nomPile(def, pile)}.`, moi ?? undefined);
+      return { peek: { pile, cards: state.piles[pile].slice(0, n).map((id) => ({ id, code: state.cards[id].code })) } };
     }
     case "advanceAgenda":
     case "advanceAct": {
@@ -499,6 +502,15 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
         state.links = state.links.filter((k) => k.a !== l.id && k.b !== l.id);
       }
       addLog(state, "action", `${lieux.length} lieu${lieux.length > 1 ? "x" : ""} retiré${lieux.length > 1 ? "s" : ""} de la partie ; ${nomCarte(def, garde)} reste en jeu.`);
+      return {};
+    }
+    case "emptySpace": {
+      // {x, y} : pose un « espace vide » (dos de carte joueur, kind proxy) sur le tapis — Before the Black Throne.
+      if (!def.emptySpace) refuser("ce scénario n'utilise pas d'espace vide");
+      const n = Object.keys(state.cards).filter((k) => k.startsWith("empty-")).length + 1;
+      const id = `empty-${n}`;
+      state.cards[id] = { id, code: "empty:space", kind: "proxy", storyBack: false, loc: { zone: "board", x: Math.round(Number(msg.x) || 0), y: Math.round(Number(msg.y) || 0), z: nextZ(state) }, faceUp: false, exhausted: false, side: "a", tokens: {} };
+      addLog(state, "action", "Un espace vide est posé sur le tapis (dos de carte joueur : sortez-le de la partie quand un lieu prend sa place).");
       return {};
     }
     case "clearClues": {

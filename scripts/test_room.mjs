@@ -1120,5 +1120,67 @@ async function tableClutches({ joueurs, answers }) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Before the Black Throne (TCU VIII) : Cosmos, deux cartes indistinguables, espaces vides, jeton par difficulté, marques ============
+{
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tcu_before_the_black_throne" }) });
+  assert.equal(r.status, 200, "Before the Black Throne est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "05001" });
+  const j2 = client(code, { seat: 1, name: "J2" });
+  await j2.attendre((m) => m.t === "welcome");
+  await j2.action({ t: "chooseInvestigator", code: "05002" });
+  await h.attendre((m) => m.t === "delta" && m.rev === 2);
+  await h.action({ t: "setDifficulty", d: "hard" });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers: { tally: "5", asked: "yes", fate: "accepted", lodge: "members_hid", blackbook: "yes" } });
+  let d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux.length, 3, "Cosmic Ingress + 2 cartes Cosmos");
+  const ingress = lieux.find((c) => c.code === "05332");
+  assert.ok(ingress.faceUp && ingress.tokens.clue === 3 && ingress.loc.x === 551 && ingress.loc.y === 411, "Cosmic Ingress révélé, 3 indices fixes");
+  const cosmos2 = lieux.filter((c) => c.code !== "05332");
+  assert.deepEqual(cosmos2.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["923,173", "923,649"], "deux cartes Cosmos en haut et en bas à droite");
+  assert.ok(cosmos2.every((c) => !c.faceUp), "côté Cosmos");
+  assert.ok(cosmos2.some((c) => c.code === "05333"), "Hideous Palace parmi les deux");
+  assert.ok(!s.log.some((e) => /Hideous Palace est mis en jeu|Dancer|Flight|Infinity|Cosmic Gate|Pathway/.test(e.text)), "le journal ne dévoile ni la position du Palace ni la carte tirée");
+  assert.equal(s.piles.cosmos.length, 11, "Cosmos : 11 lieux");
+  assert.ok(s.piles.cosmos.every((id) => !s.cards[id].faceUp));
+  const vides = cartes.filter((c) => c.kind === "proxy");
+  assert.equal(vides.length, 6, "6 espaces vides");
+  assert.ok(vides.every((c) => c.code === "empty:space" && c.loc.zone === "board" && !c.faceUp));
+  const azathoth = cartes.find((c) => c.code === "05346");
+  assert.ok(azathoth.loc.zone === "board" && azathoth.faceUp, "Azathoth en jeu sur le tapis");
+  assert.deepEqual(cartes.filter((c) => c.loc.zone === "aside").map((c) => c.code).sort(), ["05088", "05334", "05335"], "de côté : Piper, Court, Black Throne");
+  assert.ok(cartes.filter((c) => c.loc.zone === "aside" && c.kind === "location").every((c) => !c.faceUp));
+  const scen = cartes.find((c) => c.code === "05325");
+  assert.equal(scen.tokens.resource, 5, "5 marques = 5 ressources sur la carte de scénario");
+  assert.equal(s.piles.encounter.length, 30, "pioche : 32 − Piper − Azathoth = 30");
+  assert.equal(s.chaos.bag.length, 18, "sac difficile 13 + jeton −5 de l'interlude + 2 tablettes + 1 cultiste + 1 crâne");
+  assert.equal(s.chaos.bag.filter((t) => t === "-5").length, 2, `jeton −5 de l'Interlude IV (difficulté difficile) ajouté : ${s.difficulty} ${JSON.stringify(s.chaos.bag)}`);
+  // Regarder les 2 premières cartes du Cosmos : aperçu privé de 2 cartes ; journal.
+  h.envoyer({ t: "searchEncounter", pile: "cosmos", n: 2 });
+  d = await h.attendre((m) => m.t === "peek");
+  assert.equal(d.cards.length, 2, "aperçu de 2 cartes");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.ok(h.state.log.some((e) => e.text.includes("regarde les 2 premières cartes de Cosmos")), "journal de l'aperçu diffusé");
+  // Espace vide posé à côté d'un lieu, puis retiré quand un lieu prend sa place.
+  d = await h.action({ t: "emptySpace", x: 365, y: 411 });
+  assert.equal(Object.values(h.state.cards).filter((c) => c.kind === "proxy").length, 7, "espace vide ajouté");
+  d = await h.action({ t: "toPile", id: "empty-7", pile: "removed" });
+  assert.equal(Object.values(h.state.cards).filter((c) => c.kind === "proxy" && c.loc.zone === "board").length, 6, "espace vide retiré");
+  d = await h.action({ t: "flipCard", id: "empty-1" });
+  assert.equal(d.t, "delta", "un espace vide peut être retourné (sans effet visible) ou déplacé");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.piles.cosmos, h.state.piles.cosmos);
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

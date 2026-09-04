@@ -19,7 +19,8 @@ Tables jouables : la campagne *Night of the Zealot* complète (I — The
 Gathering, II — The Midnight Masks, III — The Devourer Below) et *The
 Circle Undone* I — The Witching Hour, II — At Death's Doorstep, III —
 The Secret Name, IV — The Wages of Sin, V — For the Greater Good, VI —
-Union and Disillusion et VII — In the Clutches of Chaos, avec
+Union and Disillusion, VII — In the Clutches of Chaos et VIII — Before the
+Black Throne (campagne complète hors prologue), avec
 les questions de journal au lobby, les tirages au hasard, les piles et
 les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » et lien vers le livret de
 campagne dans chaque table. Lobby

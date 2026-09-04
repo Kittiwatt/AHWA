@@ -40,7 +40,9 @@ export type SetupStep =
     // jetons posés au hasard sur des lieux du tapis : à chaque manche (rounds[joueurs-1]), picks[joueurs-1] lieux distincts reçoivent n jetons (brèches d'In the Clutches of Chaos)
   | { op: "pickRandomSet"; from: string[]; n?: number; log?: string }   // garde n sets dans la pioche, retire les autres (sans révéler lesquels)
   | { op: "addDoom"; n?: number; nFrom?: string; log?: string }         // doom sur l'agenda courant (après « story ») ; nFrom = réponse numérique
-  | { op: "addTokens"; at: string; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic"; n: number; log?: string }   // jetons sur une carte en jeu (code ou slot), ex. ressource = brasero allumé
+  | { op: "addTokens"; at: string; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic"; n?: number; nFrom?: string; log?: string }   // jetons sur une carte en jeu (code ou slot), ex. ressource = brasero allumé ; nFrom = réponse numérique
+  | { op: "emptySpace"; positions: { x: number; y: number }[]; log?: string }   // espaces vides posés au setup (dos de carte joueur)
+  | { op: "chaosAdd"; byDifficulty: Record<Difficulty, Token[]>; log?: string }   // jeton(s) selon la difficulté (Interlude IV de TCU)
   | { op: "when"; cond: Cond; then: SetupStep[]; else?: SetupStep[] }     // condition composée sur les réponses
   | { op: "chaosAdd"; tokens: Token[]; log?: string }
   | { op: "reminder"; text: string }                                    // encart éphémère + journal
@@ -126,6 +128,7 @@ export type ScenarioDef = {
   questions: Question[];
   swaps?: { pair: [string, string]; labels: [string, string] }[];   // lieux qui se remplacent (normal ↔ Spectral), avec le libellé de chaque version
   mythosDoom?: boolean;     // false : la phase du mythe n'ajoute pas de doom automatiquement (brèches d'In the Clutches of Chaos)
+  emptySpace?: boolean;     // le scénario pose des « espaces vides » (dos de carte joueur) : action emptySpace, menu des lieux (Before the Black Throne)
   seatCounters: { key: string; label: string; icon?: string; initial: number }[];
   tableCounters: { key: string; label: string; icon?: string; initial: number }[];
   reminders: Reminder[];

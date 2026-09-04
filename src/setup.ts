@@ -47,6 +47,7 @@ export const LIBELLES_CLES: Record<string, string> = { skull: "Crâne", cultist:
 /** Nom de la face actuellement visible : le verso (backName) quand il est montré, sinon le recto. */
 export function nomVisible(def: ScenarioDef, card: CardState): string {
   if (card.kind === "key") return `clé ${LIBELLES_CLES[card.code.replace(/^key:/, "")] ?? card.code}`;
+  if (card.kind === "proxy" && card.code === "empty:space") return "espace vide";
   const d = def.cards.find((c) => c.code === card.code);
   if (!d) return card.code;
   const versoVisible = card.faceUp ? card.side === "b" : !card.storyBack;
@@ -218,9 +219,16 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       }
       case "pickRandom": {
         const n = step.n ?? 1;
-        const choix = shuffle([...step.from], rng).slice(0, n);
+        // « slot:<nom> » dans from = le code de la carte désignée par ce slot (tirage antérieur sans zone → code ; avec zone → carte).
+        const codeDe = (ref: string): string => {
+          if (!ref.startsWith("slot:")) return ref;
+          const v = slots.get(ref.slice(5)) ?? "";
+          return state.cards[v]?.code ?? v;
+        };
+        const candidats = step.from.map(codeDe);
+        const choix = shuffle([...candidats], rng).slice(0, n);
         const noms = choix.map((c) => pool.def(c).name);
-        const restes = step.from.filter((code) => !choix.includes(code));
+        const restes = candidats.filter((code) => !choix.includes(code));
         if (step.rest === "pile") {
           // Les cartes non tirées forment (ou rejoignent) une pile, ex. lieux pour « choisir un lieu au hasard ».
           const pile = step.restPile ?? "rest";
@@ -285,8 +293,18 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       }
       case "addTokens": {
         const c = enJeu(step.at);
-        c.tokens[step.token] = (c.tokens[step.token] ?? 0) + step.n;
-        addLog(state, "setup", step.log ?? `${step.n} jeton${step.n > 1 ? "s" : ""} ${step.token} sur ${nomVisible(def, c)}.`);
+        const n = step.nFrom !== undefined ? Number(answers[step.nFrom]) : step.n ?? 0;
+        if (n > 0) c.tokens[step.token] = (c.tokens[step.token] ?? 0) + n;
+        if (n > 0 || step.nFrom !== undefined) addLog(state, "setup", `${step.log ?? `Jetons ${step.token} sur ${nomVisible(def, c)}`} : ${n}.`);
+        break;
+      }
+      case "emptySpace": {
+        // Espaces vides (Before the Black Throne) : dos de carte joueur, kind proxy, sans définition ArkhamDB.
+        step.positions.forEach((pos, i) => {
+          const id = `empty-${i + 1}`;
+          state.cards[id] = { id, code: "empty:space", kind: "proxy", storyBack: false, loc: { zone: "board", x: pos.x, y: pos.y, z: z++ }, faceUp: false, exhausted: false, side: "a", tokens: {} };
+        });
+        addLog(state, "setup", step.log ?? `${step.positions.length} espaces vides posés sur le tapis (dos de carte joueur).`);
         break;
       }
       case "when": {
@@ -294,6 +312,12 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         break;
       }
       case "chaosAdd": {
+        if ("byDifficulty" in step) {
+          const tokens = step.byDifficulty[state.difficulty] ?? [];
+          state.chaos.bag.push(...tokens);
+          addLog(state, "setup", `${step.log ?? "Jeton(s) ajouté(s) au sac selon la difficulté"} : ${tokens.join(", ") || "aucun"}.`);
+          break;
+        }
         state.chaos.bag.push(...step.tokens);
         addLog(state, "setup", step.log ?? `Jeton${step.tokens.length > 1 ? "s" : ""} ajouté${step.tokens.length > 1 ? "s" : ""} au sac du chaos : ${step.tokens.join(", ")}.`);
         break;
@@ -324,8 +348,9 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
             ids.push(id);
           }
         }
-        state.piles[step.pile].push(...(step.shuffle ? shuffle(ids, rng) : ids));
-        addLog(state, "setup", step.log ?? `${ids.length} cartes dans la pile ${step.pile}.`);
+        state.piles[step.pile].push(...ids);
+        if (step.shuffle) shuffle(state.piles[step.pile], rng); // toute la pile, y compris ce qui s'y trouvait déjà
+        addLog(state, "setup", step.log ?? `${ids.length} cartes dans la pile ${step.pile}${step.shuffle ? ", mélangée" : ""}.`);
         break;
       }
       case "spawn": {

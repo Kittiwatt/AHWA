@@ -390,7 +390,17 @@ non tirées dans une pile (les huit versions non utilisées d'In the
 Clutches of Chaos, pile « Lieux au hasard ») ; `randomTokens {token,
 picks, rounds}` pose des jetons sur des lieux du tapis tirés au hasard
 selon le nombre de joueurs (brèches initiales) ; `mythosDoom: false`
-supprime le doom automatique de la phase du mythe. Le build synthétise le recto d'une carte dont
+supprime le doom automatique de la phase du mythe. Before the Black
+Throne : `pickRandom` accepte `slot:<nom>` dans `from` (code tiré plus
+tôt sans zone), `toPile {shuffle}` mélange toute la pile, `emptySpace
+{positions}` et l'action `emptySpace {x, y}` posent des **espaces vides**
+(kind `proxy`, code `empty:space`, dos de carte joueur, menu « Espace
+vide au-dessus/au-dessous/à gauche/à droite » d'un lieu si
+`emptySpace: true`), `addTokens {nFrom}` lit une réponse numérique,
+`chaosAdd {byDifficulty}` ajoute des jetons selon la difficulté (jeton
+−7 ajouté aux jetons connus), `searchEncounter {n}` ne montre que les n
+premières cartes (menu « Regarder les n premières » ; le journal en
+garde la trace et le serveur diffuse ce delta même pour un aperçu). Le build synthétise le recto d'une carte dont
 ArkhamDB ne connaît que le verso (`<code>b` avec `linked_card`, ex.
 Josef Meiger 05085).
 

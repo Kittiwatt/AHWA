@@ -24,7 +24,7 @@ export type CardKind =
   | "key";   // clé (jeton du chaos utilisé comme clé, TCU For the Greater Good) : petit jeton déplaçable
 
 export type Token =
-  | "+1" | "0" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-8"
+  | "+1" | "0" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8"
   | "skull" | "cultist" | "tablet" | "elder_thing" | "auto_fail" | "elder_sign"
   | "bless" | "curse" | "frost";
 

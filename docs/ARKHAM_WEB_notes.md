@@ -17,6 +17,30 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-04 : **Before the Black Throne (TCU VIII) livré — la campagne
+  est complète (hors prologue)**. Guide p. 36‑37 : Cosmic Ingress révélé
+  (3 indices fixes, pions), **le Cosmos** = pile « Cosmos » des lieux
+  restants (11), côté « Cosmos » (`backName`) ; **deux cartes
+  indistinguables** en haut et en bas à droite (Hideous Palace + la
+  première du Cosmos : `pickRandom` sans zone → `slot:cosmosTop`, puis
+  `pickRandom from: ["05333", "slot:cosmosTop"]` — `from` accepte un
+  slot —, journal muet sur leur identité) ; **six espaces vides** (op
+  `emptySpace`, cartes `empty:space` de kind `proxy` rendues avec
+  `/img/dos-joueur.svg`, menu « Retirer ») ; en jeu, l'action
+  `emptySpace {x, y}` par le menu des lieux (« Espace vide au-dessus… »)
+  quand `emptySpace: true`. Court of the Great Old Ones et The Black
+  Throne de côté (côté Cosmos), Piper de côté, **Azathoth** posé à gauche
+  du tapis (en jeu, à aucun lieu). **Marques du journal** (question
+  numérique 0‑8) → jetons ressource sur la carte de scénario (`addTokens
+  {nFrom}`) ; **Interlude IV** : aide demandée → jeton par difficulté
+  (`chaosAdd {byDifficulty}` : −3 / −4 / −5 / −7 ; jeton **−7** ajouté
+  au type Token, à CHAOS_TOKENS et aux libellés du front, image m7.svg
+  existante). Menu de pile « Regarder les n premières » (`searchEncounter
+  {n}`, journal diffusé même sans changement d'état : room.ts commet si
+  le journal a grandi). Sets : `before_the_black_throne` (pack **`bbt`**),
+  `agents_of_azathoth`, `inexorable_fate`, `ancient_evils`, `pentagram`.
+  Pioche : 30. Tests : 262 messages, onze scénarios (difficulté
+  « difficile » via `setDifficulty {d}`) ; captures 45‑47.
 - 2026-09-04 : **In the Clutches of Chaos (TCU VII) livré** (choix
   laissés à Claude). Guide p. 30‑32 : **une version sur deux** pour six
   lieux (`pickRandom` par paire, `rest: "pile"` → les versions non
@@ -446,12 +470,13 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : TCU VIII Before the Black Throne (pack `bbt`,
-  dernier scénario ; vérifier les jetons ajoutés par la résolution du
-  VII et l'Interlude IV), puis le prologue Disappearance at the
-  Twilight Estate. Ensuite, chantier convenu avec l'utilisateur :
+- **Prochaine étape** : le prologue Disappearance at the Twilight
+  Estate (pack `tcu`, set `disappearance_at_the_twilight_estate` : choix
+  des enquêteurs neutres 05046‑49, lieux 05071‑77 / Spectral 05078‑84
+  à réutiliser), puis le chantier convenu avec l'utilisateur :
   **rangement de la zone hors jeu** (tri par groupes ou piles nommées ;
-  VI atteint 26 cartes de côté). Jetons de campagne : reportés par les questions
+  VI atteint 26 cartes de côté). Après quoi : retours de jeu sur les
+  huit tables TCU. Jetons de campagne : reportés par les questions
   d'introduction, de la Loge et de The Black Book ; à chaque nouveau
   scénario, relire les résolutions précédentes pour les ajouts.
   Chantier possible : un compteur de doom / une ligne de journal par
