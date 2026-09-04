@@ -887,5 +887,83 @@ async function tableDoorstep({ joueurs, answers }) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ For the Greater Good (TCU V) : deux mises en place selon la Loge, actes alternatifs, clés déplaçables, Nathan Wick à deux faces ============
+async function tableGreater({ answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tcu_for_the_greater_good" }) });
+  assert.equal(r.status, 200, "For the Greater Good est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "05001" });
+  const j2 = client(code, { seat: 1, name: "J2" });
+  await j2.attendre((m) => m.t === "welcome");
+  await j2.action({ t: "chooseInvestigator", code: "05002" });
+  await h.attendre((m) => m.t === "delta" && m.rev === 2);
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === 3) || m.t === "nack");
+  assert.equal(d.t, "delta", "mise en place acceptée");
+  await new Promise((r) => setTimeout(r, 200));
+  return { h, j2 };
+}
+{
+  // Membres de la Loge : acte 1 « Warm Welcome », versions « We've Been Expecting You », retraits.
+  const { h, j2 } = await tableGreater({ answers: { fate: "accepted", lodge: "members_hid", blackbook: "yes" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.deepEqual(lieux.map((c) => c.code).sort(), ["05204", "05206", "05208", "05210", "05213"], "5 lieux : versions We've Been Expecting You + Lounge + Catacombs");
+  const gates = lieux.find((c) => c.code === "05204");
+  assert.ok(gates.faceUp && gates.loc.x === 737 && gates.loc.y === 173, "Lodge Gates révélé en haut");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.y === 173 - 22), "pions sur Lodge Gates");
+  assert.equal(s.cards[s.actId].code, "05200", "acte 1 Warm Welcome");
+  assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["05202", "05203"], "actes 2 et 3 seulement");
+  assert.ok(cartes.some((c) => c.code === "05201" && c.loc.pile === "removed"), "l'autre acte 1 est retiré");
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed" && ["01169", "01170", "05221", "05219"].includes(c.code)).length, 7, "7 cartes de rencontre retirées");
+  assert.equal(s.piles.encounter.length, 29, "pioche : 29 cartes");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.deepEqual(cote.filter((c) => c.kind !== "key").map((c) => c.code).sort(), ["05211", "05212", "05214", "05215", "05216", "05217", "05220", "05227", "05228"], "de côté : 5 lieux, Nathan, Summoned Beast, August, Puzzle Box");
+  const cles = cote.filter((c) => c.kind === "key");
+  assert.deepEqual(cles.map((c) => c.code).sort(), ["key:cultist", "key:elder_thing", "key:skull", "key:tablet"], "quatre clés de côté");
+  assert.ok(cles.every((c) => c.faceUp));
+  assert.equal(s.chaos.bag.length, 17, "sac 13 + 2 tablettes + 1 cultiste + 1 crâne");
+  assert.ok(s.log.some((e) => e.text.includes("Clés mises de côté") || e.text.includes("Quatre clés")), "journal : clés");
+  // Clé : sur le tapis, sur un siège, jamais dans une pile ; pas de retournement ; suit un lieu déplacé.
+  const cle = cles.find((c) => c.code === "key:skull");
+  let d = await h.action({ t: "toPile", id: cle.id, pile: "encounter" });
+  assert.equal(d.t, "nack", "une clé ne va pas dans une pile");
+  d = await h.action({ t: "flipCard", id: cle.id });
+  assert.equal(d.t, "nack", "une clé ne se retourne pas");
+  const x0 = gates.loc.x, y0 = gates.loc.y; // (les objets d'état sont mis à jour en place : on fige les coordonnées)
+  d = await h.action({ t: "moveCard", id: cle.id, zone: "board", x: x0 + 60, y: y0 + 60 });
+  assert.equal(h.state.cards[cle.id].loc.zone, "board");
+  d = await h.action({ t: "moveCard", id: gates.id, zone: "board", x: x0 + 100, y: y0 });
+  assert.equal(h.state.cards[cle.id].loc.x, x0 + 160, "la clé suit le lieu déplacé");
+  d = await h.action({ t: "moveCard", id: cle.id, zone: "seat0", x: 0, y: 0 });
+  assert.equal(h.state.cards[cle.id].loc.zone, "seat0", "clé contrôlée par un enquêteur (siège)");
+  // Nathan Wick : deux faces d'ennemi, bascule par toggleSide, retournement possible mais bascule préférée.
+  const nathan = cote.find((c) => c.code === "05217");
+  d = await h.action({ t: "toggleSide", id: nathan.id });
+  assert.equal(h.state.cards[nathan.id].side, "b", "Nathan sur sa seconde face");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.cards[cle.id], h.state.cards[cle.id], "les autres clients voient la clé");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // Non membres : acte 1 « Infiltrating the Lodge », versions « Members Only », autres retraits ; sac autonome.
+  const { h } = await tableGreater({ answers: { fate: "standalone", lodge: "standalone_not", blackbook: "no" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.deepEqual(lieux.map((c) => c.code).sort(), ["05205", "05207", "05209", "05210", "05213"], "versions Members Only");
+  assert.equal(s.cards[s.actId].code, "05201", "acte 1 Infiltrating the Lodge");
+  assert.equal(lieux.find((c) => c.code === "05205").tokens.clue, 2, "Lodge Gates (Members Only) : 1 indice par enquêteur");
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed" && ["05095", "05096", "05222", "05218"].includes(c.code)).length, 7, "7 autres cartes retirées");
+  assert.equal(s.piles.encounter.length, 29);
+  assert.equal(s.chaos.bag.length, 16, "sac autonome : 13 + tablette + ancien + cultiste");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

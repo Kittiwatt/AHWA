@@ -20,7 +20,8 @@ export type ZoneId = "board" | "seat0" | "seat1" | "seat2" | "seat3" | "story" |
 
 export type CardKind =
   | "location" | "enemy" | "treachery" | "asset" | "story" | "agenda" | "act"
-  | "scenario" | "investigator" | "mini" | "proxy";
+  | "scenario" | "investigator" | "mini" | "proxy"
+  | "key";   // clé (jeton du chaos utilisé comme clé, TCU For the Greater Good) : petit jeton déplaçable
 
 export type Token =
   | "+1" | "0" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-8"

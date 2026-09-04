@@ -17,6 +17,32 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-04 : **For the Greater Good (TCU V) livré** (choix laissés à
+  Claude). Guide p. 22 : **deux mises en place selon la Loge** — question
+  « Loge » à 7 réponses (cinq formules du journal + « partie autonome —
+  membres / non membres ») ; membres : acte 1 Warm Welcome, Lodge Gates /
+  Lobby / Lodge Cellar « We've Been Expecting You », retrait d'Acolyte ×3,
+  Wizard of the Order, Knight of the Inner Circle ×2, Cell Keeper ; sinon
+  acte 1 Infiltrating the Lodge, versions « Members Only », retrait de
+  Lodge Neophyte ×3, Keeper of Secrets, Knight of the Outer Void ×2,
+  Lodge Jailor — via `remove` dans chaque branche, et **`story` ignore
+  désormais un agenda/acte retiré** (`pool.has`). Lounge et Lodge
+  Catacombs en jeu (diagramme : Gates en haut, Lobby / Cellar, Lounge /
+  Catacombs), pions sur Lodge Gates. De côté : Library, Vault, Inner
+  Sanctum, les deux Sanctum Doorway (dos « Sanctum Doorway » =
+  `backName`), Puzzle Box, Summoned Beast, August Lindquist, **Nathan
+  Wick** (verso lié = second ennemi 05217b : menu « Autre face (Master of
+  Indoctrination) », sous-titres exportés `subname`/`backSubname`,
+  « Retourner » masqué). **Clés** : nouveau kind `key` (op `keys`,
+  cartes `key:<jeton>` rendues avec `/img/chaos/<jeton>.svg` en petit
+  pion), déplaçables sur le tapis (suivent un lieu), sur un siège ou de
+  côté, refusées dans les piles et au retournement ; `nomVisible` les
+  nomme « clé Crâne »… Sac : introduction I + Loge (cultistes) + Black
+  Book (crâne) ; sac autonome p. 22 = tablette + ancien + cultiste.
+  Sets : `for_the_greater_good` (pack **`fgg`**), `city_of_sins`,
+  `silver_twilight_lodge` (tcu), `ancient_evils`, **`pentagram`** (= Dark
+  Cult), `locked_doors` (Core). Pioche : 29 cartes dans les deux cas.
+  Tests : 225 messages, huit scénarios ; captures 36‑38.
 - 2026-09-04 : **The Wages of Sin (TCU IV) livré** (pile « Hérétiques »
   et défausse par trait validées par l'utilisateur). Guide p. 19‑20 :
   sept lieux selon le diagramme (Gallows / Chapel Attic en haut,
@@ -363,10 +389,10 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : retours de l'utilisateur sur les quatre tables
-  TCU, puis TCU V For the Greater Good (pack `fgg` ; intro selon la
-  Loge ; vérifier les jetons ajoutés par la résolution du IV) ou le
-  prologue. Jetons de campagne : reportés par les questions
+- **Prochaine étape** : retours de l'utilisateur sur les cinq tables
+  TCU, puis TCU VI Union and Disillusion (pack `uad` ; vérifier les
+  jetons ajoutés par la résolution du V et l'Interlude III, les
+  mementos) ou le prologue. Jetons de campagne : reportés par les questions
   d'introduction, de la Loge et de The Black Book ; à chaque nouveau
   scénario, relire les résolutions précédentes pour les ajouts.
   Chantier possible : un compteur de doom / une ligne de journal par
@@ -779,6 +805,9 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
 - Le test `test_room.mjs` utilise un scénario **hors registre** pour
   vérifier le refus 400 : le changer quand ce scénario est livré (fait
   pour `tcu_witching_hour` → `tcu_prologue`).
+- Le set Core « Dark Cult » s'appelle **`pentagram`** chez ArkhamDB.
+- Ne jamais `grep` un cache ArkhamDB (fichier d'une seule ligne : tout
+  le pack sort dans la console).
 - Codes ArkhamDB des packs Mythos de TCU : `tsn`, **`wos`** (et non
   `twos`), `fgg`, `uad`, `icc`, `bbt` (`GET /api/public/packs/`).
 - Codes à lettre (05178a…k) : la CDN a bien `05178a.webp` et le verso

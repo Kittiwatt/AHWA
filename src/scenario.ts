@@ -23,6 +23,8 @@ export type ScenarioCard = {
   backKind?: CardKind;
   backName?: string;        // nom du verso : carte liée, ou côté non révélé d'un lieu/agenda/acte (« Decrepit Door », « Unknown Places »)
   traits?: string[];        // traits imprimés (« Spectral », « Witch »…)
+  subname?: string;         // sous-titre du recto (ex. « Master of Initiation »)
+  backSubname?: string;     // sous-titre du verso lié (ex. « Master of Indoctrination »)
   backHealth?: number;
   backHealthPerInvestigator?: boolean;
   backVictory?: number;
@@ -53,6 +55,7 @@ export type SetupStep =
   | { op: "layeredPile"; pile: string; pool: string[]; layers: { n?: number; with?: string[] }[]; log?: string }
     // pile construite par couches, du dessus vers le dessous : chaque couche prend les codes `with` (imposés) plus
     // `n` cartes tirées au hasard dans ce qui reste de `pool`, puis est mélangée ; tout le pool doit être consommé
+  | { op: "keys"; tokens: string[]; log?: string }   // clés (jetons du chaos pris dans la collection), mises de côté : cartes `key-<jeton>` déplaçables
   | { op: "addClues"; code: string; n: number; log?: string }                  // indices fixes sur un lieu en jeu (révélé ou non)
   | { op: "removeClues"; from: string[]; n?: number; nFrom?: string; log?: string }   // retire n indices (ou la réponse numérique nFrom) aussi également que possible
   | { op: "log"; text: string }

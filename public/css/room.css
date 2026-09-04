@@ -193,6 +193,8 @@
 .mini { position: absolute; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: var(--faction, var(--prevu)); border: 3px solid var(--faction, var(--prevu)); outline: 2px solid var(--papier); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7); display: grid; place-items: center; }
 .mini img { position: absolute; left: 0; top: 0; width: 250%; height: auto; margin: -23% 0 0 -9%; max-width: none; pointer-events: none; }
 .mini span { position: relative; font-size: 0.85rem; font-weight: 700; color: #fff; text-shadow: 0 0 3px #000; display: none; }
+.mini.cle { background: var(--nuit-2); border-color: var(--dorure); }
+.mini.cle img { position: static; width: 34px; height: 34px; margin: 0; }
 .mini.sans-image img { display: none; }
 .mini.sans-image span { display: block; }
 .zoom { position: absolute; right: 0.75rem; bottom: 0.75rem; display: flex; gap: 0.25rem; }

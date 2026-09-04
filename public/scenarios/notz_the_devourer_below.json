@@ -507,6 +507,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Unhallowed Ground",
    "traits": [
     "Woods"
    ]
@@ -523,6 +524,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Twisting Paths",
    "traits": [
     "Woods"
    ]
@@ -539,6 +541,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Old House",
    "traits": [
     "Woods"
    ]
@@ -555,6 +558,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Cliffside",
    "traits": [
     "Woods"
    ]
@@ -571,6 +575,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Tangled Thicket",
    "traits": [
     "Woods"
    ]
@@ -587,6 +592,7 @@
     "value": 0,
     "perInvestigator": true
    },
+   "subname": "Quiet Glade",
    "traits": [
     "Woods"
    ]
@@ -615,6 +621,7 @@
    "set": "tentacles",
    "back": "encounter",
    "storyBack": false,
+   "subname": "The Devourer Below",
    "traits": [
     "Ancient One",
     "Elite"

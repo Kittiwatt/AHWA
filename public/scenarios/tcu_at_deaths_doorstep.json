@@ -876,6 +876,7 @@
    "set": "at_deaths_doorstep",
    "back": "b",
    "storyBack": true,
+   "subname": "Lodge Host",
    "traits": [
     "Humanoid",
     "Cultist",
@@ -893,6 +894,7 @@
    "set": "the_watcher",
    "back": "encounter",
    "storyBack": false,
+   "subname": "You Are Its Prey",
    "traits": [
     "Ancient One",
     "Spectral",

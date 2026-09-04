@@ -366,7 +366,16 @@ glisser-déposer reste libre. `pickRandom {reveal}` pose un lieu tiré au
 hasard révélé (indices posés). Un lieu dont le verso est un lieu lié
 (deux faces révélées, ex. face Spectral) se bascule par `toggleSide`
 (menu « Autre face »), sans révélation ni nouveaux indices ;
-« Retourner » n'est pas proposé pour ces cartes. Le build synthétise le recto d'une carte dont
+« Retourner » n'est pas proposé pour ces cartes ; même chose pour un
+ennemi dont le verso lié est un autre ennemi (Nathan Wick), les menus
+utilisant les sous-titres (`subname`, `backSubname` exportés au build).
+`keys {tokens}` crée des **clés** (kind `key`, code `key:<jeton>`) :
+jetons du chaos pris dans la collection, rendus comme de petits pions,
+déplaçables sur le tapis (ils suivent un lieu déplacé), sur un siège
+(l'enquêteur les contrôle) ou de côté ; jamais dans une pile, jamais
+retournés (For the Greater Good). Dans `story`, un agenda ou un acte
+retiré plus tôt par la mise en place est ignoré (actes 1 alternatifs
+selon le journal). Le build synthétise le recto d'une carte dont
 ArkhamDB ne connaît que le verso (`<code>b` avec `linked_card`, ex.
 Josef Meiger 05085).
 

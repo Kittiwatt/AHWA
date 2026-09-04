@@ -450,6 +450,7 @@
    "backCode": "01121b",
    "backKind": "enemy",
    "backName": "The Masked Hunter",
+   "backSubname": "Silently Stalking",
    "backHealth": 4,
    "backVictory": 2,
    "doom": 6,
@@ -527,6 +528,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Historical Society",
    "traits": [
     "Arkham"
    ]
@@ -543,6 +545,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Ma's Boarding House",
    "traits": [
     "Arkham"
    ]
@@ -592,6 +595,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "First Bank of Arkham",
    "traits": [
     "Arkham"
    ]
@@ -608,6 +612,7 @@
     "value": 2,
     "perInvestigator": true
    },
+   "subname": "Arkham Asylum",
    "traits": [
     "Arkham"
    ],
@@ -692,6 +697,7 @@
    "set": "cultists",
    "back": "encounter",
    "storyBack": false,
+   "subname": "The Cannibal",
    "traits": [
     "Humanoid",
     "Cultist"
@@ -707,6 +713,7 @@
    "set": "cultists",
    "back": "encounter",
    "storyBack": false,
+   "subname": "The Undertaker",
    "traits": [
     "Humanoid",
     "Cultist"
@@ -722,6 +729,7 @@
    "set": "cultists",
    "back": "encounter",
    "storyBack": false,
+   "subname": "The Occult Professor",
    "traits": [
     "Humanoid",
     "Cultist"
@@ -737,6 +745,7 @@
    "set": "cultists",
    "back": "encounter",
    "storyBack": false,
+   "subname": "The Collector",
    "traits": [
     "Humanoid",
     "Cultist"
@@ -752,6 +761,7 @@
    "set": "cultists",
    "back": "encounter",
    "storyBack": false,
+   "subname": "The Mortician",
    "traits": [
     "Humanoid",
     "Cultist"

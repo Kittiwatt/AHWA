@@ -290,6 +290,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Unhallowed Ground",
    "traits": [
     "Woods"
    ]
@@ -306,6 +307,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Twisting Paths",
    "traits": [
     "Woods"
    ]
@@ -322,6 +324,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Old House",
    "traits": [
     "Woods"
    ]
@@ -338,6 +341,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Cliffside",
    "traits": [
     "Woods"
    ]
@@ -354,6 +358,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Tangled Thicket",
    "traits": [
     "Woods"
    ]
@@ -370,6 +375,7 @@
     "value": 0,
     "perInvestigator": true
    },
+   "subname": "Quiet Glade",
    "traits": [
     "Woods"
    ]
@@ -559,6 +565,7 @@
    "set": "the_witching_hour",
    "back": "encounter",
    "storyBack": false,
+   "subname": "The High Priestess",
    "traits": [
     "Humanoid",
     "Witch",
@@ -580,6 +587,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Abandoned Mine",
    "traits": [
     "Woods"
    ],
@@ -597,6 +605,7 @@
     "value": 2,
     "perInvestigator": true
    },
+   "subname": "Cairn Stones",
    "traits": [
     "Woods"
    ],
@@ -614,6 +623,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "The Lonely Tree",
    "traits": [
     "Woods"
    ],
@@ -631,6 +641,7 @@
     "value": 2,
     "perInvestigator": true
    },
+   "subname": "Child's Tree House",
    "traits": [
     "Woods"
    ],
@@ -648,6 +659,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Tainted Well",
    "traits": [
     "Woods"
    ],
@@ -665,6 +677,7 @@
     "value": 2,
     "perInvestigator": true
    },
+   "subname": "Hermit's House",
    "traits": [
     "Woods"
    ],
@@ -682,6 +695,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "subname": "Overgrown Barn",
    "traits": [
     "Woods"
    ],

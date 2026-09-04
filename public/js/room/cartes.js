@@ -33,6 +33,7 @@ export function urlImage(carte, def) {
 /** Face actuellement visible : la carte elle-même, ou la carte liée quand le verso en est une autre. */
 export function faceVisible(carte, def) {
   const versoVisible = def?.backCode && (carte.faceUp ? carte.side === "b" : !carte.storyBack);
+  if (carte.kind === "key") return { kind: "key", name: `Clé ${LIBELLES_CLES[carte.code.replace(/^key:/, "")] ?? carte.code}`, liee: false };
   if (versoVisible) return { kind: def.backKind ?? carte.kind, name: def.backName ?? def?.name, health: def.backHealth, sanity: undefined, healthPerInvestigator: def.backHealthPerInvestigator, liee: true };
   // Verso montré (lieu non révélé, agenda retourné…) : son propre nom s'il en a un (« Decrepit Door »), sans dévoiler le recto.
   const versoMontre = def?.backName && (carte.faceUp ? carte.side === "b" : !carte.storyBack);
@@ -161,6 +162,26 @@ export function imgJetonChaos(t, taille = 28) {
 }
 
 /** Pion d'enquêteur : portrait recadré dans un disque cerclé de la couleur de classe ; initiales si l'image manque. */
+const LIBELLES_CLES = { skull: "Crâne", cultist: "Cultiste", tablet: "Tablette", elder_thing: "Ancien" };
+
+/** Clé (jeton du chaos pris dans la collection) : petit jeton rond, déplaçable comme un pion, sans face cachée. */
+export function majCle(el, carte) {
+  const jeton = carte.code.replace(/^key:/, "");
+  if (!el) {
+    el = document.createElement("div");
+    el.dataset.id = carte.id;
+    const img = document.createElement("img");
+    img.draggable = false;
+    el.append(img);
+  }
+  el.className = "mini cle";
+  const src = `/img/chaos/${jeton}.svg`;
+  if (el.firstChild.getAttribute("src") !== src) el.firstChild.src = src;
+  el.firstChild.alt = `Clé ${LIBELLES_CLES[jeton] ?? jeton}`;
+  el.title = `Clé ${LIBELLES_CLES[jeton] ?? jeton} — glissez-la sur un lieu, un ennemi ou un enquêteur`;
+  return el;
+}
+
 export function majMini(el, carte, ctx) {
   const inv = ctx.investigateurs.get(carte.code);
   if (!el) {

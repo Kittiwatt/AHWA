@@ -64,6 +64,8 @@ function carte(c, src) {
     out.backClue = { value: c.linked_card.clues ?? 0, perInvestigator: !c.linked_card.clues_fixed };
   }
   // Carte liée (ex. agenda dont le verso est un ennemi) : le verso est une autre carte ArkhamDB.
+  // Sous-titre (ex. « Master of Initiation ») : distingue les faces ou versions d'une même carte dans les menus.
+  if (c.subname) out.subname = c.subname;
   // Traits (« Spectral », « Witch »…) : servent à scinder les pioches (The Wages of Sin) et à choisir la défausse.
   if (c.traits) out.traits = c.traits.split(".").map((t) => t.trim()).filter(Boolean);
   // Nom du côté non révélé (« Decrepit Door », « Unknown Places », titre du verso d'un agenda) : affiché tant que le verso est montré.
@@ -73,6 +75,7 @@ function carte(c, src) {
     out.backCode = c.linked_card.code;
     out.backKind = KIND[c.linked_card.type_code] ?? "story";
     out.backName = c.linked_card.name;
+    if (c.linked_card.subname) out.backSubname = c.linked_card.subname;
     if (c.linked_card.health !== undefined && c.linked_card.health !== null) out.backHealth = c.linked_card.health;
     if (c.linked_card.health_per_investigator) out.backHealthPerInvestigator = true;
     if (c.linked_card.victory) out.backVictory = c.linked_card.victory;

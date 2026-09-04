@@ -3,7 +3,7 @@
 // les états (tour en cours, a joué, seuil atteint) sont des indications visuelles.
 
 import { el, pluriel } from "./dom.js";
-import { majCarte, majMini, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos, COULEURS_CHEMINS } from "./cartes.js";
+import { majCarte, majMini, majCle, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos, COULEURS_CHEMINS } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { ouvrirDialogueCartes, ouvrirAjustementSac, ouvrirDepenseIndices, ouvrirGenerateur } from "./dialogues.js";
 
@@ -26,7 +26,7 @@ let plateau = null, zoneBoard = null;
 
 export function carteEl(carte, ctx) {
   const existant = els.get(carte.id);
-  const e = carte.kind === "mini" ? majMini(existant, carte, ctx) : majCarte(existant, carte, ctx);
+  const e = carte.kind === "mini" ? majMini(existant, carte, ctx) : carte.kind === "key" ? majCle(existant, carte) : majCarte(existant, carte, ctx);
   // L'élément est réutilisé d'une zone à l'autre : hors du tapis, la position absolue posée par
   // rendrePlateau doit être effacée (sinon la carte est décalée hors de sa pile ou de sa zone).
   if (carte.loc.zone !== "board") { e.style.left = ""; e.style.top = ""; e.style.zIndex = ""; }
@@ -190,7 +190,8 @@ export function ajusterVue(ctx) {
   if (!cartes.length || !W) { vue.k = Math.min(W / 1600, H / 1000) || 1; vue.tx = 0; vue.ty = 0; appliquerVue(); return; }
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const c of cartes) {
-    const w = c.kind === "mini" ? MINI : CARTE_L, h = c.kind === "mini" ? MINI : CARTE_H;
+    const petit = c.kind === "mini" || c.kind === "key";
+    const w = petit ? MINI : CARTE_L, h = petit ? MINI : CARTE_H;
     x0 = Math.min(x0, c.loc.x); y0 = Math.min(y0, c.loc.y); x1 = Math.max(x1, c.loc.x + w); y1 = Math.max(y1, c.loc.y + h);
   }
   // L'encart pioche/défausse/sac occupe le bas gauche : on cadre au-dessus de lui.

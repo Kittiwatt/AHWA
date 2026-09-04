@@ -514,6 +514,7 @@
    "set": "the_watcher",
    "back": "encounter",
    "storyBack": false,
+   "subname": "You Are Its Prey",
    "traits": [
     "Ancient One",
     "Spectral",

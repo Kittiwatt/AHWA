@@ -323,9 +323,10 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
         const dx = x - avant.x, dy = y - avant.y;
         for (const k of Object.values(state.cards)) {
           if (k.id === c.id || !("zone" in k.loc) || k.loc.zone !== "board" || k.kind === "location") continue;
-          const w = k.kind === "mini" ? MINI : CARD_W, h = k.kind === "mini" ? MINI : CARD_H;
+          const petit = k.kind === "mini" || k.kind === "key";
+          const w = petit ? MINI : CARD_W, h = petit ? MINI : CARD_H;
           const cx = k.loc.x + w / 2, cy = k.loc.y + h / 2;
-          const marge = k.kind === "mini" ? MINI : 0;
+          const marge = petit ? MINI : 0;
           if (cx >= avant.x - marge && cx <= avant.x + CARD_W + marge && cy >= avant.y - marge && cy <= avant.y + CARD_H + marge) {
             k.loc = { ...k.loc, x: k.loc.x + dx, y: k.loc.y + dy };
           }
@@ -339,6 +340,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
     }
     case "toPile": {
       const c = carte(state, msg.id);
+      if (c.kind === "key") refuser("une clé ne va pas dans une pile");
       const pile = String(msg.pile);
       if (!(pile in state.piles)) refuser("pile inconnue");
       retirerDesPiles(state, c.id);
@@ -359,6 +361,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
     }
     case "flipCard": {
       const c = carte(state, msg.id);
+      if (c.kind === "key" || c.kind === "mini") refuser("ce jeton ne se retourne pas");
       if (c.storyBack && !c.faceUp) refuser("cette carte a un dos « histoire » : seul le scénario peut la révéler");
       if (c.storyBack && c.faceUp) refuser("cette carte a un dos « histoire » : elle ne se retourne pas");
       c.faceUp = !c.faceUp;

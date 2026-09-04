@@ -1,0 +1,128 @@
+{
+  "_source": "Guide de campagne The Circle Undone (FFG, 2019) : Scenario V, section « Setup » p. 22 (sets, deux mises en place selon l'appartenance à la Loge — acte 1, versions des trois lieux, cartes retirées —, lieux mis de côté, cartes mises de côté, quatre clés), encadré « Keys » et diagramme p. 22 ; sac de campagne p. 4 + jetons du scénario I (introduction), de l'Interlude II / scénario III (Loge) et de la résolution du scénario III (The Black Book) ; sac du mode autonome p. 22. Aucun texte de carte ; les rappels paraphrasent le guide ou décrivent les gestes de l'application.",
+  "id": "tcu_for_the_greater_good",
+  "title": "For the Greater Good",
+  "campaign": "The Circle Undone",
+  "campaignId": "tcu",
+  "order": 5,
+  "packs": ["fgg", "tcu", "core"],
+  "encounterSets": ["for_the_greater_good", "city_of_sins", "silver_twilight_lodge", "ancient_evils", "pentagram", "locked_doors"],
+  "scenarioCard": "05197",
+  "agendaDeck": ["05198", "05199"],
+  "actDeck": ["05200", "05201", "05202", "05203"],
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-2", "-3", "skull", "skull", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "-1", "-1", "-2", "-2", "-3", "-4", "-5", "skull", "skull", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-4", "-6", "-8", "skull", "skull", "auto_fail", "elder_sign"]
+  },
+  "layout": [
+    { "code": "05210", "x": 551, "y": 649 }, { "code": "05213", "x": 923, "y": 649 }
+  ],
+  "questions": [
+    { "id": "fate", "text": "Journal de campagne (introduction du scénario I) — l'enquêteur principal :", "options": [
+      { "id": "accepted", "label": "a accepté son destin" },
+      { "id": "rejected", "label": "a rejeté son destin" },
+      { "id": "standalone", "label": "partie autonome (hors campagne)" } ] },
+    { "id": "lodge", "text": "Journal de campagne (Interlude II et introduction du scénario III) — les enquêteurs :", "options": [
+      { "id": "members_told", "label": "sont membres de la Loge, et ont parlé du coven à la Loge" },
+      { "id": "members_hid", "label": "sont membres de la Loge, et ont caché ce qu'ils savent du coven" },
+      { "id": "enemies", "label": "sont ennemis de la Loge" },
+      { "id": "nothing", "label": "n'ont rien appris des projets de la Loge" },
+      { "id": "gone", "label": "ne sont jamais revus" },
+      { "id": "standalone_members", "label": "partie autonome — membres de la Loge" },
+      { "id": "standalone_not", "label": "partie autonome — non membres" } ] },
+    { "id": "blackbook", "text": "Journal de campagne (résolution du scénario III) — The Black Book :", "options": [
+      { "id": "yes", "label": "a rejoint le deck d'un enquêteur" },
+      { "id": "no", "label": "n'a rejoint aucun deck (ou partie autonome)" } ] }
+  ],
+  "setup": [
+    { "op": "branch", "on": "lodge", "cases": {
+      "members_told": [
+        { "op": "remove", "codes": ["05201", "05205", "05207", "05209", "01169", "01170", "05221", "05219"],
+          "log": "Membres de la Loge : l'acte 1 « Warm Welcome » est utilisé, l'autre acte 1 est retiré ; Lodge Gates, Lobby et Lodge Cellar en version « We've Been Expecting You », les autres versions retirées ; Acolyte ×3, Wizard of the Order, Knight of the Inner Circle ×2 et Cell Keeper sont retirés de la partie." },
+        { "op": "place", "code": "05204", "zone": "board", "x": 737, "y": 173, "reveal": true, "log": "Lodge Gates (We've Been Expecting You) est mis en jeu en haut, révélé : chaque enquêteur y commence la partie." },
+        { "op": "place", "code": "05206", "zone": "board", "x": 551, "y": 411, "log": "Lobby (We've Been Expecting You) est mis en jeu, non révélé." },
+        { "op": "place", "code": "05208", "zone": "board", "x": 923, "y": 411, "log": "Lodge Cellar (We've Been Expecting You) est mis en jeu, non révélé." },
+        { "op": "minis", "code": "05204" } ],
+      "members_hid": [
+        { "op": "remove", "codes": ["05201", "05205", "05207", "05209", "01169", "01170", "05221", "05219"],
+          "log": "Membres de la Loge : l'acte 1 « Warm Welcome » est utilisé, l'autre acte 1 est retiré ; Lodge Gates, Lobby et Lodge Cellar en version « We've Been Expecting You », les autres versions retirées ; Acolyte ×3, Wizard of the Order, Knight of the Inner Circle ×2 et Cell Keeper sont retirés de la partie." },
+        { "op": "place", "code": "05204", "zone": "board", "x": 737, "y": 173, "reveal": true, "log": "Lodge Gates (We've Been Expecting You) est mis en jeu en haut, révélé : chaque enquêteur y commence la partie." },
+        { "op": "place", "code": "05206", "zone": "board", "x": 551, "y": 411, "log": "Lobby (We've Been Expecting You) est mis en jeu, non révélé." },
+        { "op": "place", "code": "05208", "zone": "board", "x": 923, "y": 411, "log": "Lodge Cellar (We've Been Expecting You) est mis en jeu, non révélé." },
+        { "op": "minis", "code": "05204" } ],
+      "standalone_members": [
+        { "op": "remove", "codes": ["05201", "05205", "05207", "05209", "01169", "01170", "05221", "05219"],
+          "log": "Membres de la Loge : l'acte 1 « Warm Welcome » est utilisé, l'autre acte 1 est retiré ; Lodge Gates, Lobby et Lodge Cellar en version « We've Been Expecting You », les autres versions retirées ; Acolyte ×3, Wizard of the Order, Knight of the Inner Circle ×2 et Cell Keeper sont retirés de la partie." },
+        { "op": "place", "code": "05204", "zone": "board", "x": 737, "y": 173, "reveal": true, "log": "Lodge Gates (We've Been Expecting You) est mis en jeu en haut, révélé : chaque enquêteur y commence la partie." },
+        { "op": "place", "code": "05206", "zone": "board", "x": 551, "y": 411, "log": "Lobby (We've Been Expecting You) est mis en jeu, non révélé." },
+        { "op": "place", "code": "05208", "zone": "board", "x": 923, "y": 411, "log": "Lodge Cellar (We've Been Expecting You) est mis en jeu, non révélé." },
+        { "op": "minis", "code": "05204" } ],
+      "enemies": [
+        { "op": "remove", "codes": ["05200", "05204", "05206", "05208", "05095", "05095", "05095", "05096", "05222", "05218"],
+          "log": "Non membres de la Loge : l'acte 1 « Infiltrating the Lodge » est utilisé, l'autre acte 1 est retiré ; Lodge Gates, Lobby et Lodge Cellar en version « Members Only », les autres versions retirées ; Lodge Neophyte ×3, Keeper of Secrets, Knight of the Outer Void ×2 et Lodge Jailor sont retirés de la partie." },
+        { "op": "place", "code": "05205", "zone": "board", "x": 737, "y": 173, "reveal": true, "log": "Lodge Gates (Members Only) est mis en jeu en haut, révélé : chaque enquêteur y commence la partie." },
+        { "op": "place", "code": "05207", "zone": "board", "x": 551, "y": 411, "log": "Lobby (Members Only) est mis en jeu, non révélé." },
+        { "op": "place", "code": "05209", "zone": "board", "x": 923, "y": 411, "log": "Lodge Cellar (Members Only) est mis en jeu, non révélé." },
+        { "op": "minis", "code": "05205" } ],
+      "nothing": [
+        { "op": "remove", "codes": ["05200", "05204", "05206", "05208", "05095", "05095", "05095", "05096", "05222", "05218"],
+          "log": "Non membres de la Loge : l'acte 1 « Infiltrating the Lodge » est utilisé, l'autre acte 1 est retiré ; Lodge Gates, Lobby et Lodge Cellar en version « Members Only », les autres versions retirées ; Lodge Neophyte ×3, Keeper of Secrets, Knight of the Outer Void ×2 et Lodge Jailor sont retirés de la partie." },
+        { "op": "place", "code": "05205", "zone": "board", "x": 737, "y": 173, "reveal": true, "log": "Lodge Gates (Members Only) est mis en jeu en haut, révélé : chaque enquêteur y commence la partie." },
+        { "op": "place", "code": "05207", "zone": "board", "x": 551, "y": 411, "log": "Lobby (Members Only) est mis en jeu, non révélé." },
+        { "op": "place", "code": "05209", "zone": "board", "x": 923, "y": 411, "log": "Lodge Cellar (Members Only) est mis en jeu, non révélé." },
+        { "op": "minis", "code": "05205" } ],
+      "gone": [
+        { "op": "remove", "codes": ["05200", "05204", "05206", "05208", "05095", "05095", "05095", "05096", "05222", "05218"],
+          "log": "Non membres de la Loge : l'acte 1 « Infiltrating the Lodge » est utilisé, l'autre acte 1 est retiré ; Lodge Gates, Lobby et Lodge Cellar en version « Members Only », les autres versions retirées ; Lodge Neophyte ×3, Keeper of Secrets, Knight of the Outer Void ×2 et Lodge Jailor sont retirés de la partie." },
+        { "op": "place", "code": "05205", "zone": "board", "x": 737, "y": 173, "reveal": true, "log": "Lodge Gates (Members Only) est mis en jeu en haut, révélé : chaque enquêteur y commence la partie." },
+        { "op": "place", "code": "05207", "zone": "board", "x": 551, "y": 411, "log": "Lobby (Members Only) est mis en jeu, non révélé." },
+        { "op": "place", "code": "05209", "zone": "board", "x": 923, "y": 411, "log": "Lodge Cellar (Members Only) est mis en jeu, non révélé." },
+        { "op": "minis", "code": "05205" } ],
+      "standalone_not": [
+        { "op": "remove", "codes": ["05200", "05204", "05206", "05208", "05095", "05095", "05095", "05096", "05222", "05218"],
+          "log": "Non membres de la Loge : l'acte 1 « Infiltrating the Lodge » est utilisé, l'autre acte 1 est retiré ; Lodge Gates, Lobby et Lodge Cellar en version « Members Only », les autres versions retirées ; Lodge Neophyte ×3, Keeper of Secrets, Knight of the Outer Void ×2 et Lodge Jailor sont retirés de la partie." },
+        { "op": "place", "code": "05205", "zone": "board", "x": 737, "y": 173, "reveal": true, "log": "Lodge Gates (Members Only) est mis en jeu en haut, révélé : chaque enquêteur y commence la partie." },
+        { "op": "place", "code": "05207", "zone": "board", "x": 551, "y": 411, "log": "Lobby (Members Only) est mis en jeu, non révélé." },
+        { "op": "place", "code": "05209", "zone": "board", "x": 923, "y": 411, "log": "Lodge Cellar (Members Only) est mis en jeu, non révélé." },
+        { "op": "minis", "code": "05205" } ] } },
+    { "op": "place", "code": "05210", "zone": "board", "x": 551, "y": 649, "log": "Lounge est mis en jeu, non révélé, sous le Lobby." },
+    { "op": "place", "code": "05213", "zone": "board", "x": 923, "y": 649, "log": "Lodge Catacombs est mis en jeu, non révélé, sous le Lodge Cellar." },
+    { "op": "aside", "codes": ["05212", "05211", "05216", "05214", "05215"], "faceUp": false,
+      "log": "Library, Vault, Inner Sanctum et les deux Sanctum Doorway sont mis de côté, hors jeu, non révélés." },
+    { "op": "aside", "codes": ["05228", "05220", "05227", "05217"], "faceUp": true,
+      "log": "Puzzle Box, Summoned Beast, August Lindquist et Nathan Wick (deux faces d'ennemi : menu → « Autre face ») sont mis de côté, hors jeu, face visible." },
+    { "op": "keys", "tokens": ["skull", "cultist", "tablet", "elder_thing"],
+      "log": "Quatre clés — Crâne, Cultiste, Tablette, Ancien — sont mises de côté : ce sont des jetons pris dans la collection, jamais dans le sac ; ils se posent sur un lieu, un ennemi ou un enquêteur par glisser." },
+    { "op": "story" },
+    { "op": "branch", "on": "fate", "cases": {
+      "accepted": [ { "op": "chaosAdd", "tokens": ["tablet", "tablet"], "log": "Destin accepté (scénario I) : les 2 jetons Tablette de la campagne sont dans le sac." } ],
+      "rejected": [ { "op": "chaosAdd", "tokens": ["elder_thing", "elder_thing"], "log": "Destin rejeté (scénario I) : les 2 jetons Ancien de la campagne sont dans le sac." } ],
+      "standalone": [ { "op": "chaosAdd", "tokens": ["tablet", "elder_thing"], "log": "Partie autonome : 1 jeton Tablette et 1 jeton Ancien ajoutés au sac, comme l'indique le guide." } ] } },
+    { "op": "branch", "on": "lodge", "cases": {
+      "members_told": [ { "op": "chaosAdd", "tokens": ["cultist", "cultist"], "log": "Membres de la Loge et coven dévoilé : 2 jetons Cultiste de la campagne sont dans le sac." } ],
+      "members_hid": [ { "op": "chaosAdd", "tokens": ["cultist"], "log": "Membres de la Loge : 1 jeton Cultiste de la campagne est dans le sac." } ],
+      "enemies": [ { "op": "log", "text": "Ennemis de la Loge : aucun jeton Cultiste de campagne." } ],
+      "nothing": [ { "op": "log", "text": "Rien appris des projets de la Loge : aucun jeton Cultiste de campagne." } ],
+      "gone": [ { "op": "log", "text": "Jamais revus : aucun jeton Cultiste de campagne." } ],
+      "standalone_members": [ { "op": "chaosAdd", "tokens": ["cultist"], "log": "Partie autonome : 1 jeton Cultiste ajouté au sac, comme l'indique le guide." } ],
+      "standalone_not": [ { "op": "chaosAdd", "tokens": ["cultist"], "log": "Partie autonome : 1 jeton Cultiste ajouté au sac, comme l'indique le guide." } ] } },
+    { "op": "branch", "on": "blackbook", "cases": {
+      "yes": [ { "op": "chaosAdd", "tokens": ["skull"], "log": "The Black Book dans un deck (résolution du scénario III) : 1 jeton Crâne de campagne est dans le sac." } ],
+      "no": [ { "op": "log", "text": "The Black Book dans aucun deck : pas de jeton Crâne supplémentaire." } ] } },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée." },
+    { "when": "setup", "text": "Clés (guide) : les quatre jetons de côté sont des clés, pas des jetons du chaos. Une carte les fait entrer en jeu sur un ennemi, un lieu ou un soutien ; un enquêteur qui en prend le contrôle la glisse sur son siège ; un enquêteur éliminé laisse ses clés sur son lieu ; on peut donner ses clés à un enquêteur au même lieu. Un lieu sans indice qui porte une clé : la prendre est une action." },
+    { "when": "setup", "text": "Zone de côté : Library, Vault, Inner Sanctum et les deux Sanctum Doorway (entrent en jeu par glisser, clic pour révéler), Puzzle Box et August Lindquist (se donnent à un enquêteur par glisser sur son siège), Summoned Beast, Nathan Wick — deux faces d'ennemi, choisissez la bonne par le menu « Autre face » avant de le poser." },
+    { "when": "act:2", "text": "Acte 2 : Nathan Wick entre en jeu depuis la zone de côté (menu « Autre face » pour la face demandée), Puzzle Box se pose près de lui ; un lieu de côté qui entre en jeu se glisse sur le tapis puis se révèle d'un clic." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

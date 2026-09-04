@@ -113,12 +113,14 @@ export function initInteractions(ctx) {
     const drop = cible.dataset.drop;
     if (drop === "none") return; // l'encart pioche/sac n'est pas le tapis : dépôt annulé
     if (drop.startsWith("pile:")) {
-      if (carte.kind === "mini" || carte.kind === "investigator") return;
+      if (carte.kind === "mini" || carte.kind === "key" || carte.kind === "investigator") return;
       ctx.envoyer({ t: "toPile", id: carte.id, pile: drop.slice(5) });
       return;
     }
     if (carte.kind === "investigator") return;
     if (carte.kind === "mini" && drop !== "board") return;
+    // Une clé va sur le tapis (lieu, ennemi), sur un siège (l'enquêteur la contrôle) ou de côté.
+    if (carte.kind === "key" && !(drop === "board" || drop === "aside" || drop.startsWith("seat"))) return;
     const r = cible.getBoundingClientRect();
     let x, y;
     if (drop === "story") {
@@ -283,6 +285,9 @@ export function initInteractions(ctx) {
       if (carte.loc.zone !== "board") items.push(item("Sur le tapis (pour lire)", () => ctx.envoiSurTapis(carte)));
       if (carte.loc.zone !== "story") items.push(item("Ramener dans l'histoire", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "story", x: 0, y: 0 })));
       for (const t of agenda ? ["doom"] : ["clue"]) items.push(jeton(t));
+    } else if (carte.kind === "key") {
+      if (carte.loc.zone !== "aside") items.push(item("Mettre de côté", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "aside", x: 9999, y: 0 })));
+      if (carte.loc.zone !== "board") items.push(item("Sur le tapis", () => ctx.envoiSurTapis(carte)));
     } else if (carte.kind !== "mini") {
       items.push(item(carte.exhausted ? "Redresser" : "Épuiser", () => ctx.envoyer({ t: "exhaust", id: carte.id })));
       if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") items.push(item("Révéler (indices automatiques)", () => ctx.envoyer({ t: "revealLocation", id: carte.id })));
@@ -300,9 +305,14 @@ export function initInteractions(ctx) {
         items.push(item("Retirer tous les indices des lieux", () => { if (confirm("Retirer tous les indices de tous les lieux en jeu ?")) ctx.envoyer({ t: "clearClues" }); }));
         items.push(item("Retirer de la partie tous les autres lieux", () => { if (confirm(`Retirer de la partie tous les lieux du tapis sauf ${nom} ?`)) ctx.envoyer({ t: "removeLocations", keep: carte.id }); }));
       }
-      // Lieu dont les deux faces sont des faces révélées (verso = lieu lié, ex. face Spectral) : on bascule, on ne retourne pas.
-      const deuxFaces = carte.kind === "location" && def?.backCode && def?.backKind === "location";
-      if (deuxFaces && carte.faceUp) items.push(item(carte.side === "b" ? `Face ${def.name === def.backName ? "normale" : def.name}` : `Autre face (${def.backName === def.name ? "Spectral" : def.backName})`, () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
+      // Carte dont les deux faces sont des faces de jeu (verso = lieu lié, ex. face Spectral ; ennemi à deux faces,
+      // ex. Nathan Wick) : on bascule, on ne retourne pas.
+      const deuxFaces = !carte.storyBack && def?.backCode && def?.backKind === carte.kind && (carte.kind === "location" || carte.kind === "enemy");
+      if (deuxFaces && carte.faceUp) {
+        const recto = def.subname ?? (carte.kind === "location" ? "normale" : "recto");
+        const verso = def.backSubname ?? (def.backName === def.name ? (carte.kind === "location" ? "Spectral" : "verso") : def.backName);
+        items.push(item(carte.side === "b" ? `Autre face (${recto})` : `Autre face (${verso})`, () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
+      }
       if (!carte.storyBack && carte.kind !== "investigator" && !deuxFaces) items.push(item("Retourner", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
       if (carte.kind === "scenario" || carte.kind === "story") items.push(item("Autre face", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
       // Dos « histoire » : lisible seulement sur demande explicite (une carte l'indique), jamais par retournement.

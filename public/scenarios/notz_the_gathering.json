@@ -372,6 +372,7 @@
    "set": "torch",
    "back": "encounter",
    "storyBack": false,
+   "subname": "The Zealot",
    "traits": [
     "Ally"
    ],

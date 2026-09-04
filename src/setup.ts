@@ -42,8 +42,11 @@ function nomDe(def: ScenarioDef, code: string): string {
   return def.cards.find((c) => c.code === code)?.name ?? code;
 }
 
+export const LIBELLES_CLES: Record<string, string> = { skull: "Crâne", cultist: "Cultiste", tablet: "Tablette", elder_thing: "Ancien" };
+
 /** Nom de la face actuellement visible : le verso (backName) quand il est montré, sinon le recto. */
 export function nomVisible(def: ScenarioDef, card: CardState): string {
+  if (card.kind === "key") return `clé ${LIBELLES_CLES[card.code.replace(/^key:/, "")] ?? card.code}`;
   const d = def.cards.find((c) => c.code === card.code);
   if (!d) return card.code;
   const versoVisible = card.faceUp ? card.side === "b" : !card.storyBack;
@@ -85,6 +88,9 @@ class Pool {
     const ids = this.byCode.get(code);
     if (!ids?.length) throw new Error(`setup : plus d'exemplaire de ${code}`);
     return ids.shift()!;
+  }
+  has(code: string): boolean {
+    return (this.byCode.get(code)?.length ?? 0) > 0;
   }
   takeAll(code: string): CardId[] {
     const ids = this.byCode.get(code) ?? [];
@@ -322,6 +328,17 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         addLog(state, "setup", step.log ?? `${ids.length} cartes dans la pile ${step.pile}, par couches.`);
         break;
       }
+      case "keys": {
+        // Clés : jetons du chaos pris dans la collection (jamais dans le sac), mis de côté ; ils se posent sur
+        // un lieu, un ennemi ou un enquêteur par glisser (cartes de kind « key », code « key:<jeton> »).
+        const deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
+        step.tokens.forEach((t, i) => {
+          const id = `key-${t}`;
+          state.cards[id] = { id, code: `key:${t}`, kind: "key", storyBack: false, loc: { zone: "aside", x: (deja + i) * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, faceUp: true, exhausted: false, side: "a", tokens: {} };
+        });
+        addLog(state, "setup", step.log ?? `Clés mises de côté : ${step.tokens.map((t) => LIBELLES_CLES[t] ?? t).join(", ")} (jetons pris dans la collection, pas dans le sac).`);
+        break;
+      }
       case "addClues": {
         const lieu = enJeu(step.code);
         lieu.tokens.clue = (lieu.tokens.clue ?? 0) + step.n;
@@ -401,7 +418,9 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         const cs = newCard(pool, def.scenarioCard, sc, { zone: "story", x: 0, y: 0, z: z++ }, true);
         cs.side = "b"; // verso = référence des jetons du chaos, la face utile en jeu
         state.cards[sc] = cs;
-        def.agendaDeck.forEach((code, i) => {
+        // Un agenda ou un acte retiré plus tôt par la mise en place (versions alternatives selon le journal,
+        // ex. deux actes 1 de For the Greater Good) est simplement ignoré : le premier restant devient courant.
+        def.agendaDeck.filter((code) => pool.has(code)).forEach((code, i) => {
           const id = pool.take(code);
           if (i === 0) {
             state.cards[id] = newCard(pool, code, id, { zone: "story", x: 0, y: 0, z: z++ }, true);
@@ -412,7 +431,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
             state.piles.agendaDeck.push(id);
           }
         });
-        def.actDeck.forEach((code, i) => {
+        def.actDeck.filter((code) => pool.has(code)).forEach((code, i) => {
           const id = pool.take(code);
           if (i === 0) {
             state.cards[id] = newCard(pool, code, id, { zone: "story", x: 0, y: 0, z: z++ }, true);

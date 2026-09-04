@@ -554,6 +554,49 @@ with sync_playwright() as p:
     assert h7.locator("#pioches .pile[data-outil='pile:spectral_discard'] .badge").inner_text() == "1", "défausse spectrale 1"
     h7.wait_for_load_state("networkidle"); h7.wait_for_timeout(600)
     h7.screenshot(path=f"{OUT}/35_wages_piles.png")
+
+    # ---- For the Greater Good (TCU V) : mise en place selon la Loge, clés déplaçables, Nathan Wick à deux faces ----
+    code8, token8 = creer("tcu_for_the_greater_good")
+    print("room Greater Good", code8)
+    h8 = page_pour(browser, "Hôte", host=True, code=code8, token=token8)
+    h8.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h8.get_by_role("button", name="Choisir un enquêteur").click(); h8.wait_for_selector("dialog.dialogue-inv[open]")
+    h8.fill("dialog .recherche", "agnes"); h8.wait_for_timeout(300); h8.locator("dialog .inv").first.click()
+    h8.wait_for_selector(".siege-lobby.moi .fiche")
+    j8 = page_pour(browser, "Bob", code=code8, token=None)
+    j8.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j8.get_by_role("button", name="Choisir un enquêteur").click(); j8.wait_for_selector("dialog.dialogue-inv[open]")
+    j8.fill("dialog .recherche", "roland"); j8.wait_for_timeout(300); j8.locator("dialog .inv").first.click()
+    j8.wait_for_selector(".siege-lobby.moi .fiche")
+    h8.wait_for_timeout(400)
+    h8.locator("input[name='q-fate'][value='rejected']").check()
+    h8.locator("input[name='q-lodge'][value='enemies']").check()
+    h8.locator("input[name='q-blackbook'][value='no']").check()
+    h8.wait_for_timeout(200)
+    h8.locator(".reglage.questions").screenshot(path=f"{OUT}/36_greater_lobby_questions.png")
+    h8.get_by_role("button", name="Lancer la mise en place").click()
+    h8.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h8.wait_for_load_state("networkidle"); h8.wait_for_timeout(1500)
+    assert h8.locator("#plateau .carte.kind-location").count() == 5, "5 lieux"
+    assert h8.locator("#aside .mini.cle").count() == 4, "4 clés de côté"
+    assert h8.locator("#chaos .sac-forme").inner_text().strip() == "15", "sac 13 + 2 anciens (ennemis de la Loge)"
+    h8.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h8.screenshot(path=f"{OUT}/37_greater_tapis.png")
+    # Glisser une clé de la zone de côté sur le siège de l'hôte.
+    h8.locator("#aside").click()
+    cle = h8.locator("#aside .mini.cle").first
+    src = cle.bounding_box(); dst = h8.locator("#sieges .siege").nth(0).locator(".menace").bounding_box()
+    h8.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); h8.mouse.down()
+    h8.mouse.move(dst["x"] + dst["width"] / 2, dst["y"] + dst["height"] / 2, steps=12); h8.mouse.up()
+    h8.wait_for_timeout(500)
+    assert h8.locator("#sieges .siege").nth(0).locator(".menace .mini.cle").count() == 1, "clé sur le siège"
+    assert h8.locator("#aside .mini.cle").count() == 3
+    # Nathan Wick : menu « Autre face (Master of Indoctrination) ».
+    nathan = h8.locator("#aside .carte").filter(has=h8.locator("img[alt='Nathan Wick']")).first
+    nathan.click(button="right"); h8.wait_for_selector(".menu-carte")
+    assert h8.locator(".menu-carte").get_by_role("button", name="Autre face (Master of Indoctrination)").count() == 1, "menu : autre face de Nathan"
+    h8.screenshot(path=f"{OUT}/38_greater_cle_siege_menu_nathan.png")
+    h8.keyboard.press("Escape")
     browser.close()
 
 if erreurs:
