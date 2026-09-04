@@ -462,6 +462,49 @@ with sync_playwright() as p:
     assert h5.locator(".menu-carte").get_by_role("button", name="Lire le côté histoire (quand une carte l'indique)").count() == 1, "menu : côté histoire"
     assert h5.locator(".menu-carte").get_by_role("button", name="Retourner", exact=True).count() == 0, "pas de retournement d'un dos histoire"
     h5.keyboard.press("Escape")
+
+    # ---- The Secret Name (TCU III) : portes indistinguables (nom du verso), pile Unknown Places, question unique de la Loge ----
+    code6, token6 = creer("tcu_secret_name")
+    print("room Secret Name", code6)
+    h6 = page_pour(browser, "Hôte", host=True, code=code6, token=token6)
+    h6.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h6.get_by_role("button", name="Choisir un enquêteur").click(); h6.wait_for_selector("dialog.dialogue-inv[open]")
+    h6.fill("dialog .recherche", "diana"); h6.wait_for_timeout(300); h6.locator("dialog .inv").first.click()
+    h6.wait_for_selector(".siege-lobby.moi .fiche")
+    j6 = page_pour(browser, "Bob", code=code6, token=None)
+    j6.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j6.get_by_role("button", name="Choisir un enquêteur").click(); j6.wait_for_selector("dialog.dialogue-inv[open]")
+    j6.fill("dialog .recherche", "marie"); j6.wait_for_timeout(300); j6.locator("dialog .inv").first.click()
+    j6.wait_for_selector(".siege-lobby.moi .fiche")
+    h6.wait_for_timeout(400)
+    h6.locator("input[name='q-fate'][value='rejected']").check()
+    h6.locator("input[name='q-lodge'][value='members_told']").check()
+    h6.wait_for_timeout(200)
+    h6.locator(".reglage.questions").screenshot(path=f"{OUT}/29_secret_lobby_questions.png")
+    h6.get_by_role("button", name="Lancer la mise en place").click()
+    h6.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h6.wait_for_load_state("networkidle"); h6.wait_for_timeout(1500)
+    assert h6.locator("#plateau .carte.kind-location").count() == 5, "5 lieux"
+    assert h6.locator("#plateau .carte.kind-location.retournee").count() == 4, "Moldy Halls seul révélé"
+    assert h6.locator("#pioches .pile[data-outil='pile:unknown_places'] .badge").inner_text() == "6" or h6.locator("#pioches .pile[data-outil='pile:unknown_places'] .badge").inner_text() == "7", "pile Unknown Places"
+    assert h6.locator("#chaos .sac-forme").inner_text().strip() == "17", "sac 13 + 2 + 2"
+    portes = h6.locator("#plateau .carte.kind-location img[alt='Decrepit Door']")
+    assert portes.count() == 3, f"les trois portes s'appellent Decrepit Door (vu {portes.count()})"
+    assert h6.locator('#plateau .carte.kind-location img[alt="Landlord\'s Quarters"]').count() == 0, "pas de nom de pièce dévoilé"
+    h6.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h6.screenshot(path=f"{OUT}/30_secret_tapis.png")
+    # Menu d'une porte : titre « Decrepit Door ».
+    portes.first.locator("xpath=..").click(button="right"); h6.wait_for_selector(".menu-carte")
+    assert "Decrepit Door" in h6.locator(".menu-carte").inner_text(), "menu : nom du verso"
+    h6.keyboard.press("Escape")
+    # Tirer un Unknown Places : le côté « Unknown Places » est montré, pas la face.
+    h6.locator("#pioches .pile[data-outil='pile:unknown_places'] .dos-bouton").click()
+    h6.wait_for_selector("#pioches .pile[data-outil='pile:unknown_places'] .revelee .carte")
+    src_tire = h6.locator("#pioches .pile[data-outil='pile:unknown_places'] .revelee .carte img").get_attribute("src")
+    alt_tire = h6.locator("#pioches .pile[data-outil='pile:unknown_places'] .revelee .carte img").get_attribute("alt")
+    assert src_tire.endswith("b.webp") and alt_tire == "Unknown Places", f"tirage : {src_tire} / {alt_tire}"
+    h6.wait_for_load_state("networkidle"); h6.wait_for_timeout(600)
+    h6.screenshot(path=f"{OUT}/31_secret_unknown_places_tire.png")
     browser.close()
 
 if erreurs:

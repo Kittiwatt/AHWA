@@ -34,7 +34,9 @@ export function urlImage(carte, def) {
 export function faceVisible(carte, def) {
   const versoVisible = def?.backCode && (carte.faceUp ? carte.side === "b" : !carte.storyBack);
   if (versoVisible) return { kind: def.backKind ?? carte.kind, name: def.backName ?? def?.name, health: def.backHealth, sanity: undefined, healthPerInvestigator: def.backHealthPerInvestigator, liee: true };
-  return { kind: carte.kind, name: def?.name, health: def?.health, sanity: def?.sanity, healthPerInvestigator: def?.healthPerInvestigator, liee: false };
+  // Verso montré (lieu non révélé, agenda retourné…) : son propre nom s'il en a un (« Decrepit Door »), sans dévoiler le recto.
+  const versoMontre = def?.backName && (carte.faceUp ? carte.side === "b" : !carte.storyBack);
+  return { kind: carte.kind, name: versoMontre ? def.backName : def?.name, health: def?.health, sanity: def?.sanity, healthPerInvestigator: def?.healthPerInvestigator, liee: false };
 }
 
 /** La face actuellement visible peut-elle être agrandie ? (jamais le dos d'une carte histoire) */

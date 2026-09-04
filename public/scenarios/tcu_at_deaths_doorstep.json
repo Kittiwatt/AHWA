@@ -39,8 +39,8 @@
     "05078"
    ],
    "labels": [
-    "version normale",
-    "version spectrale"
+    "sa version normale",
+    "sa version spectrale"
    ]
   },
   {
@@ -49,8 +49,8 @@
     "05079"
    ],
    "labels": [
-    "version normale",
-    "version spectrale"
+    "sa version normale",
+    "sa version spectrale"
    ]
   },
   {
@@ -59,8 +59,8 @@
     "05080"
    ],
    "labels": [
-    "version normale",
-    "version spectrale"
+    "sa version normale",
+    "sa version spectrale"
    ]
   },
   {
@@ -69,8 +69,8 @@
     "05081"
    ],
    "labels": [
-    "version normale",
-    "version spectrale"
+    "sa version normale",
+    "sa version spectrale"
    ]
   },
   {
@@ -79,8 +79,8 @@
     "05082"
    ],
    "labels": [
-    "version normale",
-    "version spectrale"
+    "sa version normale",
+    "sa version spectrale"
    ]
   },
   {
@@ -89,8 +89,8 @@
     "05083"
    ],
    "labels": [
-    "version normale",
-    "version spectrale"
+    "sa version normale",
+    "sa version spectrale"
    ]
   },
   {
@@ -99,8 +99,8 @@
     "05084"
    ],
    "labels": [
-    "version normale",
-    "version spectrale"
+    "sa version normale",
+    "sa version spectrale"
    ]
   }
  ],
@@ -548,7 +548,7 @@
    "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
   }
  ],
- "builtAt": "2026-09-03",
+ "builtAt": "2026-09-04",
  "encounterSetNames": {
   "at_deaths_doorstep": "At Death's Doorstep",
   "the_watcher": "The Watcher",
@@ -595,6 +595,7 @@
    "set": "at_deaths_doorstep",
    "back": "b",
    "storyBack": false,
+   "backName": "Pulled into the Shadows",
    "doom": 8,
    "stage": 1
   },
@@ -606,6 +607,7 @@
    "set": "at_deaths_doorstep",
    "back": "b",
    "storyBack": false,
+   "backName": "Escape, if You Can",
    "doom": 11,
    "stage": 2
   },
@@ -621,6 +623,7 @@
     "value": 0,
     "perInvestigator": true
    },
+   "backName": "Death Approaches",
    "stage": 1
   },
   {
@@ -635,6 +638,7 @@
     "value": 4,
     "perInvestigator": true
    },
+   "backName": "A Way Out",
    "stage": 2
   },
   {
@@ -649,6 +653,7 @@
     "value": 0,
     "perInvestigator": true
    },
+   "backName": "Alive… for Now",
    "stage": 3
   },
   {

@@ -42,6 +42,14 @@ function nomDe(def: ScenarioDef, code: string): string {
   return def.cards.find((c) => c.code === code)?.name ?? code;
 }
 
+/** Nom de la face actuellement visible : le verso (backName) quand il est montré, sinon le recto. */
+export function nomVisible(def: ScenarioDef, card: CardState): string {
+  const d = def.cards.find((c) => c.code === card.code);
+  if (!d) return card.code;
+  const versoVisible = card.faceUp ? card.side === "b" : !card.storyBack;
+  return versoVisible ? d.backName ?? d.name : d.name;
+}
+
 function nomSiege(state: RoomState, index: number): string {
   return state.seats[index].name ?? `Siège ${index + 1}`;
 }
@@ -178,12 +186,14 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
     const id = pool.take(code);
     const card = newCard(pool, code, id, { zone, x, y, z: z++ }, faceUp);
     state.cards[id] = card;
-    let texte = log ?? `${pool.def(code).name} est mis en jeu.`;
+    let texte = log;
     if (reveal && card.kind === "location") {
       const n = revealLocation(state, def, card);
+      texte ??= `${nomVisible(def, card)} est mis en jeu.`;
       if (n > 0) texte += ` ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}.`;
     }
-    addLog(state, "setup", texte);
+    // Le journal nomme la face visible : un lieu posé face non révélée garde son secret (« Decrepit Door »).
+    addLog(state, "setup", texte ?? `${nomVisible(def, card)} est mis en jeu.`);
     return card;
   };
   const retirer = (code: string) => {
@@ -205,9 +215,13 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         const noms = choix.map((c) => pool.def(c).name);
         for (const code of step.from) if (!choix.includes(code)) retirer(code);
         if (step.zone !== undefined && (step.positions || (step.x !== undefined && step.y !== undefined))) {
+          // Avec un `log` du scénario : une seule ligne pour le tirage, sinon une ligne par carte (nom de la face visible).
+          if (step.log) addLog(state, "setup", step.log);
           choix.forEach((code, i) => {
             const pos = step.positions ? step.positions[i % step.positions.length] : { x: step.x! + i * (CARD_W + 32), y: step.y! };
-            const card = poser(code, step.zone!, pos.x, pos.y, step.faceUp ?? false, false, step.log ?? `${pool.def(code).name} tiré au hasard et mis en jeu.`);
+            const card = poser(code, step.zone!, pos.x, pos.y, step.faceUp ?? false, false, step.log ? "" : undefined);
+            if (step.log) state.log.pop(); // ligne vide non conservée
+            else state.log[state.log.length - 1].text = `${nomVisible(def, card)} tiré au hasard et mis en jeu.`;
             if (step.slot && i === 0) slots.set(step.slot, card.id);
           });
         } else if (step.slot) {
@@ -282,6 +296,28 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       case "minis": {
         placeMinis(step.code);
         addLog(state, "setup", step.log ?? `Les pions des enquêteurs sont posés sur ${nomDe(def, enJeu(step.code).code)}.`);
+        break;
+      }
+      case "layeredPile": {
+        // Pile construite par couches (du dessus vers le dessous), ex. « Unknown Places Deck » : dessous = une carte
+        // imposée + 3 au hasard, dessus = les 3 autres, chaque couche mélangée ; le journal ne dit pas qui est où.
+        if (!(step.pile in state.piles)) state.piles[step.pile] = [];
+        // Les cartes imposées de toutes les couches sont réservées d'abord, pour que les tirages ne les prennent pas.
+        const imposes = step.layers.flatMap((l) => l.with ?? []);
+        for (const code of imposes) if (!step.pool.includes(code)) throw new Error(`layeredPile : ${code} hors pool`);
+        let restant = step.pool.filter((c) => !imposes.includes(c));
+        const ids: CardId[] = [];
+        for (const layer of step.layers) {
+          const impose = layer.with ?? [];
+          const tires = shuffle(restant, rng).slice(0, layer.n ?? 0);
+          restant = restant.filter((c) => !tires.includes(c));
+          const couche = shuffle([...impose, ...tires], rng).map((code) => ({ code, id: pool.take(code) }));
+          for (const { code, id } of couche) state.cards[id] = newCard(pool, code, id, { pile: step.pile }, false);
+          ids.push(...couche.map((c) => c.id));
+        }
+        if (restant.length) throw new Error(`layeredPile : ${restant.length} carte(s) non placée(s)`);
+        state.piles[step.pile].push(...ids);
+        addLog(state, "setup", step.log ?? `${ids.length} cartes dans la pile ${step.pile}, par couches.`);
         break;
       }
       case "addClues": {

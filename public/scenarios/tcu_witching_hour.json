@@ -266,7 +266,7 @@
    "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
   }
  ],
- "builtAt": "2026-09-03",
+ "builtAt": "2026-09-04",
  "encounterSetNames": {
   "the_witching_hour": "The Witching Hour",
   "agents_of_azathoth": "Agents of Azathoth",
@@ -430,6 +430,7 @@
    "set": "the_witching_hour",
    "back": "b",
    "storyBack": false,
+   "backName": "The Rite Commences",
    "doom": 8,
    "stage": 1
   },
@@ -441,6 +442,7 @@
    "set": "the_witching_hour",
    "back": "b",
    "storyBack": false,
+   "backName": "Reincarnation",
    "doom": 12,
    "stage": 2
   },
@@ -456,6 +458,7 @@
     "value": 2,
     "perInvestigator": true
    },
+   "backName": "Deeper into the Woods",
    "stage": 1
   },
   {
@@ -470,6 +473,7 @@
     "value": 1,
     "perInvestigator": true
    },
+   "backName": "Strange Melodies",
    "stage": 2
   },
   {
@@ -506,6 +510,7 @@
     "value": 0,
     "perInvestigator": true
    },
+   "backName": "A Circle Undone",
    "stage": 4
   },
   {

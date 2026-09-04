@@ -402,7 +402,7 @@
    "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
   }
  ],
- "builtAt": "2026-09-03",
+ "builtAt": "2026-09-04",
  "encounterSetNames": {
   "arkham": "The Midnight Masks",
   "cultists": "Cult of Umôrdhoth",
@@ -457,6 +457,7 @@
    "set": "arkham",
    "back": "b",
    "storyBack": false,
+   "backName": "The Clock Strikes Midnight",
    "doom": 8,
    "stage": 2
   },
@@ -472,6 +473,7 @@
     "value": 0,
     "perInvestigator": true
    },
+   "backName": "Secrets Unveiled",
    "stage": 1
   },
   {

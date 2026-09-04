@@ -17,6 +17,40 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-04 : **The Secret Name (TCU III) livré** (question unique de
+  la Loge validée par l'utilisateur, le reste laissé à Claude). Guide
+  p. 17 : Walter Gilman's Room en haut (non révélé), Moldy Halls au
+  centre (révélé, pions), **trois Decrepit Door** = trois pièces
+  différentes (05129‑31) au même dos, placées par `pickRandom` à des
+  positions tirées au hasard ; **nom du verso** : le build exporte
+  `backName` (ArkhamDB `back_name`) pour toute carte à double face, et
+  serveur (`nomVisible`) comme client (`faceVisible`) nomment la face
+  visible — journal, infobulles, menus disent « Decrepit Door » /
+  « Unknown Places » tant que le lieu n'est pas révélé ; `pickRandom`
+  avec `log` n'écrit plus une ligne par carte. **Unknown Places Deck** :
+  nouvelle op `layeredPile` (couches du dessus vers le dessous, cartes
+  imposées réservées avant les tirages — piège corrigé), pile
+  « Unknown Places » : clic = tirer (côté non révélé), glisser = entre
+  non révélé, clic = révélation. **Lieux à simple face** (Strange
+  Geometry) : tirés sans côté b, ils entrent révélés avec leurs indices
+  fixes. De côté : Nahab, The Black Book, Strange Geometry ×2, Ghostly
+  Presence ×2 (face visible), Site of the Sacrifice et Keziah's Room
+  (non révélés). `swaps` Walter Gilman's Room ↔ Keziah's Room (libellés
+  complets après « Remplacer par », TCU II passé à « sa version
+  spectrale ») ; nouvelle action **`removeLocations {keep}`** (« Retirer
+  de la partie tous les autres lieux »). Questions : introduction du
+  scénario I (comme TCU II) + **question unique de la Loge** (cinq
+  formules du journal : membres + coven dévoilé → 2 cultistes, membres →
+  1, ennemis / rien appris / jamais revus → 0 ; icônes vérifiées : Intro 2
+  et Interlude II ajoutent chacun 1 Cultiste ; sac autonome p. 18 =
+  tablette + ancien, sans cultiste). Sets : `the_secret_name` (pack
+  **`tsn`**, premier pack Mythos), `city_of_sins`, `inexorable_fate`,
+  `realm_of_death`, `witchcraft` (tcu), `rats` (Core) → `packs: ["tsn",
+  "tcu", "core"]`. Pioche : 35 cartes. Rappels `act:2` (remplacement,
+  retrait des autres lieux, mélange, Black Book), `act:3`, `agenda:2`.
+  Tests : 175 messages, six scénarios ; captures 29‑31. Régression au
+  vert (les agendas/actes des scénarios livrés gagnent un `backName` =
+  titre du verso, sans effet de jeu).
 - 2026-09-04 : **At Death's Doorstep (TCU II) livré** (choix laissés à
   Claude, utilisateur absent : à valider par ses retours). Guide p. 11 :
   sept lieux normaux selon le diagramme (Office en haut, rangée
@@ -298,17 +332,16 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : retours de l'utilisateur sur The Witching Hour
-  et At Death's Doorstep (choix faits par Claude : rangées par
-  enquêteur, pile Arkham Woods, sets de côté face visible, question
-  d'introduction, verso-lieu automatique ; questions « Missing
-  Persons » + numérique, jetons de campagne par la question
-  d'introduction avec option « partie autonome », lieux qui se
-  remplacent par le menu), puis TCU III The Secret Name (ou le
-  prologue). Jetons de campagne : pour l'instant reportés par la
-  question d'introduction (seul ajout avant TCU II) ; à partir de TCU
-  III il faudra aussi les jetons des résolutions précédentes (question
-  à choix multiple ou panneau du sac). À faire au fil de
+- **Prochaine étape** : retours de l'utilisateur sur les trois tables
+  TCU (choix faits par Claude : rangées par enquêteur, piles Arkham
+  Woods / Unknown Places, sets de côté face visible, verso-lieu
+  automatique, questions « Missing Persons » + numérique, lieux qui se
+  remplacent par le menu, portes au nom de verso), puis TCU IV The
+  Wages of Sin (pack `twos`) ou le prologue. Jetons de campagne :
+  reportés jusqu'ici par les questions d'introduction et de la Loge ;
+  vérifier à chaque scénario les ajouts des résolutions précédentes
+  (TCU III : The Black Book ajouté à un deck en résolution → 1 jeton,
+  à demander au lobby de TCU IV). À faire au fil de
   l'eau : étiquette de rangée sur le tapis (« devant X »), pincer pour
   zoomer sur tablette, chemins pré-tracés depuis les connexions
   imprimées, hook `onChaosDraw` (jetons scellés), pioches multiples
@@ -717,6 +750,17 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
 - Le test `test_room.mjs` utilise un scénario **hors registre** pour
   vérifier le refus 400 : le changer quand ce scénario est livré (fait
   pour `tcu_witching_hour` → `tcu_prologue`).
+- Lieux dont le dos cache l'identité (Decrepit Door, Unknown Places) :
+  c'est `back_name` d'ArkhamDB ; sans `nomVisible`/`faceVisible`, le
+  journal (« X est mis en jeu ») et l'attribut `alt` dévoilaient la
+  pièce. Toute nouvelle sortie qui nomme une carte doit passer par ces
+  fonctions.
+- `layeredPile` : réserver les cartes imposées de toutes les couches
+  avant les tirages au hasard, sinon la couche du dessus peut prendre la
+  carte imposée du dessous.
+- Un lieu à simple face (`back: "encounter"`, ex. Strange Geometry) n'a
+  pas de côté b : ne pas lui mettre `side: "b"` au tirage (image
+  inexistante) et le faire entrer révélé.
 - ArkhamDB ne liste pas Josef Meiger 05085 : seul son verso 05085b
   (story) existe, avec `linked_card` → le build synthétise le recto
   (`versosSeuls`) et exclut le verso ; règle générale pour tout

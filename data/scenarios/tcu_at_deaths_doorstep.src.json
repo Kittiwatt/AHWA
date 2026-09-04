@@ -13,13 +13,13 @@
   "actDeck": ["05068", "05069", "05070"],
   "startLocation": "05071",
   "swaps": [
-    { "pair": ["05071", "05078"], "labels": ["version normale", "version spectrale"] },
-    { "pair": ["05072", "05079"], "labels": ["version normale", "version spectrale"] },
-    { "pair": ["05073", "05080"], "labels": ["version normale", "version spectrale"] },
-    { "pair": ["05074", "05081"], "labels": ["version normale", "version spectrale"] },
-    { "pair": ["05075", "05082"], "labels": ["version normale", "version spectrale"] },
-    { "pair": ["05076", "05083"], "labels": ["version normale", "version spectrale"] },
-    { "pair": ["05077", "05084"], "labels": ["version normale", "version spectrale"] }
+    { "pair": ["05071", "05078"], "labels": ["sa version normale", "sa version spectrale"] },
+    { "pair": ["05072", "05079"], "labels": ["sa version normale", "sa version spectrale"] },
+    { "pair": ["05073", "05080"], "labels": ["sa version normale", "sa version spectrale"] },
+    { "pair": ["05074", "05081"], "labels": ["sa version normale", "sa version spectrale"] },
+    { "pair": ["05075", "05082"], "labels": ["sa version normale", "sa version spectrale"] },
+    { "pair": ["05076", "05083"], "labels": ["sa version normale", "sa version spectrale"] },
+    { "pair": ["05077", "05084"], "labels": ["sa version normale", "sa version spectrale"] }
   ],
   "chaosBag": {
     "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-2", "-3", "skull", "skull", "auto_fail", "elder_sign"],

@@ -64,6 +64,8 @@ function carte(c, src) {
     out.backClue = { value: c.linked_card.clues ?? 0, perInvestigator: !c.linked_card.clues_fixed };
   }
   // Carte liée (ex. agenda dont le verso est un ennemi) : le verso est une autre carte ArkhamDB.
+  // Nom du côté non révélé (« Decrepit Door », « Unknown Places », titre du verso d'un agenda) : affiché tant que le verso est montré.
+  if (c.back_name && !c.linked_card) out.backName = c.back_name;
   if (c.linked_card) {
     out.back = "b";
     out.backCode = c.linked_card.code;
@@ -108,12 +110,17 @@ async function buildScenario(fichierSrc) {
 
   // Contrôles de cohérence entre la source et ArkhamDB.
   const codes = new Set(cards.map((c) => c.code));
-  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), s.at,
+  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), s.at, ...(s.pool ?? []),
     ...(s.cases ? Object.values(s.cases).flatMap(citesDe) : [])]).filter((c) => c && !String(c).startsWith("slot:"));
   for (const s of src.setup.flatMap(function aplat(x) { return [x, ...(x.cases ? Object.values(x.cases).flat().flatMap(aplat) : [])]; })) {
     if (s.op === "pickRandomSet") for (const set of s.from) if (!src.encounterSets.includes(set)) throw new Error(`${src.id} : set ${set} absent de encounterSets`);
     if (s.op === "aside" || s.op === "toPile") for (const set of [...(s.sets ?? []), ...(s.set ? [s.set] : [])]) if (!src.encounterSets.includes(set)) throw new Error(`${src.id} : set ${set} absent de encounterSets`);
     if (s.op === "dealToSeats" && (!Array.isArray(s.rows) || !s.rows.length)) throw new Error(`${src.id} : dealToSeats sans rows`);
+    if (s.op === "layeredPile") {
+      const total = s.layers.reduce((n, l) => n + (l.n ?? 0) + (l.with?.length ?? 0), 0);
+      if (total !== s.pool.length) throw new Error(`${src.id} : layeredPile ${s.pile} — couches (${total}) ≠ pool (${s.pool.length})`);
+      for (const l of s.layers) for (const code of l.with ?? []) if (!s.pool.includes(code)) throw new Error(`${src.id} : layeredPile ${code} hors pool`);
+    }
   }
   for (const code of Object.keys(src.backPlacement ?? {})) if (!cartesPack.some((c) => c.code === code && c.linked_card)) throw new Error(`${src.id} : backPlacement ${code} n'est pas une carte liée`);
   for (const p of src.swaps ?? []) {

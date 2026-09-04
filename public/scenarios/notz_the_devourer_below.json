@@ -358,7 +358,7 @@
    "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
   }
  ],
- "builtAt": "2026-09-03",
+ "builtAt": "2026-09-04",
  "encounterSetNames": {
   "tentacles": "The Devourer Below",
   "ghouls": "Ghouls",
@@ -400,6 +400,7 @@
    "set": "tentacles",
    "back": "b",
    "storyBack": false,
+   "backName": "Death to the Intruders",
    "doom": 4,
    "stage": 1
   },
@@ -411,6 +412,7 @@
    "set": "tentacles",
    "back": "b",
    "storyBack": false,
+   "backName": "The Will of Umôrdhoth",
    "doom": 5,
    "stage": 2
   },
@@ -422,6 +424,7 @@
    "set": "tentacles",
    "back": "b",
    "storyBack": false,
+   "backName": "The Devourer Below",
    "doom": 5,
    "stage": 3
   },
@@ -437,6 +440,7 @@
     "value": 3,
     "perInvestigator": true
    },
+   "backName": "Unveiling the Plan",
    "stage": 1
   },
   {
@@ -451,6 +455,7 @@
     "value": 0,
     "perInvestigator": true
    },
+   "backName": "Last Rites",
    "stage": 2
   },
   {
@@ -465,6 +470,7 @@
     "value": 0,
     "perInvestigator": true
    },
+   "backName": "The Ritual Is Broken",
    "stage": 3
   },
   {

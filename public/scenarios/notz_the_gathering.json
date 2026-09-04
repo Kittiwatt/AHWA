@@ -179,7 +179,7 @@
    "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
   }
  ],
- "builtAt": "2026-09-03",
+ "builtAt": "2026-09-04",
  "encounterSetNames": {
   "torch": "The Gathering",
   "rats": "Rats",
@@ -206,6 +206,7 @@
    "set": "torch",
    "back": "b",
    "storyBack": false,
+   "backName": "A Lapse in Time",
    "doom": 3,
    "stage": 1
   },
@@ -217,6 +218,7 @@
    "set": "torch",
    "back": "b",
    "storyBack": false,
+   "backName": "The Tunnels Below",
    "doom": 7,
    "stage": 2
   },
@@ -228,6 +230,7 @@
    "set": "torch",
    "back": "b",
    "storyBack": false,
+   "backName": "The Ghouls Break Free",
    "doom": 10,
    "stage": 3
   },
@@ -243,6 +246,7 @@
     "value": 2,
     "perInvestigator": true
    },
+   "backName": "The Door on the Floor",
    "stage": 1
   },
   {
@@ -257,6 +261,7 @@
     "value": 3,
     "perInvestigator": true
    },
+   "backName": "Breaking the Barrier",
    "stage": 2
   },
   {
@@ -271,6 +276,7 @@
     "value": 0,
     "perInvestigator": true
    },
+   "backName": "Defending the Home",
    "stage": 3
   },
   {

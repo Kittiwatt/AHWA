@@ -1,6 +1,7 @@
 // Interactions sur les cartes : glisser-déposer (message au lâcher), clic, double-clic, menu contextuel.
 
 import { el } from "./dom.js";
+import { faceVisible } from "./cartes.js";
 import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, encart } from "./tapis.js";
 import { ouvrirAjustementSac } from "./dialogues.js";
 
@@ -260,7 +261,7 @@ export function initInteractions(ctx) {
       el("button", { class: "pm", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "addToken", id: carte.id, token, delta: 1 }) }, "+"));
 
     const items = [];
-    const nom = ctx.investigateurs.get(carte.code)?.name ?? def?.name ?? carte.code;
+    const nom = ctx.investigateurs.get(carte.code)?.name ?? faceVisible(carte, def).name ?? carte.code;
     items.push(el("p", { class: "titre-menu", text: nom }));
     if (elem.dataset.loupe === "1") items.push(item("Agrandir", () => document.dispatchEvent(new CustomEvent("ahwa:loupe", { detail: elem })), { libre: true }));
     const rencontre = ["enemy", "treachery", "asset", "story"].includes(carte.kind);
@@ -284,10 +285,11 @@ export function initInteractions(ctx) {
         const paire = (ctx.scenario.swaps ?? []).find((p) => p.pair.includes(carte.code));
         if (paire) {
           const autre = paire.labels[1 - paire.pair.indexOf(carte.code)];
-          items.push(item(`Remplacer par sa ${autre}`, () => ctx.envoyer({ t: "swapLocation", id: carte.id })));
+          items.push(item(`Remplacer par ${autre}`, () => ctx.envoyer({ t: "swapLocation", id: carte.id })));
           items.push(item("Tous les lieux → version jumelle", () => { if (confirm("Remplacer tous les lieux du tapis par leur version jumelle disponible (jetons et cartes conservés) ?")) ctx.envoyer({ t: "swapLocation", all: true }); }));
         }
         items.push(item("Retirer tous les indices des lieux", () => { if (confirm("Retirer tous les indices de tous les lieux en jeu ?")) ctx.envoyer({ t: "clearClues" }); }));
+        items.push(item("Retirer de la partie tous les autres lieux", () => { if (confirm(`Retirer de la partie tous les lieux du tapis sauf ${nom} ?`)) ctx.envoyer({ t: "removeLocations", keep: carte.id }); }));
       }
       if (!carte.storyBack && carte.kind !== "investigator") items.push(item("Retourner", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
       if (carte.kind === "scenario" || carte.kind === "story") items.push(item("Autre face", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));

@@ -720,5 +720,94 @@ async function tableDoorstep({ joueurs, answers }) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ The Secret Name (TCU III) : portes indistinguables, pile Unknown Places par couches, nom du verso, lieux simple face ============
+{
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tcu_secret_name" }) });
+  assert.equal(r.status, 200, "The Secret Name est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "05001" });
+  const j2 = client(code, { seat: 1, name: "J2" });
+  await j2.attendre((m) => m.t === "welcome");
+  await j2.action({ t: "chooseInvestigator", code: "05002" });
+  await h.attendre((m) => m.t === "delta" && m.rev === 2);
+  h.envoyer({ t: "startSetup", answers: { fate: "rejected", lodge: "members_told" } });
+  await h.attendre((m) => m.t === "delta" && m.rev === 3);
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const surTapis = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(surTapis.length, 5, "5 lieux en jeu");
+  const portes = surTapis.filter((c) => ["05129", "05130", "05131"].includes(c.code));
+  assert.equal(portes.length, 3);
+  assert.deepEqual(portes.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["551,411", "737,649", "923,411"], "portes aux trois positions");
+  assert.ok(portes.every((c) => !c.faceUp), "portes non révélées");
+  const moldy = surTapis.find((c) => c.code === "05128");
+  assert.ok(moldy.faceUp && moldy.tokens.clue === 2 && moldy.loc.x === 737 && moldy.loc.y === 411, "Moldy Halls révélé au centre, 1 indice par enquêteur");
+  assert.ok(!surTapis.find((c) => c.code === "05132").faceUp, "Walter Gilman's Room non révélé");
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 2);
+  // Le journal ne dit pas quelle pièce est derrière quelle porte.
+  assert.ok(!s.log.some((e) => /Landlord|Mazurewicz|Elwood/.test(e.text)), "journal : les portes gardent leur secret");
+  // Pile Unknown Places : 7 cartes, Witch House Ruins parmi les 4 du dessous, les 3 du dessus sans elle.
+  const up = s.piles.unknown_places;
+  assert.equal(up.length, 7);
+  const ruinesIdx = up.findIndex((id) => s.cards[id].code === "05137");
+  assert.ok(ruinesIdx >= 3, "Witch House Ruins dans les 4 cartes du dessous");
+  assert.ok(up.every((id) => !s.cards[id].faceUp));
+  // De côté : Nahab, Black Book, 2 Strange Geometry, 2 Ghostly Presence (face visible), Site + Keziah (non révélés).
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["05133", "05141", "05142", "05142", "05144", "05144", "05149", "05150"]);
+  assert.ok(cote.filter((c) => ["05133", "05141"].includes(c.code)).every((c) => !c.faceUp) && cote.filter((c) => !["05133", "05141"].includes(c.code)).every((c) => c.faceUp));
+  assert.equal(s.piles.encounter.length, 35, "pioche : 35 cartes");
+  assert.equal(s.chaos.bag.length, 17, "sac 13 + 2 anciens + 2 cultistes");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 2);
+  assert.equal(s.chaos.bag.filter((t) => t === "elder_thing").length, 2);
+
+  // Tirer un Unknown Places : côté non révélé sur la pile, entre non révélé, clic = révélation avec le vrai nom.
+  let d = await h.action({ t: "drawEncounter", pile: "unknown_places" });
+  const dessus = h.state.cards[h.state.piles.unknown_places[0]];
+  assert.ok(dessus.faceUp && dessus.side === "b");
+  assert.ok(h.state.log.at(-1).text.includes("Unknown Places") && !/Ruins|Abyss|Elder Things|Gaol|Classroom|Court|Earlier/.test(h.state.log.at(-1).text), "journal du tirage : nom du verso");
+  d = await h.action({ t: "moveCard", id: dessus.id, zone: "board", x: 1109, y: 411 });
+  assert.ok(!h.state.cards[dessus.id].faceUp && h.state.cards[dessus.id].side === "a");
+  d = await h.action({ t: "revealLocation", id: dessus.id });
+  assert.ok(h.state.cards[dessus.id].faceUp);
+  // Révéler une porte : indices posés (1 par enquêteur).
+  d = await h.action({ t: "revealLocation", id: portes[0].id });
+  assert.equal(h.state.cards[portes[0].id].tokens.clue, 2, "porte révélée : 1 indice par enquêteur");
+  // Strange Geometry (lieu à simple face) : mélangé dans la pioche, tiré, posé sur le tapis → entre révélé avec son indice fixe.
+  const sg = cote.find((c) => c.code === "05142");
+  d = await h.action({ t: "toPile", id: sg.id, pile: "encounter", top: true });
+  d = await h.action({ t: "drawEncounter" });
+  assert.equal(h.state.cards[sg.id].side, "a", "lieu simple face tiré : pas de côté b");
+  d = await h.action({ t: "moveCard", id: sg.id, zone: "board", x: 365, y: 411 });
+  assert.ok(h.state.cards[sg.id].faceUp && h.state.cards[sg.id].tokens.clue === 1, "Strange Geometry entre révélé avec 1 indice fixe");
+  // Remplacement Walter Gilman's Room ↔ Keziah's Room (mise de côté) puis retrait des autres lieux.
+  const gilman = surTapis.find((c) => c.code === "05132");
+  d = await h.action({ t: "swapLocation", id: gilman.id });
+  assert.equal(d.t, "delta");
+  const keziah = h.state.cards[cote.find((c) => c.code === "05133").id];
+  assert.ok(keziah.loc.zone === "board" && keziah.loc.x === 737 && keziah.loc.y === 173 && !keziah.faceUp, "Keziah's Room prend la place, non révélée");
+  assert.ok(h.state.log.some((e) => e.text.includes("remplacé par Keziah's Room")), "journal du remplacement");
+  d = await h.action({ t: "removeLocations", keep: keziah.id });
+  assert.equal(d.t, "delta");
+  const restants = Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.deepEqual(restants.map((c) => c.id), [keziah.id], "seule Keziah's Room reste en jeu");
+  assert.ok(Object.values(h.state.cards).filter((c) => c.loc.pile === "removed").length >= 6, "les autres lieux sont retirés");
+  // Rappels act:2 / act:3 / agenda:2.
+  h.recus = h.recus.filter((m) => m.t !== "reminder");
+  await h.action({ t: "advanceAct" });
+  await h.action({ t: "advanceAgenda" });
+  await h.action({ t: "advanceAct" });
+  await new Promise((r) => setTimeout(r, 200));
+  const rappels = h.recus.filter((m) => m.t === "reminder").map((m) => m.entry.text);
+  assert.ok(rappels.some((t) => t.startsWith("Acte 2")) && rappels.some((t) => t.startsWith("Agenda 2")) && rappels.some((t) => t.startsWith("Acte 3")), "rappels d'avancement");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.cards[keziah.id], h.state.cards[keziah.id], "les autres clients voient la même chose");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

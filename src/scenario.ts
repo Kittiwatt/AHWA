@@ -21,7 +21,7 @@ export type ScenarioCard = {
   healthPerInvestigator?: boolean;
   backCode?: string;      // carte liée : le verso est une autre carte (ex. agenda → ennemi)
   backKind?: CardKind;
-  backName?: string;
+  backName?: string;        // nom du verso : carte liée, ou côté non révélé d'un lieu/agenda/acte (« Decrepit Door », « Unknown Places »)
   backHealth?: number;
   backHealthPerInvestigator?: boolean;
   backVictory?: number;
@@ -49,6 +49,9 @@ export type SetupStep =
     // sur l'une de ses cartes, tirée au hasard, révélée, avec son pion dessus
   | { op: "story"; log?: string }
   | { op: "buildEncounter"; log?: string }
+  | { op: "layeredPile"; pile: string; pool: string[]; layers: { n?: number; with?: string[] }[]; log?: string }
+    // pile construite par couches, du dessus vers le dessous : chaque couche prend les codes `with` (imposés) plus
+    // `n` cartes tirées au hasard dans ce qui reste de `pool`, puis est mélangée ; tout le pool doit être consommé
   | { op: "addClues"; code: string; n: number; log?: string }                  // indices fixes sur un lieu en jeu (révélé ou non)
   | { op: "removeClues"; from: string[]; n?: number; nFrom?: string; log?: string }   // retire n indices (ou la réponse numérique nFrom) aussi également que possible
   | { op: "log"; text: string }

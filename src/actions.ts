@@ -4,7 +4,7 @@
 
 import type { CardState, LogEntry, Phase, RoomState, Token, ZoneId } from "./state";
 import type { ScenarioDef } from "./scenario";
-import { addLog, nextZ, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI } from "./setup";
+import { addLog, nextZ, nomVisible, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI } from "./setup";
 
 export class Refus extends Error {}
 export const refuser = (raison: string): never => { throw new Refus(raison); };
@@ -41,8 +41,9 @@ function nomPile(def: ScenarioDef, pile: string): string {
   return def.piles?.find((p) => p.id === pile)?.label ?? pile;
 }
 
+/** Nom de la face visible (le verso d'un lieu non révélé garde son secret : « Decrepit Door »). */
 function nomCarte(def: ScenarioDef, c: CardState): string {
-  return def.cards.find((d) => d.code === c.code)?.name ?? c.code;
+  return nomVisible(def, c);
 }
 
 function nomSiege(state: RoomState, n: number, def: ScenarioDef): string {
@@ -173,7 +174,7 @@ function remplacerLieu(state: RoomState, def: ScenarioDef, c: CardState): string
   c.exhausted = false;
   c.faceUp = false;
   for (const l of state.links) { if (l.a === c.id) l.a = autre.id; if (l.b === c.id) l.b = autre.id; }
-  let texte = `${nomCarte(def, c)} est remplacé par sa ${paire.labels[paire.pair.indexOf(autreCode)]} (jetons et cartes conservés) ; l'ancien lieu part de côté.`;
+  let texte = `${nomCarte(def, c)} est remplacé par ${paire.labels[paire.pair.indexOf(autreCode)]} (jetons et cartes conservés) ; l'ancien lieu part de côté.`;
   if (pionsSur(state, autre).length) {
     const n = revealLocation(state, def, autre);
     texte += ` Un enquêteur s'y trouve : lieu révélé${n ? `, ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}.`;
@@ -296,9 +297,16 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const x = Math.round(Number(msg.x) || 0), y = Math.round(Number(msg.y) || 0);
       c.loc = { zone, x, y, z: nextZ(state) };
       if (venaitDunePile) {
-        // Une carte sortie d'une pile entre en jeu face visible ; un lieu, lui, entre non révélé (clic = révélation + indices).
+        // Une carte sortie d'une pile entre en jeu face visible ; un lieu à double face entre non révélé (clic =
+        // révélation + indices) ; un lieu à simple face (ex. Strange Geometry) entre révélé, avec ses indices.
         c.faceUp = c.kind !== "location";
-        if (c.kind === "location") c.side = "a";
+        if (c.kind === "location") {
+          c.side = "a";
+          if (def.cards.find((d) => d.code === c.code)?.back !== "b") {
+            const n = revealLocation(state, def, c);
+            addLog(state, "action", `${nomCarte(def, c)} entre en jeu révélé${n ? ` : ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}.`);
+          }
+        }
       }
       const reminders = sortieHistoire(state, def, c);
       // Un lieu déplacé sur le tapis emmène ce qui est posé dessus : pions (à cheval sur le bord) et cartes dont le centre est sur le lieu.
@@ -389,7 +397,8 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       }
       const c = state.cards[state.piles[pile][0]];
       c.faceUp = true;
-      if (c.kind === "location") c.side = "b"; // un lieu tiré montre son côté non révélé (nom lisible, rien de dévoilé)
+      // Un lieu à double face tiré montre son côté non révélé (nom lisible, rien de dévoilé).
+      if (c.kind === "location" && def.cards.find((d) => d.code === c.code)?.back === "b") c.side = "b";
       addLog(state, "action", `${nomSiege(state, s, def)} pioche ${nomCarte(def, c)}${pile === "encounter" ? "" : ` (${nomPile(def, pile)})`}.`, s);
       return {};
     }
@@ -445,6 +454,21 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
         return {};
       }
       remplacerLieu(state, def, carte(state, msg.id));
+      return {};
+    }
+    case "removeLocations": {
+      // Retire de la partie tous les lieux du tapis sauf {keep} (les cartes le demandent parfois d'un coup) : jetons et chemins effacés.
+      const garde = carte(state, msg.keep);
+      const lieux = Object.values(state.cards).filter((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board" && k.id !== garde.id);
+      if (!lieux.length) refuser("aucun autre lieu en jeu");
+      for (const l of lieux) {
+        l.loc = { pile: "removed" };
+        l.tokens = {};
+        l.exhausted = false;
+        l.faceUp = false;
+        state.links = state.links.filter((k) => k.a !== l.id && k.b !== l.id);
+      }
+      addLog(state, "action", `${lieux.length} lieu${lieux.length > 1 ? "x" : ""} retiré${lieux.length > 1 ? "s" : ""} de la partie ; ${nomCarte(def, garde)} reste en jeu.`);
       return {};
     }
     case "clearClues": {

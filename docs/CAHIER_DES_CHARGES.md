@@ -232,7 +232,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `reset` | H | retour lobby |
 | `close` / `deleteRoom` | H | résolution / suppression |
 | `kick {seat}` | H | libère un siège (au lobby : retire aussi son enquêteur) |
-| `moveCard {id, zone, x, y}` | J | drop sur le tapis (au lâcher uniquement) ; une carte sortie d'une pile entre en jeu face visible, sauf un lieu, qui entre non révélé (clic = révélation + indices) |
+| `moveCard {id, zone, x, y}` | J | drop sur le tapis (au lâcher uniquement) ; une carte sortie d'une pile entre en jeu face visible, sauf un lieu à double face, qui entre non révélé (clic = révélation + indices) ; un lieu à simple face (Strange Geometry) entre révélé avec ses indices |
 | `toPile {id, pile, top?, shuffle?}` | J | met une carte dans une pile ; `shuffle` remélange la pile ensuite (« Mélanger dans la pioche ») |
 | `flipCard {id}` | J | retourne (refusé pour un dos histoire : face cachée il montre le dos générique ; son côté histoire se lit par `toggleSide`, menu « Lire le côté histoire », quand une carte l'indique) |
 | `revealLocation {id}` | J | face visible + indices auto (`clueValue × joueurs` ou `clueValue` si « per investigator » absent) |
@@ -247,6 +247,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `linkLocations {a, b}` / `unlink {id?}` | J | chemin entre deux lieux (`state.links`, bascule) / efface les chemins d'un lieu ou tous |
 | `swapLocation {id}` / `swapLocation {all}` | J | lieux qui se remplacent (`swaps`) : la version jumelle prend la place, les jetons, les chemins et ce qui est posé ; elle entre non révélée, sauf si un pion s'y trouve (révélée, indices) ; l'ancien lieu part de côté. `all` : tous les lieux du tapis qui ont une jumelle disponible |
 | `clearClues` | J | retire tous les indices des lieux en jeu |
+| `removeLocations {keep}` | J | retire de la partie tous les lieux du tapis sauf un (jetons et chemins effacés) |
 | `createCard {code}` | J | génère n'importe quelle carte du jeu (index `cards_index.json`) dans la zone de menace du demandeur ; définition dans `state.extraDefs` |
 | `searchEncounter {pile?}` | J | envoie la pioche (ou la défausse) au demandeur (`peek`) ; le client remélange à la fermeture (`shufflePile`) et permet de prendre une carte (`moveCard`) |
 | `shufflePile {pile}` | J | remélange |
@@ -346,7 +347,14 @@ fixes sur un lieu, révélé ou non) et `removeClues {from, n | nFrom}`
 aux traces du journal (At Death's Doorstep). `swaps [{pair, labels}]`
 déclare les lieux qui se remplacent (normal ↔ Spectral, voir
 `swapLocation`). `storyBack` (codes) marque les cartes dont le dos est
-une carte histoire. Le build synthétise le recto d'une carte dont
+une carte histoire. `layeredPile {pile, pool, layers: [{n, with}]}`
+construit une pile par couches, du dessus vers le dessous, chaque
+couche prenant ses cartes imposées plus `n` au hasard, mélangée (le
+« Unknown Places Deck » de The Secret Name). Le build exporte
+`backName` (nom du verso : « Decrepit Door », « Unknown Places », titre
+du verso d'un agenda) ; serveur et client nomment toujours **la face
+visible** (`nomVisible` / `faceVisible`), si bien qu'un lieu non révélé
+garde son secret dans le journal, les infobulles et les menus. Le build synthétise le recto d'une carte dont
 ArkhamDB ne connaît que le verso (`<code>b` avec `linked_card`, ex.
 Josef Meiger 05085).
 
