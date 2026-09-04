@@ -362,7 +362,9 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
     case "flipCard": {
       const c = carte(state, msg.id);
       if (c.kind === "key" || c.kind === "mini") refuser("ce jeton ne se retourne pas");
-      if (c.storyBack && !c.faceUp) refuser("cette carte a un dos « histoire » : seul le scénario peut la révéler");
+      // Un dos « histoire » ne se révèle pas par un simple retournement : seulement par une demande explicite
+      // (menu « Révéler quand une carte l'indique », {reveal: true}).
+      if (c.storyBack && !c.faceUp && msg.reveal !== true) refuser("cette carte a un dos « histoire » : révélez-la seulement quand une carte l'indique");
       if (c.storyBack && c.faceUp) refuser("cette carte a un dos « histoire » : elle ne se retourne pas");
       c.faceUp = !c.faceUp;
       return {};

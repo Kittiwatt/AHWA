@@ -6,7 +6,7 @@
 import type { CardId, CardState, LogEntry, RoomState, ZoneId } from "./state";
 import { LOG_MAX } from "./state";
 import type { ScenarioCard, ScenarioDef, SetupStep } from "./scenario";
-import { reponseValide } from "./scenario";
+import { evalCond, reponseValide } from "./scenario";
 
 export type Rng = () => number;
 
@@ -220,7 +220,14 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         const n = step.n ?? 1;
         const choix = shuffle([...step.from], rng).slice(0, n);
         const noms = choix.map((c) => pool.def(c).name);
-        for (const code of step.from) if (!choix.includes(code)) retirer(code);
+        const restes = step.from.filter((code) => !choix.includes(code));
+        if (step.rest === "aside") {
+          // Les cartes non tirées sont mises de côté, hors jeu (face cachée), au lieu d'être retirées.
+          const deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
+          restes.forEach((code, i) => {
+            for (const id of pool.takeAll(code)) state.cards[id] = newCard(pool, code, id, { zone: "aside", x: (deja + i) * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, false);
+          });
+        } else for (const code of restes) retirer(code);
         if (step.zone !== undefined && (step.positions || (step.x !== undefined && step.y !== undefined))) {
           // Avec un `log` du scénario : une seule ligne pour le tirage, sinon une ligne par carte (nom de la face visible).
           if (step.log) addLog(state, "setup", step.log);
@@ -230,7 +237,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
             const derniere = state.log[state.log.length - 1];
             if (step.log) state.log.pop(); // ligne vide non conservée (les indices posés sont comptés dans revealLocation)
             else derniere.text = `${nomVisible(def, card)} tiré au hasard et mis en jeu.${derniere.text.replace(/^[^.]*\./, "")}`;
-            if (step.slot && i === 0) slots.set(step.slot, card.id);
+            if (step.slot) { if (i === 0) slots.set(step.slot, card.id); slots.set(`${step.slot}:${i}`, card.id); }
           });
         } else {
           if (step.slot) slots.set(step.slot, choix[0]);
@@ -249,8 +256,21 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       case "addDoom": {
         const agenda = state.agendaId ? state.cards[state.agendaId] : null;
         if (!agenda) throw new Error("setup : addDoom avant « story »");
-        agenda.tokens.doom = (agenda.tokens.doom ?? 0) + step.n;
-        addLog(state, "setup", step.log ?? `${step.n} doom placé${step.n > 1 ? "s" : ""} sur l'agenda de départ.`);
+        const n = step.nFrom !== undefined ? Number(answers[step.nFrom]) : step.n ?? 0;
+        if (n > 0) {
+          agenda.tokens.doom = (agenda.tokens.doom ?? 0) + n;
+          addLog(state, "setup", step.log ? `${step.log} ${n} doom placé${n > 1 ? "s" : ""} sur l'agenda de départ.` : `${n} doom placé${n > 1 ? "s" : ""} sur l'agenda de départ.`);
+        } else if (step.nFrom !== undefined) addLog(state, "setup", `${step.log ?? "Doom selon le journal :"} aucun.`);
+        break;
+      }
+      case "addTokens": {
+        const c = enJeu(step.at);
+        c.tokens[step.token] = (c.tokens[step.token] ?? 0) + step.n;
+        addLog(state, "setup", step.log ?? `${step.n} jeton${step.n > 1 ? "s" : ""} ${step.token} sur ${nomVisible(def, c)}.`);
+        break;
+      }
+      case "when": {
+        for (const sub of (evalCond(step.cond, answers) ? step.then : step.else ?? [])) run(sub);
         break;
       }
       case "chaosAdd": {

@@ -34,9 +34,12 @@ export type ScenarioCard = {
 // Les références « slot:<nom> » désignent une carte choisie plus tôt (pickRandom, setStart).
 export type SetupStep =
   | { op: "place"; code: string; zone: ZoneId; x: number; y: number; reveal?: boolean; faceUp?: boolean; log?: string }
-  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; log?: string }
+  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; rest?: "remove" | "aside"; log?: string }
+    // slot : « slot:<nom> » = première carte tirée, « slot:<nom>:<i> » = i-ème ; rest : sort des cartes non tirées (retirées par défaut, ou de côté)
   | { op: "pickRandomSet"; from: string[]; n?: number; log?: string }   // garde n sets dans la pioche, retire les autres (sans révéler lesquels)
-  | { op: "addDoom"; n: number; log?: string }                          // doom sur l'agenda courant (après « story »)
+  | { op: "addDoom"; n?: number; nFrom?: string; log?: string }         // doom sur l'agenda courant (après « story ») ; nFrom = réponse numérique
+  | { op: "addTokens"; at: string; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic"; n: number; log?: string }   // jetons sur une carte en jeu (code ou slot), ex. ressource = brasero allumé
+  | { op: "when"; cond: Cond; then: SetupStep[]; else?: SetupStep[] }     // condition composée sur les réponses
   | { op: "chaosAdd"; tokens: Token[]; log?: string }
   | { op: "reminder"; text: string }                                    // encart éphémère + journal
   | { op: "branch"; on: string; cases: Record<string, SetupStep[]>; log?: string }   // on = id de question ou "players"
@@ -60,6 +63,22 @@ export type SetupStep =
   | { op: "removeClues"; from: string[]; n?: number; nFrom?: string; log?: string }   // retire n indices (ou la réponse numérique nFrom) aussi également que possible
   | { op: "log"; text: string }
   | { op: "hook"; name: string; log?: string };
+
+// Condition composée sur les réponses du lobby (op « when ») : réponse égale, tout, au moins un, au moins n, non.
+export type Cond =
+  | { q: string; is: string }
+  | { all: Cond[] }
+  | { any: Cond[] }
+  | { atLeast: number; of: Cond[] }
+  | { not: Cond };
+
+export function evalCond(c: Cond, answers: Record<string, string>): boolean {
+  if ("q" in c) return String(answers[c.q]) === c.is;
+  if ("all" in c) return c.all.every((k) => evalCond(k, answers));
+  if ("any" in c) return c.any.some((k) => evalCond(k, answers));
+  if ("atLeast" in c) return c.of.filter((k) => evalCond(k, answers)).length >= c.atLeast;
+  return !evalCond(c.not, answers);
+}
 
 // Question au lobby : à choix (options) ou numérique (type "number", bornes min/max, valeur par défaut).
 export type Question = {

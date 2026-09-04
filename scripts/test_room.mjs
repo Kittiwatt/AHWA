@@ -965,5 +965,81 @@ async function tableGreater({ answers }) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Union and Disillusion (TCU VI) : isles au hasard avec reste de côté, braseros, actes 3/4 selon conditions composées, Fate cachés ============
+async function tableUnion({ answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tcu_union_and_disillusion" }) });
+  assert.equal(r.status, 200, "Union and Disillusion est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "05001" });
+  const j2 = client(code, { seat: 1, name: "J2" });
+  await j2.attendre((m) => m.t === "welcome");
+  await j2.action({ t: "chooseInvestigator", code: "05002" });
+  await h.attendre((m) => m.t === "delta" && m.rev === 2);
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === 3) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h, j2 };
+}
+{
+  const { h, j2 } = await tableUnion({ answers: { sided: "coven", fate: "rejected", lodge: "members_hid", deceiving: "yes", inducted: "no", mementos: "yes", blackbook: "yes", heretics: "3",
+    gavriella: "kept", jerome: "crossed", valentino: "crossed", penny: "crossed" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux.length, 4, "River, Shore, 2 isles");
+  const isles = lieux.filter((c) => c.code >= "05251" && c.code <= "05256");
+  assert.equal(isles.length, 2);
+  assert.deepEqual(isles.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["1016,649", "458,649"], "isles en bas à gauche et à droite");
+  assert.ok(isles.every((c) => !c.faceUp && c.tokens.resource === 1), "braseros des isles allumés (parti du coven)");
+  assert.equal(lieux.find((c) => c.code === "05250").tokens.resource, 1, "brasero de Forbidding Shore allumé");
+  assert.ok(lieux.find((c) => c.code === "05249").faceUp, "Miskatonic River révélé");
+  assert.equal(cartes.filter((c) => c.loc.zone === "aside" && c.code >= "05251" && c.code <= "05256").length, 4, "4 isles de côté");
+  assert.ok(cartes.filter((c) => c.loc.zone === "aside" && c.code >= "05251" && c.code <= "05256").every((c) => !c.faceUp));
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 2);
+  // Actes : v. III (Loge trompée + coven caché = 2 mentions) et Broken Rite ; les autres retirés.
+  assert.equal(s.cards[s.actId].code, "05241");
+  assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["05242", "05245", "05248"], "acte 3 v. III, acte 4 Broken Rite");
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed" && ["05243", "05244", "05246", "05247"].includes(c.code)).length, 4, "autres versions retirées");
+  assert.equal(s.cards[s.agendaId].tokens.doom, 3, "3 hérétiques → 3 doom sur l'agenda 1");
+  // Missing Persons : Gavriella seule non barrée.
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  const fate = cote.find((c) => c.code === "05262");
+  assert.ok(fate && !fate.faceUp && fate.storyBack, "Gavriella's Fate de côté, face cachée, dos histoire");
+  assert.ok(cote.find((c) => c.code === "05258")?.faceUp, "soutien Gavriella de côté");
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed" && ["05259", "05260", "05261", "05263", "05264", "05265"].includes(c.code)).length, 6, "les autres soutiens et Fate retirés");
+  assert.deepEqual(cote.filter((c) => ["05057", "05085", "05257", "05272"].includes(c.code)).map((c) => c.code).sort(), ["05057", "05085", "05257", "05272"], "Anette, Josef, Geist-Trap, Watcher's Gaze de côté");
+  assert.equal(cote.filter((c) => ["05086", "05087", "05090", "05091", "05095", "05096", "05097"].includes(c.code)).length, 13, "sets de côté : 13 cartes");
+  assert.equal(s.piles.encounter.length, 35, "pioche : 35");
+  assert.equal(s.chaos.bag.length, 17, "sac 13 + 2 anciens + 1 cultiste + 1 crâne");
+  // Fate : retournement refusé, révélation explicite acceptée, puis verso (ennemi lié).
+  let d = await h.action({ t: "flipCard", id: fate.id });
+  assert.equal(d.t, "nack", "un dos histoire ne se révèle pas par retournement");
+  d = await h.action({ t: "flipCard", id: fate.id, reveal: true });
+  assert.ok(d.t === "delta" && h.state.cards[fate.id].faceUp, "révélé sur demande explicite");
+  d = await h.action({ t: "toggleSide", id: fate.id });
+  assert.equal(h.state.cards[fate.id].side, "b", "verso (ennemi lié) sur demande");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.cards[fate.id], h.state.cards[fate.id]);
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // Parti de la Loge, autonome : v. I + Binding Rite, braseros éteints, 4 profils barrés, aucun doom.
+  const { h } = await tableUnion({ answers: { sided: "lodge", fate: "standalone", lodge: "standalone", deceiving: "no", inducted: "no", mementos: "no", blackbook: "no", heretics: "0",
+    gavriella: "crossed", jerome: "crossed", valentino: "crossed", penny: "crossed" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["05242", "05243", "05247"], "acte 3 v. I, acte 4 Binding Rite");
+  assert.ok(cartes.filter((c) => c.kind === "location" && c.loc.zone === "board").every((c) => !c.tokens.resource), "braseros éteints");
+  assert.equal(s.cards[s.agendaId].tokens.doom, 0, "aucun doom");
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed" && c.code >= "05258" && c.code <= "05265").length, 8, "soutiens et Fate tous retirés");
+  assert.equal(s.chaos.bag.length, 16, "sac autonome : 13 + tablette + ancien + cultiste");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

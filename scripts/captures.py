@@ -597,6 +597,42 @@ with sync_playwright() as p:
     assert h8.locator(".menu-carte").get_by_role("button", name="Autre face (Master of Indoctrination)").count() == 1, "menu : autre face de Nathan"
     h8.screenshot(path=f"{OUT}/38_greater_cle_siege_menu_nathan.png")
     h8.keyboard.press("Escape")
+
+    # ---- Union and Disillusion (TCU VI) : douze questions de journal, isles au hasard, braseros, carte Fate cachée ----
+    code9, token9 = creer("tcu_union_and_disillusion")
+    print("room Union", code9)
+    h9 = page_pour(browser, "Hôte", host=True, code=code9, token=token9)
+    h9.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h9.get_by_role("button", name="Choisir un enquêteur").click(); h9.wait_for_selector("dialog.dialogue-inv[open]")
+    h9.fill("dialog .recherche", "wendy"); h9.wait_for_timeout(300); h9.locator("dialog .inv").first.click()
+    h9.wait_for_selector(".siege-lobby.moi .fiche")
+    j9 = page_pour(browser, "Bob", code=code9, token=None)
+    j9.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j9.get_by_role("button", name="Choisir un enquêteur").click(); j9.wait_for_selector("dialog.dialogue-inv[open]")
+    j9.fill("dialog .recherche", "skids"); j9.wait_for_timeout(300); j9.locator("dialog .inv").first.click()
+    j9.wait_for_selector(".siege-lobby.moi .fiche")
+    h9.wait_for_timeout(400)
+    for q, v in (("sided", "coven"), ("fate", "accepted"), ("lodge", "members_told"), ("deceiving", "yes"), ("inducted", "yes"), ("mementos", "no"), ("blackbook", "no"),
+                 ("gavriella", "kept"), ("jerome", "kept"), ("valentino", "crossed"), ("penny", "crossed")):
+        h9.locator(f"input[name='q-{q}'][value='{v}']").check()
+    h9.locator("input[name='q-heretics']").fill("2"); h9.locator("input[name='q-heretics']").dispatch_event("change")
+    h9.wait_for_timeout(200)
+    h9.locator(".reglage.questions").screenshot(path=f"{OUT}/39_union_lobby_questions.png")
+    h9.get_by_role("button", name="Lancer la mise en place").click()
+    h9.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h9.wait_for_load_state("networkidle"); h9.wait_for_timeout(1500)
+    assert h9.locator("#plateau .carte.kind-location").count() == 4, "4 lieux"
+    assert h9.locator("#chaos .sac-forme").inner_text().strip() == "17", "sac 13 + 2 tablettes + 2 cultistes"
+    h9.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h9.screenshot(path=f"{OUT}/40_union_tapis.png")
+    # Carte Fate face cachée : menu « Révéler (quand une carte l'indique) », pas de « Retourner ».
+    h9.locator("#aside").click()
+    fate = h9.locator("#aside .carte.kind-story").first
+    fate.click(button="right"); h9.wait_for_selector(".menu-carte")
+    assert h9.locator(".menu-carte").get_by_role("button", name="Révéler (quand une carte l'indique)").count() == 1, "menu : révéler un dos histoire"
+    assert h9.locator(".menu-carte").get_by_role("button", name="Retourner", exact=True).count() == 0
+    h9.screenshot(path=f"{OUT}/41_union_menu_fate.png")
+    h9.keyboard.press("Escape")
     browser.close()
 
 if erreurs:

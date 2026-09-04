@@ -1,0 +1,134 @@
+{
+  "_source": "Guide de campagne The Circle Undone (FFG, 2019) : Scenario VI, section « Setup » p. 26‑27 (sets, sets mis de côté, Miskatonic River et Forbidding Shore, deux Unvisited Isle sur six tirés au hasard, braseros allumés si les enquêteurs ont pris le parti du coven, Geist-Trap et Watcher's Gaze de côté, Anette Mason et Josef Meiger tirés de la collection, « Missing Persons », versions des actes 3 et 4 selon le journal, doom selon les hérétiques), encadré « Circle / Braziers » p. 27 et diagramme p. 27 ; introduction p. 26 (choix Loge / coven) ; sac de campagne p. 4 + jetons des scénarios précédents ; sac du mode autonome p. 27. Aucun texte de carte ; les rappels paraphrasent le guide ou décrivent les gestes de l'application. Les questions reprennent uniquement les formules du journal.",
+  "id": "tcu_union_and_disillusion",
+  "title": "Union and Disillusion",
+  "campaign": "The Circle Undone",
+  "campaignId": "tcu",
+  "order": 6,
+  "packs": ["uad", "tcu", "core"],
+  "encounterSets": ["union_and_disillusion", "inexorable_fate", "realm_of_death", "spectral_predators", "ancient_evils", "chilling_cold", "anettes_coven", "silver_twilight_lodge", "the_watcher"],
+  "extraCards": ["05057", "05085"],
+  "storyBack": ["05085", "05262", "05263", "05264", "05265"],
+  "scenarioCard": "05238",
+  "agendaDeck": ["05239", "05240"],
+  "actDeck": ["05241", "05242", "05243", "05244", "05245", "05246", "05247", "05248"],
+  "startLocation": "05249",
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-2", "-3", "skull", "skull", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "-1", "-1", "-2", "-2", "-3", "-4", "-5", "skull", "skull", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-4", "-6", "-8", "skull", "skull", "auto_fail", "elder_sign"]
+  },
+  "layout": [
+    { "code": "05249", "x": 737, "y": 173 }, { "code": "05250", "x": 737, "y": 411 }
+  ],
+  "questions": [
+    { "id": "sided", "text": "Introduction de ce scénario (à lire avant la mise en place) — les enquêteurs ont pris le parti :", "options": [
+      { "id": "lodge", "label": "de la Loge" },
+      { "id": "coven", "label": "du coven" } ] },
+    { "id": "fate", "text": "Journal de campagne (introduction du scénario I) — l'enquêteur principal :", "options": [
+      { "id": "accepted", "label": "a accepté son destin" },
+      { "id": "rejected", "label": "a rejeté son destin" },
+      { "id": "standalone", "label": "partie autonome (hors campagne)" } ] },
+    { "id": "lodge", "text": "Journal de campagne (Interlude II et introduction du scénario III) — les enquêteurs :", "options": [
+      { "id": "members_told", "label": "sont membres de la Loge, et ont parlé du coven à la Loge" },
+      { "id": "members_hid", "label": "sont membres de la Loge, et ont caché ce qu'ils savent du coven" },
+      { "id": "enemies", "label": "sont ennemis de la Loge" },
+      { "id": "nothing", "label": "n'ont rien appris des projets de la Loge" },
+      { "id": "gone", "label": "ne sont jamais revus" },
+      { "id": "standalone", "label": "partie autonome (hors campagne)" } ] },
+    { "id": "deceiving", "text": "Journal de campagne (Interlude II) — « les enquêteurs trompent la Loge » :", "options": [
+      { "id": "yes", "label": "est noté" }, { "id": "no", "label": "n'est pas noté" } ] },
+    { "id": "inducted", "text": "Journal de campagne (Interlude III) — « les enquêteurs ont été admis dans le Cercle intérieur » :", "options": [
+      { "id": "yes", "label": "est noté" }, { "id": "no", "label": "n'est pas noté" } ] },
+    { "id": "mementos", "text": "Journal de campagne (Interlude III) — « les enquêteurs ont gardé leurs souvenirs cachés » :", "options": [
+      { "id": "yes", "label": "est noté" }, { "id": "no", "label": "n'est pas noté" } ] },
+    { "id": "blackbook", "text": "Journal de campagne (résolution du scénario III) — The Black Book :", "options": [
+      { "id": "yes", "label": "a rejoint le deck d'un enquêteur" },
+      { "id": "no", "label": "n'a rejoint aucun deck (ou partie autonome)" } ] },
+    { "id": "heretics", "type": "number", "min": 0, "max": 4, "default": 0, "text": "Journal de campagne (résolution du scénario IV) — nombre d'hérétiques lâchés sur Arkham :" },
+    { "id": "gavriella", "text": "Journal de campagne, section « Missing Persons » — le profil de Gavriella Mizrah :", "options": [
+      { "id": "kept", "label": "n'est pas barré" }, { "id": "crossed", "label": "est barré" } ] },
+    { "id": "jerome", "text": "Journal de campagne, section « Missing Persons » — le profil de Jerome Davids :", "options": [
+      { "id": "kept", "label": "n'est pas barré" }, { "id": "crossed", "label": "est barré" } ] },
+    { "id": "valentino", "text": "Journal de campagne, section « Missing Persons » — le profil de Valentino Rivas :", "options": [
+      { "id": "kept", "label": "n'est pas barré" }, { "id": "crossed", "label": "est barré" } ] },
+    { "id": "penny", "text": "Journal de campagne, section « Missing Persons » — le profil de Penny White :", "options": [
+      { "id": "kept", "label": "n'est pas barré" }, { "id": "crossed", "label": "est barré" } ] }
+  ],
+  "setup": [
+    { "op": "place", "code": "05249", "zone": "board", "x": 737, "y": 173, "reveal": true,
+      "log": "Miskatonic River est mis en jeu en haut, révélé : chaque enquêteur y commence la partie." },
+    { "op": "place", "code": "05250", "zone": "board", "x": 737, "y": 411,
+      "log": "Forbidding Shore est mis en jeu au-dessous, non révélé." },
+    { "op": "pickRandom", "from": ["05251", "05252", "05253", "05254", "05255", "05256"], "n": 2, "zone": "board", "slot": "isle", "rest": "aside",
+      "positions": [ { "x": 458, "y": 649 }, { "x": 1016, "y": 649 } ],
+      "log": "Deux des six Unvisited Isle sont tirés au hasard et mis en jeu en bas, non révélés ; les quatre autres sont mis de côté, hors jeu." },
+    { "op": "minis", "code": "05249" },
+    { "op": "branch", "on": "sided", "cases": {
+      "coven": [
+        { "op": "addTokens", "at": "05250", "token": "resource", "n": 1, "log": "Parti du coven : le brasero de Forbidding Shore est déjà allumé (1 jeton ressource)." },
+        { "op": "addTokens", "at": "slot:isle:0", "token": "resource", "n": 1, "log": "Parti du coven : le brasero du premier Unvisited Isle est déjà allumé (1 jeton ressource)." },
+        { "op": "addTokens", "at": "slot:isle:1", "token": "resource", "n": 1, "log": "Parti du coven : le brasero du second Unvisited Isle est déjà allumé (1 jeton ressource)." } ],
+      "lodge": [ { "op": "log", "text": "Parti de la Loge : les braseros sont éteints au départ." } ] } },
+    { "op": "aside", "codes": ["05257"], "faceUp": false, "log": "The Geist-Trap est mis de côté, hors jeu, non révélé." },
+    { "op": "aside", "codes": ["05272", "05057", "05085"], "faceUp": true,
+      "log": "Watcher's Gaze, Anette Mason et Josef Meiger (collection) sont mis de côté, hors jeu, face visible." },
+    { "op": "aside", "sets": ["anettes_coven", "silver_twilight_lodge", "the_watcher"], "faceUp": true,
+      "log": "Les sets Anette's Coven, Silver Twilight Lodge et The Watcher sont mis de côté, hors jeu, face visible." },
+    { "op": "branch", "on": "gavriella", "cases": {
+      "kept": [ { "op": "aside", "codes": ["05258"], "faceUp": true, "log": "Profil de Gavriella Mizrah non barré : son soutien est mis de côté." },
+                { "op": "aside", "codes": ["05262"], "faceUp": false, "log": "Gavriella's Fate est placé face cachée dans la zone de côté (sous la carte de scénario dans le guide) : menu → « Révéler » seulement quand une carte l'indique." } ],
+      "crossed": [ { "op": "remove", "codes": ["05258", "05262"], "log": "Profil de Gavriella Mizrah barré : son soutien et Gavriella's Fate sont retirés de la partie." } ] } },
+    { "op": "branch", "on": "penny", "cases": {
+      "kept": [ { "op": "aside", "codes": ["05260"], "faceUp": true, "log": "Profil de Penny White non barré : son soutien est mis de côté." },
+                { "op": "aside", "codes": ["05264"], "faceUp": false, "log": "Penny's Fate est placé face cachée dans la zone de côté : menu → « Révéler » seulement quand une carte l'indique." } ],
+      "crossed": [ { "op": "remove", "codes": ["05260", "05264"], "log": "Profil de Penny White barré : son soutien et Penny's Fate sont retirés de la partie." } ] } },
+    { "op": "branch", "on": "jerome", "cases": {
+      "kept": [ { "op": "aside", "codes": ["05259"], "faceUp": true, "log": "Profil de Jerome Davids non barré : son soutien est mis de côté." },
+                { "op": "aside", "codes": ["05263"], "faceUp": false, "log": "Jerome's Fate est placé face cachée dans la zone de côté : menu → « Révéler » seulement quand une carte l'indique." } ],
+      "crossed": [ { "op": "remove", "codes": ["05259", "05263"], "log": "Profil de Jerome Davids barré : son soutien et Jerome's Fate sont retirés de la partie." } ] } },
+    { "op": "branch", "on": "valentino", "cases": {
+      "kept": [ { "op": "aside", "codes": ["05261"], "faceUp": true, "log": "Profil de Valentino Rivas non barré : son soutien est mis de côté." },
+                { "op": "aside", "codes": ["05265"], "faceUp": false, "log": "Valentino's Fate est placé face cachée dans la zone de côté : menu → « Révéler » seulement quand une carte l'indique." } ],
+      "crossed": [ { "op": "remove", "codes": ["05261", "05265"], "log": "Profil de Valentino Rivas barré : son soutien et Valentino's Fate sont retirés de la partie." } ] } },
+    { "op": "when", "cond": { "q": "sided", "is": "lodge" },
+      "then": [ { "op": "remove", "codes": ["05244", "05245", "05246", "05248"], "log": "Parti de la Loge : acte 3 « Beyond the Mist (v. I) » et acte 4 « The Binding Rite » ; les autres versions sont retirées de la partie." } ],
+      "else": [
+        { "op": "when", "cond": { "all": [ { "q": "deceiving", "is": "yes" }, { "q": "inducted", "is": "yes" } ] },
+          "then": [ { "op": "remove", "codes": ["05243", "05245", "05246", "05247"], "log": "Parti du coven, Loge trompée et Cercle intérieur : acte 3 « Beyond the Mist (v. II) » et acte 4 « The Broken Rite » ; les autres versions sont retirées de la partie." } ],
+          "else": [
+            { "op": "when", "cond": { "atLeast": 2, "of": [ { "q": "deceiving", "is": "yes" }, { "q": "lodge", "is": "members_hid" }, { "q": "mementos", "is": "yes" } ] },
+              "then": [ { "op": "remove", "codes": ["05243", "05244", "05246", "05247"], "log": "Parti du coven, au moins deux des trois mentions du journal réunies : acte 3 « Beyond the Mist (v. III) » et acte 4 « The Broken Rite » ; les autres versions sont retirées de la partie." } ],
+              "else": [ { "op": "remove", "codes": ["05243", "05244", "05245", "05247"], "log": "Parti du coven : acte 3 « Beyond the Mist (v. IV) » et acte 4 « The Broken Rite » ; les autres versions sont retirées de la partie." } ] } ] } ] },
+    { "op": "story" },
+    { "op": "addDoom", "nFrom": "heretics", "log": "Hérétiques lâchés sur Arkham (résolution du scénario IV) :" },
+    { "op": "branch", "on": "fate", "cases": {
+      "accepted": [ { "op": "chaosAdd", "tokens": ["tablet", "tablet"], "log": "Destin accepté (scénario I) : les 2 jetons Tablette de la campagne sont dans le sac." } ],
+      "rejected": [ { "op": "chaosAdd", "tokens": ["elder_thing", "elder_thing"], "log": "Destin rejeté (scénario I) : les 2 jetons Ancien de la campagne sont dans le sac." } ],
+      "standalone": [ { "op": "chaosAdd", "tokens": ["tablet", "elder_thing"], "log": "Partie autonome : 1 jeton Tablette et 1 jeton Ancien ajoutés au sac, comme l'indique le guide." } ] } },
+    { "op": "branch", "on": "lodge", "cases": {
+      "members_told": [ { "op": "chaosAdd", "tokens": ["cultist", "cultist"], "log": "Membres de la Loge et coven dévoilé : 2 jetons Cultiste de la campagne sont dans le sac." } ],
+      "members_hid": [ { "op": "chaosAdd", "tokens": ["cultist"], "log": "Membres de la Loge : 1 jeton Cultiste de la campagne est dans le sac." } ],
+      "enemies": [ { "op": "log", "text": "Ennemis de la Loge : aucun jeton Cultiste de campagne." } ],
+      "nothing": [ { "op": "log", "text": "Rien appris des projets de la Loge : aucun jeton Cultiste de campagne." } ],
+      "gone": [ { "op": "log", "text": "Jamais revus : aucun jeton Cultiste de campagne." } ],
+      "standalone": [ { "op": "chaosAdd", "tokens": ["cultist"], "log": "Partie autonome : 1 jeton Cultiste ajouté au sac, comme l'indique le guide." } ] } },
+    { "op": "branch", "on": "blackbook", "cases": {
+      "yes": [ { "op": "chaosAdd", "tokens": ["skull"], "log": "The Black Book dans un deck (résolution du scénario III) : 1 jeton Crâne de campagne est dans le sac." } ],
+      "no": [ { "op": "log", "text": "The Black Book dans aucun deck : pas de jeton Crâne supplémentaire." } ] } },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée." },
+    { "when": "setup", "text": "Braseros (guide) : certains lieux portent un brasero, allumé ou éteint par l'action « Circle » du lieu — un jeton ressource sur le lieu signifie qu'il est allumé (menu du lieu → Marqueur ± pour l'allumer ou l'éteindre). Ces tests demandent parfois deux compétences à la fois : on additionne les deux valeurs, et les cartes portant l'une ou l'autre icône peuvent être engagées. Un test « Circle » raté n'a pas d'effet." },
+    { "when": "setup", "text": "Zone de côté : les quatre Unvisited Isle restants et The Geist-Trap (entrent en jeu par glisser, clic pour révéler), Anette Mason, Josef Meiger (dos histoire : menu), Watcher's Gaze et les sets Anette's Coven, Silver Twilight Lodge, The Watcher (« Mélanger dans la pioche » par carte quand une carte le demande), les soutiens des disparus (se donnent par glisser sur un siège) et leurs cartes « Fate » face cachée — menu → « Révéler » seulement quand une carte l'indique, puis « Autre face » pour leur verso." },
+    { "when": "act:3", "text": "Acte 3 : le verso de l'acte 2 dit ce qui entre en jeu — lieux et ennemis de côté par glisser (clic pour révéler un lieu), sets de côté par « Mélanger dans la pioche » carte par carte, défausse par « Remélanger dans la pioche »." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

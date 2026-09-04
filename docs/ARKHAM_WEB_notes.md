@@ -17,6 +17,36 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-04 : **Union and Disillusion (TCU VI) livré** (choix laissés
+  à Claude). Guide p. 26‑27 : Miskatonic River (révélé, pions) et
+  Forbidding Shore, **deux Unvisited Isle sur six au hasard** en bas
+  (`pickRandom` avec `rest: "aside"` — les quatre autres de côté — et
+  `slot:isle:i`), **braseros** : si les enquêteurs ont pris le parti du
+  coven, un jeton ressource sur Forbidding Shore et les deux isles
+  (`addTokens`), rappel « Circle / Braziers » paraphrasé (jeton
+  ressource = allumé, Marqueur ± pour l'éteindre). De côté : Geist-Trap
+  (non révélé), Watcher's Gaze, Anette Mason et Josef Meiger tirés de
+  la collection (`extraCards` du pack `tcu`, Josef synthétisé + dos
+  histoire), sets Anette's Coven / Silver Twilight Lodge / The Watcher
+  face visible ; **Missing Persons** (4 questions) : soutien de côté +
+  carte **Fate** de côté face cachée (`storyBack`, verso lié = ennemi),
+  sinon retirés. **Douze questions** au lobby : parti (Loge / coven,
+  introduction), introduction du I, Loge, « trompent la Loge »,
+  « Cercle intérieur », « souvenirs cachés », Black Book, hérétiques
+  (numérique 0‑4 → `addDoom {nFrom}` sur l'agenda 1), quatre profils.
+  **Actes 3 et 4 à quatre versions** selon des conditions composées :
+  nouvelle op **`when {cond, then, else}`** (`Cond` : `{q, is}`, `all`,
+  `any`, `atLeast n of`, `not`, `evalCond` dans scenario.ts) — Loge →
+  v. I + Binding Rite ; coven + trompent + Cercle → v. II ; coven + au
+  moins deux de (trompent, coven caché = `members_hid`, souvenirs
+  cachés) → v. III ; sinon v. IV (+ Broken Rite), `story` ignorant les
+  versions retirées. **Dos histoire** : `flipCard {reveal: true}`
+  révèle une carte face cachée sur demande explicite (menu « Révéler
+  (quand une carte l'indique) »), le verso lié s'affiche ensuite par
+  « Autre face (…) » (label selon `backKind`). Build : `citesDe` et
+  l'aplatissement parcourent `then`/`else`. Pack **`uad`** ; pioche 35
+  cartes ; sac autonome p. 27 = tablette + ancien + cultiste. Tests :
+  236 messages, neuf scénarios ; captures 39‑41.
 - 2026-09-04 : **For the Greater Good (TCU V) livré** (choix laissés à
   Claude). Guide p. 22 : **deux mises en place selon la Loge** — question
   « Loge » à 7 réponses (cinq formules du journal + « partie autonome —
@@ -389,10 +419,11 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : retours de l'utilisateur sur les cinq tables
-  TCU, puis TCU VI Union and Disillusion (pack `uad` ; vérifier les
-  jetons ajoutés par la résolution du V et l'Interlude III, les
-  mementos) ou le prologue. Jetons de campagne : reportés par les questions
+- **Prochaine étape** : retours de l'utilisateur sur les six tables
+  TCU, puis TCU VII In the Clutches of Chaos (pack `icc`) — vérifier
+  les jetons ajoutés par la résolution du VI — ou le prologue. La
+  zone de côté devient longue (VI : jusqu'à 26 cartes) : un tri par
+  groupes ou des piles nommées sont à envisager. Jetons de campagne : reportés par les questions
   d'introduction, de la Loge et de The Black Book ; à chaque nouveau
   scénario, relire les résolutions précédentes pour les ajouts.
   Chantier possible : un compteur de doom / une ligne de journal par

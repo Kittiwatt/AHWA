@@ -375,7 +375,16 @@ déplaçables sur le tapis (ils suivent un lieu déplacé), sur un siège
 (l'enquêteur les contrôle) ou de côté ; jamais dans une pile, jamais
 retournés (For the Greater Good). Dans `story`, un agenda ou un acte
 retiré plus tôt par la mise en place est ignoré (actes 1 alternatifs
-selon le journal). Le build synthétise le recto d'une carte dont
+selon le journal). `when {cond, then, else}` évalue une condition
+composée sur les réponses (`{q, is}`, `all`, `any`, `atLeast n of`,
+`not`) — versions des actes 3 et 4 d'Union and Disillusion.
+`pickRandom {rest: "aside"}` met de côté les cartes non tirées au lieu
+de les retirer, et `slot:<nom>:<i>` désigne la i-ème carte tirée ;
+`addTokens {at, token, n}` pose des jetons de carte au setup (braseros
+allumés = ressource) ; `addDoom {nFrom}` lit une réponse numérique. Un
+dos histoire face cachée se révèle par `flipCard {reveal: true}` (menu
+« Révéler (quand une carte l'indique) »), jamais par simple
+retournement. Le build synthétise le recto d'une carte dont
 ArkhamDB ne connaît que le verso (`<code>b` avec `linked_card`, ex.
 Josef Meiger 05085).
 

@@ -315,8 +315,13 @@ export function initInteractions(ctx) {
       }
       if (!carte.storyBack && carte.kind !== "investigator" && !deuxFaces) items.push(item("Retourner", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
       if (carte.kind === "scenario" || carte.kind === "story") items.push(item("Autre face", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
-      // Dos « histoire » : lisible seulement sur demande explicite (une carte l'indique), jamais par retournement.
-      if (carte.storyBack && carte.faceUp && def?.back === "b") items.push(item(carte.side === "b" ? "Revenir au recto" : "Lire le côté histoire (quand une carte l'indique)", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
+      // Dos « histoire » : face cachée, la carte se révèle seulement sur demande explicite (une carte l'indique) ;
+      // face visible, son verso (histoire, ou ennemi lié) se lit de même par le menu, jamais par retournement.
+      if (carte.storyBack && !carte.faceUp) items.push(item("Révéler (quand une carte l'indique)", () => ctx.envoyer({ t: "flipCard", id: carte.id, reveal: true })));
+      if (carte.storyBack && carte.faceUp && def?.back === "b") {
+        const versoHistoire = !def.backKind || def.backKind === "story";
+        items.push(item(carte.side === "b" ? "Revenir au recto" : versoHistoire ? "Lire le côté histoire (quand une carte l'indique)" : `Autre face (${def.backSubname ?? def.backName ?? "verso"}, quand une carte l'indique)`, () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
+      }
       const jetons = carte.kind === "investigator" ? ["damage", "horror", "resource"]
         : carte.kind === "location" ? ["clue", "doom", "generic"]
         : carte.kind === "enemy" ? ["damage", "doom", "clue", "generic"]

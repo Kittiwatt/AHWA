@@ -6,8 +6,9 @@ import s2 from "../public/scenarios/notz_the_midnight_masks.json";
 import s3 from "../public/scenarios/tcu_at_deaths_doorstep.json";
 import s4 from "../public/scenarios/tcu_for_the_greater_good.json";
 import s5 from "../public/scenarios/tcu_secret_name.json";
-import s6 from "../public/scenarios/tcu_wages_of_sin.json";
-import s7 from "../public/scenarios/tcu_witching_hour.json";
+import s6 from "../public/scenarios/tcu_union_and_disillusion.json";
+import s7 from "../public/scenarios/tcu_wages_of_sin.json";
+import s8 from "../public/scenarios/tcu_witching_hour.json";
 
 export const SCENARIOS = {
   "notz_the_devourer_below": s0,
@@ -16,8 +17,9 @@ export const SCENARIOS = {
   "tcu_at_deaths_doorstep": s3,
   "tcu_for_the_greater_good": s4,
   "tcu_secret_name": s5,
-  "tcu_wages_of_sin": s6,
-  "tcu_witching_hour": s7,
+  "tcu_union_and_disillusion": s6,
+  "tcu_wages_of_sin": s7,
+  "tcu_witching_hour": s8,
 } as const;
 
 export type ScenarioId = keyof typeof SCENARIOS;
