@@ -706,6 +706,67 @@ with sync_playwright() as p:
     h11.wait_for_selector("dialog[open]", timeout=5000)
     h11.screenshot(path=f"{OUT}/47_throne_apercu_cosmos.png")
     h11.keyboard.press("Escape")
+
+    # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
+    code12, token12 = creer("tcu_at_deaths_doorstep")
+    print("room Doorstep (custom)", code12)
+    IMG_CUSTOM = "https://cdn.arkham.build/optimized/05046.webp"
+    h12 = page_pour(browser, "Hôte", host=True, code=code12, token=token12)
+    h12.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h12.get_by_role("button", name="Choisir un enquêteur").click(); h12.wait_for_selector("dialog.dialogue-inv[open]")
+    h12.fill("dialog .recherche", "joe"); h12.wait_for_timeout(300); h12.locator("dialog .inv").first.click()
+    h12.wait_for_selector(".siege-lobby.moi .fiche")
+    j12 = page_pour(browser, "", code=code12, token=None)
+    j12.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j12.get_by_role("button", name="Choisir un enquêteur").click(); j12.wait_for_selector("dialog.dialogue-inv[open]")
+    j12.wait_for_timeout(500)
+    j12.screenshot(path=f"{OUT}/48_custom_entree.png")
+    j12.locator("dialog .inv-custom").click(); j12.wait_for_selector("dialog .form-custom")
+    j12.fill("#custom-nom", "Lisette Anofelis")
+    j12.fill("#custom-image", IMG_CUSTOM); j12.locator("#custom-image").dispatch_event("change")
+    j12.fill("#custom-vie", "8"); j12.fill("#custom-sante", "6")
+    j12.wait_for_timeout(800)
+    j12.screenshot(path=f"{OUT}/49_custom_formulaire.png")
+    j12.get_by_role("button", name="Prendre cet enquêteur").click()
+    j12.wait_for_selector(".siege-lobby.moi .fiche")
+    h12.wait_for_timeout(600)
+    assert "Lisette Anofelis" in h12.locator(".siege-lobby").nth(1).inner_text(), "l'hôte voit l'enquêteur personnalisé"
+    h12.screenshot(path=f"{OUT}/50_custom_lobby.png")
+    for q in ("gavriella", "jerome", "valentino", "penny"):
+        h12.locator(f"input[name='q-{q}'][value='kept']").check()
+    h12.locator("input[name='q-fate'][value='accepted']").check()
+    h12.wait_for_timeout(200)
+    h12.get_by_role("button", name="Lancer la mise en place").click()
+    h12.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h12.wait_for_load_state("networkidle"); h12.wait_for_timeout(1500)
+    assert h12.locator("#sieges .carte.kind-investigator.custom").count() == 1, "carte personnalisée au siège"
+    assert h12.locator("#plateau .mini.custom").count() == 1, "pion personnalisé sur Entry Hall"
+    h12.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h12.screenshot(path=f"{OUT}/51_custom_tapis.png")
+    # Sans image : le nom sur la carte, les initiales sur le pion ; le formulaire est prérempli.
+    h12.get_by_role("button", name="Réinitialiser").click()
+    j12.wait_for_selector("#lobby:not([hidden])", timeout=8000)
+    j12.wait_for_selector(".siege-lobby.moi", timeout=20000)
+    j12.get_by_role("button", name="Changer d'enquêteur").click(); j12.wait_for_selector("dialog.dialogue-inv[open]")
+    assert "Lisette" in j12.locator("dialog .inv-custom").inner_text(), "l'entrée rappelle l'enquêteur courant"
+    j12.locator("dialog .inv-custom").click(); j12.wait_for_selector("dialog .form-custom")
+    assert j12.locator("#custom-nom").input_value() == "Lisette Anofelis", "formulaire prérempli"
+    j12.fill("#custom-image", ""); j12.locator("#custom-image").dispatch_event("change")
+    j12.get_by_role("button", name="Mettre à jour").click()
+    j12.wait_for_timeout(600)
+    j12.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    assert j12.evaluate("getComputedStyle(document.querySelector('.siege-lobby.moi .vignette')).display") == "grid", "vignette sans image : nom centré"
+    j12.locator(".siege-lobby.moi").screenshot(path=f"{OUT}/52_custom_sans_image_lobby.png")
+    for q in ("gavriella", "jerome", "valentino", "penny"):
+        h12.locator(f"input[name='q-{q}'][value='kept']").check()
+    h12.locator("input[name='q-fate'][value='accepted']").check()
+    h12.wait_for_timeout(200)
+    h12.get_by_role("button", name="Lancer la mise en place").click()
+    h12.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h12.wait_for_load_state("networkidle"); h12.wait_for_timeout(1200)
+    assert h12.locator("#sieges .carte.kind-investigator.custom.sans-image").count() == 1, "carte sans image : nom affiché"
+    assert h12.locator("#plateau .mini.custom.sans-image").count() == 1, "pion sans image : initiales"
+    h12.locator("#sieges .siege").nth(1).screenshot(path=f"{OUT}/53_custom_sans_image_siege.png")
     browser.close()
 
 if erreurs:

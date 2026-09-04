@@ -719,6 +719,65 @@ async function tableDoorstep({ joueurs, answers }) {
   h.envoyer({ t: "deleteRoom" });
   await new Promise((r) => setTimeout(r, 300));
 }
+// Enquêteur personnalisé (hors ArkhamDB) : validation, siège, cartes et pion « custom:<n> », visible par les autres, remplacement.
+{
+  const { h, autres, lancer } = await tableDoorstep({ joueurs: 2 });
+  const j2 = autres[0];
+  let d = await j2.action({ t: "chooseCustomInvestigator", name: "", image: "", health: 7, sanity: 7 });
+  assert.equal(d.t, "nack", "sans nom : refusé");
+  d = await j2.action({ t: "chooseCustomInvestigator", name: "Lisette Anofelis", image: "", health: 0, sanity: 7 });
+  assert.equal(d.t, "nack", "vie hors bornes : refusée");
+  d = await j2.action({ t: "chooseCustomInvestigator", name: "Lisette Anofelis", image: "javascript:alert(1)", health: 7, sanity: 7 });
+  assert.equal(d.t, "nack", "image qui n'est pas un lien http(s) : refusée");
+  d = await j2.action({ t: "chooseCustomInvestigator", name: "  Lisette   Anofelis ", image: " https://cdn.arkham.build/optimized/05046.webp ", health: "8", sanity: 6.4 });
+  assert.equal(d.t, "delta", "enquêteur personnalisé accepté");
+  await new Promise((r) => setTimeout(r, 200));
+  let siege = j2.state.seats[1];
+  assert.equal(siege.investigatorCode, "custom:1", "code de carte custom:<siège>");
+  assert.deepEqual(siege.custom, { name: "Lisette Anofelis", image: "https://cdn.arkham.build/optimized/05046.webp", health: 8, sanity: 6 }, "nom normalisé, image nettoyée, jauges arrondies");
+  assert.equal(siege.counters.health, 8); assert.equal(siege.counters.sanity, 6);
+  assert.deepEqual(h.state.seats[1].custom, siege.custom, "l'hôte voit l'enquêteur personnalisé");
+  // Mise à jour (même siège) et pas de conflit avec un autre siège.
+  d = await j2.action({ t: "chooseCustomInvestigator", name: "Lisette Anofelis", image: "", health: 9, sanity: 5 });
+  assert.equal(d.t, "delta");
+  assert.equal(j2.state.seats[1].custom.image, null, "image facultative");
+  assert.equal(j2.state.seats[1].counters.health, 9);
+  d = await lancer({ gavriella: "kept", jerome: "kept", valentino: "kept", penny: "kept", evidence: "0", fate: "accepted" });
+  assert.equal(d.t, "delta", "mise en place avec un enquêteur personnalisé");
+  await new Promise((r) => setTimeout(r, 300));
+  const s = h.state;
+  assert.equal(s.playerCount, 2);
+  assert.equal(s.cards["inv-1"].code, "custom:1", "carte d'enquêteur au code custom");
+  assert.equal(s.cards["inv-1"].kind, "investigator");
+  assert.equal(s.cards["mini-1"].code, "custom:1", "pion au code custom");
+  assert.equal(s.cards["mini-1"].loc.zone, "board", "pion posé sur Entry Hall");
+  // Le nom du siège (journal) est celui de l'enquêteur personnalisé quand le joueur n'a pas de nom.
+  j2.envoyer({ t: "setName", name: "" });
+  await j2.attendre((m) => m.t === "seats" && m.seats[1].name === null);
+  d = await j2.action({ t: "takeTurn", seat: 1 });
+  assert.equal(d.t, "delta");
+  assert.ok(j2.state.log.some((e) => e.text.includes("Lisette Anofelis prend son tour")), "journal : nom de l'enquêteur personnalisé");
+  // Un nouveau spectateur reçoit le custom dans le welcome et dans le message seats.
+  const sp = client(h.state.code);
+  const w = await sp.attendre((m) => m.t === "welcome");
+  assert.deepEqual(w.state.seats[1].custom, j2.state.seats[1].custom, "welcome : enquêteur personnalisé présent");
+  const seatsMsg = await sp.attendre((m) => m.t === "seats");
+  assert.ok("custom" in seatsMsg.seats[1] && seatsMsg.seats[1].custom.name === "Lisette Anofelis", "message seats : custom porté");
+  sp.ws.close();
+  // Hors lobby : refusé.
+  d = await j2.action({ t: "chooseCustomInvestigator", name: "X", image: "", health: 5, sanity: 5 });
+  assert.equal(d.t, "nack", "hors lobby : refusé");
+  // Réinitialisation : retour au lobby, l'enquêteur personnalisé est conservé ; reprise d'un ArkhamDB l'efface.
+  d = await h.action({ t: "reset" });
+  assert.equal(d.t, "delta");
+  assert.equal(h.state.phase, "lobby");
+  assert.equal(h.state.seats[1].custom?.name, "Lisette Anofelis", "reset : enquêteur personnalisé conservé");
+  d = await j2.action({ t: "chooseInvestigator", code: "05003" });
+  assert.equal(d.t, "delta");
+  assert.equal(j2.state.seats[1].custom, null, "un enquêteur ArkhamDB efface le personnalisé");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
 
 // ============ The Secret Name (TCU III) : portes indistinguables, pile Unknown Places par couches, nom du verso, lieux simple face ============
 {

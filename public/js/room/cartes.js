@@ -23,6 +23,7 @@ export const JETONS_CHAOS = {
 /** URL de l'image à afficher pour une carte selon sa face et son côté. */
 export function urlImage(carte, def) {
   if (carte.kind === "proxy" && carte.code === "empty:space") return "/img/dos-joueur.svg"; // espace vide (Before the Black Throne)
+  if (def?.custom) return carte.faceUp && def.image ? def.image : "/img/dos-joueur.svg";   // enquêteur personnalisé : son image, dos joueur
   const dos = def?.back ?? "b";
   const verso = def?.backCode ? `${CDN}${def.backCode}.webp` : `${CDN}${carte.code}b.webp`;
   if (carte.faceUp) return carte.side === "b" ? verso : `${CDN}${carte.code}.webp`;
@@ -102,7 +103,18 @@ export function majCarte(el, carte, ctx) {
   }
   const face0 = faceVisible(carte, def);
   const paysage = face0.liee ? ["agenda", "act", "investigator"].includes(face0.kind) : estPaysage(carte);
-  el.className = `carte kind-${carte.kind}${paysage ? " paysage" : ""}${carte.exhausted ? " epuisee" : ""}${carte.faceUp ? "" : " retournee"}`;
+  el.className = `carte kind-${carte.kind}${paysage ? " paysage" : ""}${carte.exhausted ? " epuisee" : ""}${carte.faceUp ? "" : " retournee"}${def?.custom ? " custom" : ""}`;
+  // Enquêteur personnalisé sans image (ou image injoignable) : son nom sur un fond uni.
+  if (def?.custom) {
+    let etiquette = el.querySelector(".nom-custom");
+    if (!etiquette) {
+      etiquette = document.createElement("span");
+      etiquette.className = "nom-custom";
+      el.append(etiquette);
+      el.firstChild.addEventListener("error", () => { el.dataset.imgErreur = "1"; el.classList.add("sans-image"); });
+    }
+    etiquette.textContent = def.name;
+  } else el.querySelector(".nom-custom")?.remove();
   // Ennemis : compteurs de dégâts et d'horreur toujours visibles (clic = +1, − au survol, menu pour le reste).
   let chips = el.querySelector(".chips");
   const enJeu = "zone" in carte.loc;
@@ -135,7 +147,8 @@ export function majCarte(el, carte, ctx) {
   } else if (chips) chips.remove();
   const img = el.firstChild;
   const src = urlImage(carte, def);
-  if (img.getAttribute("src") !== src) img.src = src;
+  if (img.getAttribute("src") !== src) { delete el.dataset.imgErreur; img.src = src; }
+  el.classList.toggle("sans-image", !!def?.custom && carte.faceUp && (!def.image || el.dataset.imgErreur === "1"));
   const nom = inv?.name ?? face.name ?? carte.code;
   img.alt = carte.faceUp || loupePermise(carte, def) ? nom : "carte face cachée";
   el.title = nom;
@@ -192,14 +205,16 @@ export function majMini(el, carte, ctx) {
     const img = document.createElement("img");
     img.alt = "";
     img.draggable = false;
-    img.addEventListener("error", () => el.classList.add("sans-image"));
+    img.addEventListener("error", () => { el.dataset.imgErreur = "1"; el.classList.add("sans-image"); });
     el.append(img, document.createElement("span"));
   }
   const faction = FACTIONS[inv?.faction] ?? FACTIONS.neutral;
-  el.className = "mini";
+  el.className = `mini${inv?.custom ? " custom" : ""}`;
   el.style.setProperty("--faction", faction.couleur);
-  const src = `${CDN}${carte.code}.webp`;
-  if (el.firstChild.getAttribute("src") !== src) el.firstChild.src = src;
+  // Enquêteur personnalisé : son image (entière, recadrée en rond) ou ses initiales.
+  const src = inv?.custom ? (inv.image ?? "") : `${CDN}${carte.code}.webp`;
+  if (el.firstChild.getAttribute("src") !== src) { delete el.dataset.imgErreur; if (src) el.firstChild.src = src; else el.firstChild.removeAttribute("src"); }
+  el.classList.toggle("sans-image", !src || el.dataset.imgErreur === "1");
   el.lastChild.textContent = initiales(inv?.name ?? "?");
   el.title = inv ? `${inv.name} — siège ${carte.ownerSeat + 1}` : carte.code;
   return el;

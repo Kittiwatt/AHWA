@@ -28,11 +28,16 @@ export type Token =
   | "skull" | "cultist" | "tablet" | "elder_thing" | "auto_fail" | "elder_sign"
   | "bless" | "curse" | "frost";
 
+// Enquêteur personnalisé (hors ArkhamDB) : nom, image (URL, facultative) et jauges saisis au lobby.
+// Son code de carte est « custom:<siège> » ; il ne figure dans aucun index.
+export type CustomInvestigator = { name: string; image: string | null; health: number; sanity: number };
+
 export type Seat = {
   index: 0 | 1 | 2 | 3;
   occupied: boolean;
   name: string | null;
   investigatorCode: string | null;
+  custom?: CustomInvestigator | null; // renseigné quand investigatorCode = « custom:<n> »
   counters: Record<string, number>; // health, sanity, clues, actions, + spécifiques
   deck: null;                        // réservé v2
 };
@@ -93,7 +98,7 @@ export const LOG_MAX = 200;
 export const PURGE_DELAY_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours sans activité
 
 export function emptySeat(index: 0 | 1 | 2 | 3): Seat {
-  return { index, occupied: false, name: null, investigatorCode: null, counters: { health: 0, sanity: 0, clues: 0, actions: 3 }, deck: null };
+  return { index, occupied: false, name: null, investigatorCode: null, custom: null, counters: { health: 0, sanity: 0, clues: 0, actions: 3 }, deck: null };
 }
 
 export function emptyPiles(): Record<PileId, CardId[]> {
@@ -132,7 +137,7 @@ export function initialState(code: string, scenarioId: string, now = Date.now())
 
 // ---- Protocole (cahier des charges §4) ------------------------------------------
 
-export type SeatSummary = Pick<Seat, "index" | "occupied" | "name" | "investigatorCode">;
+export type SeatSummary = Pick<Seat, "index" | "occupied" | "name" | "investigatorCode" | "custom">;
 
 export type PatchOp = { op: "add" | "remove" | "replace"; path: string; value?: unknown };
 

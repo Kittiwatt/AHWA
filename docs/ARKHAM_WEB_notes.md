@@ -17,6 +17,29 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-04 : **enquêteur personnalisé** (demande) : dans la fenêtre
+  « Choisir un enquêteur », section « Hors collection » en tête avec
+  l'entrée « Enquêteur personnalisé » (toujours visible, même quand la
+  recherche ne trouve rien ; rappelle le nom courant), qui ouvre dans la
+  même fenêtre un formulaire nom / lien d'image (facultatif, aperçu) /
+  vie / santé mentale, prérempli si le siège en a déjà un. Serveur :
+  message `chooseCustomInvestigator` → `seat.custom {name, image, health,
+  sanity}` et `investigatorCode = "custom:<siège>"` (unique par siège,
+  donc pas de doublon) ; nom normalisé ≤ 40, jauges entières 1‑99
+  arrondies, image = lien http(s) sans espace ≤ 600 (tout autre schéma
+  refusé) ; `custom` voyage dans `welcome`, les deltas et `seats`
+  (`SeatSummary`) ; effacé par `chooseInvestigator` / `viderSiege`,
+  conservé au `reset` ; `nomSiege` (room.ts et actions.ts) l'utilise. Front :
+  `inscrireCustoms` (main.js) inscrit à chaque rendu les customs dans
+  `ctx.investigateurs` (fiche neutre, `custom: true`, `image`) et
+  `ctx.defs` (`kind investigator`, `back player`) → lobby, cartes, pions,
+  menus, loupe et journal les résolvent comme les autres ; `urlImage`
+  rend l'image du custom (dos joueur au verso) ; carte `.custom` = image
+  entière (`contain`), pion `.mini.custom` = image en rond ; sans image
+  ou lien mort (`error` mémorisé en `data-img-erreur`) : nom sur la carte
+  (`.nom-custom`), initiales sur le pion. Classe affichée : neutre.
+  Tests : 276 messages (bloc Doorstep : refus, normalisation, cartes
+  `custom:1`, spectateur, reset) ; captures 48‑53 (Doorstep).
 - 2026-09-04 : **Before the Black Throne (TCU VIII) livré — la campagne
   est complète (hors prologue)**. Guide p. 36‑37 : Cosmic Ingress révélé
   (3 indices fixes, pions), **le Cosmos** = pile « Cosmos » des lieux
@@ -922,6 +945,14 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   sur la carte réelle (ArkhamDB dit non pour Josef).
 - Un champ de saisie dans un rendu reconstruit par `replaceChildren` :
   ne pas relancer le rendu depuis son `change` (blur → rendu imbriqué).
+- L'entrée « Enquêteur personnalisé » de la fenêtre de choix a la classe
+  `.inv-custom`, pas `.inv` : les tests et captures prennent
+  `dialog .inv` first pour choisir un enquêteur ArkhamDB (la première
+  version avec `.inv.custom` ouvrait le formulaire à leur place).
+- Un élément DOM dont la classe est réécrite à chaque rendu perd ce
+  qu'un gestionnaire d'événement (`error` d'image) y a ajouté : mémoriser
+  l'état dans `dataset` et le rejouer au rendu (`sans-image` des cartes
+  et pions personnalisés).
 - Cartes liées : le front rend le verso d'après `backKind` ; un verso-lieu
   ne devient un lieu pour le moteur (couche, pions emportés, chemins)
   que par le changement de `kind` fait dans `avancer` — retourner l'acte

@@ -91,7 +91,8 @@ type Seat = {
   index: 0|1|2|3;
   occupied: boolean;                 // connexion WS ouverte sur ce siège
   name: string | null;               // saisi à la connexion, optionnel
-  investigatorCode: string | null;   // code ArkhamDB
+  investigatorCode: string | null;   // code ArkhamDB, ou « custom:<index> » pour un enquêteur personnalisé
+  custom?: { name, image: string | null, health, sanity } | null; // enquêteur hors ArkhamDB saisi au lobby (2026-09-04)
   counters: { health, sanity, clues, actions, ...specific };
   // dégâts/horreur sont des jetons sur la carte investigateur (§3.2)
 };
@@ -222,6 +223,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 |---|---|---|
 | `takeSeat {seat, name?}` / `leaveSeat` / `setName {name}` | spectateur / J | prise et libération d'un siège, nom ; hors `rev` (diffusés par `seats`), réponse `{ t:"you", seat, isHost }` |
 | `chooseInvestigator {code}` | J (lobby) | fixe l'investigateur du siège (refusé si un autre siège l'a déjà), initialise vie/santé mentale |
+| `chooseCustomInvestigator {name, image, health, sanity}` | J (lobby) | enquêteur personnalisé : nom (≤ 40), image facultative (lien http(s) ≤ 600 car.), jauges entières 1‑99 ; code `custom:<siège>`, `custom` porté par le siège (welcome, deltas, `seats`) |
 | `clearInvestigator` | J (lobby) | retire l'investigateur de son siège |
 | `setDifficulty {d}` | J (lobby) | difficulté |
 | `setLead {seat}` | J | enquêteur principal (★) |

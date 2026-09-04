@@ -121,9 +121,27 @@ async function demarrer() {
   document.getElementById("copier").addEventListener("click", copierLien);
   window.addEventListener("resize", () => { if (!$tapis.hidden) ajusterVue(ctx); });
 
+  // Enquêteurs personnalisés : portés par les sièges (« custom:<n> »), inscrits dans l'index et les définitions
+  // à chaque rendu pour que le lobby, les cartes, les pions et les menus les résolvent comme les autres.
+  function inscrireCustoms(state) {
+    for (const s of state.seats) {
+      const code = `custom:${s.index}`;
+      if (s.custom && s.investigatorCode === code) {
+        const fiche = { code, name: s.custom.name, subname: "Enquêteur personnalisé", faction: "neutral", health: s.custom.health, sanity: s.custom.sanity,
+          image: s.custom.image ?? null, packName: "Personnalisé", custom: true };
+        ctx.investigateurs.set(code, fiche);
+        ctx.defs.set(code, { code, name: s.custom.name, kind: "investigator", back: "player", image: fiche.image, custom: true });
+      } else {
+        ctx.investigateurs.delete(code);
+        ctx.defs.delete(code);
+      }
+    }
+  }
+
   let phasePrecedente = null;
   function rendre() {
     const { state, moi } = ctx.etat;
+    inscrireCustoms(state);
     $moi.textContent = moi.seat === null ? (moi.isHost ? "Hôte (spectateur)" : "Spectateur") : `Siège ${moi.seat + 1}${moi.isHost ? " · hôte" : ""}`;
     const auLobby = state.phase === "lobby";
     if (auLobby) {

@@ -142,11 +142,13 @@ function siegeLobby(s, ctx, champNom) {
   if (inv) {
     const faction = FACTIONS[inv.faction] ?? FACTIONS.neutral;
     corps.append(
-      el("img", { class: "vignette", src: `${CDN}${inv.code}.webp`, alt: inv.name, loading: "lazy" }),
+      inv.custom && !inv.image
+        ? el("div", { class: "vignette sans-image", text: inv.name })
+        : el("img", { class: `vignette${inv.custom ? " custom" : ""}`, src: inv.custom ? inv.image : `${CDN}${inv.code}.webp`, alt: inv.name, loading: "lazy" }),
       el("div", { class: "fiche", style: { "--faction": faction.couleur } },
         el("strong", { text: inv.name }),
         el("span", { class: "sous", text: `${inv.subname}${inv.parallel ? " (parallèle)" : ""}` }),
-        el("span", { class: "classe", text: faction.nom }),
+        inv.custom ? null : el("span", { class: "classe", text: faction.nom }),
         el("span", { class: "stats", text: `${inv.health} vie · ${inv.sanity} santé mentale` }),
       ),
     );
@@ -192,9 +194,19 @@ function ouvrirChoixInvestigateur(ctx) {
     liste,
   );
 
+  // Enquêteur personnalisé (hors ArkhamDB) : nom, image et jauges saisis à la main ; toujours proposé en tête de liste.
+  const moi = state.seats[ctx.etat.moi.seat];
+  const entreeCustom = () => el("button", { class: "inv-custom", type: "button", style: { "--faction": FACTIONS.neutral.couleur },
+    onclick: () => rendreFormulaire() },
+    el("span", { class: "icone", text: "✎" }),
+    el("span", { class: "nom" }, "Enquêteur personnalisé", el("span", { class: "sous", text: moi?.custom ? ` · ${moi.custom.name}` : "" })),
+    el("span", { class: "meta", text: "Nom, image et jauges de votre choix" }));
+
   const rendre = () => {
     const q = recherche.value.trim().toLowerCase();
     liste.replaceChildren();
+    recherche.disabled = false;
+    if (!q) liste.append(el("h3", { style: { "--faction": FACTIONS.neutral.couleur }, text: "Hors collection" }), entreeCustom());
     let faction = null;
     for (const inv of ctx.listeInvestigateurs) {
       const cible = `${inv.name} ${inv.subname} ${FACTIONS[inv.faction]?.nom ?? ""} ${inv.packName}`.toLowerCase();
@@ -211,8 +223,55 @@ function ouvrirChoixInvestigateur(ctx) {
         el("span", { class: "meta", text: `${inv.packName} · ${inv.health} vie · ${inv.sanity} santé${pris ? " · déjà pris" : ""}` }),
       ));
     }
-    if (!liste.childElementCount) liste.append(el("p", { class: "vide", text: "Aucun enquêteur ne correspond." }));
+    if (!liste.childElementCount) liste.append(el("p", { class: "vide", text: "Aucun enquêteur ne correspond." }), entreeCustom());
   };
+
+  const rendreFormulaire = () => {
+    const c = moi?.custom ?? { name: "", image: "", health: 7, sanity: 7 };
+    recherche.disabled = true;
+    const champ = (id, libelle, attrs, aide) => {
+      const input = el("input", { id: `custom-${id}`, name: id, ...attrs });
+      return [input, el("label", { class: "champ", for: `custom-${id}` }, el("span", { class: "libelle", text: libelle }), input, aide ? el("span", { class: "aide", text: aide }) : null)];
+    };
+    const [nom, lNom] = champ("nom", "Nom", { type: "text", maxlength: "40", required: true, value: c.name, placeholder: "Nom de l'enquêteur" });
+    const [image, lImage] = champ("image", "Image (lien)", { type: "url", maxlength: "600", value: c.image ?? "", placeholder: "https://…" },
+      "Facultatif. Lien direct vers l'image de la carte (jpg, png, webp) ; sans image, le nom est affiché sur la carte et le pion.");
+    const [vie, lVie] = champ("vie", "Vie", { type: "number", min: "1", max: "99", required: true, value: String(c.health) });
+    const [sante, lSante] = champ("sante", "Santé mentale", { type: "number", min: "1", max: "99", required: true, value: String(c.sanity) });
+    const apercu = el("div", { class: "apercu-custom" });
+    const majApercu = () => {
+      const u = image.value.trim();
+      apercu.replaceChildren(u ? el("img", { src: u, alt: "" , onerror: (e) => e.target.replaceWith(el("span", { class: "vide", text: "Image introuvable à ce lien." })) })
+        : el("span", { class: "vide", text: nom.value.trim() || "Aperçu" }));
+    };
+    image.addEventListener("change", majApercu);
+    nom.addEventListener("input", () => { if (!image.value.trim()) majApercu(); });
+    majApercu();
+    const erreur = el("p", { class: "erreur-form", hidden: true });
+    const valider = () => {
+      const name = nom.value.trim();
+      const health = Math.round(Number(vie.value)), sanity = Math.round(Number(sante.value));
+      const url = image.value.trim();
+      const bornes = (n) => Number.isFinite(n) && n >= 1 && n <= 99;
+      if (!name) { erreur.textContent = "Donnez un nom à l'enquêteur."; erreur.hidden = false; nom.focus(); return; }
+      if (!bornes(health) || !bornes(sanity)) { erreur.textContent = "Vie et santé mentale : un entier de 1 à 99."; erreur.hidden = false; return; }
+      if (url && !/^https?:\/\/\S+$/i.test(url)) { erreur.textContent = "Le lien de l'image doit commencer par http(s)://."; erreur.hidden = false; image.focus(); return; }
+      ctx.envoyer({ t: "chooseCustomInvestigator", name, image: url, health, sanity });
+      dialogue.close();
+    };
+    liste.replaceChildren(el("form", { class: "form-custom", onsubmit: (e) => { e.preventDefault(); valider(); } },
+      el("h3", { style: { "--faction": FACTIONS.neutral.couleur }, text: "Enquêteur personnalisé" }),
+      el("p", { class: "aide", text: "Pour un enquêteur absent d'ArkhamDB (création, épreuve, version maison). Ses jauges deviennent la vie et la santé mentale du siège." }),
+      el("div", { class: "champs" }, lNom, lImage, el("div", { class: "jauges" }, lVie, lSante)),
+      apercu,
+      erreur,
+      el("div", { class: "boutons" },
+        el("button", { class: "bouton", type: "submit" }, moi?.custom ? "Mettre à jour" : "Prendre cet enquêteur"),
+        el("button", { class: "bouton secondaire", type: "button", onclick: () => { recherche.value = ""; rendre(); } }, "Retour à la liste")),
+    ));
+    nom.focus();
+  };
+
   recherche.addEventListener("input", rendre);
   rendre();
   document.body.append(dialogue);

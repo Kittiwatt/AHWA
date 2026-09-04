@@ -47,7 +47,7 @@ function nomCarte(def: ScenarioDef, c: CardState): string {
 }
 
 function nomSiege(state: RoomState, n: number, def: ScenarioDef): string {
-  return state.seats[n].name ?? `Siège ${n + 1}`;
+  return state.seats[n].name ?? state.seats[n].custom?.name ?? `Siège ${n + 1}`;
 }
 
 function rappels(state: RoomState, def: ScenarioDef, quand: string): LogEntry[] {

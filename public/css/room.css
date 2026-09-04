@@ -98,12 +98,32 @@
 .dialogue-inv .recherche { font: inherit; padding: 0.4rem 0.7rem; width: 18rem; max-width: 40%; background: var(--nuit-2); color: var(--papier); border: 1px solid var(--filet); border-radius: 2px; }
 .liste-inv { overflow-y: auto; padding: 0.5rem 1.2rem 1.2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 0.4rem 1rem; align-content: start; }
 .liste-inv h3 { grid-column: 1 / -1; font-size: 1.2rem; margin: 0.9rem 0 0.2rem; padding-left: 0.6rem; border-left: 4px solid var(--faction, var(--papier-2)); }
-.liste-inv .inv { display: grid; grid-template-columns: 4rem 1fr; grid-template-rows: auto auto; column-gap: 0.7rem; align-items: center; text-align: left; font: inherit; color: var(--papier); background: var(--nuit-2); border: 1px solid transparent; border-left: 3px solid var(--faction, var(--papier-2)); border-radius: 2px; padding: 0.35rem 0.5rem; cursor: pointer; }
-.liste-inv .inv:hover:not(:disabled) { border-color: var(--dorure); }
+/* .inv = enquêteur ArkhamDB, .inv-custom = entrée « Enquêteur personnalisé » (même rendu, classe distincte pour les scripts) */
+.liste-inv .inv, .liste-inv .inv-custom { display: grid; grid-template-columns: 4rem 1fr; grid-template-rows: auto auto; column-gap: 0.7rem; align-items: center; text-align: left; font: inherit; color: var(--papier); background: var(--nuit-2); border: 1px solid transparent; border-left: 3px solid var(--faction, var(--papier-2)); border-radius: 2px; padding: 0.35rem 0.5rem; cursor: pointer; }
+.liste-inv .inv:hover:not(:disabled), .liste-inv .inv-custom:hover { border-color: var(--dorure); }
 .liste-inv .inv:disabled { opacity: 0.4; cursor: not-allowed; }
 .liste-inv .inv img { grid-row: 1 / 3; width: 4rem; aspect-ratio: 7 / 5; object-fit: cover; border-radius: 2px; background: var(--tapis-fond-2); }
-.liste-inv .inv .nom { font-weight: 500; }
-.liste-inv .inv .sous, .liste-inv .inv .meta { color: var(--papier-2); font-size: 0.85rem; font-weight: 400; }
+.liste-inv .inv .nom, .liste-inv .inv-custom .nom { font-weight: 500; }
+.liste-inv .inv .sous, .liste-inv .inv .meta, .liste-inv .inv-custom .sous, .liste-inv .inv-custom .meta { color: var(--papier-2); font-size: 0.85rem; font-weight: 400; }
+/* Enquêteur personnalisé : entrée « Hors collection » puis formulaire dans la même fenêtre */
+.liste-inv .inv-custom .icone { grid-row: 1 / 3; width: 4rem; aspect-ratio: 7 / 5; display: grid; place-items: center; font-size: 1.6rem; color: var(--dorure-2); background: var(--tapis-fond-2); border-radius: 2px; }
+.form-custom { grid-column: 1 / -1; display: grid; gap: 0.8rem; max-width: 40rem; }
+.form-custom h3 { margin-top: 0.9rem; }
+.form-custom .aide { margin: 0; color: var(--papier-2); font-size: 0.9rem; }
+.form-custom .champs { display: grid; gap: 0.7rem; }
+.form-custom .champ { display: grid; gap: 0.25rem; }
+.form-custom .champ .libelle { font-weight: 500; }
+.form-custom .champ input { font: inherit; padding: 0.4rem 0.6rem; background: var(--nuit-2); color: var(--papier); border: 1px solid var(--filet); border-radius: 2px; }
+.form-custom .champ input:focus { border-color: var(--dorure); outline: none; }
+.form-custom .jauges { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-custom .jauges input { width: 6rem; }
+.apercu-custom { width: 14rem; aspect-ratio: 7 / 5; display: grid; place-items: center; background: var(--tapis-fond-2); border: 1px solid var(--filet); border-radius: 4px; overflow: hidden; }
+.apercu-custom img { width: 100%; height: 100%; object-fit: contain; }
+.apercu-custom .vide { padding: 0.5rem; text-align: center; }
+.form-custom .erreur-form { margin: 0; color: #e07a7a; }
+.form-custom .boutons { display: flex; gap: 0.6rem; }
+.siege-lobby .vignette.custom { object-fit: contain; }
+.siege-lobby div.vignette.sans-image { display: grid; place-items: center; font-family: var(--serif); font-size: 1.3rem; text-align: center; padding: 0.5rem; }
 
 /* Tapis ------------------------------------------------------------------ */
 
@@ -135,6 +155,11 @@
 .carte { position: relative; width: var(--carte-l); height: var(--carte-h); flex: none; border-radius: 4px; background: var(--tapis-fond-2); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); }
 .carte img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; display: block; }
 .carte.paysage { width: var(--carte-h); height: var(--carte-l); }
+/* Enquêteur personnalisé : image entière (jamais recadrée) ; sans image, le nom sur fond uni */
+.carte.custom img { object-fit: contain; }
+.carte .nom-custom { display: none; }
+.carte.custom.sans-image img { visibility: hidden; }
+.carte.custom.sans-image .nom-custom { display: grid; position: absolute; inset: 0; place-items: center; padding: 8px 10px; text-align: center; font-family: var(--serif); font-size: 1.05rem; line-height: 1.15; color: var(--papier); border-radius: 4px; background: radial-gradient(ellipse at center, #2b3f47, var(--tapis-fond-2)); border: 2px solid var(--dorure); box-sizing: border-box; overflow: hidden; }
 .carte.epuisee { transform: rotate(90deg); }
 /* Jetons posés là où la carte imprime la valeur correspondante : indices en bas à droite des lieux,
    doom en bas à gauche des agendas, dégâts/horreur en bas à droite des enquêteurs ; ailleurs en haut à gauche. */
@@ -193,6 +218,7 @@
 .mini { position: absolute; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: var(--faction, var(--prevu)); border: 3px solid var(--faction, var(--prevu)); outline: 2px solid var(--papier); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7); display: grid; place-items: center; }
 .mini img { position: absolute; left: 0; top: 0; width: 250%; height: auto; margin: -23% 0 0 -9%; max-width: none; pointer-events: none; }
 .mini span { position: relative; font-size: 0.85rem; font-weight: 700; color: #fff; text-shadow: 0 0 3px #000; display: none; }
+.mini.custom img { position: static; width: 100%; height: 100%; margin: 0; object-fit: cover; }
 .mini.cle { background: var(--nuit-2); border-color: var(--dorure); }
 .mini.cle img { position: static; width: 34px; height: 34px; margin: 0; }
 .mini.sans-image img { display: none; }

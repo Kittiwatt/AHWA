@@ -10,6 +10,7 @@ import { Server, type Connection, type ConnectionContext, type WSMessage } from 
 import {
   DIFFICULTIES, initialState, emptyPiles, PURGE_DELAY_MS,
   type ClientMessage, type Difficulty, type LogEntry, type RoomState, type ServerMessage,
+  type CustomInvestigator,
 } from "./state";
 import { diff, clone } from "./patch";
 import { getScenario, reponseValide } from "./scenario";
@@ -208,8 +209,23 @@ export class Room extends Server<Env> {
         const before = clone(state);
         const seat = state.seats[s];
         seat.investigatorCode = code;
+        seat.custom = null;
         seat.counters.health = inv.health;
         seat.counters.sanity = inv.sanity;
+        if (state.lead === null) state.lead = s;
+        this.commit(before);
+        return;
+      }
+      // Enquêteur personnalisé : nom, image (URL http(s), facultative), vie et santé mentale (1 à 99).
+      case "chooseCustomInvestigator": {
+        const s = seated(); lobby();
+        const custom = customPropre(msg) ?? refuser("enquêteur personnalisé incomplet : nom, vie et santé mentale (1 à 99), image en https");
+        const before = clone(state);
+        const seat = state.seats[s];
+        seat.investigatorCode = `custom:${s}`;
+        seat.custom = custom;
+        seat.counters.health = custom.health;
+        seat.counters.sanity = custom.sanity;
         if (state.lead === null) state.lead = s;
         this.commit(before);
         return;
@@ -441,6 +457,7 @@ export class Room extends Server<Env> {
   private viderSiege(n: number) {
     const seat = this.state!.seats[n];
     seat.investigatorCode = null;
+    seat.custom = null;
     seat.counters = { health: 0, sanity: 0, clues: 0, actions: 3 };
     if (this.state!.lead === n) {
       const autre = this.state!.seats.find((s) => s.investigatorCode);
@@ -450,7 +467,7 @@ export class Room extends Server<Env> {
 
   private nomSiege(n: number): string {
     const s = this.state!.seats[n];
-    return s.name ?? INVESTIGATORS.get(s.investigatorCode ?? "")?.name ?? `Siège ${n + 1}`;
+    return s.name ?? s.custom?.name ?? INVESTIGATORS.get(s.investigatorCode ?? "")?.name ?? `Siège ${n + 1}`;
   }
 
   // ---- Index de toutes les cartes (assets statiques, chargé une fois par instance) ----
@@ -477,13 +494,29 @@ export class Room extends Server<Env> {
     const spectators = [...this.getConnections<Attachment>()].filter((c) => (c.state?.seat ?? null) === null).length;
     const msg: ServerMessage = {
       t: "seats",
-      seats: this.state.seats.map(({ index, occupied, name, investigatorCode }) => ({ index, occupied, name, investigatorCode })),
+      seats: this.state.seats.map(({ index, occupied, name, investigatorCode, custom }) => ({ index, occupied, name, investigatorCode, custom: custom ?? null })),
       hostSeat: this.state.hostSeat,
       hostConnected: this.state.hostConnected,
       spectators,
     };
     this.broadcast(JSON.stringify(msg));
   }
+}
+
+/** Valide et normalise un enquêteur personnalisé ; null si un champ est invalide. */
+function customPropre(msg: Record<string, unknown>): CustomInvestigator | null {
+  const name = nomPropre(msg.name);
+  if (!name) return null;
+  const jauge = (v: unknown) => { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= 1 && n <= 99 ? n : null; };
+  const health = jauge(msg.health), sanity = jauge(msg.sanity);
+  if (health === null || sanity === null) return null;
+  let image: string | null = null;
+  if (typeof msg.image === "string" && msg.image.trim()) {
+    const u = msg.image.trim();
+    if (u.length > 600 || /\s/.test(u) || !/^https?:\/\//i.test(u)) return null;
+    image = u;
+  }
+  return { name, image, health, sanity };
 }
 
 function nomPropre(v: unknown): string | null {
