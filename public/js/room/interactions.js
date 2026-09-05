@@ -164,8 +164,12 @@ export function initInteractions(ctx) {
       return;
     }
     if (elem.closest(".dos-pile")) return; // carte révélée sur la pioche ou dessus de la défausse : glisser seulement
-    if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") ctx.envoyer({ t: "revealLocation", id: carte.id });
+    if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") {
+      ctx.envoyer({ t: "revealLocation", id: carte.id });
+      derniereRevelation = { id: carte.id, at: Date.now() }; // un double-clic qui suit ne doit pas la retourner aussitôt
+    }
   });
+  let derniereRevelation = null;
   document.addEventListener("dblclick", (e) => {
     const elem = e.target.closest(".carte");
     if (!elem || elem.closest("dialog, .loupe") || !assis()) return;
@@ -175,6 +179,17 @@ export function initInteractions(ctx) {
     if (e.target.closest(".chip")) return;
     if (e.target.closest(".jeton-clue") && carte.kind === "location") { ctx.envoyer({ t: "takeClue", id: carte.id }); return; }
     if (elem.closest(".dos-pile")) return;
+    if (carte.kind === "location" && carte.loc.zone === "board") {
+      // Double-clic sur un lieu du tapis : le retourner (lieu à deux faces de jeu : basculer sa face). Si le premier clic
+      // vient de le révéler, on ne le retourne pas dans la foulée.
+      if (derniereRevelation && derniereRevelation.id === carte.id && Date.now() - derniereRevelation.at < 800) return;
+      const def = ctx.defs.get(carte.code);
+      const deuxFaces = !carte.storyBack && def?.backCode && def?.backKind === "location";
+      if (deuxFaces && carte.faceUp) ctx.envoyer({ t: "toggleSide", id: carte.id });
+      else if (carte.faceUp && !carte.storyBack) ctx.envoyer({ t: "flipCard", id: carte.id });
+      else if (!carte.faceUp) ctx.envoyer({ t: "revealLocation", id: carte.id });
+      return;
+    }
     ctx.envoyer({ t: "exhaust", id: carte.id });
   });
 

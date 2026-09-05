@@ -17,6 +17,14 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-05 : **double-clic sur un lieu du tapis = le retourner**
+  (demande de l'utilisateur) : `flipCard` sur un lieu révélé, `toggleSide`
+  sur un lieu à deux faces de jeu, `revealLocation` sur un lieu caché ;
+  garde de 800 ms après une révélation au clic (`derniereRevelation`)
+  pour que clic + double-clic ne retourne pas ce qu'on vient de révéler.
+  Double-clic sur le jeton d'indice = prendre un indice, inchangé ;
+  double-clic sur les autres cartes = épuiser, inchangé. Vérifié en
+  navigateur (NotZ I et II).
 - 2026-09-04 : **enquêteur personnalisé** (demande) : dans la fenêtre
   « Choisir un enquêteur », section « Hors collection » en tête avec
   l'entrée « Enquêteur personnalisé » (toujours visible, même quand la
@@ -464,7 +472,8 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   doom) / `advanceAct`, `chaosDraw`/`chaosReturn`/`chaosAdjust`. Front :
   glisser-déposer (1 message au lâcher) vers tapis, zones de menace, de
   côté, victoire, pioche et défausse ; clic sur un lieu caché = révélation
-  + indices ; double-clic = épuiser ; clic droit / appui long = menu
+  + indices ; double-clic = épuiser (sur un lieu du tapis : le retourner,
+  ou basculer sa face s'il en a deux) ; clic droit / appui long = menu
   (agrandir, épuiser, retourner, autre face, jetons ±, défausser, sur/sous
   la pioche, victoire, de côté, sur le tapis, retirer) ; phases cliquables
   + « Phase suivante » ; « Prendre mon tour » / « Fin de mon tour » ;
@@ -675,7 +684,12 @@ prévu. Pas de liste publique des rooms actives.
   enquêteur) et n'impose aucun ordre. Réservé dans l'état :
   `lead`, `turn { seat, done[] }`.
 - **Épuiser / redresser** : double-clic (double-tap) sur la carte, le
-  menu contextuel en plus (étape 2).
+  menu contextuel en plus (étape 2). Exception demandée par l'utilisateur
+  le 2026-09-05 : sur un **lieu du tapis**, le double-clic le **retourne**
+  (face révélée ↔ face non révélée ; lieu à deux faces de jeu → bascule
+  de face ; lieu caché → révélation avec indices). Un clic simple qui
+  vient de révéler le lieu neutralise le double-clic qui le suit (garde
+  de 800 ms), sinon le second clic le retournerait aussitôt.
 - **Première manche** : la mise en place enchaîne directement sur la
   phase des enquêteurs (le mythe est sauté à la manche 1, règle générale).
 - **Carte de scénario** posée côté « b » (référence des jetons du chaos).

@@ -236,7 +236,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `kick {seat}` | H | libère un siège (au lobby : retire aussi son enquêteur) |
 | `moveCard {id, zone, x, y}` | J | drop sur le tapis (au lâcher uniquement) ; une carte sortie d'une pile entre en jeu face visible, sauf un lieu à double face, qui entre non révélé (clic = révélation + indices) ; un lieu à simple face (Strange Geometry) entre révélé avec ses indices |
 | `toPile {id, pile, top?, shuffle?}` | J | met une carte dans une pile ; `shuffle` remélange la pile ensuite (« Mélanger dans la pioche ») |
-| `flipCard {id}` | J | retourne (refusé pour un dos histoire : face cachée il montre le dos générique ; son côté histoire se lit par `toggleSide`, menu « Lire le côté histoire », quand une carte l'indique) |
+| `flipCard {id}` | J | retourne (refusé pour un dos histoire : face cachée il montre le dos générique ; son côté histoire se lit par `toggleSide`, menu « Lire le côté histoire », quand une carte l'indique). Geste : double-clic sur un lieu du tapis (lieu à deux faces de jeu → `toggleSide` ; lieu caché → `revealLocation`) |
 | `revealLocation {id}` | J | face visible + indices auto (`clueValue × joueurs` ou `clueValue` si « per investigator » absent) |
 | `toggleSide {id}` | J | lieux double face |
 | `exhaust {id, v}` | J | épuiser / redresser |
