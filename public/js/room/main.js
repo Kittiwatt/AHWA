@@ -5,6 +5,7 @@ import { rendreLobby, copierLien } from "./lobby.js";
 import { rendreTapis, initPlateau, initLoupe, ajusterVue, oublierVue, encart, PHASES, ouvrirDialogueCartes } from "./tapis.js";
 import { initInteractions } from "./interactions.js";
 import { CDN } from "./cartes.js";
+import { lireSiegeMemorise, memoriserSiege } from "./siege.js";
 
 const code = location.pathname.split("/").filter(Boolean)[1]?.toUpperCase() ?? "";
 const $etat = document.getElementById("etat");
@@ -71,16 +72,17 @@ async function demarrer() {
 
   const hostToken = () => localStorage.getItem(`ahwa:host:${code}`) ?? "";
   const nom = localStorage.getItem("ahwa:nom") ?? "";
-  // Siège mémorisé : repris automatiquement au rechargement (dès que l'ancienne connexion est fermée).
-  const cleSiege = `ahwa:siege:${code}`;
-  let siegeARependre = /^[0-3]$/.test(localStorage.getItem(cleSiege) ?? "") ? Number(localStorage.getItem(cleSiege)) : null;
+  // Siège mémorisé (siège + code de siège) : repris automatiquement au rechargement, ou rejoint depuis un second
+  // onglet du même navigateur tant que le code de siège est le bon (cahier §10.2).
+  const memo = lireSiegeMemorise(code);
+  let siegeARependre = memo?.seat ?? null;
   let limiteReprise = Date.now() + 15000;
   function tenterReprise() {
     if (siegeARependre === null || Date.now() > limiteReprise || ctx.etat.moi.seat !== null) return;
     const s = ctx.etat.state.seats[siegeARependre];
-    if (s.occupied) return;
+    if (s.occupied && !(memo?.pin && s.pin === memo.pin)) return;
     if (ctx.etat.state.phase !== "lobby" && !s.investigatorCode) { siegeARependre = null; return; }
-    ctx.envoyer({ t: "takeSeat", seat: siegeARependre, name: localStorage.getItem("ahwa:nom") ?? "" });
+    ctx.envoyer({ t: "takeSeat", seat: siegeARependre, name: localStorage.getItem("ahwa:nom") ?? "", pin: s.occupied ? memo.pin : undefined });
     siegeARependre = null;
   }
 
@@ -93,10 +95,7 @@ async function demarrer() {
         rendre();
         if (genre === "welcome") verifierCdn();
         if (genre === "welcome" || genre === "seats") tenterReprise();
-        if (genre === "you") {
-          if (ctx.etat.moi.seat === null) localStorage.removeItem(cleSiege);
-          else localStorage.setItem(cleSiege, String(ctx.etat.moi.seat));
-        }
+        if (genre === "you" || genre === "seats") memoriserSiege(code, ctx.etat);
       },
       hostToken(token) { localStorage.setItem(`ahwa:host:${code}`, token); encart("Vous êtes maintenant l'hôte de la table.", "info"); },
       rappel(entry) { encart(entry.text, "rappel"); },

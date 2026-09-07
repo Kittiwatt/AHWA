@@ -2,6 +2,7 @@
 
 import { el, pluriel } from "./dom.js";
 import { CDN, FACTIONS } from "./cartes.js";
+import { blocDeck, champImportDeck } from "./deck.js";
 
 const DIFFICULTES = [
   ["easy", "Facile", "je veux vivre l'histoire"],
@@ -131,11 +132,12 @@ function siegeLobby(s, ctx, champNom) {
   const prenable = !s.occupied && moi.seat === null && (state.phase === "lobby" || s.investigatorCode);
 
   const entete = el("header", {},
-    el("span", { class: `etat-siege ${s.occupied ? "connecte" : "libre"}`, title: s.occupied ? "connecté" : "libre" }),
+    el("span", { class: `etat-siege ${s.occupied ? "connecte" : "libre"}`, title: s.occupied ? (s.connections > 1 ? `${s.connections} connexions` : "connecté") : "libre" }),
     el("h2", { text: `Siège ${s.index + 1}` }),
     s.occupied && s.name ? el("span", { class: "nom", text: s.name }) : null,
     estMoi ? el("span", { class: "vous", text: "vous" }) : null,
     state.lead === s.index && s.investigatorCode ? el("span", { class: "etoile", title: "enquêteur principal", text: "★" }) : null,
+    s.occupied && s.connections > 1 ? el("span", { class: "sous", text: `${s.connections} appareils` }) : null,
   );
 
   const corps = el("div", { class: "corps" });
@@ -153,12 +155,18 @@ function siegeLobby(s, ctx, champNom) {
       ),
     );
   } else {
-    corps.append(el("p", { class: "vide", text: s.occupied ? "Choisit son enquêteur…" : "Personne à ce siège." }));
+    corps.append(el("p", { class: "vide", text: s.occupied ? "Choisit son enquêteur ou importe son deck…" : "Personne à ce siège." }));
   }
+  // Deck importé (board joueur) : résumé, faiblesses à déterminer.
+  if (s.deck) corps.append(blocDeck(s, ctx, estMoi));
+  // Code de siège : pour rejoindre ce siège depuis un autre appareil (tapis sur le PC, board sur la tablette).
+  if (s.occupied && s.pin) corps.append(el("p", { class: "code-siege", title: "Code à saisir pour rejoindre ce siège depuis un autre appareil" },
+    el("span", { text: "Code de siège " }), el("strong", { text: s.pin })));
 
   const actions = el("footer", { class: "actions" });
   if (estMoi) {
     actions.append(
+      champImportDeck(ctx, s),
       el("button", { class: "bouton", type: "button", onclick: () => ouvrirChoixInvestigateur(ctx) }, inv ? "Changer d'enquêteur" : "Choisir un enquêteur"),
       el("button", { class: "bouton secondaire", type: "button", onclick: () => ctx.envoyer({ t: "leaveSeat" }) }, "Quitter le siège"),
     );

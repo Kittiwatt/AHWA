@@ -5,10 +5,12 @@
 //
 // Serveur autoritaire : chaque action est validée puis appliquée à `state`, l'état est persisté en
 // un snapshot SQLite et un delta JSON Patch est diffusé (cahier des charges §3, §4).
+// Board joueur (2026-09-07, cahier §10) : code de siège et connexions multiples, import du deck au lobby,
+// faiblesse aléatoire, decks créés à la mise en place ; actions `p:*` réservées au siège (src/joueur.ts).
 
 import { Server, type Connection, type ConnectionContext, type WSMessage } from "partyserver";
 import {
-  DIFFICULTIES, initialState, emptyPiles, PURGE_DELAY_MS,
+  DIFFICULTIES, initialState, emptyPiles, emptyBoard, PURGE_DELAY_MS,
   type ClientMessage, type Difficulty, type LogEntry, type RoomState, type ServerMessage,
   type CustomInvestigator,
 } from "./state";
@@ -17,6 +19,7 @@ import { getScenario, reponseValide } from "./scenario";
 import { addLog, runSetup, nextZ, SEAT_ZONES } from "./setup";
 import { jouer, Refus, refuser } from "./actions";
 import { newHostToken } from "./codes";
+import { analyserLien, chargerDeck, construireDeck, creerDecks, jouerJoueur, rectoEffectif, resoudreFaiblesse, type FicheInvestigateur, type IndexJoueur } from "./joueur";
 import investigatorsIndex from "../public/data/investigators.json";
 
 type Meta = { code: string; scenarioId: string; hostToken: string };
@@ -27,7 +30,13 @@ const KIND_INDEX: Record<string, import("./state").CardKind> = {
 };
 type Attachment = { seat: number | null; isHost: boolean };
 
-const INVESTIGATORS = new Map(investigatorsIndex.investigators.map((i) => [i.code, i]));
+const INVESTIGATORS = new Map<string, FicheInvestigateur>((investigatorsIndex.investigators as FicheInvestigateur[]).map((i) => [i.code, i]));
+
+/** Code de siège à 4 chiffres (cahier §10.2) : rejoindre un siège déjà occupé depuis un second appareil. */
+function nouveauPin(): string {
+  const n = crypto.getRandomValues(new Uint32Array(1))[0] % 10000;
+  return String(n).padStart(4, "0");
+}
 
 
 export class Room extends Server<Env> {
@@ -50,6 +59,12 @@ export class Room extends Server<Env> {
     }
     if (this.state && !this.state.links) this.state.links = []; // tables créées avant le champ
     if (this.state && !this.state.extraDefs) this.state.extraDefs = {};
+    if (this.state) for (const seat of this.state.seats) { // tables créées avant le board joueur
+      if (seat.pin === undefined) seat.pin = null;
+      if (seat.connections === undefined) seat.connections = 0;
+      if (seat.deck === undefined) seat.deck = null;
+      if (seat.counters.resources === undefined) seat.counters.resources = 0;
+    }
   }
 
   private persist(k: "meta" | "state", value: unknown) {
@@ -94,11 +109,12 @@ export class Room extends Server<Env> {
     const isHost = url.searchParams.get("hostToken") === this.meta.hostToken;
     const seatParam = url.searchParams.get("seat");
     const name = nomPropre(url.searchParams.get("name"));
+    const pin = url.searchParams.get("pin");
 
     let seat: number | null = null;
     if (seatParam !== null && seatParam !== "spectator") {
       const n = Number(seatParam);
-      if (!this.siegePrenable(n)) {
+      if (!this.siegePrenable(n, pin)) {
         conn.setState({ seat: null, isHost });
         this.send(conn, { t: "seatTaken" });
         conn.close(4409, "siège pris");
@@ -109,6 +125,7 @@ export class Room extends Server<Env> {
     }
     if (isHost) this.state.hostConnected = true;
     conn.setState({ seat, isHost });
+    this.majConnexions();
 
     this.send(conn, { t: "welcome", state: this.state, you: { seat, isHost } });
     this.broadcastSeats();
@@ -174,9 +191,10 @@ export class Room extends Server<Env> {
       case "takeSeat": {
         if (a.seat !== null) refuser("vous êtes déjà assis");
         const n = Number(msg.seat);
-        if (!this.siegePrenable(n)) refuser("ce siège n'est pas disponible");
+        if (!this.siegePrenable(n, typeof msg.pin === "string" ? msg.pin : null)) refuser(this.state!.seats[n]?.occupied ? "ce siège est occupé : entrez son code à 4 chiffres pour le rejoindre" : "ce siège n'est pas disponible");
         this.asseoir(n, nomPropre(msg.name), a.isHost);
         conn.setState({ seat: n, isHost: a.isHost });
+        this.majConnexions();
         this.send(conn, { t: "you", seat: n, isHost: a.isHost });
         this.broadcastSeats();
         this.touch();
@@ -210,9 +228,43 @@ export class Room extends Server<Env> {
         const seat = state.seats[s];
         seat.investigatorCode = code;
         seat.custom = null;
+        seat.deck = null;   // un enquêteur choisi à la main remplace un deck importé
         seat.counters.health = inv.health;
         seat.counters.sanity = inv.sanity;
         if (state.lead === null) state.lead = s;
+        this.commit(before);
+        return;
+      }
+      // Board joueur : import du deck (ArkhamDB / arkham.build), enquêteur déduit (cahier §10.3).
+      case "importDeck": {
+        const s = seated(); lobby();
+        const url = String(msg.url ?? "").trim().slice(0, 300);
+        const lien = analyserLien(url) ?? refuser("lien non reconnu : attendu arkhamdb.com/deck/view/…, arkhamdb.com/decklist/view/… ou arkham.build/share/…");
+        const [brut, index] = await Promise.all([chargerDeck(lien, fetch), this.indexJoueur()]);
+        const recto = rectoEffectif(brut);
+        const inv = INVESTIGATORS.get(recto) ?? refuser(`l'enquêteur de ce deck (${recto}) est inconnu de l'index`);
+        const doublon = state.seats.find((x) => x.index !== s && x.investigatorCode === recto);
+        if (doublon) refuser(`${inv.name} est déjà choisi au siège ${doublon.index + 1}`);
+        const deck = construireDeck(brut, lien, url, index);
+        const before = clone(state);
+        const seat = state.seats[s];
+        seat.investigatorCode = recto;
+        seat.custom = null;
+        seat.deck = deck;
+        seat.counters.health = inv.health;
+        seat.counters.sanity = inv.sanity;
+        seat.counters.resources = 0;
+        if (state.lead === null) state.lead = s;
+        this.commit(before);
+        return;
+      }
+      case "resolveWeakness": {
+        const s = seated(); lobby();
+        const deck = state.seats[s].deck ?? refuser("pas de deck importé");
+        const index = await this.indexJoueur();
+        const solo = state.seats.filter((x) => x.investigatorCode).length <= 1;
+        const before = clone(state);
+        resoudreFaiblesse(deck, index, String(msg.choice ?? "random"), Math.random, solo);
         this.commit(before);
         return;
       }
@@ -224,6 +276,7 @@ export class Room extends Server<Env> {
         const seat = state.seats[s];
         seat.investigatorCode = `custom:${s}`;
         seat.custom = custom;
+        seat.deck = null;
         seat.counters.health = custom.health;
         seat.counters.sanity = custom.sanity;
         if (state.lead === null) state.lead = s;
@@ -287,6 +340,7 @@ export class Room extends Server<Env> {
         }
         if (a.seat === n) conn.setState({ seat: null, isHost: true });
         state.seats[n].occupied = false;
+        state.seats[n].pin = null;
         if (state.hostSeat === n) state.hostSeat = null;
         if (state.phase === "lobby") this.viderSiege(n);
         this.commit(before);
@@ -303,9 +357,17 @@ export class Room extends Server<Env> {
         for (const q of def.questions) {
           if (!reponseValide(q, answers[q.id])) refuser(`répondez d'abord : ${q.text}`);
         }
+        // Faiblesses non déterminées au lancement : tirées au hasard (rien n'est bloqué), journal.
+        const decks = state.seats.filter((x) => x.investigatorCode && x.deck);
+        const index = decks.length ? await this.indexJoueur() : null;
         const before = clone(state);
         try {
+          const solo = state.seats.filter((x) => x.investigatorCode).length <= 1;
+          const tirees: string[] = [];
+          for (const x of decks) while (x.deck!.weaknessPending > 0) tirees.push(`${this.nomSiege(x.index)} : ${index!.get(resoudreFaiblesse(x.deck!, index!, "random", Math.random, solo))?.n}`);
           const reminders = runSetup(state, def, Math.random, answers);
+          if (tirees.length) addLog(state, "setup", `Faiblesse de base tirée au hasard au lancement — ${tirees.join(" ; ")}.`);
+          if (index) creerDecks(state, index, INVESTIGATORS, Math.random, () => nextZ(state));
           this.commit(before, reminders);
         } catch (e) {
           this.state = before;
@@ -331,8 +393,8 @@ export class Room extends Server<Env> {
         state.turn = { seat: null, done: [] };
         state.pendingQuestion = null;
         state.log = [];
-        for (const s of state.seats) { s.counters.clues = 0; s.counters.actions = 3; }
-        addLog(state, "system", "Table réinitialisée : retour au lobby, sièges et enquêteurs conservés.");
+        for (const s of state.seats) { s.counters.clues = 0; s.counters.actions = 3; s.counters.resources = 0; if (s.deck) s.deck.board = emptyBoard(); }
+        addLog(state, "system", "Table réinitialisée : retour au lobby, sièges, enquêteurs et decks conservés.");
         this.commit(before);
         return;
       }
@@ -377,14 +439,21 @@ export class Room extends Server<Env> {
         return;
       }
 
-      // ---- Actions de jeu (étape 2) : ouvertes à tout joueur assis ----
+      // ---- Actions de jeu (étape 2) : ouvertes à tout joueur assis ; actions `p:*` du board joueur :
+      //      réservées aux connexions du siège visé (cahier §10.2, motif de refus « siege ») ----
       default: {
         if (state.phase === "lobby") refuser("la partie n'est pas commencée");
         const def = getScenario(state.scenarioId) ?? refuser("scénario indisponible");
         const before = clone(state);
         let res;
         try {
-          res = jouer(state, def, msg, a.seat, Math.random);
+          if (msg.t.startsWith("p:")) {
+            const s = seated();
+            const vise = msg.seat === undefined ? s : Number(msg.seat);
+            if (vise !== s) refuser("siege");
+            if (!state.seats[s].deck) refuser("ce siège n'a pas de deck");
+            res = jouerJoueur(state, msg, s, await this.indexJoueur(), Math.random);
+          } else res = jouer(state, def, msg, a.seat, Math.random);
         } catch (e) {
           this.state = before; // une action refusée en cours de route ne laisse aucune trace
           throw e;
@@ -424,29 +493,48 @@ export class Room extends Server<Env> {
 
   // ---- Sièges -------------------------------------------------------------------
 
-  private siegePrenable(n: number): boolean {
+  /** Siège libre (avant la mise en place, ou déjà configuré ensuite), ou siège occupé dont on donne le code (second appareil). */
+  private siegePrenable(n: number, pin: string | null = null): boolean {
     const state = this.state!;
     if (!Number.isInteger(n) || n < 0 || n > 3) return false;
     const seat = state.seats[n];
-    if (seat.occupied) return false;
+    if (seat.occupied) return Boolean(pin) && pin === seat.pin;
     // Après la mise en place, seul un siège déjà configuré peut être repris (cahier §1).
     if (state.phase !== "lobby" && !seat.investigatorCode) return false;
     return true;
   }
 
+  /** Connexions ouvertes sur un siège (plusieurs appareils peuvent partager un siège, cahier §10.2). */
+  private connexionsDe(n: number, sauf?: Connection<Attachment>): number {
+    return [...this.getConnections<Attachment>()].filter((c) => c !== sauf && c.state?.seat === n).length;
+  }
+
+  private majConnexions(sauf?: Connection<Attachment>) {
+    for (const seat of this.state!.seats) seat.connections = this.connexionsDe(seat.index, sauf);
+  }
+
   private asseoir(n: number, name: string | null, isHost: boolean) {
     const seat = this.state!.seats[n];
-    seat.occupied = true;
-    seat.name = name;
+    if (!seat.occupied) {
+      seat.occupied = true;
+      seat.name = name;
+      seat.pin = nouveauPin();
+    }
+    // Rejoindre un siège occupé : le nom en place reste, sauf s'il manquait.
+    else if (!seat.name && name) seat.name = name;
     if (isHost) this.state!.hostSeat = n;
   }
 
   private liberer(conn: Connection<Attachment>) {
     const state = this.state!;
     const a = conn.state;
+    this.majConnexions(conn);
     if (a?.seat !== null && a?.seat !== undefined) {
-      state.seats[a.seat].occupied = false; // siège libéré dès la fermeture (§1)
-      if (state.hostSeat === a.seat) state.hostSeat = null;
+      if (this.connexionsDe(a.seat, conn) === 0) {
+        state.seats[a.seat].occupied = false; // siège libéré à la fermeture de sa dernière connexion (§1, §10.2)
+        state.seats[a.seat].pin = null;
+      }
+      if (state.hostSeat === a.seat && ![...this.getConnections<Attachment>()].some((c) => c !== conn && c.state?.isHost && c.state.seat === a.seat)) state.hostSeat = null;
     }
     if (a?.isHost) {
       state.hostConnected = [...this.getConnections<Attachment>()]
@@ -458,7 +546,8 @@ export class Room extends Server<Env> {
     const seat = this.state!.seats[n];
     seat.investigatorCode = null;
     seat.custom = null;
-    seat.counters = { health: 0, sanity: 0, clues: 0, actions: 3 };
+    seat.deck = null;
+    seat.counters = { health: 0, sanity: 0, clues: 0, actions: 3, resources: 0 };
     if (this.state!.lead === n) {
       const autre = this.state!.seats.find((s) => s.investigatorCode);
       this.state!.lead = autre ? autre.index : null;
@@ -483,6 +572,19 @@ export class Room extends Server<Env> {
     return this.index;
   }
 
+  // ---- Index des cartes joueur (board joueur ; assets statiques, chargé une fois par instance) ----
+
+  private indexJ: IndexJoueur | null = null;
+
+  private async indexJoueur(): Promise<IndexJoueur> {
+    if (this.indexJ) return this.indexJ;
+    const r = await this.env.ASSETS.fetch(new Request("https://assets.local/data/player_cards.json"));
+    if (!r.ok) refuser("index des cartes joueur indisponible");
+    const data = (await r.json()) as { cards: import("./joueur").FicheJoueur[] };
+    this.indexJ = new Map(data.cards.map((c) => [c.c, c]));
+    return this.indexJ;
+  }
+
   // ---- Utilitaires -------------------------------------------------------------
 
   private send(conn: Connection, msg: ServerMessage) {
@@ -492,9 +594,10 @@ export class Room extends Server<Env> {
   private broadcastSeats() {
     if (!this.state) return;
     const spectators = [...this.getConnections<Attachment>()].filter((c) => (c.state?.seat ?? null) === null).length;
+    this.majConnexions();
     const msg: ServerMessage = {
       t: "seats",
-      seats: this.state.seats.map(({ index, occupied, name, investigatorCode, custom }) => ({ index, occupied, name, investigatorCode, custom: custom ?? null })),
+      seats: this.state.seats.map(({ index, occupied, name, investigatorCode, custom, pin, connections }) => ({ index, occupied, name, investigatorCode, custom: custom ?? null, pin: pin ?? null, connections })),
       hostSeat: this.state.hostSeat,
       hostConnected: this.state.hostConnected,
       spectators,

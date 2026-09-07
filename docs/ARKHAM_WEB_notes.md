@@ -17,6 +17,47 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-07 : **board joueur, étape 1 livrée** (cahier §10.9) — import
+  du deck au lobby, code de siège et connexions multiples, page joueur
+  affichée. Build : `scripts/build.mjs` produit **`public/data/
+  player_cards.json`** (1 838 cartes joueur avec image, 74 faiblesses de
+  base ; 230 Ko, 40 Ko gzip : coût, slot, permanent, jauges, « Uses (n
+  type) » par regex, `bonded_to`/`bonded_count`, sous-type faiblesse,
+  traits) et ajoute **`startsInPlay`** aux enquêteurs (« You begin the
+  game with X in play » : Duke, Sophie, Gate Box, Pete's Guitar,
+  Darrell's Kodak, Ravenous ; « each Discipline in your deck » → trait).
+  Serveur : `src/joueur.ts` (liens : `decklist/view` avant `deck/view`,
+  `arkham.build/share/<id>` et `deck/view/<id numérique>` via
+  `api.arkham.build/v1/public/share/<id>` avec repli ArkhamDB, deck
+  local refusé ; fetch côté DO avec `redirect: "manual"` — un deck
+  ArkhamDB privé = redirection → message « rends-le partageable » ;
+  recto parallèle `meta.alternate_front` ; `ignoreDeckLimitSlots`
+  ajoutés, `sideSlots` ignorés ; cartes liées par nom ; codes inconnus
+  ignorés et signalés ; faiblesse pondérée par `quantity`, solo sans
+  06035‑38 ; `creerDecks` après `runSetup` : piles `pdeck<n>`,
+  `phand<n>`, `pdiscard<n>`, zones `pplay<n>`/`plimbo<n>`/`paside<n>`,
+  cartes `player: true` + `ownerSeat`, définitions dans `extraDefs`) ;
+  `room.ts` : `Seat.pin` (4 chiffres, `crypto.getRandomValues`),
+  `Seat.connections` (tenu à jour avant `welcome`/`you` — un test
+  « welcome = état local » l'exige), `takeSeat {pin}` et `?pin=`,
+  libération à la dernière fermeture, `importDeck`, `resolveWeakness`,
+  tirage automatique des placeholders au « Lancer », compteur
+  `resources` (seul compteur qui peut être négatif), garde **`siege`**
+  sur les `p:*` (encore aucune action : étape 2), migration des tables
+  existantes dans `onStart`. Route `/r/<code>/j/<n>` → `joueur.html`.
+  Front : `siege.js` (siège + code mémorisés en JSON, ancien format
+  lu), `net.js` (`pin`), `deck.js` (champ d'import, résumé, « Tirer au
+  hasard » / « Choisir… » avec la liste des faiblesses), `lobby.js`,
+  `tapis.js` (ressources, code de siège, « n appareils », lien « Voir le
+  board »), **`joueur.js`** + `joueur.css` (onglets des sièges, entête
+  compteurs / tour / slots / mise en place, sac dans la barre de phase,
+  pioche, défausse, hors jeu, en jeu, en cours, menace, main masquée
+  chez les autres avec « Regarder », formulaire « Rejoindre ce siège »
+  par code). Tests : 301 messages, bloc board joueur (deux decklists
+  ArkhamDB dont une avec placeholder, deck arkham.build parallèle +
+  customisations + taboo, refus, doublon, pin, seconde connexion, mise
+  en place, déplacements, reset, clearInvestigator) ; captures 54‑60.
+  Sans tests unitaires ni régression cassée : les onze tables passent.
 - 2026-09-05 : **double-clic sur un lieu du tapis = le retourner**
   (demande de l'utilisateur) : `flipCard` sur un lieu révélé, `toggleSide`
   sur un lieu à deux faces de jeu, `revealLocation` sur un lieu caché ;
@@ -502,10 +543,14 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : le prologue Disappearance at the Twilight
-  Estate (pack `tcu`, set `disappearance_at_the_twilight_estate` : choix
-  des enquêteurs neutres 05046‑49, lieux 05071‑77 / Spectral 05078‑84
-  à réutiliser), puis le chantier convenu avec l'utilisateur :
+- **Prochaine étape** (réordonnée le 2026-09-07) : **board joueur,
+  étape 2** (cahier §10.9 : « Mise en place », mulligan, pioche / main /
+  défausse et boutons E3, main masquée, `revealed`, hors jeu, entretien
+  automatique, pioche vide), puis l'étape 3 (jeu). Ensuite le prologue
+  Disappearance at the Twilight Estate (pack `tcu`, set
+  `disappearance_at_the_twilight_estate` : choix des enquêteurs neutres
+  05046‑49, lieux 05071‑77 / Spectral 05078‑84 à réutiliser), puis le
+  chantier convenu avec l'utilisateur :
   **rangement de la zone hors jeu** (tri par groupes ou piles nommées ;
   VI atteint 26 cartes de côté). Après quoi : retours de jeu sur les
   huit tables TCU. Jetons de campagne : reportés par les questions
@@ -671,6 +716,56 @@ scénarios du jeu, groupés par campagne dans l'ordre de sortie,
 scénarios dans l'ordre, chacun avec un état disponible / en cours /
 prévu. Pas de liste publique des rooms actives.
 
+### Board joueur (questionnaire du 2026-09-07, réponses de l'utilisateur)
+
+Détail et modèle dans le cahier des charges §10 ; ici l'essentiel.
+
+- **Structure** : page joueur `/r/<code>/j/<n>` sur la **même table**
+  (même état, même DO), second onglet ou second appareil ; pas de room
+  séparée. Main **masquée à l'affichage** chez les autres (dos +
+  nombre, bouton « Regarder »), l'état reste partagé ; carte
+  « révélée » possible. **Code de siège** à 4 chiffres (`Seat.pin`,
+  affiché sur le tapis) pour joindre un siège déjà occupé depuis un
+  second appareil : plusieurs connexions par siège, libéré à la
+  dernière fermeture ; la reprise automatique mémorise siège + pin.
+  Board d'un autre joueur = **lecture seule** (nouveau motif de refus
+  `siege` pour les actions `p:*`, seule exception à « ouvert à tous »).
+- **Import** au lobby seulement, par lien ArkhamDB (deck partageable ou
+  decklist) ou arkham.build (share ou deck synchronisé) ; l'enquêteur
+  est **déduit** (recto parallèle via `meta.alternate_front`). Fetch
+  côté DO. Placeholder 01000 → « Tirer au hasard » (pondéré, solo sans
+  06035‑38) ou « Choisir… » ; non résolu au Lancer → tirage. Cartes
+  liées (`bonded_to` = nom, `bonded_count`) créées hors jeu ;
+  permanents et « You begin the game with X in play » (texte de
+  l'enquêteur, regex au build) en jeu à la mise en place. Index
+  `public/data/player_cards.json` au build, lu par le DO à l'import ;
+  définitions dans `state.extraDefs`.
+- **Mise en place** : rien ne part tout seul — bouton « Mise en place »
+  sur la page joueur (mélange, permanents, +5 ressources, main de 5,
+  faiblesses mises de côté puis remélangées), puis **mulligan par
+  sélection, une seule fois** (ou « Garder ma main »).
+- **Zones** par siège : pioche (`pdeck`, « réserve »), main (`phand`),
+  en jeu (`pplay`, libre, badge de slot + occupation dans la barre), en
+  cours / limbes (`plimbo`, bouton « Résolu » → défausse, menu « Garder
+  en jeu »), défausse (`pdiscard`), **hors jeu = mises de côté**
+  (`paside`), zone de menace = `seat<n>` partagé ; exil → `removed`.
+- **Jeu** : auto-pay au dépôt main → en jeu (X demandé, **jamais
+  bloqué**, négatif surligné, « Mettre en jeu sans payer ») ; jetons
+  Uses (chip générique, images plus tard) et jauges des alliés posés à
+  l'entrée en jeu ; **entretien automatique** par `nextPhase` de la
+  table (pioche 1, +1 ressource, redressement, rappel main > 8) ; pioche
+  vide = défausse remélangée + **rappel** « 1 horreur » ; boutons :
+  piocher 1 / N (clic sur la pioche = en main), mélanger, sur / sous la
+  pioche, chercher, regarder les n premières, défausser au hasard,
+  révéler, défausse consultable ; faiblesse piochée = comme une carte,
+  le joueur fait tout ; « Poser sur mon lieu » / « Reprendre ».
+- **Page joueur** reprend de la table : sac du chaos, barre de phase et
+  « Phase suivante », tour et actions, zone de menace (pas le journal).
+  Sur le tapis : compteur **ressources** sur le siège, bouton « Voir le
+  board », rien d'autre. PC et tablette seulement.
+- **Livraison** en trois étapes : page et import ; mise en place et
+  mulligan ; jeu (limbes, auto-pay, entretien, boutons).
+
 ### Choix de la première table (2026-09-03, réponses de l'utilisateur)
 
 - **Livraison en deux temps** : étape 1 = lobby + mise en place + tapis
@@ -805,6 +900,26 @@ Commandes : `npm run dev`, `npm run check` (tsc + dry-run),
   comme erreur réseau depuis le navigateur. `cdn.arkham.build` n'a pas
   de CORS : sonder une image avec `new Image()` onload/onerror, jamais
   `fetch`.
+- Deck joueur (vérifié le 2026-09-07) : `/api/public/deck/<id>.json`
+  et `api.arkham.build/v1/public/share/<id>` renvoient les mêmes
+  champs ; `meta` est une chaîne JSON (`alternate_front` = recto
+  parallèle, `cus_<code>` = customisations « index|xp,… ») ;
+  `ignoreDeckLimitSlots` peut être `null`. Cartes : `cost` `null` = —,
+  `-2` = X ; `bonded_to` (NOM) + `bonded_count` sur la carte liée
+  seulement ; « Uses (n type) » et « You begin the game with X in play »
+  n'existent que dans `real_text` ; `permanent`, `real_slot`
+  (« Hand », « Hand x2 », « Arcane », « Ally », « Body »,
+  « Accessory », « Tarot », « Head », « Hand. Arcane »…),
+  `subtype_code` `weakness` / `basicweakness`, `health` / `sanity`
+  des alliés, `alternate_of_code` des parallèles, `hidden` pour 01000.
+  `/api/public/cards/?encounter=0` = 1 983 cartes joueur (dont 105
+  enquêteurs), pas 3 500. `arkham.build/deck/view/<id>` non numérique =
+  deck local au navigateur, injoignable (demander « Share »). Deck
+  ArkhamDB privé : l'API répond par une redirection (fetch avec
+  `redirect: "manual"` pour la voir). Decklists utiles aux tests :
+  31000 (Mark Harrigan, Hallowed Mirror → 3 Soothing Melody 05314
+  liées), 44000 (Roland, un placeholder 01000), deck 6295400
+  (Pete parallèle 90046, customisations, taboo 10).
 - Regex des URLs : « decklist » contient « deck » — tester
   `decklist/view` AVANT `deck/view`. Les URLs `arkham.build/deck/view/<id>`
   d'un deck synchronisé marchent aussi.
@@ -915,8 +1030,22 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   contenait 10 : ne jamais inférer l'avancement, le tenir à jour ici.
 - Étiquettes : DejaVu ne rend pas ①②③ ; en web, préférer les glyphes
   système ou des SVG.
-- Compter les messages WebSocket dès le premier prototype (plan gratuit
-  = 100 k/jour tous joueurs confondus).
+- Compter les messages WebSocket dès le premier prototype ; nuance
+  relevée le 2026-09-07 sur la tarification DO : les messages entrants
+  sont comptés **20 pour 1 requête** (sortants gratuits), et le stockage
+  SQLite se facture **en lignes écrites** (1 snapshot = 1 ligne, 2 Mo max
+  par ligne ; l'unité de 4 Ko ne vaut que pour le backend clé-valeur du
+  plan payant). Le principe « un geste = un message, un snapshot par
+  action » reste.
+- Board joueur : tout champ de siège mis à jour hors `commit` (occupé,
+  code de siège, connexions) doit l'être **avant** l'envoi de
+  `welcome` / `you`, sinon l'état local reconstruit par `seats` diffère
+  du `welcome` (test « welcome = état local »). Un élément `.carte`
+  d'une main masquée est rendu depuis une copie `{...carte, faceUp}` :
+  le cache d'éléments par id est partagé avec le tapis, ne pas y
+  stocker d'état de vue. Le sac du chaos de la page joueur vit dans la
+  barre de phase (dans l'entête il passait à la ligne et le
+  triplait en hauteur).
 - `pdftotext` perd les icônes des jetons du chaos dans les guides FFG
   (« +1, 0, …, , , , . ») : rendre la page en image (`pdftoppm -r
   220`) et lire les glyphes avant de saisir un sac ou un ajout de jeton.
@@ -995,6 +1124,10 @@ décidées ». Liste conservée pour mémoire :
    des cartes (images ArkhamDB anglaises vs françaises).
 6. Bibliothèque : périmètre (campagnes/standalone/rétro), tri, état
    « disponible / en cours / prévu », page d'accueil.
+7. Board joueur (2026-09-07, salves A‑G) : structure et visibilité,
+   import du deck, mise en place et mulligan, jouer les cartes,
+   entretien / pioche / défausse, synchro et observation, plateforme et
+   livraison. Réponses en §1 « Board joueur » et cahier §10.
 
 ## 7. Points ouverts (à traiter avant le code)
 
@@ -1026,3 +1159,12 @@ par phase (`reminders[]` du `*.src.json`).
 - (v2) **Pioches multiples** : `piles` extensible déclaré par le
   scénario (`shuffleable`, `discardPile`) — Wages of Sin, Film Fatale,
   Unknown Places.
+- **Board joueur** (2026-09-07, cahier §10.10) : customisations (badge +
+  titres des cases cochées dans la loupe, jamais le texte — à valider) ;
+  code de siège visible de toute la table ou du seul siège ; images des
+  jetons Uses par type (chip générique d'abord) ; decks annexes (hunch
+  deck, Underworld Market) et cartes sous l'enquêteur en v2 ; attaches
+  entre cartes joueur = empilement visuel ; enquêteur personnalisé +
+  deck non prévu (un deck impose son enquêteur) ; réimport entre
+  scénarios avec la campagne (v2) ; « Uses (X) » variable = 0 ;
+  onglet d'un siège dont le nom de deck répète le nom de l'enquêteur.

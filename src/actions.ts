@@ -15,8 +15,9 @@ const PHASES: Phase[] = ["mythos", "investigation", "enemy", "upkeep"];
 const NOMS_PHASES: Record<string, string> = {
   mythos: "phase du mythe", investigation: "phase des enquêteurs", enemy: "phase des ennemis", upkeep: "phase d'entretien",
 };
-const ZONES = new Set<string>(["board", "seat0", "seat1", "seat2", "seat3", "story", "aside", "victory"]);
-const TOKENS = new Set(["doom", "clue", "damage", "horror", "resource", "generic"]);
+const ZONES = new Set<string>(["board", "seat0", "seat1", "seat2", "seat3", "story", "aside", "victory",
+  ...[0, 1, 2, 3].flatMap((n) => [`pplay${n}`, `plimbo${n}`, `paside${n}`])]);   // zones du board joueur (cahier §10.4)
+const TOKENS = new Set(["doom", "clue", "damage", "horror", "resource", "generic", "uses"]);
 const CHAOS_TOKENS = new Set<string>(["+1", "0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign", "bless", "curse", "frost"]);
 
 function carte(state: RoomState, id: unknown): CardState {
@@ -265,7 +266,8 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       if (!(key in seat.counters)) refuser("compteur inconnu");
       const v = msg.value !== undefined ? Number(msg.value) : seat.counters[key] + Number(msg.delta ?? 0);
       if (!Number.isFinite(v)) refuser("valeur invalide");
-      seat.counters[key] = Math.max(0, Math.round(v));
+      // Les ressources peuvent passer en négatif (auto-pay jamais bloqué, cahier §10.1 D1) ; les autres compteurs non.
+      seat.counters[key] = key === "resources" ? Math.round(v) : Math.max(0, Math.round(v));
       return {};
     }
     case "setCounter": {
@@ -335,7 +337,9 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
         }
       }
       const idx = SEAT_ZONES.indexOf(zone);
-      if (c.kind === "enemy" || c.kind === "treachery" || c.kind === "asset" || c.kind === "story") {
+      // Une carte d'un deck joueur garde son propriétaire où qu'elle aille ; une carte de rencontre est engagée
+      // (ownerSeat) quand elle est lâchée dans une zone de menace.
+      if (!c.player && (c.kind === "enemy" || c.kind === "treachery" || c.kind === "asset" || c.kind === "story")) {
         if (idx >= 0) c.ownerSeat = idx; else delete c.ownerSeat;
       }
       return reminders.length ? { reminders } : {};
@@ -352,7 +356,8 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       if (c.kind === "location") c.side = "a";
       c.exhausted = false;
       c.tokens = {};
-      delete c.ownerSeat;
+      if (!c.player) delete c.ownerSeat;
+      delete c.revealed;
       if (msg.top === false) state.piles[pile].push(c.id); else state.piles[pile].unshift(c.id);
       if (msg.shuffle === true && !estDefausse(def, pile)) {
         shuffle(state.piles[pile], rng);

@@ -353,7 +353,7 @@ function rendrePioches(ctx) {
   );
 }
 
-function rendreChaos(ctx) {
+export function rendreChaos(ctx) {
   const { state } = ctx.etat;
   const peut = assis(ctx);
   const sect = document.getElementById("chaos");
@@ -448,17 +448,24 @@ function rendreSieges(ctx) {
       ? el("button", { class: "bouton petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "endTurn", seat: s.index }) }, "Fin de mon tour")
       : el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "takeTurn", seat: s.index }) },
           aJoue ? "Rejouer" : (moi.seat === s.index ? "Prendre mon tour" : "Prend son tour"));
+    // Board joueur (cahier §10.7) : lien vers la page du siège (lecture seule pour les autres), code de siège pour
+    // rejoindre le siège depuis un second appareil, nombre de connexions.
+    const lienBoard = el("a", { class: "bouton secondaire petit lien-board", href: `/r/${state.code}/j/${s.index}`, target: "_blank", rel: "noopener",
+      title: s.deck ? "Ouvrir le board de ce siège (deck, main, cartes en jeu) dans un nouvel onglet" : "Ouvrir la page de ce siège dans un nouvel onglet (pas de deck importé)" }, "Voir le board");
     return el("article", { class: `siege${moi.seat === s.index ? " moi" : ""}${enTour ? " actif" : ""}${aJoue && !enTour ? " joue" : ""}`, "data-seat": s.index, style: { "--faction": faction.couleur } },
       el("header", {},
-        el("span", { class: `etat-siege ${s.occupied ? "connecte" : "libre"}`, title: s.occupied ? "connecté" : "déconnecté" }),
+        el("span", { class: `etat-siege ${s.occupied ? "connecte" : "libre"}`, title: s.occupied ? (s.connections > 1 ? `${s.connections} connexions` : "connecté") : "déconnecté" }),
         state.lead === s.index ? el("span", { class: "etoile", title: "enquêteur principal", text: "★" }) : null,
         el("strong", { text: nomSiege(s, ctx) }),
         s.name && inv ? el("span", { class: "sous", text: inv.name }) : null,
         moi.seat === s.index ? el("span", { class: "vous", text: "vous" }) : null,
+        s.occupied && s.pin ? el("span", { class: "code-siege", title: "Code de siège : à saisir pour rejoindre ce siège depuis un autre appareil" }, el("span", { text: "code " }), el("strong", { text: s.pin })) : null,
+        s.occupied && s.connections > 1 ? el("span", { class: "sous", text: `${s.connections} appareils` }) : null,
         boutonAction,
         aJoue && !enTour ? el("span", { class: "sous", text: "a joué" }) : null,
         el("span", { class: "espace" }),
         reprendre,
+        lienBoard,
         boutonTour,
       ),
       el("div", { class: "siege-corps" },
@@ -470,6 +477,8 @@ function rendreSieges(ctx) {
             () => jeton("horror", -1), () => jeton("horror", 1), "horreur"),
           ligneCompteur("Indices", String(s.counters.clues ?? 0), "/img/tokens/tok_indices.png", peut,
             () => compteur("clues", -1), () => compteur("clues", 1), "indice"),
+          ligneCompteur("Ressources", String(s.counters.resources ?? 0), "/img/tokens/tok_ressources.png", peut,
+            () => compteur("resources", -1), () => compteur("resources", 1), "ressource"),
           el("div", { class: "compteur actions" },
             el("dt", {}, el("span", { text: "Actions" })),
             el("dd", { class: "actions-pips" },

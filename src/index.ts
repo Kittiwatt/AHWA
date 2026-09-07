@@ -2,6 +2,7 @@
 //   POST /api/rooms            → crée une room { code, hostToken }
 //   GET  /rooms/<code>/ws      → WebSocket vers la room (hibernante)
 //   GET  /r/<code>             → page de table (public/room.html)
+//   GET  /r/<code>/j/<siège>   → page joueur (board du siège, public/joueur.html)
 //   tout le reste              → assets statiques (public/)
 
 import { getServerByName } from "partyserver";
@@ -53,6 +54,10 @@ export default {
     // Page de table : même HTML quel que soit le code (le JS lit l'URL).
     if (/^\/r\/[^/]+\/?$/.test(path)) {
       return env.ASSETS.fetch(new Request(new URL("/room", url), request));
+    }
+    // Page joueur (board d'un siège, cahier §10.5) : même HTML, le JS lit le code et le siège dans l'URL.
+    if (/^\/r\/[^/]+\/j\/[0-3]\/?$/.test(path)) {
+      return env.ASSETS.fetch(new Request(new URL("/joueur", url), request));
     }
 
     return env.ASSETS.fetch(request);

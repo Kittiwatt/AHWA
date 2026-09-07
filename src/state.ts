@@ -16,12 +16,17 @@ export const DIFFICULTIES: Difficulty[] = ["easy", "standard", "hard", "expert"]
 
 export type CardId = string;
 export type PileId = string;
-export type ZoneId = "board" | "seat0" | "seat1" | "seat2" | "seat3" | "story" | "aside" | "victory";
+export type SeatIndex = 0 | 1 | 2 | 3;
+// Zones du tapis, plus les zones du board joueur de chaque siège (cahier §10.4) :
+// pplay = en jeu (coordonnées libres), plimbo = « en cours » (limbes), paside = hors jeu (cartes liées, mises de côté).
+export type ZoneId = "board" | "seat0" | "seat1" | "seat2" | "seat3" | "story" | "aside" | "victory"
+  | `pplay${SeatIndex}` | `plimbo${SeatIndex}` | `paside${SeatIndex}`;
 
 export type CardKind =
   | "location" | "enemy" | "treachery" | "asset" | "story" | "agenda" | "act"
   | "scenario" | "investigator" | "mini" | "proxy"
-  | "key";   // clé (jeton du chaos utilisé comme clé, TCU For the Greater Good) : petit jeton déplaçable
+  | "key"    // clé (jeton du chaos utilisé comme clé, TCU For the Greater Good) : petit jeton déplaçable
+  | "event" | "skill";   // cartes joueur (board joueur)
 
 export type Token =
   | "+1" | "0" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8"
@@ -32,14 +37,35 @@ export type Token =
 // Son code de carte est « custom:<siège> » ; il ne figure dans aucun index.
 export type CustomInvestigator = { name: string; image: string | null; health: number; sanity: number };
 
+// Deck importé au lobby (cahier §10.3) : ArkhamDB ou arkham.build, enquêteur déduit ; les cartes sont créées
+// à la mise en place de la table, le board du joueur se met en place à sa demande (« Mise en place »).
+export type SeatDeck = {
+  source: "arkhamdb" | "arkhambuild";
+  url: string;
+  id: string;
+  name: string;
+  investigatorCode: string;                 // code du deck (base) ; le siège porte le recto effectif (parallèle)
+  slots: Record<string, number>;            // cartes du deck (ignoreDeckLimitSlots inclus, sideSlots exclus, placeholders retirés)
+  bonded: Record<string, number>;           // cartes liées mises hors jeu à la création
+  weaknessPending: number;                  // placeholders « faiblesse de base aléatoire » (01000) à déterminer
+  weaknessAdded: string[];                  // faiblesses tirées ou choisies (codes)
+  unknown: string[];                        // codes absents de l'index (ignorés, signalés)
+  customizations?: Record<string, string>;  // meta cus_<code>, affichage seulement
+  taboo?: number;
+  xp?: number;
+  board: { setup: "none" | "mulligan" | "done"; mulliganUsed: boolean; weakAside: CardId[] };
+};
+
 export type Seat = {
-  index: 0 | 1 | 2 | 3;
+  index: SeatIndex;
   occupied: boolean;
   name: string | null;
   investigatorCode: string | null;
   custom?: CustomInvestigator | null; // renseigné quand investigatorCode = « custom:<n> »
-  counters: Record<string, number>; // health, sanity, clues, actions, + spécifiques
-  deck: null;                        // réservé v2
+  counters: Record<string, number>; // health, sanity, clues, actions, resources, + spécifiques
+  pin: string | null;                // code de siège à 4 chiffres : rejoindre le siège depuis un second appareil (cahier §10.2)
+  connections: number;               // connexions ouvertes sur le siège (hors rev, comme occupied)
+  deck: SeatDeck | null;
 };
 
 export type CardState = {
@@ -51,8 +77,10 @@ export type CardState = {
   faceUp: boolean;
   exhausted: boolean;
   side: "a" | "b";
-  tokens: Partial<Record<"doom" | "clue" | "damage" | "horror" | "resource" | "generic", number>>;
+  tokens: Partial<Record<"doom" | "clue" | "damage" | "horror" | "resource" | "generic" | "uses", number>>;
   ownerSeat?: number;
+  player?: true;                     // carte d'un deck joueur (dos joueur, menus du board)
+  revealed?: boolean;                // carte de la main montrée à tous (board joueur)
 };
 
 export type ChaosState = { bag: Token[]; drawn: Token[]; sealed: Token[] };
@@ -97,8 +125,12 @@ export type RoomState = {
 export const LOG_MAX = 200;
 export const PURGE_DELAY_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours sans activité
 
-export function emptySeat(index: 0 | 1 | 2 | 3): Seat {
-  return { index, occupied: false, name: null, investigatorCode: null, custom: null, counters: { health: 0, sanity: 0, clues: 0, actions: 3 }, deck: null };
+export function emptySeat(index: SeatIndex): Seat {
+  return { index, occupied: false, name: null, investigatorCode: null, custom: null, counters: { health: 0, sanity: 0, clues: 0, actions: 3, resources: 0 }, pin: null, connections: 0, deck: null };
+}
+
+export function emptyBoard(): SeatDeck["board"] {
+  return { setup: "none", mulliganUsed: false, weakAside: [] };
 }
 
 export function emptyPiles(): Record<PileId, CardId[]> {
@@ -137,7 +169,7 @@ export function initialState(code: string, scenarioId: string, now = Date.now())
 
 // ---- Protocole (cahier des charges §4) ------------------------------------------
 
-export type SeatSummary = Pick<Seat, "index" | "occupied" | "name" | "investigatorCode" | "custom">;
+export type SeatSummary = Pick<Seat, "index" | "occupied" | "name" | "investigatorCode" | "custom" | "pin" | "connections">;
 
 export type PatchOp = { op: "add" | "remove" | "replace"; path: string; value?: unknown };
 

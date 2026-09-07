@@ -2,17 +2,19 @@
 
 import { appliquerPatch } from "./patch.js";
 
-export function creerConnexion({ code, hostToken, seat, name, on }) {
+export function creerConnexion({ code, hostToken, seat, name, pin = null, on }) {
   const proto = location.protocol === "https:" ? "wss" : "ws";
   let ws = null;
   let fermeVolontaire = false;
   let essais = 0;
-  const etat = { state: null, moi: { seat: null, isHost: false }, spectateurs: 0, souhait: { seat, name } };
+  // pin : code de siège à 4 chiffres pour reprendre (ou rejoindre depuis un second appareil) un siège occupé.
+  const etat = { state: null, moi: { seat: null, isHost: false }, spectateurs: 0, souhait: { seat, name, pin } };
 
   function url() {
     const u = new URL(`${proto}://${location.host}/rooms/${code}/ws`);
     u.searchParams.set("seat", etat.souhait.seat === null ? "spectator" : String(etat.souhait.seat));
     if (etat.souhait.name) u.searchParams.set("name", etat.souhait.name);
+    if (etat.souhait.seat !== null && etat.souhait.pin) u.searchParams.set("pin", etat.souhait.pin);
     if (hostToken()) u.searchParams.set("hostToken", hostToken());
     return u;
   }

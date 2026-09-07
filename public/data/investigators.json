@@ -1,5 +1,5 @@
 {
- "builtAt": "2026-09-04",
+ "builtAt": "2026-09-07",
  "investigators": [
   {
    "code": "05001",
@@ -76,7 +76,12 @@
    "sanity": 5,
    "pack": "ptc",
    "packName": "The Path to Carcosa",
-   "parallel": false
+   "parallel": false,
+   "startsInPlay": [
+    {
+     "name": "Sophie"
+    }
+   ]
   },
   {
    "code": "60101",
@@ -725,7 +730,12 @@
    "sanity": 7,
    "pack": "eoep",
    "packName": "Edge of the Earth Investigator Expansion",
-   "parallel": false
+   "parallel": false,
+   "startsInPlay": [
+    {
+     "trait": "Discipline"
+    }
+   ]
   },
   {
    "code": "06004",
@@ -736,7 +746,12 @@
    "sanity": 9,
    "pack": "tde",
    "packName": "The Dream-Eaters",
-   "parallel": false
+   "parallel": false,
+   "startsInPlay": [
+    {
+     "name": "Gate Box"
+    }
+   ]
   },
   {
    "code": "05006",
@@ -769,7 +784,12 @@
    "sanity": 5,
    "pack": "dwl",
    "packName": "The Dunwich Legacy",
-   "parallel": false
+   "parallel": false,
+   "startsInPlay": [
+    {
+     "name": "Duke"
+    }
+   ]
   },
   {
    "code": "90046",
@@ -780,7 +800,12 @@
    "sanity": 7,
    "pack": "otr",
    "packName": "On the Road Again",
-   "parallel": true
+   "parallel": true,
+   "startsInPlay": [
+    {
+     "name": "Pete's Guitar"
+    }
+   ]
   },
   {
    "code": "08016",
@@ -813,7 +838,12 @@
    "sanity": 8,
    "pack": "tskp",
    "packName": "The Scarlet Keys Investigator Expansion",
-   "parallel": false
+   "parallel": false,
+   "startsInPlay": [
+    {
+     "name": "Darrell's Kodak"
+    }
+   ]
   },
   {
    "code": "11017",
@@ -978,7 +1008,12 @@
    "sanity": 6,
    "pack": "blbe",
    "packName": "The Blob That Ate Everything ELSE!",
-   "parallel": false
+   "parallel": false,
+   "startsInPlay": [
+    {
+     "name": "Ravenous"
+    }
+   ]
   }
  ]
 }

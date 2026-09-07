@@ -11,11 +11,12 @@ const BASE = process.argv[2] ?? "http://127.0.0.1:8787";
 const WS = BASE.replace(/^http/, "ws");
 let messagesEntrants = 0;
 
-function client(code, { seat = "spectator", name = "", hostToken = "" } = {}) {
+function client(code, { seat = "spectator", name = "", hostToken = "", pin = "" } = {}) {
   const u = new URL(`${WS}/rooms/${code}/ws`);
   u.searchParams.set("seat", String(seat));
   if (name) u.searchParams.set("name", name);
   if (hostToken) u.searchParams.set("hostToken", hostToken);
+  if (pin) u.searchParams.set("pin", pin);
   const ws = new WebSocket(u);
   const c = { ws, state: null, moi: null, recus: [], attentes: [], ferme: null };
   ws.addEventListener("message", (ev) => {
@@ -1237,6 +1238,158 @@ async function tableClutches({ joueurs, answers }) {
   assert.equal(d.t, "delta", "un espace vide peut être retourné (sans effet visible) ou déplacé");
   await new Promise((r) => setTimeout(r, 300));
   assert.deepEqual(j2.state.piles.cosmos, h.state.piles.cosmos);
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
+// ============ Board joueur, étape 1 (cahier §10) : import du deck au lobby, faiblesse aléatoire, code de siège et
+// connexions multiples, decks créés à la mise en place, actions p:* réservées au siège ============
+{
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "notz_the_gathering" }) });
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  assert.equal(h.state.seats[0].counters.resources, 0, "compteur de ressources présent");
+  assert.match(h.state.seats[0].pin ?? "", /^\d{4}$/, "code de siège à 4 chiffres attribué à la prise du siège");
+  assert.equal(h.state.seats[0].connections, 1);
+  const importer = async (c, url) => { c.envoyer({ t: "importDeck", url }); return c.attendre((x) => x.t === "delta" || x.t === "nack", 20000); };
+  // Liens refusés : inconnu, deck ArkhamDB privé (redirection), deck local à arkham.build.
+  let d = await importer(h, "https://example.com/deck/12");
+  assert.equal(d.t, "nack"); assert.match(d.reason, /lien non reconnu/);
+  d = await importer(h, "https://arkhamdb.com/deck/view/1");
+  assert.equal(d.t, "nack"); assert.match(d.reason, /partageable/, "deck privé : redirection détectée");
+  d = await importer(h, "https://arkham.build/deck/view/abc-123");
+  assert.equal(d.t, "nack"); assert.match(d.reason, /navigateur/);
+  // Decklist ArkhamDB : Mark Harrigan avec Hallowed Mirror (3 Soothing Melody liées) ; l'enquêteur est déduit.
+  d = await importer(h, "https://arkhamdb.com/decklist/view/31000");
+  assert.equal(d.t, "delta", `import decklist (${d.reason ?? ""})`);
+  let s0 = h.state.seats[0];
+  assert.equal(s0.investigatorCode, "03001", "enquêteur déduit du deck");
+  assert.equal(s0.counters.health, 9);
+  assert.equal(s0.deck.source, "arkhamdb");
+  assert.equal(Object.values(s0.deck.slots).reduce((a, b) => a + b, 0), 33);
+  assert.deepEqual(s0.deck.bonded, { "05314": 3 }, "cartes liées de Hallowed Mirror (Soothing Melody)");
+  assert.equal(s0.deck.weaknessPending, 0);
+  assert.equal(s0.deck.board.setup, "none");
+  assert.equal(h.state.lead, 0);
+  d = await h.action({ t: "resolveWeakness", choice: "random" });
+  assert.equal(d.t, "nack", "pas de placeholder à déterminer");
+  // Siège 2 : decklist avec une faiblesse de base aléatoire (placeholder 01000), tirée puis choisie.
+  const bob = client(code, { seat: 1, name: "Bob" });
+  await bob.attendre((m) => m.t === "welcome");
+  d = await importer(bob, "https://arkhamdb.com/decklist/view/44000");
+  assert.equal(d.t, "delta", `import decklist Roland (${d.reason ?? ""})`);
+  let s1 = bob.state.seats[1];
+  assert.equal(s1.investigatorCode, "01001");
+  assert.equal(s1.deck.weaknessPending, 1, "un placeholder");
+  assert.equal(Object.values(s1.deck.slots).reduce((a, b) => a + b, 0), 33, "le placeholder n'est pas une carte");
+  d = await bob.action({ t: "resolveWeakness", choice: "01001" });
+  assert.equal(d.t, "nack", "un enquêteur n'est pas une faiblesse de base");
+  d = await bob.action({ t: "resolveWeakness", choice: "random" });
+  assert.equal(d.t, "delta");
+  s1 = bob.state.seats[1];
+  assert.equal(s1.deck.weaknessPending, 0);
+  assert.equal(s1.deck.weaknessAdded.length, 1);
+  const idxJoueur = new Map((await (await fetch(`${BASE}/data/player_cards.json`)).json()).cards.map((c) => [c.c, c]));
+  assert.equal(idxJoueur.get(s1.deck.weaknessAdded[0])?.st, "basicweakness", "faiblesse de base tirée");
+  assert.equal(Object.values(s1.deck.slots).reduce((a, b) => a + b, 0), 34);
+  // Doublon d'enquêteur par le deck ; deck arkham.build (partage) au siège 3 : recto parallèle (Pete 90046), customisations, taboo.
+  const carl = client(code, { seat: 2, name: "Carl" });
+  await carl.attendre((m) => m.t === "welcome");
+  d = await importer(carl, "https://arkhamdb.com/decklist/view/44000");
+  assert.equal(d.t, "nack"); assert.match(d.reason, /déjà choisi/);
+  d = await importer(carl, "https://arkham.build/deck/view/6295400");
+  assert.equal(d.t, "delta", `import arkham.build (${d.reason ?? ""})`);
+  const s2 = carl.state.seats[2];
+  assert.equal(s2.investigatorCode, "90046", "recto parallèle (meta.alternate_front)");
+  assert.equal(s2.deck.source, "arkhambuild");
+  assert.equal(s2.deck.taboo, 10);
+  assert.ok(s2.deck.customizations["09022"], "customisations conservées");
+  assert.equal(Object.values(s2.deck.slots).reduce((a, b) => a + b, 0), 35);
+  // Un spectateur n'importe pas ; choisir un enquêteur à la main efface le deck.
+  const spec = client(code);
+  await spec.attendre((m) => m.t === "welcome");
+  d = await importer(spec, "https://arkhamdb.com/decklist/view/31000");
+  assert.equal(d.t, "nack");
+  d = await carl.action({ t: "chooseInvestigator", code: "01002" });
+  assert.equal(d.t, "delta");
+  assert.equal(carl.state.seats[2].deck, null, "deck effacé par le choix manuel");
+  d = await importer(carl, "https://arkham.build/deck/view/6295400");
+  assert.equal(d.t, "delta");
+  // Seconde connexion sur le siège 1 avec son code (second appareil) ; mauvais code refusé.
+  await h.attendre((m) => m.t === "delta" && m.rev === carl.state.rev);
+  const pin0 = h.state.seats[0].pin;
+  const h2 = client(code, { seat: 0, pin: pin0, name: "Tablette" });
+  const w2 = await h2.attendre((m) => m.t === "welcome");
+  assert.equal(w2.you.seat, 0, "la seconde connexion partage le siège");
+  await h.attendre((m) => m.t === "seats" && m.seats[0].connections === 2);
+  assert.equal(h.state.seats[0].name, "Hôte", "le nom en place est conservé");
+  const mauvais = client(code, { seat: 0, pin: pin0 === "0000" ? "0001" : "0000" });
+  const w3 = await mauvais.attendre((m) => m.t === "seatTaken" || m.t === "welcome");
+  assert.equal(w3.t, "seatTaken", "mauvais code de siège refusé");
+  const sansPin = client(code, { seat: 0 });
+  assert.equal((await sansPin.attendre((m) => m.t === "seatTaken" || m.t === "welcome")).t, "seatTaken", "siège occupé sans code refusé");
+  // Mise en place : les decks sont créés (pioche mélangée face cachée, cartes liées hors jeu), définitions, journal.
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup" });
+  d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack", 20000);
+  assert.equal(d.t, "delta", `mise en place (${d.reason ?? ""})`);
+  const st = h.state;
+  assert.equal(st.playerCount, 3);
+  assert.equal(st.piles.pdeck0.length, 33, "pioche de Mark");
+  assert.equal(st.piles.pdeck1.length, 34, "pioche de Roland avec sa faiblesse");
+  assert.equal(st.piles.pdeck2.length, 35, "pioche de Pete");
+  assert.deepEqual(st.piles.phand0, []); assert.deepEqual(st.piles.pdiscard0, []);
+  assert.ok(st.piles.pdeck0.every((id) => !st.cards[id].faceUp && st.cards[id].player === true && st.cards[id].ownerSeat === 0), "cartes face cachée, propriétaire");
+  const liees = Object.values(st.cards).filter((c) => c.loc.zone === "paside0");
+  assert.equal(liees.length, 3, "3 Soothing Melody hors jeu");
+  assert.ok(liees.every((c) => c.code === "05314" && c.faceUp));
+  assert.ok(liees.map((c) => c.loc.x).sort((a, b) => a - b).every((x, i) => x === i * 136), "rangée hors jeu");
+  const sophie = st.piles.pdeck0.map((id) => st.cards[id]).find((c) => c.code === "03009");
+  assert.ok(sophie, "Sophie est dans la pioche (entrera en jeu à la mise en place du joueur, étape 2)");
+  assert.equal(st.extraDefs["03009"].player, true);
+  assert.equal(st.extraDefs["03009"].kind, "asset");
+  assert.equal(st.extraDefs["05314"].kind, "event");
+  assert.ok(Object.values(st.extraDefs).some((x) => x.uses), "une définition porte des Uses");
+  assert.ok(st.piles.pdeck1.map((id) => st.cards[id]).some((c) => c.kind === "skill"), "des skills dans la pioche");
+  assert.equal(st.seats[0].counters.resources, 0);
+  assert.ok(st.log.some((e) => e.text.includes("Deck de Hôte") && e.text.includes("33 cartes mélangées") && e.text.includes("3 cartes liées hors jeu")), "journal du deck");
+  assert.equal(st.piles.removed.length, 0);
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(bob.state.piles.pdeck0, st.piles.pdeck0);
+  assert.deepEqual(spec.state.extraDefs, st.extraDefs);
+  // Actions p:* : réservées au siège visé (motif « siege »), encore inconnues (étape 2).
+  d = await bob.action({ t: "p:setup", seat: 0 });
+  assert.equal(d.t, "nack"); assert.equal(d.reason, "siege");
+  d = await spec.action({ t: "p:setup", seat: 0 });
+  assert.equal(d.t, "nack");
+  d = await h.action({ t: "p:setup" });
+  assert.equal(d.t, "nack"); assert.match(d.reason, /étape 2/);
+  // Les cartes joueur se déplacent avec les gestes existants et gardent leur propriétaire ; les ressources peuvent passer en négatif.
+  d = await h.action({ t: "moveCard", id: liees[0].id, zone: "pplay0", x: 10, y: 20 });
+  assert.equal(d.t, "delta");
+  assert.equal(h.state.cards[liees[0].id].loc.zone, "pplay0"); assert.equal(h.state.cards[liees[0].id].ownerSeat, 0);
+  d = await h.action({ t: "moveCard", id: liees[0].id, zone: "board", x: 500, y: 300 });
+  assert.equal(h.state.cards[liees[0].id].ownerSeat, 0, "une carte joueur sur le tapis garde son propriétaire");
+  d = await h.action({ t: "toPile", id: liees[0].id, pile: "pdiscard0" });
+  assert.equal(h.state.piles.pdiscard0.length, 1); assert.equal(h.state.cards[liees[0].id].ownerSeat, 0);
+  d = await h.action({ t: "setSeatCounter", seat: 0, key: "resources", delta: -2 });
+  assert.equal(h.state.seats[0].counters.resources, -2, "ressources négatives admises (auto-pay jamais bloqué)");
+  d = await h.action({ t: "setSeatCounter", seat: 0, key: "clues", delta: -2 });
+  assert.equal(h.state.seats[0].counters.clues, 0);
+  // Fermer la seconde connexion : le siège reste occupé ; réinitialisation : decks conservés, board remis à zéro.
+  h2.ws.close();
+  await h.attendre((m) => m.t === "seats" && m.seats[0].connections === 1);
+  assert.equal(h.state.seats[0].occupied, true, "le siège reste occupé tant qu'une connexion demeure");
+  d = await h.action({ t: "reset" });
+  assert.equal(d.t, "delta");
+  assert.equal(h.state.phase, "lobby");
+  assert.equal(Object.keys(h.state.cards).length, 0);
+  assert.equal(h.state.seats[0].deck.name, h.state.seats[0].deck.name);
+  assert.ok(h.state.seats[0].deck && h.state.seats[1].deck && h.state.seats[2].deck, "decks conservés au reset");
+  assert.equal(h.state.seats[0].counters.resources, 0);
+  d = await h.action({ t: "clearInvestigator" });
+  assert.equal(h.state.seats[0].deck, null, "clearInvestigator efface le deck");
   h.envoyer({ t: "deleteRoom" });
   await new Promise((r) => setTimeout(r, 300));
 }

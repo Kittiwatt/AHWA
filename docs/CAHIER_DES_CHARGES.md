@@ -11,6 +11,8 @@ Périmètre v1 : **scénario isolé**, 1‑4 joueurs, une seule pioche de
 rencontre, pas de deck joueur, pas d'undo, pas de mise en page
 téléphone. Les extensions prévues (campagne, pioches multiples, decks
 joueurs) sont réservées dans le modèle mais non implémentées.
+**Version 1.1 (2026-09-07)** : le board joueur (deck importé, page
+joueur par siège) est spécifié en §10 ; étape 1 livrée le 2026-09-07.
 
 ---
 
@@ -194,7 +196,8 @@ entrées.
 ### 3.6 Réservé v2 (présent, vide)
 
 `campaign: { log: null, nextScenarioId: null }` — journal persistant et
-enchaînement. `Seat.deck: null` — import de deck ArkhamDB.
+enchaînement. `Seat.deck` : import de deck ArkhamDB / arkham.build,
+spécifié en §10 (board joueur, 2026-09-07).
 
 ## 4. Protocole client ↔ DO
 
@@ -453,8 +456,10 @@ l'avancement reste au clic.
 
 - **Rien n'est jamais bloqué** : les automatisations agissent, les
   joueurs peuvent tout modifier à la main à tout moment. Un refus
-  (`nack`) n'a que deux motifs : rôle (action d'hôte) ou intégrité
-  (siège pris, carte ou pile inconnue). Aucune action n'est refusée au
+  (`nack`) n'a que trois motifs : rôle (action d'hôte), intégrité
+  (siège pris, carte ou pile inconnue) et, depuis le board joueur, siège
+  (une action `p:*` venue d'une autre connexion que celles du siège,
+  §10.2). Aucune action n'est refusée au
   motif de la phase ou du tour ; les indications « tour en cours »,
   « a joué », « seuil atteint » sont visuelles.
 
@@ -484,3 +489,323 @@ l'avancement reste au clic.
    validée sur captures le 2026-09-03 (mémo §1 « Choix de la première
    table »).
 6. ~~Ordre des sièges~~ : libre, avec « prendre mon tour » (mémo §1).
+
+---
+
+## 10. Board joueur (v1.1) — décisions du 2026-09-07
+
+Chaque siège peut jouer **son propre deck** sur une **page joueur**
+dédiée, `/r/<code>/j/<n>`, ouverte dans un second onglet ou sur un
+second appareil. Elle appartient à la **même table** (même code, même
+`RoomState`, même Durable Object) : la synchronisation avec le tapis et
+l'observation par les autres sont gratuites, aucun protocole entre deux
+rooms. Un seul joueur à la fois est visé par le chantier (« 1 joueur pour
+l'instant ») mais le modèle est par siège dès le départ.
+
+Règles vérifiées dans l'Arkham Grimoire v1.1 (juillet 2026) : mise en
+place p. 31 (5 ressources, main de 5, un mulligan, faiblesses de la main
+de départ mises de côté sans être résolues puis remélangées), mulligan
+p. 17, entretien p. 29 (redresser, piocher 1, +1 ressource, main
+maximale 8 vérifiée seulement à ce moment), pioche vide p. 10
+(remélanger la défausse, piocher, 1 horreur), Uses (X) p. 24,
+permanents p. 18, limbes p. 15, slots p. 21.
+
+### 10.1 Décisions du questionnaire (salves A à G)
+
+| # | Question | Décision |
+|---|---|---|
+| A1 | Où vit le board | Même table, page dédiée (second onglet / écran) |
+| A2 | Main cachée ? | Masquée **à l'affichage** chez les autres (dos + nombre, bouton « Regarder ») ; l'état reste partagé |
+| A3 | Un siège sur deux appareils | Oui, avec un **code de siège** à 4 chiffres affiché sur le tapis |
+| B1 | Sources de deck | Lien ArkhamDB (deck partageable ou decklist) et lien arkham.build (share ou deck synchronisé). Pas de texte collé, pas de saisie carte par carte |
+| B2 | Quand importer | **Au lobby seulement** ; le lien remplace le choix d'enquêteur (déduit, recto parallèle compris) |
+| B3 | Faiblesse aléatoire | Celle du deck si elle y figure ; pour un placeholder 01000 : tirage au hasard ou choix dans une liste |
+| C1 | Au « Lancer » | Rien ne part tout seul côté joueur : bouton **« Mise en place »** sur la page joueur, puis attente du mulligan ; tout reste manualisable |
+| C2 | Mulligan | Sélection des cartes à rendre, bouton « Mulligan » : remplacement puis remélange, **une seule fois** (grisé ensuite) |
+| C3 | Zones | pioche (= « réserve »), main, en jeu, en cours (limbes), défausse, **hors jeu = mises de côté** (cartes liées…), zone de menace |
+| D1 | Auto-pay | Dépôt main → en jeu = jouer : coût déduit (X demandé), **jamais bloqué** (négatif surligné) ; menu « Mettre en jeu sans payer » |
+| D2 | Événements et skills | Zone **« en cours »** (limbes) visible de tous ; bouton « Résolu » → défausse ; menu « Garder en jeu » (attaches) |
+| D3 | Assets en jeu | Rangement libre + **badge de slot** sur la carte et **compteur d'occupation** dans la barre ; jetons Uses et jauges des alliés posés automatiquement |
+| E1 | Entretien | **Automatique** au passage en entretien sur la table : pioche 1, +1 ressource, redressement ; rappel si main > 8 |
+| E2 | Pioche vide | Remélange automatique de la défausse ; l'horreur est **rappelée**, le joueur l'ajoute |
+| E3 | Boutons | Piocher 1 / N, mélanger, sur / sous la pioche, chercher, regarder les n premières, défausser au hasard, révéler une carte à tous, défausse consultable (reprendre, sur la pioche, mélanger dans la pioche) ; **clic sur la pioche = piocher en main** |
+| F1 | Sur le tapis | Bouton « Voir le board » sur le siège + compteur de ressources ; rien d'autre |
+| F2 | Faiblesse piochée | Reste dans la main, le joueur fait tout (glisser vers la menace, la défausse…) |
+| F3 | La page joueur reprend | Sac du chaos, barre de phase / « Phase suivante » / tour / actions, « Poser sur mon lieu », zone de menace. Pas le journal |
+| G1 | Téléphone | Non : PC et tablette seulement |
+| G2 | Board d'un autre | **Lecture seule**, main masquée ; seul le siège agit sur son board |
+| G3 | Livraison | Trois étapes : page et import ; mise en place et mulligan ; jeu |
+
+### 10.2 Sièges : code de siège et connexions multiples
+
+- `Seat.pin` : code à 4 chiffres généré à la prise du siège, affiché sur
+  le siège du tapis (petit, sous le nom) et dans la page joueur. Le
+  cahier ne le cache à personne à la table (décision A3) ; le restreindre
+  au seul siège est une variante possible (§10.10).
+- `takeSeat {seat, name?, pin?}` (et `?seat=<n>&pin=<code>` à la
+  connexion) : siège libre → prise, nouveau `pin` ; siège occupé →
+  refusé (`seatTaken` / nack) sauf `pin` exact → **connexion
+  supplémentaire** sur le même siège, le nom en place est conservé.
+  `occupied` = au moins une connexion ; le siège n'est libéré (et son
+  code effacé) qu'à la fermeture de la dernière. `Seat.connections`
+  (hors `rev`, comme `occupied`) voyage dans `seats` pour l'indicateur
+  « n appareils ».
+- Reprise automatique : `ahwa:siege:<code>` mémorise siège **et** pin ;
+  un second onglet du même navigateur reprend sans saisie, une
+  reconnexion n'attend plus la fermeture de l'ancienne connexion
+  (l'attente de 15 s disparaît).
+- Nouveau motif de refus **`siege`** : les actions `p:*` (§10.6) ne sont
+  acceptées que des connexions du siège visé (décision G2). C'est la
+  seule exception à « tout est ouvert à tous les joueurs » (§8) ; les
+  cartes joueur posées dans une zone partagée (tapis, menace) restent
+  manipulables par tous via `moveCard` et consorts.
+
+### 10.3 Import du deck (lobby)
+
+`importDeck {url}` (joueur, lobby, son siège). Le DO fait la requête
+(user-agent de navigateur, délai 10 s) et lit un objet deck ArkhamDB ou
+arkham.build — mêmes champs, vérifiés le 2026-09-07 sur le deck 6295400.
+
+Liens reconnus (tester `decklist/view` **avant** `deck/view`) :
+
+| Lien | Source lue |
+|---|---|
+| `arkhamdb.com/decklist/view/<id>[/slug]` | `arkhamdb.com/api/public/decklist/<id>.json` |
+| `arkhamdb.com/deck/view/<id>` | `arkhamdb.com/api/public/deck/<id>.json` (302 sans CORS si le deck n'est pas partageable → message « rends ton deck partageable ou utilise arkham.build ») |
+| `arkham.build/deck/view/<id numérique>` | deck synchronisé : `api.arkham.build/v1/public/share/<id>`, repli ArkhamDB `deck/<id>` |
+| `arkham.build/share/<id>` | `api.arkham.build/v1/public/share/<id>` |
+| `arkham.build/deck/view/<id non numérique>` | deck local au navigateur : refus « partage-le d'abord (bouton Share) » |
+
+Lecture du deck :
+
+- `investigator_code`, puis `meta.alternate_front` s'il est renseigné :
+  c'est le **recto effectif** (enquêteur parallèle, présent dans l'index
+  des investigateurs avec `parallel: true`). `alternate_back` ne concerne
+  que la construction du deck : ignoré.
+- `slots` + `ignoreDeckLimitSlots` = les cartes du deck ; `sideSlots`
+  ignorés ; `xp`, `name` affichés ; `taboo_id` = badge informatif (les
+  images montrent le texte imprimé) ; `meta.cus_<code>` = customisations,
+  conservées pour l'affichage, sans effet.
+- **Placeholder 01000** : chaque exemplaire est une faiblesse « à
+  déterminer » ; le lobby propose « Tirer au hasard » (`resolveWeakness
+  {choice: "random"}` : tirage pondéré par `quantity` parmi les
+  `basicweakness` de l'index, hors 01000, hors 60154 / 60254 sans image,
+  et hors 06035‑38 — les quatre TDE multijoueur — en solo) ou
+  « Choisir… » (`resolveWeakness {choice: <code>}`, liste triée par nom).
+  Non résolue au « Lancer » : tirée au hasard, ligne de journal. Une
+  faiblesse explicitement listée dans le deck est prise telle quelle.
+- **Cartes liées** : pour chaque carte du deck dont le nom est le
+  `bonded_to` d'une carte de l'index, `bonded_count` exemplaires de cette
+  carte liée sont créés **hors jeu** (mises de côté). `bonded_to` est un
+  nom : Occult Lexicon niveau 0 comme niveau 3 y donnent droit.
+- **Commence en jeu** : cartes `permanent` et cartes citées par le texte
+  de l'enquêteur effectif (« You begin the game with X in play », lu au
+  build par regex, jamais reproduit ; le recto parallèle a son propre
+  texte, Pete's Guitar).
+- Enquêteur **déduit** : mêmes règles que `chooseInvestigator` (refus si
+  un autre siège l'a déjà ; refus si le code manque à l'index, avec
+  message). `clearInvestigator` efface aussi le deck ; un nouvel import
+  remplace l'ancien ; `reset` conserve enquêteur et deck.
+- Résumé affiché au lobby (visible de tous) : nom du deck, enquêteur,
+  nombre de cartes, cartes liées et permanents, faiblesses à déterminer,
+  badges taboo / custom, lien vers le deck.
+
+Données de cartes : le build produit **`public/data/player_cards.json`**
+(cartes joueur hors `hidden` : code, nom, sous-titre, type, sous-type
+(`weakness` / `basicweakness`), faction, coût (`null` = —, `-2` = X),
+xp, slot, permanent, vie / santé mentale, `uses {n, type}` (regex
+« Uses (n type) » sur le texte ; X → 0), `bonded_to` / `bonded_count`,
+unique, `back: "b"` si double face, `alternate_of`, `quantity`) — de
+l'ordre de 3 500 cartes, ~400 Ko (~60 Ko gzip). Le DO le lit depuis les
+assets au moment de l'import (comme `cards_index.json` pour
+`createCard`) ; les définitions des codes du deck voyagent dans
+`state.extraDefs` (mécanisme existant), si bien que le client n'a besoin
+de l'index que pour la liste des faiblesses, chargée à la demande.
+
+### 10.4 Modèle d'état
+
+```ts
+type Seat = {
+  // … champs existants (index, occupied, name, investigatorCode, custom, counters) …
+  pin: string | null;                        // code de siège à 4 chiffres
+  counters: { health, sanity, clues, actions, resources, ...specific };
+  deck: null | {
+    source: "arkhamdb" | "arkhambuild"; url: string; id: string; name: string;
+    investigatorCode: string;                // code du deck (base) ; le siège porte le recto effectif
+    slots: Record<string, number>;           // cartes importées (ignoreDeckLimitSlots inclus)
+    weaknessPending: number;                 // placeholders 01000 restants
+    customizations?: Record<string, string>; // meta cus_<code>, affichage seulement
+    taboo?: number; xp?: number;
+    board: { setup: "none" | "mulligan" | "done"; mulliganUsed: boolean;
+             weakAside: CardId[] };          // faiblesses mises de côté pendant la mise en place
+  };
+};
+```
+
+`Seat.connections` (nombre de connexions du siège) est tenu à jour à
+chaque connexion et fermeture, hors `rev`, comme `occupied`.
+`resources` est un compteur de siège ordinaire (±, initial 0, seul
+compteur autorisé à passer en négatif), affiché aussi sur le siège du
+tapis. `deck.bonded`, `deck.weaknessAdded` (faiblesses tirées ou
+choisies) et `deck.unknown` (codes ignorés) complètent le modèle livré.
+
+Cartes : les cartes du deck sont des `CardState` ordinaires (`ownerSeat`
+= le siège, `kind` étendu à `"event" | "skill"`, `player: true` pour le
+dos joueur et les menus). Ajouts : `revealed?: boolean` (carte de la main
+montrée à tous ; effacé dès qu'elle quitte la main) et `tokens.uses?:
+number` (le **type** d'uses vient de la définition : `extraDefs[code]
+.uses.type` ; rendu en chip générique, images par type plus tard). Les
+jauges des alliés utilisent `health` / `sanity` de la définition, comme
+les soutiens du scénario. Une carte à double face garde `side` et
+« Retourner ».
+
+Piles et zones par siège `n` :
+
+| Id | Nature | Contenu |
+|---|---|---|
+| `pdeck<n>` | pile, face cachée | la pioche (« réserve ») |
+| `phand<n>` | pile ordonnée (ordre de pioche) | la main |
+| `pdiscard<n>` | pile, face visible | la défausse, consultable |
+| `pplay<n>` | zone, coordonnées libres | en jeu (assets, attaches gardées) |
+| `plimbo<n>` | zone, rangée | « en cours » : événements payés, skills engagés |
+| `paside<n>` | zone, rangée | hors jeu : cartes liées, mises de côté |
+| `seat<n>` | zone existante | enquêteur + zone de menace (partagée avec le tapis) |
+| `removed` | pile existante | exil / retiré de la partie, jamais affiché |
+
+### 10.5 Page joueur `/r/<code>/j/<n>`
+
+Ordinateur et tablette seulement, mêmes gestes que le tapis (glisser au
+lâcher, clic droit / appui long = menu, double-clic = épuiser / redresser,
+loupe). Disposition à trancher sur maquette (captures) ; proposition :
+
+- **Barre du haut** : portrait de l'enquêteur, compteurs ressources /
+  indices / actions, vie et santé mentale avec dégâts et horreur (±),
+  taille de main, **occupation des slots** (mains n/2, arcanes n/2,
+  allié n/1, corps, accessoire, tarot — dépassement surligné, jamais
+  bloqué), phase courante + « Phase suivante », « Prendre mon tour » /
+  « Fin de mon tour », sac du chaos (tirer, tirer un autre, tout
+  remettre, jetons tirés), code de siège, lien « Table ».
+- **Gauche** : pioche (dos, compte ; clic = piocher 1 en main ; menu :
+  piocher N, chercher, regarder les n premières, mélanger), défausse
+  (dernière carte visible, compte ; menu : consulter → reprendre en
+  main / sur la pioche / sous la pioche / mélanger dans la pioche),
+  hors jeu (rangée de vignettes, glisser vers la main ou en jeu).
+- **Centre** : « en jeu » (zone libre, cartes 126 × 178, badge de slot,
+  chips Uses, jauges des alliés, épuisé = rotation) ; « en cours »
+  (rangée, bouton « Résolu ») ; **zone de menace** = le contenu de
+  `seat<n>` (ennemis engagés, traîtrises, assets histoire), cible de
+  dépôt.
+- **Bas** : la main en éventail dans l'ordre de pioche ; cases de
+  sélection pendant le mulligan ; menu par carte : jouer (payer), mettre
+  en jeu sans payer, engager au test, défausser, sur / sous la pioche,
+  révéler à tous, poser sur mon lieu, retirer de la partie (exil).
+- **Mise en place** : bouton visible dès que la partie est lancée et
+  tant que `board.setup = "none"` ; ensuite l'état `mulligan` affiche
+  les cases sur la main, « Mulligan (n) » et « Garder ma main » ; puis
+  le bouton disparaît (`done`). Avant le lancement, la page montre
+  l'état du lobby (« en attente du lancement », résumé du deck).
+- **Autres sièges** : onglets en haut (un par siège avec deck) →
+  même page en **lecture seule** : main rendue en dos + nombre, bouton
+  « Regarder » (révélation locale, rien n'est envoyé), cartes `revealed`
+  face visible. Les spectateurs ont la même vue.
+
+### 10.6 Actions `p:*` (réservées aux connexions du siège)
+
+| t | Effet |
+|---|---|
+| `importDeck {url}` / `resolveWeakness {choice}` | lobby, voir §10.3 |
+| `p:setup` | mélange `pdeck` ; permanents et « commence en jeu » → `pplay` face visible (Uses posés) ; `resources += 5` ; pioche 5 en main, chaque faiblesse tirée va dans `weakAside` et est remplacée ; `board.setup = "mulligan"` ; journal |
+| `p:mulligan {ids}` | `ids` ⊂ main : mis de côté, autant de cartes piochées (faiblesses idem) ; puis cartes rendues + `weakAside` remélangées dans `pdeck` ; `mulliganUsed = true`, `setup = "done"` |
+| `p:keep` | `weakAside` remélangé dans `pdeck` ; `setup = "done"` |
+| `p:draw {n = 1}` | pioche n en main ; pioche vide → `pdiscard` remélangée dans `pdeck` puis pioche, **rappel « prends 1 horreur »** (encart + journal) ; pioche et défausse vides → rappel « enquêteur vaincu » (rien de plus) |
+| `p:play {id, cost?, free?}` | main → `pplay` (asset) ou `plimbo` (événement) ; `resources −= coût imprimé`, ou `cost` fourni quand le coût est X, ou 0 si `free` ; jamais refusé, un total négatif est surligné ; à l'entrée en jeu `tokens.uses = def.uses.n`, jauges des alliés ; journal « X joue Y » (sans le texte) |
+| `p:commit {id}` | carte de la main → `plimbo` sans coût (skill engagé, ou carte rangée là volontairement) |
+| `p:resolve` | tout `plimbo` → `pdiscard`, face visible. « Garder en jeu » = `moveCard` vers `pplay` |
+| `p:discard {id}` / `p:randomDiscard {n = 1}` | → `pdiscard` ; le tirage au hasard nomme la carte au journal |
+| `p:toHand {id}` | défausse, pioche (après recherche), en jeu ou hors jeu → fin de main |
+| `p:reveal {id, v}` | bascule `revealed` sur une carte de la main |
+| `p:search {pile, n?}` | `peek` au demandeur : les n premières dans l'ordre (regarder) ou toute la pile (chercher) ; à la fermeture d'une recherche complète le client envoie `shufflePile` ; journal « X regarde les n premières cartes » |
+| `p:exile {id}` | → `removed`, journal (exil, retrait de la partie) |
+| `p:toLocation {id}` | → `board`, posée à côté du lieu où se trouve le pion du siège (décalage vers le bas), sinon au centre ; menu « Reprendre sur mon board » = `moveCard` vers `pplay` |
+
+Réutilisés tels quels : `moveCard` (glisser entre zones, y compris la
+menace), `toPile {top}` (sur / sous la pioche), `shufflePile`, `flipCard`,
+`exhaust`, `addToken {token: "uses"}`, `setSeatCounter {resources}`,
+`chaosDraw` / `chaosReturn`, `nextPhase`, `takeTurn` / `endTurn`. Un
+refus de siège renvoie `{ t: "nack", reason: "siege" }`.
+
+**Entretien** (table, dans `nextPhase` → `upkeep`, un seul message) :
+pour chaque siège dont `board.setup = "done"`, pioche 1 (règle de la
+pioche vide ci-dessus, rappel d'horreur inclus), `resources += 1`, et
+rappel « main de n cartes : défausse jusqu'à 8 » si n > 8 ; le
+redressement général existant couvre les cartes joueur.
+
+**Visibilité** : tous les clients reçoivent les mêmes deltas (les codes
+de la main compris) ; le masquage est un choix d'affichage (A2). `revealed`
+sert à montrer une carte à tous sans la sortir de la main.
+
+### 10.7 Ce qui change sur le tapis
+
+- Siège : compteur **ressources** (±) ; bouton **« Voir le board »**
+  (ouvre `/r/<code>/j/<n>` en lecture seule) ; code de siège ; indicateur
+  de connexions.
+- `nextPhase` → entretien : automatisations joueur (§10.6).
+- Cartes joueur posées sur le tapis par « Poser sur mon lieu » : rendues
+  comme les autres (dos joueur, menu « Reprendre sur mon board ») ; une
+  faiblesse ennemie glissée dans la zone de menace depuis la page joueur
+  apparaît engagée sur le siège.
+- Lobby : champ « lien du deck » à côté du choix d'enquêteur ; résumé du
+  deck ; boutons des faiblesses à déterminer.
+
+### 10.8 Budget et taille
+
+- Messages : environ 15 gestes de plus par joueur et par manche →
+  objectif **< 400 entrants par manche à 4 joueurs**. Les messages
+  WebSocket entrants sont comptés 20 pour 1 requête sur le plan gratuit
+  (vérifié le 2026-09-07 ; les sortants sont gratuits) : la marge est
+  large, le principe « un geste = un message » reste.
+- Snapshot : quatre decks ajoutent ~180 cartes et leurs définitions,
+  soit moins de 60 Ko ; la facturation SQLite se fait **en lignes
+  écrites** (1 snapshot = 1 ligne, 2 Mo maximum par ligne), pas en Ko.
+- `player_cards.json` n'est lu que par le DO à l'import ; le client ne le
+  charge que pour la liste des faiblesses.
+
+### 10.9 Livraison en trois étapes (G3)
+
+1. **Page et import** — *livrée le 2026-09-07* : `player_cards.json` au build ; `importDeck`,
+   `resolveWeakness`, enquêteur déduit, résumé au lobby ; code de siège
+   et connexions multiples ; page joueur affichée avec toutes ses zones
+   (pioche face cachée, compteurs, menace, sac, phases), onglets des
+   sièges en lecture seule ; ressources et « Voir le board » sur le
+   tapis. Tests bout en bout (import des deux sources, deck privé refusé,
+   placeholder, cartes liées, pin juste / faux, deux connexions, refus
+   `siege`), captures.
+2. **Mise en place et mulligan** : `p:setup`, `p:mulligan`, `p:keep`,
+   pioche / main / défausse et tous les boutons d'E3, main masquée chez
+   les autres, `revealed`, hors jeu, entretien automatique, pioche vide.
+   Tests (mulligan une seule fois, faiblesse en main de départ, deck
+   vide) et captures.
+3. **Jeu** : `p:play` (coût, X, sans payer, négatif), limbes et
+   « Résolu », Uses et jauges, badges de slot et occupation, exil,
+   « Poser sur mon lieu » et retour, journal. Régression sur les tables
+   existantes, budget messages mesuré sur une manche.
+
+### 10.10 Points ouverts et v2
+
+- **Customisations** : proposition = badge « custom » sur la carte et,
+  dans la loupe, la liste des cases cochées par leur **titre** seulement
+  (jamais le texte) — à valider.
+- **Code de siège** : visible de toute la table (décision A3) ou du seul
+  siège — à confirmer à l'usage.
+- **Images des jetons Uses** : chip générique avec le type en libellé ;
+  images par type (munitions, charges, secrets, provisions, primes…)
+  plus tard.
+- **Decks annexes** (hunch deck de Joe Diamond, Underworld Market,
+  cartes sous l'enquêteur) : piles supplémentaires par siège, v2.
+- **Attaches** entre cartes joueur : empilement visuel seulement (v1).
+- Options de deck sans effet en jeu (`deck_size_selected`,
+  `option_selected`) : ignorées ; « Uses (X) » variable : 0, à la main.
+- **Enquêteur personnalisé + deck** : un deck impose son enquêteur ; un
+  deck dont l'enquêteur manque à l'index est refusé — à revoir si le
+  besoin apparaît.
+- Réimport entre scénarios et journal de campagne : v2 (campagne).

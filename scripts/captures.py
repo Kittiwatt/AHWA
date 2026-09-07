@@ -767,6 +767,91 @@ with sync_playwright() as p:
     assert h12.locator("#sieges .carte.kind-investigator.custom.sans-image").count() == 1, "carte sans image : nom affiché"
     assert h12.locator("#plateau .mini.custom.sans-image").count() == 1, "pion sans image : initiales"
     h12.locator("#sieges .siege").nth(1).screenshot(path=f"{OUT}/53_custom_sans_image_siege.png")
+
+    # ---- Board joueur, étape 1 (cahier §10) : import du deck au lobby, faiblesse à déterminer, code de siège,
+    #      page joueur (second onglet, lecture seule, rejoindre avec le code) ----
+    def page_board(page, code, n, attendre="#board-joueur:not([hidden]), #attente:not([hidden])"):
+        p = page.context.new_page()
+        p.on("dialog", lambda d: d.accept())
+        p.on("console", lambda m: erreurs.append(f"[board] console {m.type}: {m.text}") if m.type in ("error", "warning") else None)
+        p.on("pageerror", lambda e: erreurs.append(f"[board] pageerror: {e}"))
+        p.goto(f"{BASE}/r/{code}/j/{n}")
+        p.wait_for_selector(attendre, timeout=8000)
+        return p
+    code13, token13 = creer("notz_the_gathering")
+    print("room Gathering (board joueur)", code13)
+    h13 = page_pour(browser, "Alice", host=True, code=code13, token=token13)
+    h13.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h13.wait_for_selector(".siege-lobby.moi")
+    h13.fill(".siege-lobby.moi .champ-deck", "https://arkhamdb.com/decklist/view/31000")
+    h13.get_by_role("button", name="Importer le deck").click()
+    h13.wait_for_selector(".siege-lobby.moi .bloc-deck", timeout=20000)
+    assert "Mark Harrigan" in h13.locator(".siege-lobby.moi").inner_text(), "enquêteur déduit du deck"
+    assert h13.locator(".siege-lobby.moi .code-siege strong").count() == 1, "code de siège affiché"
+    j13 = page_pour(browser, "Bob", code=code13, token=None)
+    j13.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j13.wait_for_selector(".siege-lobby.moi")
+    j13.fill(".siege-lobby.moi .champ-deck", "https://arkhamdb.com/decklist/view/44000")
+    j13.get_by_role("button", name="Importer le deck").click()
+    j13.wait_for_selector(".siege-lobby.moi .faiblesse-pending", timeout=20000)
+    h13.wait_for_timeout(600)
+    h13.screenshot(path=f"{OUT}/54_deck_lobby.png")
+    j13.get_by_role("button", name="Choisir…").click()
+    j13.wait_for_selector("dialog[open] .carte-peek", timeout=10000)
+    j13.wait_for_timeout(800)
+    j13.screenshot(path=f"{OUT}/55_deck_choix_faiblesse.png")
+    j13.keyboard.press("Escape")
+    j13.get_by_role("button", name="Tirer au hasard").click()
+    j13.wait_for_selector(".siege-lobby.moi .faiblesse-pending", state="detached", timeout=5000)
+    assert "Faiblesse de base :" in j13.locator(".siege-lobby.moi .bloc-deck").inner_text(), "faiblesse tirée nommée"
+    # Page joueur avant le lancement (même navigateur que Bob : le siège est rejoint sans saisie).
+    b13 = page_board(j13, code13, 1, attendre="#attente:not([hidden])")
+    b13.wait_for_selector("#moi:has-text('Siège 2')", timeout=8000)
+    b13.wait_for_timeout(500)
+    b13.screenshot(path=f"{OUT}/56_board_attente.png")
+    assert "2 appareils" in h13.locator(".siege-lobby").nth(1).inner_text(), "deux connexions sur le siège 2"
+    # Mise en place : le tapis montre les ressources, le code de siège et le bouton « Voir le board ».
+    h13.get_by_role("button", name="Lancer la mise en place").click()
+    h13.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h13.wait_for_load_state("networkidle"); h13.wait_for_timeout(1200)
+    h13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    assert h13.locator("#sieges .siege").nth(0).get_by_role("link", name="Voir le board").count() == 1
+    assert "Ressources" in h13.locator("#sieges .siege").nth(0).inner_text()
+    h13.locator("#sieges").screenshot(path=f"{OUT}/57_tapis_sieges_board.png")
+    # Board d'Alice dans un second onglet (siège rejoint automatiquement) : entête, piles, cartes liées hors jeu.
+    a13 = page_board(h13, code13, 0, attendre="#board-joueur:not([hidden])")
+    a13.wait_for_selector("#moi:has-text('Siège 1')", timeout=8000)
+    a13.wait_for_load_state("networkidle"); a13.wait_for_timeout(1200)
+    a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    assert a13.locator("#onglets .onglet").count() == 2, "un onglet par siège avec enquêteur"
+    assert a13.locator("#piles-joueur .pile").first.locator(".badge").inner_text() == "33", "pioche de 33 cartes"
+    assert a13.locator("#piles-joueur .hors-jeu .carte").count() == 3, "3 Soothing Melody hors jeu"
+    assert a13.locator(".entete-joueur:not(.lecture)").count() == 1, "board actif pour son siège"
+    assert "Ressources" in a13.locator("#entete").inner_text()
+    a13.screenshot(path=f"{OUT}/58_board_joueur.png")
+    # Le même board vu par Bob : lecture seule, main masquée.
+    lb13 = page_board(j13, code13, 0, attendre="#board-joueur:not([hidden])")
+    lb13.wait_for_load_state("networkidle"); lb13.wait_for_timeout(1000)
+    lb13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    assert lb13.locator(".entete-joueur.lecture").count() == 1, "lecture seule chez l'autre joueur"
+    assert lb13.locator("#entete .pm:enabled").count() == 0, "aucun compteur actif en lecture seule"
+    lb13.screenshot(path=f"{OUT}/59_board_lecture_seule.png")
+    # Un nouvel appareil (autre navigateur) rejoint le siège 1 avec son code.
+    ctx_t = browser.new_context(viewport={"width": 1600, "height": 1000}, locale="fr-FR", ignore_https_errors=True)
+    t13 = ctx_t.new_page()
+    t13.on("pageerror", lambda e: erreurs.append(f"[tablette] pageerror: {e}"))
+    t13.goto(f"{BASE}/r/{code13}/j/0")
+    t13.wait_for_selector(".rejoindre .champ-pin", timeout=8000)
+    t13.wait_for_timeout(500)
+    t13.screenshot(path=f"{OUT}/60_board_rejoindre.png")
+    pin = h13.locator("#sieges .siege").nth(0).locator(".code-siege strong").inner_text()
+    t13.fill(".rejoindre .champ-pin", pin)
+    t13.get_by_role("button", name="Rejoindre ce siège").click()
+    t13.wait_for_selector("#moi:has-text('Siège 1')", timeout=8000)
+    t13.wait_for_timeout(600)
+    assert t13.locator(".entete-joueur:not(.lecture)").count() == 1, "le second appareil agit sur le board"
+    assert "3 appareils" in h13.locator("#sieges .siege").nth(0).inner_text(), "trois connexions sur le siège 1"
+    ctx_t.close()
     browser.close()
 
 if erreurs:

@@ -27,8 +27,17 @@ campagne dans chaque table. Lobby
 (sièges, enquêteurs, difficulté, enquêteur principal), mise en place
 automatique par l'hôte, tapis complet : glisser-déposer des cartes et des
 pions, révélation des lieux avec indices, phases et tours, doom et agenda,
-indices et acte, pioche de rencontre, sac du chaos, journal de bord. Le cahier des charges et le mémo de suivi sont dans `docs/` —
-**`docs/ARKHAM_WEB_notes.md` fait foi**, à lire avant toute modification.
+indices et acte, pioche de rencontre, sac du chaos, journal de bord.
+**Board joueur** (étape 1, 2026-09-07) : au lobby, un joueur importe son
+deck par un lien ArkhamDB ou arkham.build (enquêteur déduit, faiblesse
+de base aléatoire tirée ou choisie) ; chaque siège a une page
+`/r/<code>/j/<n>` — son board (pioche, défausse, hors jeu, en jeu, en
+cours, zone de menace, main, compteurs, sac, phases), en lecture seule
+pour les autres — et un code de siège à 4 chiffres permet de le
+rejoindre depuis un second appareil. Mise en place du joueur, mulligan et
+jeu des cartes : étapes 2 et 3 (cahier §10). Le cahier des charges et le
+mémo de suivi sont dans `docs/` — **`docs/ARKHAM_WEB_notes.md` fait
+foi**, à lire avant toute modification.
 
 ## Crédits
 
@@ -43,14 +52,18 @@ Cloudflare Workers, un seul déploiement :
 
 - `public/` — front statique servi par le Worker (assets).
   `index.html` accueil, `scenarios.html` bibliothèque, `room.html` page de
-  table (servie pour `/r/<code>`), `data/library.json` catalogue.
+  table (servie pour `/r/<code>`), `joueur.html` page joueur (servie pour
+  `/r/<code>/j/<n>`), `data/library.json` catalogue, `data/player_cards.json`
+  index des cartes joueur (import des decks).
 - `src/index.ts` — Worker d'entrée : `POST /api/rooms`, `GET /rooms/<code>/ws`,
-  route `/r/<code>`, sinon assets.
+  routes `/r/<code>` et `/r/<code>/j/<n>`, sinon assets.
 - `src/room.ts` — Durable Object `Room` (une instance par table) : WebSocket
   hibernant via [partyserver](https://github.com/cloudflare/partykit),
   snapshot d'état en SQLite, purge après 7 jours sans activité.
 - `src/state.ts` — modèle d'état `RoomState` (cahier des charges §3) ;
-  `src/setup.ts` mise en place ; `src/patch.ts` deltas JSON Patch.
+  `src/setup.ts` mise en place ; `src/actions.ts` actions de jeu ;
+  `src/joueur.ts` board joueur (import du deck, decks à la mise en place,
+  actions `p:*`) ; `src/patch.ts` deltas JSON Patch.
 - `data/scenarios/<id>.src.json` — source déclarative d'un scénario (sets,
   setup, sac du chaos, rappels), `scripts/build.mjs` la complète depuis
   ArkhamDB en `public/scenarios/<id>.json` (commité).

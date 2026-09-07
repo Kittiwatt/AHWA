@@ -5,7 +5,8 @@
 // 1. Pour chaque data/scenarios/<id>.src.json (déclaratif, écrit à la main), interroge ArkhamDB
 //    (cache dans data/cache/) et écrit public/scenarios/<id>.json : source + liste des cartes
 //    des sets de rencontre (codes, quantités, valeurs d'indices, seuils de doom), sans texte de carte.
-// 2. Écrit public/data/investigators.json : index compact des investigateurs (lobby).
+// 2. Écrit public/data/investigators.json : index compact des investigateurs (lobby), avec les cartes
+//    qu'ils commencent en jeu ; public/data/player_cards.json : index des cartes joueur (board joueur).
 // 3. Écrit src/scenarios.generated.ts : registre des scénarios importé par le Worker.
 //
 // Les fichiers générés sont commités : le déploiement Workers Builds ne relance pas ce script.
@@ -152,6 +153,17 @@ async function buildScenario(fichierSrc) {
 
 const ORDRE_FACTIONS = ["guardian", "seeker", "rogue", "mystic", "survivor", "neutral"];
 
+/** Cartes que l'enquêteur commence en jeu (« You begin the game with X in play »), lues dans son texte — jamais reproduit. */
+function commenceEnJeu(c) {
+  const m = /begins? the game with (.+?) in play/i.exec(c.real_text ?? c.text ?? "");
+  if (!m) return [];
+  const brut = m[1].replace(/<[^>]+>/g, "").replace(/\([^)]*\)/g, "").trim();
+  // « each Discipline in your deck » (Lily Chen) : toutes les cartes du deck portant ce trait.
+  const trait = /^each (\w+) in your deck$/i.exec(brut);
+  if (trait) return [{ trait: trait[1] }];
+  return brut.split(/\s*(?:,|\band\b)\s*/).map((s) => s.trim()).filter(Boolean).map((name) => ({ name }));
+}
+
 async function buildInvestigators() {
   const cartes = await json(`${ARKHAMDB}/cards/?encounter=0`, "player.json");
   const inv = cartes
@@ -166,6 +178,7 @@ async function buildInvestigators() {
       pack: c.pack_code,
       packName: c.pack_name,
       parallel: Boolean(c.alternate_of_code),
+      ...(commenceEnJeu(c).length ? { startsInPlay: commenceEnJeu(c) } : {}),
     }))
     .sort((a, b) =>
       ORDRE_FACTIONS.indexOf(a.faction) - ORDRE_FACTIONS.indexOf(b.faction)
@@ -192,6 +205,43 @@ async function buildCardsIndex() {
   process.stdout.write(`cards_index.json : ${idx.length} cartes\n`);
 }
 
+/**
+ * Index compact des cartes joueur (board joueur, cahier §10.3) : ce qu'il faut pour importer un deck et jouer
+ * ses cartes — coût, slot, permanent, jauges des alliés, « Uses (n type) », cartes liées, faiblesses — sans texte.
+ * Clés courtes : c code, n nom, s sous-titre, t type, st sous-type (weakness / basicweakness), f faction,
+ * f2 seconde faction, k coût (null = —, -2 = X), x xp, sl slot, p permanent, h vie, m santé mentale,
+ * u {n, type} uses, b bonded_to (nom), bc bonded_count, q quantité, un unique, d double face, pk pack, tr traits.
+ */
+async function buildPlayerCards() {
+  const cartes = await json(`${ARKHAMDB}/cards/?encounter=0`, "player.json");
+  const TYPES = new Set(["asset", "event", "skill", "treachery", "enemy", "story", "location"]);
+  const idx = cartes
+    .filter((c) => TYPES.has(c.type_code) && !c.hidden && c.imagesrc)
+    .map((c) => {
+      const o = { c: c.code, n: c.name, t: c.type_code, f: c.faction_code ?? "neutral", q: c.quantity ?? 1, pk: c.pack_code };
+      if (c.subname) o.s = c.subname;
+      if (c.subtype_code) o.st = c.subtype_code;
+      if (c.faction2_code) o.f2 = c.faction2_code;
+      if (c.type_code === "asset" || c.type_code === "event") o.k = c.cost ?? null;
+      if (c.xp) o.x = c.xp;
+      if (c.real_slot) o.sl = c.real_slot;
+      if (c.permanent) o.p = 1;
+      if (c.health !== undefined && c.health !== null) o.h = c.health;
+      if (c.sanity !== undefined && c.sanity !== null) o.m = c.sanity;
+      const uses = /Uses \((\d+|X) ([a-z]+)\)/i.exec(c.real_text ?? "");
+      if (uses) o.u = { n: uses[1] === "X" ? 0 : Number(uses[1]), type: uses[2].toLowerCase() };
+      if (c.bonded_to) { o.b = c.bonded_to; o.bc = c.bonded_count ?? 1; }
+      if (c.is_unique) o.un = 1;
+      if (c.double_sided || c.backimagesrc) o.d = 1;
+      if (c.real_traits) o.tr = c.real_traits;
+      return o;
+    })
+    .sort((a, b) => a.c.localeCompare(b.c));
+  await writeFile(path.join(racine, "public", "data", "player_cards.json"), JSON.stringify({ builtAt: new Date().toISOString().slice(0, 10), cards: idx }));
+  const faiblesses = idx.filter((c) => c.st === "basicweakness").length;
+  process.stdout.write(`player_cards.json : ${idx.length} cartes joueur, ${faiblesses} faiblesses de base\n`);
+}
+
 async function buildRegistre(ids) {
   const lignes = [
     "// GÉNÉRÉ par scripts/build.mjs — ne pas modifier à la main.",
@@ -213,5 +263,6 @@ const ids = [];
 for (const f of fichiers) ids.push(await buildScenario(path.join(SRC, f)));
 await buildInvestigators();
 await buildCardsIndex();
+await buildPlayerCards();
 await buildRegistre(ids);
 process.stdout.write("Build terminé.\n");
