@@ -10,6 +10,7 @@ import { nomSiege } from "./lobby.js";
 import { blocDeck } from "./deck.js";
 import { carteEl, encart, PHASES, rendreChaos, initLoupe } from "./tapis.js";
 import { lireSiegeMemorise, memoriserSiege } from "./siege.js";
+import { initInteractionsJoueur, ouvrirDialogueBoard } from "./interactions-joueur.js";
 
 const ICONE_ACTION = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5h9.5V3.5L21 12l-8.5 8.5v-5H3z" fill="currentColor"/></svg>';
 const ORDRE_PHASES = ["mythos", "investigation", "enemy", "upkeep"];
@@ -41,7 +42,9 @@ if (!/^[A-Z2-9]{6}$/.test(code) || !Number.isInteger(siegeUrl) || siegeUrl < 0 |
 
 async function demarrer() {
   const ctx = { etat: null, envoyer: null, scenario: null, defs: new Map(), investigateurs: new Map(), listeInvestigateurs: [], campagneBoite: "",
-    vue: siegeUrl, regarder: false };
+    vue: siegeUrl, regarder: false, selection: new Set(), derniereRecherche: null };
+  // Seul le siège agit sur son board : le board consulté est le sien et la connexion y est assise.
+  ctx.peutAgir = () => ctx.etat?.moi.seat !== null && ctx.etat?.moi.seat === ctx.vue && ctx.etat.state?.phase !== "lobby";
 
   try {
     const r = await fetch("/data/investigators.json");
@@ -69,15 +72,16 @@ async function demarrer() {
 
   const hostToken = () => localStorage.getItem(`ahwa:host:${code}`) ?? "";
   const nom = localStorage.getItem("ahwa:nom") ?? "";
-  // Siège mémorisé par la page de table (siège + code) : la page joueur rejoint le siège demandé sans saisie.
+  // Siège mémorisé par la page de table (siège + code) : la page joueur reprend son propre siège sans saisie,
+  // quel que soit le board consulté (un autre board reste en lecture seule).
   const memo = lireSiegeMemorise(code);
-  let reprise = memo && memo.seat === siegeUrl ? memo : null;
+  let reprise = memo;
   function tenterReprise() {
     if (!reprise || ctx.etat.moi.seat !== null) return;
-    const s = ctx.etat.state.seats[siegeUrl];
+    const s = ctx.etat.state.seats[reprise.seat];
     if (s.occupied && !(reprise.pin && s.pin === reprise.pin)) { reprise = null; return; }
     if (ctx.etat.state.phase !== "lobby" && !s.investigatorCode) { reprise = null; return; }
-    ctx.envoyer({ t: "takeSeat", seat: siegeUrl, name: localStorage.getItem("ahwa:nom") ?? "", pin: s.occupied ? reprise.pin : undefined });
+    ctx.envoyer({ t: "takeSeat", seat: reprise.seat, name: localStorage.getItem("ahwa:nom") ?? "", pin: s.occupied ? reprise.pin : undefined });
     reprise = null;
   }
 
@@ -94,7 +98,7 @@ async function demarrer() {
       },
       hostToken(token) { localStorage.setItem(`ahwa:host:${code}`, token); },
       rappel(entry) { encart(entry.text, "rappel"); },
-      peek() {},
+      peek(pile, cards) { ouvrirDialogueBoard(ctx, pile, cards); },
       refus(raison) { encart(raison === "siege" ? "Seul le siège agit sur son board (lecture seule ici)." : raison, "erreur"); },
       ferme(codeFermeture) {
         if (codeFermeture === 4404) erreurFatale("Aucune table ne porte ce code.");
@@ -107,7 +111,9 @@ async function demarrer() {
   ctx.etat = cnx.etat;
   ctx.envoyer = cnx.envoyer;
   initLoupe(ctx);
+  initInteractionsJoueur(ctx);
   document.addEventListener("ahwa:info", (e) => encart(e.detail, "info"));
+  document.addEventListener("ahwa:selection", () => rendre());
 
   function inscrireCustoms(state) {
     for (const s of state.seats) {
@@ -310,16 +316,37 @@ async function demarrer() {
       el("div", { class: "slots", title: "Occupation des slots d'après les cartes en jeu (dépassement surligné, jamais bloqué)" },
         el("span", { class: "libelle", text: `Main ${main}` }),
         ...SLOTS.map(([k, lib, max]) => el("span", { class: `slot${occ[k] > max ? " depasse" : ""}${occ[k] ? " occupe" : ""}`, text: `${lib} ${occ[k]}/${max}` }))),
-      el("div", { class: "mise-en-place" },
-        deck
-          ? (deck.board.setup === "done"
-            ? el("span", { class: "sous", text: `Board en place${deck.board.mulliganUsed ? " (mulligan fait)" : ""}` })
-            : el("span", { class: "ligne-boutons" },
-              el("button", { class: "bouton", type: "button", disabled: true, title: "Étape 2 : mélange, permanents, 5 ressources, main de 5, puis mulligan" }, "Mise en place"),
-              el("span", { class: "sous", text: "prochaine étape" })))
-          : el("span", { class: "sous", text: "Sans deck importé" })),
+      blocMiseEnPlace(state, s, peut),
     );
     rendreChaos(ctx);
+  }
+
+  /** Mise en place du joueur, puis mulligan par sélection (cahier §10.5) ; faiblesses mises de côté comptées. */
+  function blocMiseEnPlace(state, s, peut) {
+    const deck = s.deck;
+    if (!deck) return el("div", { class: "mise-en-place" }, el("span", { class: "sous", text: "Sans deck importé" }));
+    const n = s.index;
+    const faiblesses = (state.piles[`pweak${n}`] ?? []).length;
+    if (deck.board.setup === "none") {
+      if (!peut) ctx.selection.clear();
+      return el("div", { class: "mise-en-place" },
+        el("span", { class: "ligne-boutons" },
+          el("button", { class: "bouton", type: "button", disabled: !peut, title: "Mélange la pioche, pose les permanents et les cartes qui commencent en jeu, +5 ressources, main de 5 (les faiblesses sont mises de côté), puis mulligan",
+            onclick: () => ctx.envoyer({ t: "p:setup" }) }, "Mise en place"),
+          el("span", { class: "sous", text: peut ? "mélange, permanents, 5 ressources, main de 5, puis mulligan" : "à la demande du joueur" })));
+    }
+    if (deck.board.setup === "mulligan") {
+      const k = ctx.selection.size;
+      return el("div", { class: "mise-en-place mulligan" },
+        el("span", { class: "libelle", text: peut ? `Mulligan : cliquez les cartes de votre main à rendre (${k}), une seule fois.` : "Mulligan en cours…" }),
+        el("span", { class: "ligne-boutons" },
+          el("button", { class: "bouton", type: "button", disabled: !peut || k === 0, title: "Les cartes choisies sont remplacées, puis remélangées dans la pioche avec les faiblesses mises de côté",
+            onclick: () => { ctx.envoyer({ t: "p:mulligan", ids: [...ctx.selection] }); ctx.selection.clear(); } }, `Mulligan (${k})`),
+          el("button", { class: "bouton secondaire", type: "button", disabled: !peut, onclick: () => { ctx.envoyer({ t: "p:keep" }); ctx.selection.clear(); } }, "Garder ma main"),
+          faiblesses ? el("span", { class: "sous", text: `${pluriel(faiblesses, "faiblesse")} mise${faiblesses > 1 ? "s" : ""} de côté, remélangée${faiblesses > 1 ? "s" : ""} ensuite` }) : null));
+    }
+    ctx.selection.clear();
+    return el("div", { class: "mise-en-place" }, el("span", { class: "sous", text: `Board en place${deck.board.mulliganUsed ? " (mulligan fait)" : " (main gardée)"}` }));
   }
 
   function rendrePiles(state, s, peut) {
@@ -330,11 +357,15 @@ async function demarrer() {
     const cote = Object.values(state.cards).filter((c) => c.loc.zone === `paside${n}`).sort((a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z);
     const sect = document.getElementById("piles-joueur");
     sect.replaceChildren(
-      el("div", { class: "pile", "data-outil": `pdeck${n}`, title: s.deck ? "Pioche (réserve) — clic : piocher en main (étape 2)" : "Pas de deck" },
+      el("div", { class: "pile", "data-drop": `pile:pdeck${n}`, "data-outil": `pdeck${n}`, title: s.deck ? "Pioche (réserve) — clic : piocher en main ; clic droit : piocher plusieurs, chercher, regarder les premières, mélanger ; déposez ici pour mettre une carte dessus" : "Pas de deck" },
         el("div", { class: `dos-pile pioche-joueur${pioche.length ? "" : " vide"}` },
-          pioche.length ? el("button", { class: "dos-bouton", type: "button", disabled: true, title: "Piocher : étape 2" }, el("img", { src: "/img/dos-joueur.svg", alt: "pioche" })) : el("span", { class: "sous", text: "vide" })),
+          pioche.length
+            ? el("button", { class: "dos-bouton", type: "button", disabled: !peut, title: "Piocher 1 carte" }, el("img", { src: "/img/dos-joueur.svg", alt: "pioche" }))
+            : defausse.length
+              ? el("button", { class: "dos-bouton vide", type: "button", disabled: !peut, title: "Pioche vide : clic pour remélanger la défausse et piocher (prends 1 horreur)" }, el("span", { class: "sous", text: "vide" }))
+              : el("span", { class: "sous", text: "vide" })),
         el("span", { class: "badge", text: String(pioche.length) }), el("span", { class: "etiquette-pile", text: "Pioche" })),
-      el("div", { class: "pile", "data-drop": `pile:pdiscard${n}`, "data-outil": `pdiscard${n}`, title: "Défausse — consultable (étape 2)" },
+      el("div", { class: "pile", "data-drop": `pile:pdiscard${n}`, "data-outil": `pdiscard${n}`, title: "Défausse — déposez ici pour défausser ; clic droit : consulter, reprendre" },
         el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteEl(dessus, ctx) : el("span", { class: "sous", text: "défausse" })),
         el("span", { class: "badge", text: String(defausse.length) }), el("span", { class: "etiquette-pile", text: "Défausse" })),
       el("section", { class: "hors-jeu" },
@@ -361,7 +392,7 @@ async function demarrer() {
       el("section", { class: "bloc-cours" },
         el("h2", {}, "En cours ", el("span", { class: "sous", text: "(événements joués, cartes engagées au test)" })),
         el("div", { class: "bande", "data-drop": `plimbo${n}` }, ...(enCours.length ? enCours.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Rien en cours." })]),
-          enCours.length ? el("button", { class: "bouton petit", type: "button", disabled: true, title: "Étape 3" }, "Résolu") : null)),
+          enCours.length ? el("button", { class: "bouton petit", type: "button", disabled: true, title: "Résolu → défausse : étape 3" }, "Résolu") : null)),
       el("section", { class: "bloc-menace" },
         el("h2", { text: "Zone de menace" }),
         el("div", { class: "menace", "data-drop": `seat${n}` }, ...(menace.length ? menace.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Ennemis engagés, traîtrises et soutiens histoire — les mêmes que sur le tapis." })]))),
@@ -373,14 +404,25 @@ async function demarrer() {
     const ids = state.piles[`phand${n}`] ?? [];
     const pied = document.getElementById("main");
     const visible = mien || ctx.regarder;
+    const peut = mien && ctx.peutAgir();
     const cartes = ids.map((id) => state.cards[id]).filter(Boolean);
+    const mulligan = mien && s.deck?.board.setup === "mulligan";
     pied.replaceChildren(
       el("header", {},
         el("h2", { text: `Main — ${pluriel(cartes.length, "carte")}` }),
         !mien && cartes.length ? el("button", { class: "bouton secondaire petit", type: "button", onclick: () => { ctx.regarder = !ctx.regarder; rendre(); } }, ctx.regarder ? "Masquer" : "Regarder") : null,
-        !mien ? el("span", { class: "sous", text: "main masquée : dos et nombre" }) : null),
+        !mien ? el("span", { class: "sous", text: "main masquée : dos et nombre" }) : null,
+        mien ? el("span", { class: "sous", text: mulligan ? "cliquez les cartes à rendre" : "glissez vers en jeu, la défausse ou la pioche ; clic droit : révéler, défausser…" }) : null,
+        mien ? el("span", { class: "espace" }) : null,
+        mien ? el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || !s.deck, title: "Piocher 1 carte", onclick: () => ctx.envoyer({ t: "p:draw", n: 1 }) }, "Piocher") : null,
+        mien ? el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || !cartes.length, title: "Défausser une carte de la main au hasard (nommée dans le journal)", onclick: () => ctx.envoyer({ t: "p:randomDiscard", n: 1 }) }, "Défausser au hasard") : null),
       el("div", { class: "eventail", "data-drop": mien ? `pile:phand${n}` : null },
-        ...(cartes.length ? cartes.map((c) => carteEl({ ...c, faceUp: visible || c.revealed === true }, ctx)) : [el("p", { class: "vide", text: s.deck ? "Aucune carte en main (mise en place : étape 2)." : "Pas de deck." })])),
+        ...(cartes.length ? cartes.map((c) => {
+          const e = carteEl({ ...c, faceUp: visible || c.revealed === true }, ctx);
+          e.classList.toggle("choisie", mulligan && ctx.selection.has(c.id));
+          e.classList.toggle("revelee", c.revealed === true);
+          return e;
+        }) : [el("p", { class: "vide", text: s.deck ? (s.deck.board.setup === "none" ? "Aucune carte en main : lancez la mise en place." : "Main vide.") : "Pas de deck." })])),
     );
   }
 

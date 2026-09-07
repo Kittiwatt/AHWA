@@ -19,7 +19,7 @@ import { getScenario, reponseValide } from "./scenario";
 import { addLog, runSetup, nextZ, SEAT_ZONES } from "./setup";
 import { jouer, Refus, refuser } from "./actions";
 import { newHostToken } from "./codes";
-import { analyserLien, chargerDeck, construireDeck, creerDecks, jouerJoueur, rectoEffectif, resoudreFaiblesse, type FicheInvestigateur, type IndexJoueur } from "./joueur";
+import { analyserLien, chargerDeck, construireDeck, creerDecks, jouerJoueur, rectoEffectif, resoudreFaiblesse, PILE_JOUEUR_RE, type FicheInvestigateur, type IndexJoueur } from "./joueur";
 import investigatorsIndex from "../public/data/investigators.json";
 
 type Meta = { code: string; scenarioId: string; hostToken: string };
@@ -452,8 +452,13 @@ export class Room extends Server<Env> {
             const vise = msg.seat === undefined ? s : Number(msg.seat);
             if (vise !== s) refuser("siege");
             if (!state.seats[s].deck) refuser("ce siège n'a pas de deck");
-            res = jouerJoueur(state, msg, s, await this.indexJoueur(), Math.random);
-          } else res = jouer(state, def, msg, a.seat, Math.random);
+            res = jouerJoueur(state, msg, s, await this.indexJoueur(), INVESTIGATORS, Math.random);
+          } else {
+            // Piles et zones d'un board joueur (pioche, main, défausse, en jeu…) : seul leur siège y dépose ou les mélange.
+            const cible = PILE_JOUEUR_RE.exec(String(msg.pile ?? msg.zone ?? ""));
+            if (cible && Number(cible[1]) !== a.seat) refuser("siege");
+            res = jouer(state, def, msg, a.seat, Math.random);
+          }
         } catch (e) {
           this.state = before; // une action refusée en cours de route ne laisse aucune trace
           throw e;

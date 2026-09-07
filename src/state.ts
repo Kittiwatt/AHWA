@@ -53,7 +53,8 @@ export type SeatDeck = {
   customizations?: Record<string, string>;  // meta cus_<code>, affichage seulement
   taboo?: number;
   xp?: number;
-  board: { setup: "none" | "mulligan" | "done"; mulliganUsed: boolean; weakAside: CardId[] };
+  board: { setup: "none" | "mulligan" | "done"; mulliganUsed: boolean };
+  // Les faiblesses mises de côté pendant la mise en place sont dans la pile pweak<n>.
 };
 
 export type Seat = {
@@ -130,7 +131,7 @@ export function emptySeat(index: SeatIndex): Seat {
 }
 
 export function emptyBoard(): SeatDeck["board"] {
-  return { setup: "none", mulliganUsed: false, weakAside: [] };
+  return { setup: "none", mulliganUsed: false };
 }
 
 export function emptyPiles(): Record<PileId, CardId[]> {

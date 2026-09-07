@@ -6,10 +6,12 @@
 // assets) ; les définitions des cartes d'un deck voyagent ensuite dans state.extraDefs, comme celles de l'outil
 // « Générer une carte ». Aucun texte de carte n'est reproduit : noms, chiffres et images seulement.
 
-import type { CardId, CardKind, CardState, RoomState, Seat, SeatDeck, ZoneId } from "./state";
+import type { CardId, CardKind, CardState, LogEntry, RoomState, Seat, SeatDeck, ZoneId } from "./state";
 import { emptyBoard } from "./state";
-import { addLog, shuffle, CARD_W, type Rng } from "./setup";
-import { Refus, refuser, type Resultat } from "./actions";
+import { addLog, shuffle, CARD_W, nextZ, type Rng } from "./setup";
+import { Refus, refuser } from "./refus";
+
+type Resultat = { reminders?: LogEntry[]; peek?: { cards: { id: string; code: string }[]; pile: string } };
 
 /** Entrée de l'index des cartes joueur (clés courtes, voir buildPlayerCards dans scripts/build.mjs). */
 export type FicheJoueur = {
@@ -195,8 +197,10 @@ export function defJoueur(f: FicheJoueur): Record<string, unknown> {
   return def;
 }
 
-export const PILES_JOUEUR = (n: number) => ({ deck: `pdeck${n}`, hand: `phand${n}`, discard: `pdiscard${n}` });
+export const PILES_JOUEUR = (n: number) => ({ deck: `pdeck${n}`, hand: `phand${n}`, discard: `pdiscard${n}`, weak: `pweak${n}` });
 export const ZONES_JOUEUR = (n: number) => ({ play: `pplay${n}` as ZoneId, limbo: `plimbo${n}` as ZoneId, aside: `paside${n}` as ZoneId });
+/** Piles et zones d'un board joueur : le chiffre final est le siège. */
+export const PILE_JOUEUR_RE = /^p(?:deck|hand|discard|weak|play|limbo|aside)([0-3])$/;
 
 function nomSiege(seat: Seat, invName?: string): string {
   return seat.name ?? seat.custom?.name ?? invName ?? `Siège ${seat.index + 1}`;
@@ -215,6 +219,7 @@ export function creerDecks(state: RoomState, index: IndexJoueur, investigateurs:
     state.piles[piles.deck] = [];
     state.piles[piles.hand] = [];
     state.piles[piles.discard] = [];
+    state.piles[piles.weak] = [];
     const deck = seat.deck;
     deck.board = emptyBoard();
     seat.counters.resources = 0;
@@ -265,13 +270,239 @@ export function commenceEnJeu(state: RoomState, seat: Seat, index: IndexJoueur, 
   });
 }
 
-// ---- Actions du board (étapes 2 et 3) ---------------------------------------------------
+// ---- Actions du board (étape 2 : mise en place, mulligan, pioche, main, défausse) --------------------
 
 export type ActionJoueur = { t: string; [k: string]: unknown };
 
-/** Actions `p:*`, réservées au siège (le DO a déjà vérifié la connexion). Étape 1 : aucune action encore. */
-export function jouerJoueur(_state: RoomState, msg: ActionJoueur, _siege: number, _index: IndexJoueur, _rng: Rng): Resultat {
-  return refuser(`action « ${msg.t} » inconnue (board joueur : étape 2)`);
+function defDe(state: RoomState, code: string): Record<string, unknown> | undefined {
+  return state.extraDefs[code] as Record<string, unknown> | undefined;
+}
+
+export function nomJoueur(state: RoomState, c: CardState): string {
+  return (defDe(state, c.code)?.name as string | undefined) ?? c.code;
+}
+
+function estFaiblesse(state: RoomState, c: CardState): boolean {
+  const st = defDe(state, c.code)?.subtype;
+  return st === "weakness" || st === "basicweakness";
+}
+
+function nomSiegeEtat(state: RoomState, n: number): string {
+  const s = state.seats[n];
+  return s.name ?? s.custom?.name ?? (s.investigatorCode && (state.extraDefs[s.investigatorCode] as { name?: string } | undefined)?.name) ?? `Siège ${n + 1}`;
+}
+
+function retirerDesPiles(state: RoomState, id: string) {
+  for (const pile of Object.values(state.piles)) {
+    const i = pile.indexOf(id);
+    if (i >= 0) pile.splice(i, 1);
+  }
+}
+
+/** Une carte va dans une pile du board : face cachée sauf défausse, jetons et état effacés, propriétaire conservé. */
+function versPile(state: RoomState, c: CardState, pile: string, top = true) {
+  retirerDesPiles(state, c.id);
+  state.links = state.links.filter((l) => l.a !== c.id && l.b !== c.id);
+  c.loc = { pile };
+  c.faceUp = /^pdiscard/.test(pile);
+  c.exhausted = false;
+  c.tokens = {};
+  c.side = "a";
+  delete c.revealed;
+  if (top) state.piles[pile].unshift(c.id); else state.piles[pile].push(c.id);
+}
+
+function carteDuSiege(state: RoomState, id: unknown, n: number): CardState {
+  const c = state.cards[String(id)] ?? refuser("carte inconnue");
+  if (!c.player || c.ownerSeat !== n) refuser("cette carte n'est pas à ce siège");
+  return c;
+}
+
+/** Bord droit d'une zone (rangée) du board, pour y ranger une carte en fin de rangée. */
+function boutDeZone(state: RoomState, zone: string): number {
+  let x = 0;
+  for (const c of Object.values(state.cards)) if ("zone" in c.loc && c.loc.zone === zone) x = Math.max(x, c.loc.x + CARD_W + 10);
+  return x;
+}
+
+/** Pose une carte en jeu (face visible) avec ses jetons Uses et à la fin de la rangée. */
+function mettreEnJeu(state: RoomState, c: CardState, n: number) {
+  retirerDesPiles(state, c.id);
+  const zone = ZONES_JOUEUR(n).play;
+  c.loc = { zone, x: boutDeZone(state, zone), y: 0, z: nextZ(state) };
+  c.faceUp = true;
+  c.exhausted = false;
+  c.side = "a";
+  delete c.revealed;
+  const uses = defDe(state, c.code)?.uses as { n: number; type: string } | undefined;
+  c.tokens = uses && uses.n > 0 ? { uses: uses.n } : {};
+}
+
+/**
+ * Pioche `n` cartes de la pioche vers la main (fin de main, face cachée). Pioche vide : la défausse est remélangée
+ * dans la pioche et le rappel « prends 1 horreur » est ajouté ; pioche et défausse vides : rappel « vaincu ».
+ * Pendant la mise en place (`setup`), une faiblesse piochée est mise de côté (pile pweak) et remplacée.
+ */
+function piocher(state: RoomState, n: number, nb: number, rng: Rng, setup: boolean, reminders: LogEntry[]): { main: CardId[]; faiblesses: CardId[]; remelange: number } {
+  const piles = PILES_JOUEUR(n);
+  const main: CardId[] = [], faiblesses: CardId[] = [];
+  let remelange = 0, vide = false;
+  for (let i = 0; i < nb && !vide; ) {
+    if (!state.piles[piles.deck].length) {
+      if (state.piles[piles.discard].length) {
+        remelange += state.piles[piles.discard].length;
+        state.piles[piles.deck].push(...shuffle(state.piles[piles.discard].splice(0), rng));
+        for (const id of state.piles[piles.deck]) { state.cards[id].faceUp = false; delete state.cards[id].revealed; }
+        addLog(state, "action", `Pioche de ${nomSiegeEtat(state, n)} vide : sa défausse (${remelange} cartes) est remélangée.`, n);
+        reminders.push(addLog(state, "reminder", `${nomSiegeEtat(state, n)} : la pioche était vide — prends 1 horreur (règle de la pioche vide).`, n));
+      } else {
+        reminders.push(addLog(state, "reminder", `${nomSiegeEtat(state, n)} : pioche et défausse vides — l'enquêteur est vaincu (1 traumatisme mental).`, n));
+        vide = true;
+        break;
+      }
+    }
+    const id = state.piles[piles.deck].shift()!;
+    const c = state.cards[id];
+    if (setup && estFaiblesse(state, c)) { versPile(state, c, piles.weak, false); faiblesses.push(id); continue; }
+    versPile(state, c, piles.hand, false);
+    main.push(id);
+    i++;
+  }
+  return { main, faiblesses, remelange };
+}
+
+function pl(n: number, s: string, p = `${s}s`): string { return `${n} ${n > 1 ? p : s}`; }
+
+/** Entretien (nextPhase → upkeep) : pioche 1 et +1 ressource pour un board en place ; rappel si la main dépasse 8. */
+export function entretienJoueur(state: RoomState, seat: Seat, rng: Rng): LogEntry[] {
+  const reminders: LogEntry[] = [];
+  const n = seat.index;
+  piocher(state, n, 1, rng, false, reminders);
+  seat.counters.resources = (seat.counters.resources ?? 0) + 1;
+  const main = state.piles[PILES_JOUEUR(n).hand].length;
+  addLog(state, "action", `${nomSiegeEtat(state, n)} pioche 1 carte et gagne 1 ressource (entretien).`, n);
+  if (main > 8) reminders.push(addLog(state, "reminder", `${nomSiegeEtat(state, n)} a ${main} cartes en main : défausse jusqu'à 8.`, n));
+  return reminders;
+}
+
+/** Actions `p:*`, réservées au siège (le DO a vérifié la connexion et l'existence du deck). */
+export function jouerJoueur(state: RoomState, msg: ActionJoueur, n: number, index: IndexJoueur, investigateurs: Map<string, FicheInvestigateur>, rng: Rng): Resultat {
+  const seat = state.seats[n];
+  const deck = seat.deck!;
+  const piles = PILES_JOUEUR(n), zones = ZONES_JOUEUR(n);
+  const nom = nomSiegeEtat(state, n);
+  const reminders: LogEntry[] = [];
+
+  switch (msg.t) {
+    // ---- Mise en place du joueur (cahier §10.6) ----
+    case "p:setup": {
+      if (deck.board.setup !== "none") refuser("le board est déjà en place");
+      shuffle(state.piles[piles.deck], rng);
+      const enJeu = commenceEnJeu(state, seat, index, investigateurs.get(seat.investigatorCode ?? ""));
+      for (const id of enJeu) mettreEnJeu(state, state.cards[id], n);
+      seat.counters.resources = (seat.counters.resources ?? 0) + 5;
+      const tir = piocher(state, n, 5, rng, true, reminders);
+      deck.board.setup = "mulligan";
+      deck.board.mulliganUsed = false;
+      const nomsJeu = enJeu.map((id) => nomJoueur(state, state.cards[id]));
+      addLog(state, "action", `${nom} met son board en place : pioche mélangée, ${nomsJeu.length ? `${nomsJeu.join(", ")} en jeu, ` : ""}5 ressources, ${pl(tir.main.length, "carte")} en main${tir.faiblesses.length ? ` (${pl(tir.faiblesses.length, "faiblesse")} mise${tir.faiblesses.length > 1 ? "s" : ""} de côté, remélangée${tir.faiblesses.length > 1 ? "s" : ""} après le mulligan)` : ""}.`, n);
+      return { reminders };
+    }
+    case "p:mulligan": {
+      if (deck.board.setup !== "mulligan") refuser(deck.board.mulliganUsed ? "le mulligan a déjà été fait" : "le board n'est pas en cours de mise en place");
+      const ids = Array.isArray(msg.ids) ? (msg.ids as unknown[]).map(String) : [];
+      const main = state.piles[piles.hand];
+      if (!ids.length || !ids.every((id) => main.includes(id))) refuser("choisissez des cartes de votre main");
+      const rendues = [...new Set(ids)];
+      for (const id of rendues) retirerDesPiles(state, id);
+      const tir = piocher(state, n, rendues.length, rng, true, reminders);
+      // Cartes rendues et faiblesses mises de côté retournent dans la pioche, mélangées.
+      const retour = [...rendues, ...state.piles[piles.weak].splice(0)];
+      for (const id of retour) { const c = state.cards[id]; c.loc = { pile: piles.deck }; c.faceUp = false; c.tokens = {}; delete c.revealed; state.piles[piles.deck].push(id); }
+      shuffle(state.piles[piles.deck], rng);
+      deck.board.mulliganUsed = true;
+      deck.board.setup = "done";
+      addLog(state, "action", `${nom} rend ${pl(rendues.length, "carte")} et en pioche ${tir.main.length} (mulligan) ; les cartes rendues${retour.length > rendues.length ? " et les faiblesses mises de côté" : ""} sont remélangées dans la pioche.`, n);
+      return { reminders };
+    }
+    case "p:keep": {
+      if (deck.board.setup !== "mulligan") refuser("le board n'est pas en cours de mise en place");
+      const faiblesses = state.piles[piles.weak].splice(0);
+      for (const id of faiblesses) { const c = state.cards[id]; c.loc = { pile: piles.deck }; c.faceUp = false; state.piles[piles.deck].push(id); }
+      if (faiblesses.length) shuffle(state.piles[piles.deck], rng);
+      deck.board.setup = "done";
+      addLog(state, "action", `${nom} garde sa main${faiblesses.length ? ` ; ${pl(faiblesses.length, "faiblesse")} mise${faiblesses.length > 1 ? "s" : ""} de côté remélangée${faiblesses.length > 1 ? "s" : ""} dans la pioche` : ""}.`, n);
+      return {};
+    }
+
+    // ---- Pioche, main, défausse ----
+    case "p:draw": {
+      const nb = Math.max(1, Math.min(10, Math.round(Number(msg.n) || 1)));
+      const tir = piocher(state, n, nb, rng, false, reminders);
+      if (tir.main.length) addLog(state, "action", `${nom} pioche ${pl(tir.main.length, "carte")}.`, n);
+      return { reminders };
+    }
+    case "p:discard": {
+      const c = carteDuSiege(state, msg.id, n);
+      versPile(state, c, piles.discard);
+      addLog(state, "action", `${nom} défausse ${nomJoueur(state, c)}.`, n);
+      return {};
+    }
+    case "p:randomDiscard": {
+      const nb = Math.max(1, Math.min(10, Math.round(Number(msg.n) || 1)));
+      const main = state.piles[piles.hand];
+      if (!main.length) refuser("la main est vide");
+      const choix = shuffle([...main], rng).slice(0, nb);
+      const noms: string[] = [];
+      for (const id of choix) { const c = state.cards[id]; versPile(state, c, piles.discard); noms.push(nomJoueur(state, c)); }
+      const entry = addLog(state, "action", `${nom} défausse au hasard : ${noms.join(", ")}.`, n);
+      return { reminders: [entry] };
+    }
+    case "p:toHand": {
+      const c = carteDuSiege(state, msg.id, n);
+      const depuisPioche = "pile" in c.loc && c.loc.pile === piles.deck;
+      const depuisMain = "pile" in c.loc && c.loc.pile === piles.hand;
+      if (depuisMain) return {};
+      versPile(state, c, piles.hand, false);
+      addLog(state, "action", depuisPioche ? `${nom} prend une carte de sa pioche en main.` : `${nom} reprend ${nomJoueur(state, c)} en main.`, n);
+      return {};
+    }
+    case "p:reveal": {
+      const c = carteDuSiege(state, msg.id, n);
+      if (!("pile" in c.loc) || c.loc.pile !== piles.hand) refuser("cette carte n'est pas dans la main");
+      const v = msg.v === undefined ? !c.revealed : Boolean(msg.v);
+      if (v) { c.revealed = true; addLog(state, "action", `${nom} montre ${nomJoueur(state, c)} (carte de sa main).`, n); }
+      else delete c.revealed;
+      return {};
+    }
+    case "p:search": {
+      // {pile, n?} : pioche (les n premières dans l'ordre, ou toute la pioche — le client la remélange à la fermeture) ou défausse.
+      const pile = String(msg.pile ?? piles.deck);
+      if (pile !== piles.deck && pile !== piles.discard) refuser("pile inconnue");
+      const total = state.piles[pile].length;
+      const nb = Number(msg.n) > 0 ? Math.min(Number(msg.n), total) : total;
+      if (pile === piles.deck) addLog(state, "action", Number(msg.n) > 0 ? `${nom} regarde les ${pl(nb, "première carte", "premières cartes")} de sa pioche.` : `${nom} cherche dans sa pioche.`, n);
+      return { peek: { pile, cards: state.piles[pile].slice(0, nb).map((id) => ({ id, code: state.cards[id].code })) } };
+    }
+    case "p:exile": {
+      const c = carteDuSiege(state, msg.id, n);
+      versPile(state, c, "removed");
+      c.faceUp = false;
+      addLog(state, "action", `${nom} retire ${nomJoueur(state, c)} de la partie.`, n);
+      return {};
+    }
+    case "p:aside": {
+      // Hors jeu (mises de côté), en fin de rangée, face visible.
+      const c = carteDuSiege(state, msg.id, n);
+      retirerDesPiles(state, c.id);
+      c.loc = { zone: zones.aside, x: boutDeZone(state, zones.aside), y: 0, z: nextZ(state) };
+      c.faceUp = true; c.exhausted = false; c.tokens = {}; delete c.revealed;
+      addLog(state, "action", `${nom} met ${nomJoueur(state, c)} hors jeu (de côté).`, n);
+      return {};
+    }
+    default:
+      return refuser(`action « ${msg.t} » inconnue (board joueur : étape 3)`);
+  }
 }
 
 export { Refus };

@@ -636,9 +636,8 @@ type Seat = {
     weaknessPending: number;                 // placeholders 01000 restants
     customizations?: Record<string, string>; // meta cus_<code>, affichage seulement
     taboo?: number; xp?: number;
-    board: { setup: "none" | "mulligan" | "done"; mulliganUsed: boolean;
-             weakAside: CardId[] };          // faiblesses mises de côté pendant la mise en place
-  };
+    board: { setup: "none" | "mulligan" | "done"; mulliganUsed: boolean };
+  };                                         // faiblesses mises de côté pendant la mise en place : pile pweak<n>
 };
 ```
 
@@ -666,6 +665,7 @@ Piles et zones par siège `n` :
 | `pdeck<n>` | pile, face cachée | la pioche (« réserve ») |
 | `phand<n>` | pile ordonnée (ordre de pioche) | la main |
 | `pdiscard<n>` | pile, face visible | la défausse, consultable |
+| `pweak<n>` | pile, face cachée | faiblesses mises de côté pendant la mise en place (remélangées après le mulligan) |
 | `pplay<n>` | zone, coordonnées libres | en jeu (assets, attaches gardées) |
 | `plimbo<n>` | zone, rangée | « en cours » : événements payés, skills engagés |
 | `paside<n>` | zone, rangée | hors jeu : cartes liées, mises de côté |
@@ -714,10 +714,11 @@ loupe). Disposition à trancher sur maquette (captures) ; proposition :
 | t | Effet |
 |---|---|
 | `importDeck {url}` / `resolveWeakness {choice}` | lobby, voir §10.3 |
-| `p:setup` | mélange `pdeck` ; permanents et « commence en jeu » → `pplay` face visible (Uses posés) ; `resources += 5` ; pioche 5 en main, chaque faiblesse tirée va dans `weakAside` et est remplacée ; `board.setup = "mulligan"` ; journal |
-| `p:mulligan {ids}` | `ids` ⊂ main : mis de côté, autant de cartes piochées (faiblesses idem) ; puis cartes rendues + `weakAside` remélangées dans `pdeck` ; `mulliganUsed = true`, `setup = "done"` |
-| `p:keep` | `weakAside` remélangé dans `pdeck` ; `setup = "done"` |
-| `p:draw {n = 1}` | pioche n en main ; pioche vide → `pdiscard` remélangée dans `pdeck` puis pioche, **rappel « prends 1 horreur »** (encart + journal) ; pioche et défausse vides → rappel « enquêteur vaincu » (rien de plus) |
+| `p:setup` | mélange `pdeck` ; permanents et « commence en jeu » → `pplay` face visible (Uses posés) ; `resources += 5` ; pioche 5 en main, chaque faiblesse tirée va dans `pweak` et est remplacée ; `board.setup = "mulligan"` ; journal |
+| `p:mulligan {ids}` | `ids` ⊂ main : mis de côté, autant de cartes piochées (faiblesses idem) ; puis cartes rendues + `pweak` remélangées dans `pdeck` ; `mulliganUsed = true`, `setup = "done"` |
+| `p:keep` | `pweak` remélangé dans `pdeck` ; `setup = "done"` |
+| `p:draw {n = 1}` | pioche n (≤ 10) en main ; pioche vide → `pdiscard` remélangée dans `pdeck` puis pioche, **rappel « prends 1 horreur »** (encart + journal) ; pioche et défausse vides → rappel « enquêteur vaincu » (rien de plus) |
+| `p:aside {id}` | → hors jeu (`paside`), en fin de rangée, face visible |
 | `p:play {id, cost?, free?}` | main → `pplay` (asset) ou `plimbo` (événement) ; `resources −= coût imprimé`, ou `cost` fourni quand le coût est X, ou 0 si `free` ; jamais refusé, un total négatif est surligné ; à l'entrée en jeu `tokens.uses = def.uses.n`, jauges des alliés ; journal « X joue Y » (sans le texte) |
 | `p:commit {id}` | carte de la main → `plimbo` sans coût (skill engagé, ou carte rangée là volontairement) |
 | `p:resolve` | tout `plimbo` → `pdiscard`, face visible. « Garder en jeu » = `moveCard` vers `pplay` |
@@ -729,10 +730,17 @@ loupe). Disposition à trancher sur maquette (captures) ; proposition :
 | `p:toLocation {id}` | → `board`, posée à côté du lieu où se trouve le pion du siège (décalage vers le bas), sinon au centre ; menu « Reprendre sur mon board » = `moveCard` vers `pplay` |
 
 Réutilisés tels quels : `moveCard` (glisser entre zones, y compris la
-menace), `toPile {top}` (sur / sous la pioche), `shufflePile`, `flipCard`,
-`exhaust`, `addToken {token: "uses"}`, `setSeatCounter {resources}`,
-`chaosDraw` / `chaosReturn`, `nextPhase`, `takeTurn` / `endTurn`. Un
-refus de siège renvoie `{ t: "nack", reason: "siege" }`.
+menace), `toPile {top, shuffle}` (sur / sous / mélanger dans la pioche),
+`shufflePile`, `flipCard`, `exhaust`, `addToken {token: "uses"}`,
+`setSeatCounter {resources}`, `chaosDraw` / `chaosReturn`, `nextPhase`,
+`takeTurn` / `endTurn`. Un refus de siège renvoie `{ t: "nack", reason:
+"siege" }` — aussi pour un geste générique (`toPile`, `moveCard`,
+`shufflePile`) visant une pile ou une zone d'un autre board
+(`/^p(deck|hand|discard|weak|play|limbo|aside)[0-3]$/`) ; les gestes de
+rencontre (`drawEncounter`, `randomPick`, `searchEncounter`,
+`reshuffleDiscard`) ne s'appliquent jamais à une pile de board. Les
+journaux nomment les cartes joueur d'après `state.extraDefs`
+(`nomVisible(def, card, extraDefs)`).
 
 **Entretien** (table, dans `nextPhase` → `upkeep`, un seul message) :
 pour chaque siège dont `board.setup = "done"`, pioche 1 (règle de la
@@ -780,11 +788,11 @@ sert à montrer une carte à tous sans la sortir de la main.
    tapis. Tests bout en bout (import des deux sources, deck privé refusé,
    placeholder, cartes liées, pin juste / faux, deux connexions, refus
    `siege`), captures.
-2. **Mise en place et mulligan** : `p:setup`, `p:mulligan`, `p:keep`,
-   pioche / main / défausse et tous les boutons d'E3, main masquée chez
-   les autres, `revealed`, hors jeu, entretien automatique, pioche vide.
-   Tests (mulligan une seule fois, faiblesse en main de départ, deck
-   vide) et captures.
+2. **Mise en place et mulligan** — *livrée le 2026-09-07* : `p:setup`,
+   `p:mulligan`, `p:keep`, pioche / main / défausse et tous les boutons
+   d'E3, main masquée chez les autres, `revealed`, hors jeu, entretien
+   automatique, pioche vide. Tests (mulligan une seule fois, faiblesse
+   en main de départ, deck vide) et captures 61‑65.
 3. **Jeu** : `p:play` (coût, X, sans payer, négatif), limbes et
    « Résolu », Uses et jauges, badges de slot et occupation, exil,
    « Poser sur mon lieu » et retour, journal. Régression sur les tables

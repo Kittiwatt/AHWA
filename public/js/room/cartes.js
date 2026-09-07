@@ -68,6 +68,8 @@ const JETONS = [
   ["damage", "/img/tokens/tok_degats.png", "dégât"],
   ["horror", "/img/tokens/tok_horreur.png", "horreur"],
   ["resource", "/img/tokens/tok_ressources.png", "ressource"],
+  // Uses (munitions, charges, secrets…) : des jetons ressource posés sur la carte (Grimoire p. 24) — image des ressources, cerclée.
+  ["uses", "/img/tokens/tok_ressources.png", "use"],
 ];
 
 export function elJetons(tokens = {}) {

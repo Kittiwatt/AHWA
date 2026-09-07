@@ -5,9 +5,10 @@
 import type { CardState, LogEntry, Phase, RoomState, Token, ZoneId } from "./state";
 import type { ScenarioDef } from "./scenario";
 import { addLog, nextZ, nomVisible, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI } from "./setup";
+import { Refus, refuser } from "./refus";
+import { entretienJoueur, PILE_JOUEUR_RE } from "./joueur";
 
-export class Refus extends Error {}
-export const refuser = (raison: string): never => { throw new Refus(raison); };
+export { Refus, refuser };
 
 export type Resultat = { reminders?: LogEntry[]; peek?: { cards: { id: string; code: string }[]; pile: string } };
 
@@ -31,7 +32,7 @@ function siege(state: RoomState, n: unknown): number {
   return i;
 }
 
-function retirerDesPiles(state: RoomState, id: string) {
+export function retirerDesPiles(state: RoomState, id: string) {
   for (const pile of Object.values(state.piles)) {
     const i = pile.indexOf(id);
     if (i >= 0) pile.splice(i, 1);
@@ -42,9 +43,11 @@ function nomPile(def: ScenarioDef, pile: string): string {
   return def.piles?.find((p) => p.id === pile)?.label ?? pile;
 }
 
-/** Nom de la face visible (le verso d'un lieu non révélé garde son secret : « Decrepit Door »). */
+/** Nom de la face visible (le verso d'un lieu non révélé garde son secret : « Decrepit Door ») ; une carte
+ *  joueur ou générée est nommée d'après state.extraDefs (état courant de l'action en cours). */
+let etatCourant: RoomState | null = null;
 function nomCarte(def: ScenarioDef, c: CardState): string {
-  return nomVisible(def, c);
+  return nomVisible(def, c, etatCourant?.extraDefs);
 }
 
 function nomSiege(state: RoomState, n: number, def: ScenarioDef): string {
@@ -75,7 +78,7 @@ function defausseDe(def: ScenarioDef, pile: string): string | null {
   return def.piles?.find((p) => p.id === pile)?.discard ?? null;
 }
 function estDefausse(def: ScenarioDef, pile: string): boolean {
-  return pile === "encounterDiscard" || Boolean(def.piles?.find((p) => p.id === pile)?.isDiscard);
+  return pile === "encounterDiscard" || /^pdiscard[0-3]$/.test(pile) || Boolean(def.piles?.find((p) => p.id === pile)?.isDiscard);
 }
 
 function remelangerDefausse(state: RoomState, rng: Rng, pioche = "encounter", defausse = "encounterDiscard") {
@@ -195,6 +198,10 @@ function remplacerLieu(state: RoomState, def: ScenarioDef, c: CardState): string
 
 export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: string]: unknown }, moi: number | null, rng: Rng): Resultat {
   const monSiege = () => (moi === null ? refuser("il faut être assis pour agir") : moi);
+  etatCourant = state;
+  // Les piles d'un board joueur (pioche, main, défausse, faiblesses mises de côté) ne se tirent, ne se consultent
+  // et ne se remélangent que par les actions du board (`p:*`, réservées au siège) : refus des gestes de rencontre.
+  if (["drawEncounter", "randomPick", "searchEncounter", "reshuffleDiscard"].includes(msg.t) && PILE_JOUEUR_RE.test(String(msg.pile ?? msg.deck ?? ""))) refuser("cette pile appartient à un board joueur");
 
   switch (msg.t) {
     // ---- Tour et phases ---------------------------------------------------------
@@ -252,6 +259,8 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
           for (const s of state.seats) s.counters.actions = 3;
           for (const c of Object.values(state.cards)) c.exhausted = false;
           addLog(state, "phase", "Phase d'entretien : cartes redressées, actions remises à 3.");
+          // Boards joueur en place : chacun pioche 1 carte et gagne 1 ressource ; rappel si la main dépasse 8 (cahier §10.6).
+          for (const s of state.seats) if (s.investigatorCode && s.deck?.board.setup === "done") reminders.push(...entretienJoueur(state, s, rng));
           reminders.push(...rappels(state, def, "upkeep"));
           break;
       }

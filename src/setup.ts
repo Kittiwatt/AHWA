@@ -44,11 +44,12 @@ function nomDe(def: ScenarioDef, code: string): string {
 
 export const LIBELLES_CLES: Record<string, string> = { skull: "Crâne", cultist: "Cultiste", tablet: "Tablette", elder_thing: "Ancien" };
 
-/** Nom de la face actuellement visible : le verso (backName) quand il est montré, sinon le recto. */
-export function nomVisible(def: ScenarioDef, card: CardState): string {
+/** Nom de la face actuellement visible : le verso (backName) quand il est montré, sinon le recto.
+ *  `extraDefs` (cartes générées, cartes des decks joueur) complète les cartes du scénario. */
+export function nomVisible(def: ScenarioDef, card: CardState, extraDefs?: Record<string, unknown>): string {
   if (card.kind === "key") return `clé ${LIBELLES_CLES[card.code.replace(/^key:/, "")] ?? card.code}`;
   if (card.kind === "proxy" && card.code === "empty:space") return "espace vide";
-  const d = def.cards.find((c) => c.code === card.code);
+  const d = def.cards.find((c) => c.code === card.code) ?? (extraDefs?.[card.code] as ScenarioCard | undefined);
   if (!d) return card.code;
   const versoVisible = card.faceUp ? card.side === "b" : !card.storyBack;
   return versoVisible ? d.backName ?? d.name : d.name;

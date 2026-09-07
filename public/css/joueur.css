@@ -87,3 +87,15 @@
 .bloc-deck .sous.alerte { color: var(--wip); }
 .faiblesse-pending { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; font-size: 0.9rem; }
 .attente-joueur .bloc-deck { max-width: 32rem; }
+
+/* Étape 2 : mise en place, mulligan, main, consultation */
+.mise-en-place.mulligan { display: grid; gap: 0.3rem; }
+.mise-en-place.mulligan .libelle { font-size: 0.9rem; color: var(--dorure-2); }
+.main-joueur header .espace { flex: 1; }
+.eventail .carte.choisie { outline: 3px solid var(--dorure-2); outline-offset: 2px; transform: translateY(-8px); }
+.eventail .carte.choisie::after { content: "✓"; position: absolute; right: 4px; top: 4px; width: 1.3rem; height: 1.3rem; display: grid; place-items: center; font-weight: 700; color: var(--nuit); background: var(--dorure-2); border-radius: 50%; }
+.carte.revelee::before { content: "montrée"; position: absolute; left: 0; right: 0; bottom: 0; padding: 1px 0; text-align: center; font-size: 0.65rem; color: var(--nuit); background: var(--dorure-2); border-radius: 0 0 4px 4px; z-index: 2; }
+.carte-peek .actions-peek { display: flex; flex-wrap: wrap; gap: 0.2rem 0.5rem; justify-content: flex-end; }
+.jeton-uses { box-shadow: 0 0 0 2px var(--dorure-2); }
+.pile.depot-ok .dos-pile { outline: 2px solid var(--dorure-2); }
+.zone-jeu.depot-ok, .eventail.depot-ok { background: rgba(200, 162, 90, 0.12); }

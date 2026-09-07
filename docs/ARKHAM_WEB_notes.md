@@ -17,6 +17,39 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-07 : **board joueur, étape 2 livrée** (cahier §10.9) — mise en
+  place du joueur, mulligan, pioche / main / défausse, entretien
+  automatique, pioche vide. Serveur (`src/joueur.ts`) : `p:setup`
+  (mélange, permanents et `startsInPlay` → en jeu avec leurs Uses,
+  +5 ressources, main de 5 ; une faiblesse tirée va dans la pile
+  **`pweak<n>`** et est remplacée), `p:mulligan {ids}` (rendues +
+  `pweak` remélangées, une seule fois), `p:keep`, `p:draw {n}` (pioche
+  vide : défausse remélangée + rappel « prends 1 horreur » ; les deux
+  vides : rappel « vaincu »), `p:discard`, `p:randomDiscard` (journal
+  nomme), `p:toHand` (depuis la pioche : sans nommer), `p:reveal`
+  (`revealed`), `p:search {pile, n?}` (`peek` ; le client remélange
+  après une recherche complète), `p:exile`, `p:aside` ; `entretienJoueur`
+  appelé par `nextPhase` → entretien (pioche 1, +1 ressource, rappel si
+  main > 8). Gardes : `toPile` / `moveCard` / `shufflePile` sur une pile
+  ou zone d'un autre board → `siege` ; `drawEncounter` / `randomPick` /
+  `searchEncounter` / `reshuffleDiscard` refusés sur les piles de board ;
+  `pdiscard<n>` traité comme défausse (face visible) ; `nomVisible` lit
+  `extraDefs` pour nommer les cartes joueur. `Refus` / `refuser` dans
+  `src/refus.ts` (évite le cycle actions ↔ joueur). Front :
+  `interactions-joueur.js` (glisser-déposer main ↔ en jeu / en cours /
+  hors jeu / menace, sur la défausse et la pioche ; clic sur la pioche =
+  piocher ; sélection pour le mulligan ; menus des cartes et des piles ;
+  fenêtre de consultation avec boutons par carte), `joueur.js` (boutons
+  « Mise en place », « Mulligan (n) » / « Garder ma main », « Piocher »,
+  « Défausser au hasard », faiblesses mises de côté comptées, badge
+  « montrée »), jeton `uses` rendu avec l'image ressource cerclée
+  (règle : ce sont des jetons ressource). Tests : 386 messages (bloc
+  board joueur étendu : mise en place, Sophie en jeu, faiblesses de
+  côté, mulligan une seule fois, gardes, pioche / défausse / recherche,
+  entretien pour tous les boards, pioche vide, défaite) ; captures
+  61‑65. Reste pour l'étape 3 : `p:play` (auto-pay, X, sans payer),
+  limbes « Résolu » / « Garder en jeu », badge de slot, exil par menu
+  déjà là, « Poser sur mon lieu » et retour, journal ; images des Uses.
 - 2026-09-07 : **board joueur, étape 1 livrée** (cahier §10.9) — import
   du deck au lobby, code de siège et connexions multiples, page joueur
   affichée. Build : `scripts/build.mjs` produit **`public/data/
@@ -544,9 +577,9 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
 - **Prochaine étape** (réordonnée le 2026-09-07) : **board joueur,
-  étape 2** (cahier §10.9 : « Mise en place », mulligan, pioche / main /
-  défausse et boutons E3, main masquée, `revealed`, hors jeu, entretien
-  automatique, pioche vide), puis l'étape 3 (jeu). Ensuite le prologue
+  étape 3** (cahier §10.9 : `p:play` avec auto-pay / X / sans payer,
+  limbes « Résolu » et « Garder en jeu », badges de slot, « Poser sur mon
+  lieu » et retour, journal, budget messages mesuré). Ensuite le prologue
   Disappearance at the Twilight Estate (pack `tcu`, set
   `disappearance_at_the_twilight_estate` : choix des enquêteurs neutres
   05046‑49, lieux 05071‑77 / Spectral 05078‑84 à réutiliser), puis le
@@ -1037,6 +1070,11 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   par ligne ; l'unité de 4 Ko ne vaut que pour le backend clé-valeur du
   plan payant). Le principe « un geste = un message, un snapshot par
   action » reste.
+- Test WebSocket à plusieurs acteurs : `c.action` attend le delta
+  `rev + 1` du *client* ; si un autre client vient d'agir, ce delta est
+  celui de l'autre et l'attente rend la main trop tôt → synchroniser
+  (`sync(c, autre)`) avant de changer d'acteur. Un aperçu `peek` est
+  précédé d'un `delta` (journal) qu'il faut consommer aussi.
 - Board joueur : tout champ de siège mis à jour hors `commit` (occupé,
   code de siège, connexions) doit l'être **avant** l'envoi de
   `welcome` / `you`, sinon l'état local reconstruit par `seats` diffère

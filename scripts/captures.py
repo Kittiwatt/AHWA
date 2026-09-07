@@ -835,6 +835,8 @@ with sync_playwright() as p:
     lb13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     assert lb13.locator(".entete-joueur.lecture").count() == 1, "lecture seule chez l'autre joueur"
     assert lb13.locator("#entete .pm:enabled").count() == 0, "aucun compteur actif en lecture seule"
+    lb13.wait_for_selector("#moi:has-text('Siège 2')", timeout=8000)
+    assert lb13.locator(".rejoindre").get_by_role("button", name="Voir mon board").count() == 1, "Bob garde son siège : lien vers son board, pas de code à saisir"
     lb13.screenshot(path=f"{OUT}/59_board_lecture_seule.png")
     # Un nouvel appareil (autre navigateur) rejoint le siège 1 avec son code.
     ctx_t = browser.new_context(viewport={"width": 1600, "height": 1000}, locale="fr-FR", ignore_https_errors=True)
@@ -852,6 +854,59 @@ with sync_playwright() as p:
     assert t13.locator(".entete-joueur:not(.lecture)").count() == 1, "le second appareil agit sur le board"
     assert "3 appareils" in h13.locator("#sieges .siege").nth(0).inner_text(), "trois connexions sur le siège 1"
     ctx_t.close()
+
+    # ---- Board joueur, étape 2 : mise en place, mulligan par sélection, pioche au clic, glisser vers la défausse et
+    #      en jeu, révéler une carte, regarder les premières cartes, entretien automatique ----
+    a13.get_by_role("button", name="Mise en place").click()
+    a13.wait_for_selector(".mise-en-place.mulligan", timeout=8000); a13.wait_for_load_state("networkidle"); a13.wait_for_timeout(800)
+    assert a13.locator("#main .eventail .carte").count() == 5, "main de 5"
+    assert a13.locator(".zone-jeu .carte").count() == 1, "Sophie commence en jeu"
+    assert "5" in a13.locator("#entete .compteur").first.inner_text(), "5 ressources"
+    a13.locator("#main .eventail .carte").nth(0).click(); a13.locator("#main .eventail .carte").nth(2).click()
+    a13.wait_for_timeout(300)
+    assert a13.locator("#main .eventail .carte.choisie").count() == 2, "2 cartes choisies pour le mulligan"
+    a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    a13.screenshot(path=f"{OUT}/61_board_mulligan.png")
+    a13.get_by_role("button", name="Mulligan (2)").click()
+    a13.wait_for_selector(".mise-en-place.mulligan", state="detached", timeout=5000); a13.wait_for_timeout(500)
+    assert "mulligan fait" in a13.locator("#entete").inner_text()
+    assert a13.locator("#main .eventail .carte").count() == 5, "toujours 5 cartes après le mulligan"
+    a13.locator(".pioche-joueur .dos-bouton").click(); a13.wait_for_timeout(400)
+    assert a13.locator("#main .eventail .carte").count() == 6, "piocher au clic sur la pioche"
+    src = a13.locator("#main .eventail .carte").first.bounding_box(); dst = a13.locator("#piles-joueur .pile[data-outil='pdiscard0']").bounding_box()
+    a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
+    a13.mouse.move(dst["x"] + dst["width"] / 2, dst["y"] + dst["height"] / 2, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
+    assert a13.locator("#main .eventail .carte").count() == 5, "carte défaussée par glisser"
+    assert a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .carte").count() == 1, "dessus de la défausse visible"
+    a13.locator("#main .eventail .carte").first.dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
+    a13.screenshot(path=f"{OUT}/62_board_menu_main.png")
+    a13.locator(".menu-carte").get_by_role("button", name="Révéler à tous").click(); a13.wait_for_timeout(400)
+    assert a13.locator("#main .eventail .carte.revelee").count() == 1, "carte montrée à tous"
+    lb13.wait_for_timeout(300)
+    assert lb13.locator("#main .eventail .carte.revelee:not(.retournee)").count() == 1, "Bob voit la carte montrée, les autres restent des dos"
+    assert lb13.locator("#main .eventail .carte.retournee").count() == 4
+    lb13.screenshot(path=f"{OUT}/63_board_vu_par_bob_carte_montree.png")
+    a13.locator("#piles-joueur .pile[data-outil='pdeck0']").dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
+    a13.locator(".menu-carte").get_by_role("button", name="Regarder les 3 premières").click()
+    a13.wait_for_selector("dialog[open] .carte-peek", timeout=5000); a13.wait_for_timeout(600)
+    assert a13.locator("dialog[open] .carte-peek").count() == 3
+    a13.screenshot(path=f"{OUT}/64_board_regarder_premieres.png")
+    a13.locator("dialog[open] .carte-peek").first.get_by_role("button", name="En main").click(); a13.wait_for_timeout(400)
+    a13.keyboard.press("Escape"); a13.wait_for_timeout(300)
+    assert a13.locator("#main .eventail .carte").count() == 6
+    src = a13.locator("#main .eventail .carte").nth(1).bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
+    a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
+    a13.mouse.move(zone["x"] + 300, zone["y"] + 60, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
+    assert a13.locator(".zone-jeu .carte").count() == 2, "carte mise en jeu par glisser"
+    # Entretien depuis la table : Alice pioche 1 et gagne 1 ressource.
+    for _ in range(4):
+        if "Entretien" in h13.locator("#phases .phase.courante").inner_text(): break
+        h13.get_by_role("button", name="Phase suivante").click(); h13.wait_for_timeout(400)
+    a13.wait_for_timeout(600)
+    assert a13.locator("#main .eventail .carte").count() == 6, "entretien : +1 carte"
+    assert "6" in a13.locator("#entete .compteur").first.inner_text(), "entretien : +1 ressource (6)"
+    a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    a13.screenshot(path=f"{OUT}/65_board_apres_entretien.png")
     browser.close()
 
 if erreurs:
