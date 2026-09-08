@@ -173,6 +173,20 @@ export function majCarte(el, carte, ctx) {
       chips.querySelector(`.chip-${t} .chip-n`).textContent = max ? `${n}/${max}${face.healthPerInvestigator && t === "damage" ? "*" : ""}` : String(n);
     }
   } else if (chips) chips.remove();
+  // Jetons du chaos scellés sur la carte (COB III, codex des invités) : pastilles en haut à droite,
+  // libération par le menu de la carte.
+  let scelles = el.querySelector(".scelles");
+  const attenduScelles = (carte.sealed ?? []).join(",");
+  if (attenduScelles) {
+    if (!scelles || scelles.dataset.jetons !== attenduScelles) {
+      scelles?.remove();
+      scelles = document.createElement("div");
+      scelles.className = "scelles";
+      scelles.dataset.jetons = attenduScelles;
+      scelles.innerHTML = carte.sealed.map((t) => `<img src="/img/chaos/${t}.svg" alt="${JETONS_CHAOS[t] ?? t}" title="Jeton ${JETONS_CHAOS[t] ?? t} scellé — menu de la carte pour le libérer" draggable="false">`).join("");
+      el.append(scelles);
+    }
+  } else if (scelles) scelles.remove();
   const img = el.firstChild;
   const src = urlImage(carte, def);
   if (img.getAttribute("src") !== src) { delete el.dataset.imgErreur; img.src = src; }

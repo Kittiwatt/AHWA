@@ -53,7 +53,7 @@ export type SetupStep =
     // (sous la carte de référence, sans être regardés) ; les autres forment la pile `pile` (Leads deck), mélangée
   | { op: "reminder"; text: string }                                    // encart éphémère + journal
   | { op: "branch"; on: string; cases: Record<string, SetupStep[]>; log?: string }   // on = id de question ou "players"
-  | { op: "remove"; codes: string[]; log?: string }
+    | { op: "remove"; codes: string[]; n?: number; log?: string }   // retire de la partie — toutes les copies restantes de chaque code ; avec n (un seul code) : seulement n exemplaires (COB III : 2 des 6 Suspicious Guests)
   | { op: "toPile"; pile: string; set?: string; codes?: string[]; shuffle?: boolean; log?: string }
   | { op: "spawn"; code: string; at: string; log?: string }
   | { op: "setStart"; code: string; log?: string }
@@ -165,6 +165,10 @@ export type ScenarioDef = {
     // le jeton passe du sac (ou des tirés) au compteur de siège `counter` et inversement ; `maxPerSeat` borne
     // le compteur (règle imprimée), `maxTotal` borne sac + scellés pour chaosAdjust
   bury?: { withAny: string[]; fromDeckTop: number; trait: string; dy?: number; menuPile: string; menuCard: string };
+  cardSeal?: boolean;
+    // scellage de jetons du chaos SUR les cartes (COB III, codex des invités) : actions chaosSealCard /
+    // chaosReleaseCard — le jeton tiré (ou du sac) se pose sur la carte et y reste jusqu'à libération ;
+    // défausser la carte ou l'envoyer en zone de victoire rend ses jetons au sac
     // enfouissement en cours de partie (COB) : action `bury` sur la pioche de rencontre (les `withAny`
     // présentes en jeu/de côté + fromDeckTop cartes, réparties sous les lieux du trait) et action `buryAt`
     // sur une carte de `withAny` (elle + 1 carte de la pioche, sous son lieu) ; libellés des menus du front

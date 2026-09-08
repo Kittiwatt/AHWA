@@ -1,129 +1,810 @@
 {
- "_source": "Guide de campagne Children of Blood (FFG AHC106), p. 12-15. Choix de groupe jour (Setup v. I) / nuit (Setup v. II) posé au lobby — ce n'est pas la résolution du I qui décide. Campagne : le sac se reporte (+1 sang « for the remainder of the campaign » à l'ouverture du II) — question numérique « sangs à la fin du I », bases du chaosBag = sacs p. 5 SANS leurs sangs imprimés. Autonome : encart p. 15 lu sur l'image (mêmes 6 icônes, pas de tablette ; Facile 18 jetons dont 2 sangs, Standard 19 dont 3, Difficile/Expert 20 dont 5, la question sang est ignorée). Lieux Jour 13039-13043 / Nuit 13044-13048 (traits « Warehouse. Day/Night. » vérifiés). Grottes de côté FACE CACHÉE : leurs dos (« Descending Tunnel », « Side Chamber » ×3) masquent les identités comme en physique ; versions Shallow Tunnels (E/S) ou Darkest Depths (H/E). Départ « au choix » sur un Factory Floor : pions posés à l'Ouest, rappel pour révéler soi-même son lieu de départ. Agendas 13032 (Busy Day, jour) / 13033 (Quiet Night, nuit) + 13034/13035 (Digging Deeper v. I/v. II) — les deux inutilisés sont retirés, l'op story ignore les retraits. Carte scénario 13031 : recto = référence Easy/Standard, verso = Hard/Expert (faces vérifiées sur les images). Diagramme p. 15 : deux Factory Floors en haut reliés entre eux, Bureau-Quai-Réserve en dessous, le quai central relié aux deux étages.",
+ "_source": "Guide de campagne Children of Blood (FFG AHC106), p. 12-15. Choix de groupe jour (Setup v. I) / nuit (Setup v. II) posé au lobby — ce n'est pas la résolution du I qui décide. Campagne : le sac se reporte, et l'ouverture du II ajoute un CULTISTE « for the remainder of the campaign » (icône p. 12 tranchée à 600 dpi : capuche à pointe = cultiste — pas un sang) — question numérique « sangs à la fin du I », bases du chaosBag = sacs p. 5 SANS leurs sangs imprimés. Autonome : encart p. 15 lu sur l'image (mêmes 6 icônes de base que p. 5, tablette comprise, sans le cultiste d'ouverture qui s'ajoute par-dessus ; Facile 18 jetons dont 2 sangs, Standard 19 dont 3, Difficile/Expert 20 dont 5, la question sang est ignorée). Lieux Jour 13039-13043 / Nuit 13044-13048 (traits « Warehouse. Day/Night. » vérifiés). Grottes de côté FACE CACHÉE : leurs dos (« Descending Tunnel », « Side Chamber » ×3) masquent les identités comme en physique ; versions Shallow Tunnels (E/S) ou Darkest Depths (H/E). Départ « au choix » sur un Factory Floor : pions posés à l'Ouest, rappel pour révéler soi-même son lieu de départ. Agendas 13032 (Busy Day, jour) / 13033 (Quiet Night, nuit) + 13034/13035 (Digging Deeper v. I/v. II) — les deux inutilisés sont retirés, l'op story ignore les retraits. Carte scénario 13031 : recto = référence Easy/Standard, verso = Hard/Expert (faces vérifiées sur les images). Diagramme p. 15 : deux Factory Floors en haut reliés entre eux, Bureau-Quai-Réserve en dessous, le quai central relié aux deux étages.",
  "id": "cob_new_horizons",
  "title": "Scénario II : New Horizons",
  "campaign": "Children of Blood",
  "campaignId": "cob",
  "order": 2,
- "packs": ["cob", "core_2026"],
- "encounterSets": ["new_horizons", "afflicted", "blood_blight", "bloodthirst", "hunted", "infected", "sanguine_secrets", "vermin", "children_of_blood", "preyed_upon", "stalked", "flying_terrors", "reeking_decay"],
+ "packs": [
+  "cob",
+  "core_2026"
+ ],
+ "encounterSets": [
+  "new_horizons",
+  "afflicted",
+  "blood_blight",
+  "bloodthirst",
+  "hunted",
+  "infected",
+  "sanguine_secrets",
+  "vermin",
+  "children_of_blood",
+  "preyed_upon",
+  "stalked",
+  "flying_terrors",
+  "reeking_decay"
+ ],
  "scenarioCard": "13031",
- "scenarioCardSide": { "easy": "a", "standard": "a", "hard": "b", "expert": "b" },
- "agendaDeck": ["13032", "13033", "13034", "13035"],
- "actDeck": ["13036", "13037", "13038"],
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "13032",
+  "13033",
+  "13034",
+  "13035"
+ ],
+ "actDeck": [
+  "13036",
+  "13037",
+  "13038"
+ ],
  "startLocation": "13039",
  "chaosBag": {
-  "easy": ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "skull", "skull", "cultist", "elder_thing", "auto_fail", "elder_sign"],
-  "standard": ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "elder_thing", "auto_fail", "elder_sign"],
-  "hard": ["0", "0", "0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-5", "skull", "skull", "cultist", "elder_thing", "auto_fail", "elder_sign"],
-  "expert": ["0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "-8", "skull", "skull", "cultist", "elder_thing", "auto_fail", "elder_sign"]
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
  },
- "seal": { "token": "blood", "label": "Sang", "counter": "bloodSealed", "maxPerSeat": 3, "maxTotal": 12 },
+ "seal": {
+  "token": "blood",
+  "label": "Sang",
+  "counter": "bloodSealed",
+  "maxPerSeat": 3,
+  "maxTotal": 12
+ },
  "layout": [
-  { "code": "13039", "x": 551, "y": 173 }, { "code": "13040", "x": 923, "y": 173 },
-  { "code": "13041", "x": 365, "y": 411 }, { "code": "13042", "x": 737, "y": 411 }, { "code": "13043", "x": 1109, "y": 411 }
+  {
+   "code": "13039",
+   "x": 551,
+   "y": 173
+  },
+  {
+   "code": "13040",
+   "x": 923,
+   "y": 173
+  },
+  {
+   "code": "13041",
+   "x": 365,
+   "y": 411
+  },
+  {
+   "code": "13042",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "code": "13043",
+   "x": 1109,
+   "y": 411
+  }
  ],
  "questions": [
-  { "id": "mode", "text": "Sac du chaos : reporter votre campagne, ou partie autonome (encart p. 15 du guide) ?", "options": [
-   { "id": "campagne", "label": "Campagne — je reporte le sac du scénario I" },
-   { "id": "autonome", "label": "Autonome — sac de l'encart p. 15" }
-  ] },
-  { "id": "sang", "text": "Campagne : combien de jetons Sang dans le sac à la fin du scénario I ? (le +1 de l'ouverture du II sera ajouté ; ignoré en autonome)", "type": "number", "min": 0, "max": 12, "default": 1 },
-  { "id": "version", "text": "Le groupe choisit : fouiller l'usine de jour (préparez-vous à parlementer) ou de nuit (préparez-vous à vous battre) ?", "options": [
-   { "id": "jour", "label": "De jour — Setup (v. I)" },
-   { "id": "nuit", "label": "De nuit — Setup (v. II)" }
-  ] }
+  {
+   "id": "mode",
+   "text": "Sac du chaos : reporter votre campagne, ou partie autonome (encart p. 15 du guide) ?",
+   "options": [
+    {
+     "id": "campagne",
+     "label": "Campagne — je reporte le sac du scénario I"
+    },
+    {
+     "id": "autonome",
+     "label": "Autonome — sac de l'encart p. 15"
+    }
+   ]
+  },
+  {
+   "id": "sang",
+   "text": "Campagne : combien de jetons Sang dans le sac à la fin du scénario I ? (l'ouverture du II ajoutera ensuite un Cultiste ; ignoré en autonome)",
+   "type": "number",
+   "min": 0,
+   "max": 12,
+   "default": 1
+  },
+  {
+   "id": "version",
+   "text": "Le groupe choisit : fouiller l'usine de jour (préparez-vous à parlementer) ou de nuit (préparez-vous à vous battre) ?",
+   "options": [
+    {
+     "id": "jour",
+     "label": "De jour — Setup (v. I)"
+    },
+    {
+     "id": "nuit",
+     "label": "De nuit — Setup (v. II)"
+    }
+   ]
+  }
  ],
  "setup": [
-  { "op": "branch", "on": "mode", "cases": {
-   "campagne": [
-    { "op": "chaosAdd", "token": "blood", "nFrom": "sang", "plus": 1, "log": "Sac de campagne reporté — sangs de fin du scénario I, plus le sang de l'ouverture du scénario II" }
+  {
+   "op": "branch",
+   "on": "mode",
+   "cases": {
+    "campagne": [
+     {
+      "op": "chaosAdd",
+      "token": "blood",
+      "nFrom": "sang",
+      "log": "Sac de campagne reporté — jetons Sang notés à la fin du scénario I"
+     },
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist"
+      ],
+      "log": "Ouverture du scénario II : un jeton Cultiste rejoint le sac pour le reste de la campagne"
+     }
+    ],
+    "autonome": [
+     {
+      "op": "chaosSet",
+      "byDifficulty": {
+       "easy": [
+        "+1",
+        "0",
+        "0",
+        "0",
+        "-1",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "skull",
+        "skull",
+        "tablet",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood"
+       ],
+       "standard": [
+        "+1",
+        "0",
+        "0",
+        "-1",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "-4",
+        "skull",
+        "skull",
+        "tablet",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood",
+        "blood"
+       ],
+       "hard": [
+        "0",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "-4",
+        "-5",
+        "-6",
+        "skull",
+        "skull",
+        "tablet",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood",
+        "blood",
+        "blood",
+        "blood"
+       ],
+       "expert": [
+        "0",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "-4",
+        "-5",
+        "-6",
+        "skull",
+        "skull",
+        "tablet",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood",
+        "blood",
+        "blood",
+        "blood"
+       ]
+      },
+      "log": "Mode autonome : sac de l'encart p. 15"
+     },
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist"
+      ],
+      "log": "Ouverture du scénario II : un jeton Cultiste rejoint le sac (l'encart p. 15 ne l'inclut pas)"
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "version",
+   "cases": {
+    "jour": [
+     {
+      "op": "remove",
+      "codes": [
+       "13044",
+       "13045",
+       "13046",
+       "13047",
+       "13048"
+      ],
+      "log": "De jour : les cinq lieux Nuit sont retirés de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13033",
+       "13035"
+      ],
+      "log": "Agendas de la version de nuit retirés (Quiet Night, Digging Deeper v. II)."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13062"
+      ],
+      "log": "Night Watchman est retiré de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13103",
+       "13103",
+       "13103",
+       "13104",
+       "13104",
+       "13110",
+       "13110",
+       "13110",
+       "13111",
+       "13111",
+       "13115",
+       "13115",
+       "13116",
+       "13116",
+       "13116",
+       "12191",
+       "12191",
+       "12192",
+       "12192"
+      ],
+      "log": "Sets de la version de nuit retirés (Children of Blood, Preyed Upon, Stalked, Reeking Decay)."
+     },
+     {
+      "op": "place",
+      "code": "13039",
+      "zone": "board",
+      "x": 551,
+      "y": 173
+     },
+     {
+      "op": "place",
+      "code": "13040",
+      "zone": "board",
+      "x": 923,
+      "y": 173
+     },
+     {
+      "op": "place",
+      "code": "13041",
+      "zone": "board",
+      "x": 365,
+      "y": 411
+     },
+     {
+      "op": "place",
+      "code": "13042",
+      "zone": "board",
+      "x": 737,
+      "y": 411
+     },
+     {
+      "op": "place",
+      "code": "13043",
+      "zone": "board",
+      "x": 1109,
+      "y": 411,
+      "log": "Les cinq lieux de l'usine (côté Jour) sont posés : les deux Factory Floors en haut, Bureau, Quai de chargement et Réserve en dessous."
+     },
+     {
+      "op": "minis",
+      "code": "13039",
+      "log": "Chaque enquêteur commence sur le Factory Floor de son choix : pions posés à l'Ouest — déplacez le vôtre à l'Est si besoin, et cliquez votre lieu de départ pour le révéler."
+     },
+     {
+      "op": "spawn",
+      "code": "13063",
+      "at": "13039",
+      "log": "Un Factory Worker apparaît au Factory Floor (West)."
+     },
+     {
+      "op": "spawn",
+      "code": "13063",
+      "at": "13040",
+      "log": "Un Factory Worker apparaît au Factory Floor (East)."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13061"
+      ],
+      "faceUp": true,
+      "log": "Javier Rivera est mis de côté, hors jeu."
+     }
+    ],
+    "nuit": [
+     {
+      "op": "remove",
+      "codes": [
+       "13039",
+       "13040",
+       "13041",
+       "13042",
+       "13043"
+      ],
+      "log": "De nuit : les cinq lieux Jour sont retirés de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13032",
+       "13034"
+      ],
+      "log": "Agendas de la version de jour retirés (Busy Day, Digging Deeper v. I)."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13061",
+       "13063",
+       "13063",
+       "13063",
+       "13063"
+      ],
+      "log": "Javier Rivera et les Factory Workers sont retirés de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13099",
+       "13099",
+       "13100",
+       "13100",
+       "13100",
+       "13102",
+       "13102",
+       "13102",
+       "13106",
+       "13106",
+       "13107",
+       "13107",
+       "13117",
+       "13117",
+       "13117"
+      ],
+      "log": "Sets de la version de jour retirés (Blood Blight, Bloodthirst, Hunted, Vermin)."
+     },
+     {
+      "op": "place",
+      "code": "13044",
+      "zone": "board",
+      "x": 551,
+      "y": 173
+     },
+     {
+      "op": "place",
+      "code": "13045",
+      "zone": "board",
+      "x": 923,
+      "y": 173
+     },
+     {
+      "op": "place",
+      "code": "13046",
+      "zone": "board",
+      "x": 365,
+      "y": 411
+     },
+     {
+      "op": "place",
+      "code": "13047",
+      "zone": "board",
+      "x": 737,
+      "y": 411
+     },
+     {
+      "op": "place",
+      "code": "13048",
+      "zone": "board",
+      "x": 1109,
+      "y": 411,
+      "log": "Les cinq lieux de l'usine (côté Nuit) sont posés : les deux Factory Floors en haut, Bureau, Quai de chargement et Réserve en dessous."
+     },
+     {
+      "op": "minis",
+      "code": "13044",
+      "log": "Chaque enquêteur commence sur le Factory Floor de son choix : pions posés à l'Ouest — déplacez le vôtre à l'Est si besoin, et cliquez votre lieu de départ pour le révéler."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13062"
+      ],
+      "faceUp": true,
+      "log": "Night Watchman est mis de côté, hors jeu."
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "difficulty",
+   "cases": {
+    "easy": [
+     {
+      "op": "aside",
+      "codes": [
+       "13058"
+      ],
+      "faceUp": true,
+      "log": "Zburamoarte (Lethargic Beast) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13059",
+       "13060"
+      ],
+      "log": "Les autres versions de Zburamoarte sont retirées."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13049",
+       "13051",
+       "13052",
+       "13053",
+       "13054"
+      ],
+      "faceUp": false,
+      "log": "Grottes mises de côté face cachée (Shallow Tunnels) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13050",
+       "13055",
+       "13056",
+       "13057"
+      ],
+      "log": "Les grottes des profondeurs sont retirées de la partie."
+     }
+    ],
+    "standard": [
+     {
+      "op": "aside",
+      "codes": [
+       "13059"
+      ],
+      "faceUp": true,
+      "log": "Zburamoarte (The Source of the Blight) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13058",
+       "13060"
+      ],
+      "log": "Les autres versions de Zburamoarte sont retirées."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13049",
+       "13051",
+       "13052",
+       "13053",
+       "13054"
+      ],
+      "faceUp": false,
+      "log": "Grottes mises de côté face cachée (Shallow Tunnels) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13050",
+       "13055",
+       "13056",
+       "13057"
+      ],
+      "log": "Les grottes des profondeurs sont retirées de la partie."
+     }
+    ],
+    "hard": [
+     {
+      "op": "aside",
+      "codes": [
+       "13060"
+      ],
+      "faceUp": true,
+      "log": "Zburamoarte (Progenitor of Monsters) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13058",
+       "13059"
+      ],
+      "log": "Les autres versions de Zburamoarte sont retirées."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13050",
+       "13051",
+       "13055",
+       "13056",
+       "13057"
+      ],
+      "faceUp": false,
+      "log": "Grottes mises de côté face cachée (Darkest Depths) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13049",
+       "13052",
+       "13053",
+       "13054"
+      ],
+      "log": "Les grottes des tunnels peu profonds sont retirées de la partie."
+     }
+    ],
+    "expert": [
+     {
+      "op": "aside",
+      "codes": [
+       "13060"
+      ],
+      "faceUp": true,
+      "log": "Zburamoarte (Progenitor of Monsters) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13058",
+       "13059"
+      ],
+      "log": "Les autres versions de Zburamoarte sont retirées."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13050",
+       "13051",
+       "13055",
+       "13056",
+       "13057"
+      ],
+      "faceUp": false,
+      "log": "Grottes mises de côté face cachée (Darkest Depths) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13049",
+       "13052",
+       "13053",
+       "13054"
+      ],
+      "log": "Les grottes des tunnels peu profonds sont retirées de la partie."
+     }
+    ]
+   }
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13064",
+    "13064",
+    "13064",
+    "13064"
    ],
-   "autonome": [
-    { "op": "chaosSet", "byDifficulty": {
-     "easy": ["+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "skull", "skull", "cultist", "elder_thing", "auto_fail", "elder_sign", "blood", "blood"],
-     "standard": ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "elder_thing", "auto_fail", "elder_sign", "blood", "blood", "blood"],
-     "hard": ["0", "-1", "-1", "-2", "-2", "-3", "-4", "-5", "-6", "skull", "skull", "cultist", "elder_thing", "auto_fail", "elder_sign", "blood", "blood", "blood", "blood", "blood"],
-     "expert": ["0", "-1", "-1", "-2", "-2", "-3", "-4", "-5", "-6", "skull", "skull", "cultist", "elder_thing", "auto_fail", "elder_sign", "blood", "blood", "blood", "blood", "blood"]
-    }, "log": "Mode autonome : sac de l'encart p. 15" }
-   ]
-  } },
-  { "op": "branch", "on": "version", "cases": {
-   "jour": [
-    { "op": "remove", "codes": ["13044", "13045", "13046", "13047", "13048"], "log": "De jour : les cinq lieux Nuit sont retirés de la partie." },
-    { "op": "remove", "codes": ["13033", "13035"], "log": "Agendas de la version de nuit retirés (Quiet Night, Digging Deeper v. II)." },
-    { "op": "remove", "codes": ["13062"], "log": "Night Watchman est retiré de la partie." },
-    { "op": "remove", "codes": ["13103", "13103", "13103", "13104", "13104", "13110", "13110", "13110", "13111", "13111", "13115", "13115", "13116", "13116", "13116", "12191", "12191", "12192", "12192"], "log": "Sets de la version de nuit retirés (Children of Blood, Preyed Upon, Stalked, Reeking Decay)." },
-    { "op": "place", "code": "13039", "zone": "board", "x": 551, "y": 173 },
-    { "op": "place", "code": "13040", "zone": "board", "x": 923, "y": 173 },
-    { "op": "place", "code": "13041", "zone": "board", "x": 365, "y": 411 },
-    { "op": "place", "code": "13042", "zone": "board", "x": 737, "y": 411 },
-    { "op": "place", "code": "13043", "zone": "board", "x": 1109, "y": 411, "log": "Les cinq lieux de l'usine (côté Jour) sont posés : les deux Factory Floors en haut, Bureau, Quai de chargement et Réserve en dessous." },
-    { "op": "minis", "code": "13039", "log": "Chaque enquêteur commence sur le Factory Floor de son choix : pions posés à l'Ouest — déplacez le vôtre à l'Est si besoin, et cliquez votre lieu de départ pour le révéler." },
-    { "op": "spawn", "code": "13063", "at": "13039", "log": "Un Factory Worker apparaît au Factory Floor (West)." },
-    { "op": "spawn", "code": "13063", "at": "13040", "log": "Un Factory Worker apparaît au Factory Floor (East)." },
-    { "op": "aside", "codes": ["13061"], "faceUp": true, "log": "Javier Rivera est mis de côté, hors jeu." }
+   "faceUp": true,
+   "log": "Les quatre Blighted Workers sont mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13065",
+    "13065",
+    "13065",
+    "13065"
    ],
-   "nuit": [
-    { "op": "remove", "codes": ["13039", "13040", "13041", "13042", "13043"], "log": "De nuit : les cinq lieux Jour sont retirés de la partie." },
-    { "op": "remove", "codes": ["13032", "13034"], "log": "Agendas de la version de jour retirés (Busy Day, Digging Deeper v. I)." },
-    { "op": "remove", "codes": ["13061", "13063", "13063", "13063", "13063"], "log": "Javier Rivera et les Factory Workers sont retirés de la partie." },
-    { "op": "remove", "codes": ["13099", "13099", "13100", "13100", "13100", "13102", "13102", "13102", "13106", "13106", "13107", "13107", "13117", "13117", "13117"], "log": "Sets de la version de jour retirés (Blood Blight, Bloodthirst, Hunted, Vermin)." },
-    { "op": "place", "code": "13044", "zone": "board", "x": 551, "y": 173 },
-    { "op": "place", "code": "13045", "zone": "board", "x": 923, "y": 173 },
-    { "op": "place", "code": "13046", "zone": "board", "x": 365, "y": 411 },
-    { "op": "place", "code": "13047", "zone": "board", "x": 737, "y": 411 },
-    { "op": "place", "code": "13048", "zone": "board", "x": 1109, "y": 411, "log": "Les cinq lieux de l'usine (côté Nuit) sont posés : les deux Factory Floors en haut, Bureau, Quai de chargement et Réserve en dessous." },
-    { "op": "minis", "code": "13044", "log": "Chaque enquêteur commence sur le Factory Floor de son choix : pions posés à l'Ouest — déplacez le vôtre à l'Est si besoin, et cliquez votre lieu de départ pour le révéler." },
-    { "op": "aside", "codes": ["13062"], "faceUp": true, "log": "Night Watchman est mis de côté, hors jeu." }
-   ]
-  } },
-  { "op": "branch", "on": "difficulty", "cases": {
-   "easy": [
-    { "op": "aside", "codes": ["13058"], "faceUp": true, "log": "Zburamoarte (Lethargic Beast) est mis de côté, hors jeu." },
-    { "op": "remove", "codes": ["13059", "13060"], "log": "Les autres versions de Zburamoarte sont retirées." },
-    { "op": "aside", "codes": ["13049", "13051", "13052", "13053", "13054"], "faceUp": false, "log": "Grottes mises de côté face cachée (Shallow Tunnels) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets." },
-    { "op": "remove", "codes": ["13050", "13055", "13056", "13057"], "log": "Les grottes des profondeurs sont retirées de la partie." }
+   "faceUp": true,
+   "log": "Les quatre Echoing in Darkness sont mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "sets": [
+    "infected"
    ],
-   "standard": [
-    { "op": "aside", "codes": ["13059"], "faceUp": true, "log": "Zburamoarte (The Source of the Blight) est mis de côté, hors jeu." },
-    { "op": "remove", "codes": ["13058", "13060"], "log": "Les autres versions de Zburamoarte sont retirées." },
-    { "op": "aside", "codes": ["13049", "13051", "13052", "13053", "13054"], "faceUp": false, "log": "Grottes mises de côté face cachée (Shallow Tunnels) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets." },
-    { "op": "remove", "codes": ["13050", "13055", "13056", "13057"], "log": "Les grottes des profondeurs sont retirées de la partie." }
+   "faceUp": true,
+   "log": "Set Infected (The Blood Blight ×4) mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "sets": [
+    "flying_terrors"
    ],
-   "hard": [
-    { "op": "aside", "codes": ["13060"], "faceUp": true, "log": "Zburamoarte (Progenitor of Monsters) est mis de côté, hors jeu." },
-    { "op": "remove", "codes": ["13058", "13059"], "log": "Les autres versions de Zburamoarte sont retirées." },
-    { "op": "aside", "codes": ["13050", "13051", "13055", "13056", "13057"], "faceUp": false, "log": "Grottes mises de côté face cachée (Darkest Depths) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets." },
-    { "op": "remove", "codes": ["13049", "13052", "13053", "13054"], "log": "Les grottes des tunnels peu profonds sont retirées de la partie." }
+   "faceUp": true,
+   "log": "Set Flying Terrors mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13066",
+    "13067"
    ],
-   "expert": [
-    { "op": "aside", "codes": ["13060"], "faceUp": true, "log": "Zburamoarte (Progenitor of Monsters) est mis de côté, hors jeu." },
-    { "op": "remove", "codes": ["13058", "13059"], "log": "Les autres versions de Zburamoarte sont retirées." },
-    { "op": "aside", "codes": ["13050", "13051", "13055", "13056", "13057"], "faceUp": false, "log": "Grottes mises de côté face cachée (Darkest Depths) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets." },
-    { "op": "remove", "codes": ["13049", "13052", "13053", "13054"], "log": "Les grottes des tunnels peu profonds sont retirées de la partie." }
-   ]
-  } },
-  { "op": "aside", "codes": ["13064", "13064", "13064", "13064"], "faceUp": true, "log": "Les quatre Blighted Workers sont mis de côté, hors jeu." },
-  { "op": "aside", "codes": ["13065", "13065", "13065", "13065"], "faceUp": true, "log": "Les quatre Echoing in Darkness sont mis de côté, hors jeu." },
-  { "op": "aside", "sets": ["infected"], "faceUp": true, "log": "Set Infected (The Blood Blight ×4) mis de côté, hors jeu." },
-  { "op": "aside", "sets": ["flying_terrors"], "faceUp": true, "log": "Set Flying Terrors mis de côté, hors jeu." },
-  { "op": "aside", "codes": ["13066", "13067"], "faceUp": true, "log": "Les soutiens d'histoire Sanguine Song et Forged Permit sont mis de côté, hors jeu." },
-  { "op": "story" },
-  { "op": "buildEncounter" }
+   "faceUp": true,
+   "log": "Les soutiens d'histoire Sanguine Song et Forged Permit sont mis de côté, hors jeu."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  }
  ],
- "seatCounters": [{ "key": "bloodSealed", "label": "Sang scellé", "icon": "blood", "initial": 0 }],
+ "seatCounters": [
+  {
+   "key": "bloodSealed",
+   "label": "Sang scellé",
+   "icon": "blood",
+   "initial": 0
+  }
+ ],
  "tableCounters": [],
  "reminders": [
-  { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)." },
-  { "when": "setup", "text": "Départ au choix : chaque enquêteur commence à l'un des deux Factory Floors. Cliquez votre lieu de départ pour le révéler (indices posés automatiquement) et glissez-y votre pion — ils sont posés à l'Ouest par défaut." },
-  { "when": "setup", "text": "Jetons sang : mêmes règles qu'au scénario I — au plus 3 scellés par enquêteur, 12 en tout entre sac et enquêteurs. Menu du sac → « Sceller / Libérer », ou le chip « Sang scellé » du siège (+ scelle, − libère) ; « Ajuster… » pour les effets qui en ajoutent ou en retirent. La référence sur la carte de scénario montre l'effet des jetons selon votre difficulté." },
-  { "when": "setup", "text": "Grottes de côté, face cachée : leurs dos (« Descending Tunnel », trois « Side Chamber » identiques) cachent ce qu'elles sont vraiment. Quand une carte les met en jeu, glissez-les depuis la zone de côté vers la rangée du bas du tapis, sans les retourner : elles entrent non révélées (clic pour révéler, indices posés automatiquement)." },
-  { "when": "setup", "text": "Notes du journal de campagne (papier, l'app ne le tient pas) : « the investigators stole the manager's keys » conditionne l'entrée du Manager's Office ; « a sheet of arcane symbols » et « forged permits » pourront se noter en cours de partie quand les cartes l'indiquent." },
-  { "when": "mythos", "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche)." },
-  { "when": "enemy", "text": "Ennemis chasseurs : déplacez-les à la main. Relisez les capacités des ennemis prêts en fin de phase." },
-  { "when": "act:2", "text": "Verso de l'acte 1 (panneau Histoire) : s'il met des grottes en jeu, glissez-les depuis la zone de côté sans les retourner — clic pour révéler quand un enquêteur y entre." },
-  { "when": "act:3", "text": "Verso de l'acte 2 (panneau Histoire) : suivez-le pas à pas ; les cartes de côté qu'il nomme se glissent en jeu depuis la zone de côté." },
-  { "when": "agenda:2", "text": "Verso de l'agenda 1 (panneau Histoire) : appliquez-le à la main — s'il faut toucher au sac, passez par menu du sac → Ajuster." }
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Départ au choix : chaque enquêteur commence à l'un des deux Factory Floors. Cliquez votre lieu de départ pour le révéler (indices posés automatiquement) et glissez-y votre pion — ils sont posés à l'Ouest par défaut."
+  },
+  {
+   "when": "setup",
+   "text": "Jetons sang : mêmes règles qu'au scénario I — au plus 3 scellés par enquêteur, 12 en tout entre sac et enquêteurs. Menu du sac → « Sceller / Libérer », ou le chip « Sang scellé » du siège (+ scelle, − libère) ; « Ajuster… » pour les effets qui en ajoutent ou en retirent. La référence sur la carte de scénario montre l'effet des jetons selon votre difficulté."
+  },
+  {
+   "when": "setup",
+   "text": "Grottes de côté, face cachée : leurs dos (« Descending Tunnel », trois « Side Chamber » identiques) cachent ce qu'elles sont vraiment. Quand une carte les met en jeu, glissez-les depuis la zone de côté vers la rangée du bas du tapis, sans les retourner : elles entrent non révélées (clic pour révéler, indices posés automatiquement)."
+  },
+  {
+   "when": "setup",
+   "text": "Notes du journal de campagne (papier, l'app ne le tient pas) : « the investigators stole the manager's keys » conditionne l'entrée du Manager's Office ; « a sheet of arcane symbols » et « forged permits » pourront se noter en cours de partie quand les cartes l'indiquent."
+  },
+  {
+   "when": "mythos",
+   "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche)."
+  },
+  {
+   "when": "enemy",
+   "text": "Ennemis chasseurs : déplacez-les à la main. Relisez les capacités des ennemis prêts en fin de phase."
+  },
+  {
+   "when": "act:2",
+   "text": "Verso de l'acte 1 (panneau Histoire) : s'il met des grottes en jeu, glissez-les depuis la zone de côté sans les retourner — clic pour révéler quand un enquêteur y entre."
+  },
+  {
+   "when": "act:3",
+   "text": "Verso de l'acte 2 (panneau Histoire) : suivez-le pas à pas ; les cartes de côté qu'il nomme se glissent en jeu depuis la zone de côté."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 (panneau Histoire) : appliquez-le à la main — s'il faut toucher au sac, passez par menu du sac → Ajuster."
+  }
  ]
 }

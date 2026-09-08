@@ -1,7 +1,7 @@
 // Interactions sur les cartes : glisser-déposer (message au lâcher), clic, double-clic, menu contextuel.
 
 import { el } from "./dom.js";
-import { faceVisible, cleDeCouleur, INONDATION, urlArkhamDB } from "./cartes.js";
+import { faceVisible, cleDeCouleur, INONDATION, urlArkhamDB, JETONS_CHAOS } from "./cartes.js";
 import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, journalLocal } from "./tapis.js";
 import { nomSiege } from "./lobby.js";
 import { libelleUses } from "./uses.js";
@@ -374,6 +374,15 @@ export function initInteractions(ctx) {
       // Enfouissement (COB) : Julia, posée sur un repaire, s'enfouit dessous avec 1 carte de la pioche.
       if (ctx.scenario.bury?.withAny.includes(carte.code) && carte.loc.zone === "board") {
         items.push(item(ctx.scenario.bury.menuCard, () => ctx.envoyer({ t: "buryAt", id: carte.id })));
+      }
+      // Scellage sur la carte (COB III, codex) : le jeton tiré se pose sur l'invité visité.
+      if (ctx.scenario.cardSeal) {
+        for (const t of [...new Set(ctx.etat.state.chaos.drawn)]) {
+          items.push(item(`Sceller le jeton tiré « ${JETONS_CHAOS[t] ?? t} » sur cette carte`, () => ctx.envoyer({ t: "chaosSealCard", id: carte.id, token: t })));
+        }
+      }
+      for (const t of [...new Set(carte.sealed ?? [])]) {
+        items.push(item(`Libérer le jeton « ${JETONS_CHAOS[t] ?? t} » scellé (retour au sac)`, () => ctx.envoyer({ t: "chaosReleaseCard", id: carte.id, token: t })));
       }
       if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") items.push(item("Révéler (indices automatiques)", () => ctx.envoyer({ t: "revealLocation", id: carte.id })));
       if (carte.kind === "location" && (carte.tokens.clue ?? 0) > 0) items.push(item("Prendre 1 indice", () => ctx.envoyer({ t: "takeClue", id: carte.id })));

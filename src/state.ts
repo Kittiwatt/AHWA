@@ -79,6 +79,7 @@ export type CardState = {
   loc: { zone: ZoneId; x: number; y: number; z: number } | { pile: PileId };
   faceUp: boolean;
   exhausted: boolean;
+  sealed?: Token[];        // jetons du chaos scellés sur la carte (COB III : codex des invités) — libérés vers le sac quand la carte est défaussée ou part en zone de victoire
   side: "a" | "b";
   tokens: Partial<Record<"doom" | "clue" | "damage" | "horror" | "resource" | "generic" | "uses" | "flood", number>>;
     // flood : niveau d'inondation d'un lieu (The Innsmouth Conspiracy) — 1 = partiellement, 2 = totalement inondé

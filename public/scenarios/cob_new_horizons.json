@@ -56,7 +56,7 @@
    "-2",
    "skull",
    "skull",
-   "cultist",
+   "tablet",
    "elder_thing",
    "auto_fail",
    "elder_sign"
@@ -74,7 +74,7 @@
    "-4",
    "skull",
    "skull",
-   "cultist",
+   "tablet",
    "elder_thing",
    "auto_fail",
    "elder_sign"
@@ -93,7 +93,7 @@
    "-5",
    "skull",
    "skull",
-   "cultist",
+   "tablet",
    "elder_thing",
    "auto_fail",
    "elder_sign"
@@ -113,7 +113,7 @@
    "-8",
    "skull",
    "skull",
-   "cultist",
+   "tablet",
    "elder_thing",
    "auto_fail",
    "elder_sign"
@@ -170,7 +170,7 @@
   },
   {
    "id": "sang",
-   "text": "Campagne : combien de jetons Sang dans le sac à la fin du scénario I ? (le +1 de l'ouverture du II sera ajouté ; ignoré en autonome)",
+   "text": "Campagne : combien de jetons Sang dans le sac à la fin du scénario I ? (l'ouverture du II ajoutera ensuite un Cultiste ; ignoré en autonome)",
    "type": "number",
    "min": 0,
    "max": 12,
@@ -201,8 +201,14 @@
       "op": "chaosAdd",
       "token": "blood",
       "nFrom": "sang",
-      "plus": 1,
-      "log": "Sac de campagne reporté — sangs de fin du scénario I, plus le sang de l'ouverture du scénario II"
+      "log": "Sac de campagne reporté — jetons Sang notés à la fin du scénario I"
+     },
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist"
+      ],
+      "log": "Ouverture du scénario II : un jeton Cultiste rejoint le sac pour le reste de la campagne"
      }
     ],
     "autonome": [
@@ -222,7 +228,7 @@
         "-3",
         "skull",
         "skull",
-        "cultist",
+        "tablet",
         "elder_thing",
         "auto_fail",
         "elder_sign",
@@ -242,7 +248,7 @@
         "-4",
         "skull",
         "skull",
-        "cultist",
+        "tablet",
         "elder_thing",
         "auto_fail",
         "elder_sign",
@@ -262,7 +268,7 @@
         "-6",
         "skull",
         "skull",
-        "cultist",
+        "tablet",
         "elder_thing",
         "auto_fail",
         "elder_sign",
@@ -284,7 +290,7 @@
         "-6",
         "skull",
         "skull",
-        "cultist",
+        "tablet",
         "elder_thing",
         "auto_fail",
         "elder_sign",
@@ -296,6 +302,13 @@
        ]
       },
       "log": "Mode autonome : sac de l'encart p. 15"
+     },
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist"
+      ],
+      "log": "Ouverture du scénario II : un jeton Cultiste rejoint le sac (l'encart p. 15 ne l'inclut pas)"
      }
     ]
    }

@@ -267,6 +267,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `chaosDraw` / `chaosReturn` | J | tirage (le jeton sort du sac vers `drawn`, cumulable) / tout remettre — bénédictions et malédictions retournent à la réserve, pas au sac (TIC) ; `onChaosDraw` (v1.1) pourra sceller |
 | `chaosAdjust {token, delta}` | J | panneau du sac ; bénédictions et malédictions plafonnées à 10 chacune (sac + scellées) ; le jeton scellable déclaré par `seal` (sang COB) plafonné à `maxTotal` (sac + scellés) |
 | `chaosSeal {seat}` / `chaosRelease {seat}` | J | scénarios déclarant `seal` (COB) : scelle un jeton sur un enquêteur — pris des tirés d'abord, sinon du sac, compteur de siège `seal.counter` +1 borné à `maxPerSeat` — / le libère vers le sac ; menu du sac et chip du compteur (+ scelle, − libère) |
+| `chaosSealCard {id, token}` / `chaosReleaseCard {id, token}` | J | scénarios déclarant `cardSeal` (COB III, codex) : scelle un jeton du chaos SUR une carte — pris des tirés d'abord, sinon du sac — / le rend au sac (libération toujours disponible) ; pastilles sur la carte, menus « Sceller le jeton tiré… » / « Libérer… » ; les jetons scellés sont rendus au sac automatiquement quand la carte part en pile (`toPile`) ou en zone de victoire |
 | `bury` / `buryAt {id}` | J | scénarios déclarant `bury` (COB) : les `withAny` en jeu ou de côté + les `fromDeckTop` premières cartes de la pioche, mélangées et réparties face cachée sous les lieux du `trait` (« Lair »), aussi également que possible / cette carte (posée sur un lieu du trait) + 1 carte de la pioche sous ce lieu ; jetons et épuisement effacés, z sous celui du lieu (rendu glissé‑dessous), journal muet sur la répartition |
 | `setFlood {id, level}` / `floodAll {mode}` / `floodRule {onReveal}` | J | inondation d'un lieu (0‑2) / de tous les lieux révélés (increase, full, decrease, clear) / règle appliquée à chaque révélation (`state.flood`) — scénarios déclarant `flood` (TIC) |
 | `randomKey {id}` | J | une clé de côté face cachée, tirée au hasard, posée sur cette carte du tapis sans être regardée |
@@ -515,6 +516,19 @@ p. 15). Les questions numériques (`type: "number"`, min/max/default)
 lieux double face affiche leur dos non révélé : identités masquées
 (trois « Side Chamber » indistinguables). Les agendas de la version
 non jouée sont retirés avant `story`, qui ignore les retraits.
+
+**Blood Money (2026-09-08).** `remove` accepte `n` (un seul code) pour un
+retrait partiel — n exemplaires seulement (2 des 6 Suspicious Guests) ;
+sans `n`, il retire toutes les copies restantes. `cardSeal: true` active
+le scellage de jetons du chaos sur les cartes (codex des invités) :
+pastilles en haut à droite, menus Sceller/Libérer, libération automatique
+à la défausse et en zone de victoire. La pile déclarée `saved` (« Invités
+sauvés », `menuFor: ["enemy"]`) matérialise les Civilians placés sous la
+carte de scénario de référence. Deux vérifications du journal en
+questions de lobby (Julia tuée ?, Zburamoarte vaincu ?) choisissent les
+versions d'ennemis et l'agenda 2. Correction du même jour : les sacs de
+base p. 5 contiennent une tablette (pas de cultiste) — les cultistes
+arrivent aux ouvertures des II et III ; icônes tranchées à 600 dpi.
 
 Questions du lobby : à choix (`options`) ou **numériques** (`type:
 "number"`, `min`, `max`, `default`) ; la réponse voyage en chaîne dans
@@ -1019,5 +1033,9 @@ nomenclature, puis mise en page.
   lobby (ce n'est pas la résolution du I qui décide), report du sac par
   question numérique (`chaosAdd nFrom` + 1) ou encart autonome p. 15
   (`chaosSet`), grottes de côté face cachée, départ au choix des deux
-  Factory Floors (aucun lieu révélé d'office). Suite prévue : III
-  Blood Money.
+  Factory Floors (aucun lieu révélé d'office).
+- **III Blood Money livré le 2026-09-08** — campagne complète. Codex des
+  invités (scellage de jetons sur les cartes, `cardSeal`), pile « Invités
+  sauvés », questions de journal (Julia, Zburamoarte), retrait partiel
+  (`remove` + `n`), et correction tablette/cultiste des sacs I/II (icônes
+  vérifiées à 600 dpi contre les SVG).

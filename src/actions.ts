@@ -386,6 +386,12 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const y = Math.round(Number(msg.y) || 0);
       // Board joueur : « en fin de rangée » (x ≥ 9000, menus et fenêtres de recherche) se calcule ici.
       if (/^pplay[0-3]$/.test(zone) && x >= 9000) x = Object.values(state.cards).reduce((m, o) => ("zone" in o.loc && o.loc.zone === zone && o.id !== c.id ? Math.max(m, o.loc.x + CARD_W + 10) : m), 0);
+      if (zone === "victory" && c.sealed?.length) {
+        // COB III : une carte qui part en zone de victoire libère ses jetons scellés vers le sac.
+        state.chaos.bag.push(...c.sealed);
+        addLog(state, "action", `Les jetons scellés sur ${nomCarte(def, c)} retournent au sac : ${c.sealed.join(", ")}. Sac : ${state.chaos.bag.length} jetons.`);
+        c.sealed = [];
+      }
       c.loc = { zone, x, y, z: nextZ(state) };
       if (venaitDunePile) {
         // Une carte sortie d'une pile entre en jeu face visible ; un lieu à double face entre non révélé (clic =
@@ -431,6 +437,12 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       if (!(pile in state.piles)) refuser("pile inconnue");
       retirerDesPiles(state, c.id);
       state.links = state.links.filter((l) => l.a !== c.id && l.b !== c.id);
+      if (c.sealed?.length) {
+        // COB III : une carte défaussée libère ses jetons scellés vers le sac.
+        state.chaos.bag.push(...c.sealed);
+        addLog(state, "action", `Les jetons scellés sur ${nomCarte(def, c)} retournent au sac : ${c.sealed.join(", ")}. Sac : ${state.chaos.bag.length + 0} jetons.`);
+        c.sealed = [];
+      }
       c.loc = { pile };
       c.faceUp = estDefausse(def, pile); // une défausse est consultable, face visible
       if (c.kind === "location") c.side = "a";
@@ -956,6 +968,35 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const nom = nomVisible(def, c, state.extraDefs);
       const n = enfouir(state, def, rng, { avec: [String(msg.id)], fromDeckTop: 1, trait: b.trait, cible: lieu, dy: b.dy });
       addLog(state, "action", `${nom} est retourné face cachée et enfoui sous ${nomVisible(def, lieu, state.extraDefs)}, avec ${n - 1 ? "la première carte de la pioche, mélangées — personne ne sait laquelle est laquelle" : "rien d'autre (pioche vide)"}.`);
+      return {};
+    }
+    case "chaosSealCard": {
+      // COB III (codex des invités) : le jeton révélé se scelle sur l'ennemi visité.
+      if (!def.cardSeal) refuser("pas de scellage sur les cartes dans ce scénario");
+      const c = carte(state, msg.id);
+      const t = String(msg.token) as Token;
+      if (!CHAOS_TOKENS.has(t)) refuser("jeton inconnu");
+      let source = "des jetons tirés";
+      let i = state.chaos.drawn.indexOf(t);
+      if (i >= 0) state.chaos.drawn.splice(i, 1);
+      else {
+        i = state.chaos.bag.indexOf(t);
+        if (i < 0) refuser(`aucun jeton ${t} parmi les tirés ni dans le sac`);
+        state.chaos.bag.splice(i, 1);
+        source = "du sac";
+      }
+      (c.sealed ??= []).push(t);
+      addLog(state, "action", `Jeton ${t} scellé sur ${nomVisible(def, c, state.extraDefs)} (pris ${source}). Sac : ${state.chaos.bag.length} jetons.`);
+      return {};
+    }
+    case "chaosReleaseCard": {
+      const c = carte(state, msg.id);
+      const t = String(msg.token) as Token;
+      const i = (c.sealed ?? []).indexOf(t);
+      if (i < 0) refuser("ce jeton n'est pas scellé sur cette carte");
+      c.sealed!.splice(i, 1);
+      state.chaos.bag.push(t);
+      addLog(state, "action", `Le jeton ${t} scellé sur ${nomVisible(def, c, state.extraDefs)} retourne au sac (${state.chaos.bag.length} jetons).`);
       return {};
     }
     default:

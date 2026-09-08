@@ -1,5 +1,5 @@
 {
- "_source": "Guide de campagne Children of Blood (FFG AHC106, images-cdn.fantasyflightgames.com), p. 6-11 ; cartes et sets vérifiés sur le dump arkham.build (pack cob + sets flying_terrors et dead_ends du Core 2026). Sacs du chaos lus sur le tableau p. 5 (icônes vérifiées une à une : pas de tablette ; jetons sang en Difficile/Expert). Lieux en paires Aube/Crépuscule : Facile-Standard jouent la version Aube (codes pairs 13008-13022), Difficile-Expert la version Crépuscule (codes impairs 13009-13023), l'autre moitié est retirée. Julia Stern existe en trois versions selon la difficulté (13024/13025/13026) : une mise de côté, les deux autres retirées. Diagramme p. 9 : losange sur 5 rangées, île sans flèches (sa connexion spéciale est au dos de la carte). Enfouissement : Julia + les 2 premières cartes de la pioche, mélangées, une face cachée sous chaque repaire (trait Lair).",
+ "_source": "Guide de campagne Children of Blood (FFG AHC106, images-cdn.fantasyflightgames.com), p. 6-11 ; cartes et sets vérifiés sur le dump arkham.build (pack cob + sets flying_terrors et dead_ends du Core 2026). Sacs du chaos lus sur le tableau p. 5 (icônes vérifiées une à une, puis re-tranchées le 2026-09-08 par comparaison à 600 dpi avec les SVG : le 3e symbole est la TABLETTE (pas de cultiste dans les sacs de base — la capuche du cultiste a une pointe sommitale, la tablette non) ; jetons sang en Difficile/Expert). Lieux en paires Aube/Crépuscule : Facile-Standard jouent la version Aube (codes pairs 13008-13022), Difficile-Expert la version Crépuscule (codes impairs 13009-13023), l'autre moitié est retirée. Julia Stern existe en trois versions selon la difficulté (13024/13025/13026) : une mise de côté, les deux autres retirées. Diagramme p. 9 : losange sur 5 rangées, île sans flèches (sa connexion spéciale est au dos de la carte). Enfouissement : Julia + les 2 premières cartes de la pioche, mélangées, une face cachée sous chaque repaire (trait Lair).",
  "id": "cob_river_of_blood",
  "title": "Scénario I : River of Blood",
  "campaign": "Children of Blood",
@@ -57,7 +57,7 @@
    "-2",
    "skull",
    "skull",
-   "cultist",
+   "tablet",
    "elder_thing",
    "auto_fail",
    "elder_sign"
@@ -75,7 +75,7 @@
    "-4",
    "skull",
    "skull",
-   "cultist",
+   "tablet",
    "elder_thing",
    "auto_fail",
    "elder_sign"
@@ -94,7 +94,7 @@
    "-5",
    "skull",
    "skull",
-   "cultist",
+   "tablet",
    "elder_thing",
    "auto_fail",
    "elder_sign",
@@ -115,7 +115,7 @@
    "-8",
    "skull",
    "skull",
-   "cultist",
+   "tablet",
    "elder_thing",
    "auto_fail",
    "elder_sign",

@@ -1,0 +1,877 @@
+{
+ "_source": "Guide de campagne Children of Blood (FFG AHC106), p. 21-24 (+ interlude p. 18-20 et codex p. 25-28 lus pour contexte, jamais restitués). Sanguine Secrets : seuls les ennemis sont rassemblés (Sanguine Cultist ×3 + Blood-Crazed Zealot) puis mis de côté — les Morbid Rituals ×2 ne sont PAS rassemblées (remove). Afflicted seulement à 3-4 joueurs. Deux vérifications du journal posées au lobby : « killed Julia Stern ? » (oui → toutes les Julia retirées ; non → une version par difficulté de côté) et « defeated Zburamoarte ? » (agenda 2 v. II sinon v. I). Sac : bases p. 5 (tablette comprise, tranchée à 600 dpi le 2026-09-08) + question numérique sangs + le cultiste ajouté à l'ouverture du II (campagne), ou encart p. 24 (autonome : 7 symboles dont cultiste ET tablette + 3/4/6 sangs) ; dans les deux cas, l'ouverture du III ajoute encore 1 cultiste (icône p. 23, capuche à pointe). Suspicious Guest ×6 : 1/2/3 apparaissent (Study, +Office, +Dining Hall), 2/1/0 retirés, 3 restent toujours en pioche. Deux « Child of Blood » distincts (13091 blood_money ×3 et 13103 children_of_blood ×3) : « each copy » = les six de côté. Foyer 13076 = lieu à deux faces de jeu, posé côté (Boring Party) révélé — l'autre face par double-clic (toggleSide). Balcon : de côté en Facile/Standard, RETIRÉ en Difficile/Expert. Codex : scellage de jetons sur les invités → cardSeal (menus Sceller/Libérer, pastilles, libération auto à la défausse/victoire) ; invités sauvés « beneath the scenario reference card » → pile « Invités sauvés » à menu (précédent Profondeurs du Pit). Diagramme p. 24 : Office ↔ Study ↔ Dining Hall ↔ Kitchen en chaîne, Foyer dessous au centre relié à Study et Dining Hall. Carte scénario 13068 : recto Easy/Standard, verso Hard/Expert (faces vérifiées).",
+ "id": "cob_blood_money",
+ "title": "Scénario III : Blood Money",
+ "campaign": "Children of Blood",
+ "campaignId": "cob",
+ "order": 3,
+ "packs": [
+  "cob",
+  "core_2026"
+ ],
+ "encounterSets": [
+  "blood_money",
+  "agents_of_zburamoarte",
+  "blood_blight",
+  "bloodthirst",
+  "children_of_blood",
+  "hunted",
+  "sanguine_secrets",
+  "arcane_lock",
+  "afflicted"
+ ],
+ "scenarioCard": "13068",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "13069",
+  "13070",
+  "13071",
+  "13072"
+ ],
+ "actDeck": [
+  "13073",
+  "13074",
+  "13075"
+ ],
+ "startLocation": "13076",
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "seal": {
+  "token": "blood",
+  "label": "Sang",
+  "counter": "bloodSealed",
+  "maxPerSeat": 3,
+  "maxTotal": 12
+ },
+ "cardSeal": true,
+ "piles": [
+  {
+   "id": "saved",
+   "label": "Invités sauvés",
+   "menuFor": [
+    "enemy"
+   ]
+  }
+ ],
+ "layout": [
+  {
+   "code": "13081",
+   "x": 365,
+   "y": 173
+  },
+  {
+   "code": "13078",
+   "x": 551,
+   "y": 173
+  },
+  {
+   "code": "13077",
+   "x": 737,
+   "y": 173
+  },
+  {
+   "code": "13080",
+   "x": 923,
+   "y": 173
+  },
+  {
+   "code": "13076",
+   "x": 644,
+   "y": 411
+  }
+ ],
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Sac du chaos : reporter votre campagne, ou partie autonome (encart p. 24 du guide) ?",
+   "options": [
+    {
+     "id": "campagne",
+     "label": "Campagne — je reporte le sac du scénario II"
+    },
+    {
+     "id": "autonome",
+     "label": "Autonome — sac de l'encart p. 24"
+    }
+   ]
+  },
+  {
+   "id": "sang",
+   "text": "Campagne : combien de jetons Sang dans le sac à la fin du scénario II ? (ignoré en autonome)",
+   "type": "number",
+   "min": 0,
+   "max": 12,
+   "default": 1
+  },
+  {
+   "id": "julia",
+   "text": "Journal de campagne : « the investigators killed Julia Stern » est-il noté ? (encart autonome : non)",
+   "options": [
+    {
+     "id": "oui",
+     "label": "Oui — Julia a été tuée au scénario I"
+    },
+    {
+     "id": "non",
+     "label": "Non — épargnée, ou pas arrêtée"
+    }
+   ]
+  },
+  {
+   "id": "zbura",
+   "text": "Journal de campagne : « the investigators defeated Zburamoarte » est-il noté ? (encart autonome : non)",
+   "options": [
+    {
+     "id": "oui",
+     "label": "Oui — Zburamoarte a été vaincu au scénario II"
+    },
+    {
+     "id": "non",
+     "label": "Non — laissé en vie"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "branch",
+   "on": "mode",
+   "cases": {
+    "campagne": [
+     {
+      "op": "chaosAdd",
+      "token": "blood",
+      "nFrom": "sang",
+      "log": "Sac de campagne reporté — jetons Sang notés à la fin du scénario II"
+     },
+     {
+      "op": "chaosAdd",
+      "tokens": [
+       "cultist"
+      ],
+      "log": "Le Cultiste ajouté à l'ouverture du scénario II est toujours dans le sac"
+     }
+    ],
+    "autonome": [
+     {
+      "op": "chaosSet",
+      "byDifficulty": {
+       "easy": [
+        "+1",
+        "0",
+        "0",
+        "0",
+        "-1",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "skull",
+        "skull",
+        "cultist",
+        "tablet",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood",
+        "blood"
+       ],
+       "standard": [
+        "+1",
+        "0",
+        "0",
+        "-1",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "-4",
+        "skull",
+        "skull",
+        "cultist",
+        "tablet",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood",
+        "blood",
+        "blood"
+       ],
+       "hard": [
+        "0",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "-4",
+        "-5",
+        "-6",
+        "skull",
+        "skull",
+        "cultist",
+        "tablet",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood",
+        "blood",
+        "blood",
+        "blood",
+        "blood"
+       ],
+       "expert": [
+        "0",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "-4",
+        "-5",
+        "-6",
+        "skull",
+        "skull",
+        "cultist",
+        "tablet",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood",
+        "blood",
+        "blood",
+        "blood",
+        "blood"
+       ]
+      },
+      "log": "Mode autonome : sac de l'encart p. 24"
+     }
+    ]
+   }
+  },
+  {
+   "op": "chaosAdd",
+   "tokens": [
+    "cultist"
+   ],
+   "log": "Ouverture du scénario III : un jeton Cultiste rejoint le sac pour le reste de la campagne"
+  },
+  {
+   "op": "remove",
+   "codes": [
+    "13114",
+    "13114"
+   ],
+   "log": "Sanguine Secrets : seuls les ennemis sont rassemblés — les Morbid Rituals ne le sont pas."
+  },
+  {
+   "op": "place",
+   "code": "13081",
+   "zone": "board",
+   "x": 365,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "13078",
+   "zone": "board",
+   "x": 551,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "13077",
+   "zone": "board",
+   "x": 737,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "13080",
+   "zone": "board",
+   "x": 923,
+   "y": 173,
+   "log": "Bureau, Étude, Salle à manger et Cuisine sont posés en enfilade."
+  },
+  {
+   "op": "place",
+   "code": "13076",
+   "zone": "board",
+   "x": 644,
+   "y": 411,
+   "reveal": true,
+   "log": "Le Foyer est posé en dessous, côté (Boring Party) révélé — sa seconde face de jeu se retourne par double-clic. Chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "minis",
+   "code": "13076"
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13079"
+   ],
+   "faceUp": false,
+   "log": "Master Bedroom est mis de côté, hors jeu."
+  },
+  {
+   "op": "branch",
+   "on": "difficulty",
+   "cases": {
+    "easy": [
+     {
+      "op": "aside",
+      "codes": [
+       "13082"
+      ],
+      "faceUp": false,
+      "log": "Le Balcon est mis de côté, hors jeu (Facile/Standard)."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13084"
+      ],
+      "faceUp": true,
+      "log": "Howard Wilkes (First Child of Zburamoarte) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13085",
+       "13086"
+      ],
+      "log": "Les autres versions de Howard Wilkes sont retirées."
+     }
+    ],
+    "standard": [
+     {
+      "op": "aside",
+      "codes": [
+       "13082"
+      ],
+      "faceUp": false,
+      "log": "Le Balcon est mis de côté, hors jeu (Facile/Standard)."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13085"
+      ],
+      "faceUp": true,
+      "log": "Howard Wilkes (Too Far Gone) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13084",
+       "13086"
+      ],
+      "log": "Les autres versions de Howard Wilkes sont retirées."
+     }
+    ],
+    "hard": [
+     {
+      "op": "remove",
+      "codes": [
+       "13082"
+      ],
+      "log": "Le Balcon est retiré de la partie (Difficile/Expert)."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13086"
+      ],
+      "faceUp": true,
+      "log": "Howard Wilkes (Ultimate Predator) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13084",
+       "13085"
+      ],
+      "log": "Les autres versions de Howard Wilkes sont retirées."
+     }
+    ],
+    "expert": [
+     {
+      "op": "remove",
+      "codes": [
+       "13082"
+      ],
+      "log": "Le Balcon est retiré de la partie (Difficile/Expert)."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13086"
+      ],
+      "faceUp": true,
+      "log": "Howard Wilkes (Ultimate Predator) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13084",
+       "13085"
+      ],
+      "log": "Les autres versions de Howard Wilkes sont retirées."
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "julia",
+   "cases": {
+    "oui": [
+     {
+      "op": "remove",
+      "codes": [
+       "13087",
+       "13088",
+       "13089"
+      ],
+      "log": "Julia Stern a été tuée : ses trois versions sont retirées de la partie."
+     }
+    ],
+    "non": [
+     {
+      "op": "branch",
+      "on": "difficulty",
+      "cases": {
+       "easy": [
+        {
+         "op": "aside",
+         "codes": [
+          "13087"
+         ],
+         "faceUp": true,
+         "log": "Julia Stern (First Victim of New Horizons) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "13088",
+          "13089"
+         ],
+         "log": "Les autres versions de Julia Stern sont retirées."
+        }
+       ],
+       "standard": [
+        {
+         "op": "aside",
+         "codes": [
+          "13088"
+         ],
+         "faceUp": true,
+         "log": "Julia Stern (Out for Blood) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "13087",
+          "13089"
+         ],
+         "log": "Les autres versions de Julia Stern sont retirées."
+        }
+       ],
+       "hard": [
+        {
+         "op": "aside",
+         "codes": [
+          "13089"
+         ],
+         "faceUp": true,
+         "log": "Julia Stern (Child of Vengeance) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "13087",
+          "13088"
+         ],
+         "log": "Les autres versions de Julia Stern sont retirées."
+        }
+       ],
+       "expert": [
+        {
+         "op": "aside",
+         "codes": [
+          "13089"
+         ],
+         "faceUp": true,
+         "log": "Julia Stern (Child of Vengeance) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "13087",
+          "13088"
+         ],
+         "log": "Les autres versions de Julia Stern sont retirées."
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "zbura",
+   "cases": {
+    "oui": [
+     {
+      "op": "remove",
+      "codes": [
+       "13070"
+      ],
+      "log": "Zburamoarte a été vaincu : l'agenda 2 sera Feeding Frenzy (v. II)."
+     }
+    ],
+    "non": [
+     {
+      "op": "remove",
+      "codes": [
+       "13071"
+      ],
+      "log": "Zburamoarte est en vie : l'agenda 2 sera Feeding Frenzy (v. I)."
+     }
+    ]
+   }
+  },
+  {
+   "op": "spawn",
+   "code": "13083",
+   "at": "13077",
+   "log": "Priscilla Thomas apparaît à la Salle à manger."
+  },
+  {
+   "op": "branch",
+   "on": "players",
+   "cases": {
+    "1": [
+     {
+      "op": "spawn",
+      "code": "13090",
+      "at": "13078",
+      "log": "Un Suspicious Guest apparaît à l'Étude."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13090"
+      ],
+      "log": "À 1 joueur : deux Suspicious Guests sont retirés de la partie.",
+      "n": 2
+     }
+    ],
+    "2": [
+     {
+      "op": "spawn",
+      "code": "13090",
+      "at": "13078",
+      "log": "Un Suspicious Guest apparaît à l'Étude."
+     },
+     {
+      "op": "spawn",
+      "code": "13090",
+      "at": "13081",
+      "log": "Un Suspicious Guest apparaît au Bureau."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13090"
+      ],
+      "log": "À 2 joueurs : un Suspicious Guest est retiré de la partie.",
+      "n": 1
+     }
+    ],
+    "3": [
+     {
+      "op": "spawn",
+      "code": "13090",
+      "at": "13078",
+      "log": "Un Suspicious Guest apparaît à l'Étude."
+     },
+     {
+      "op": "spawn",
+      "code": "13090",
+      "at": "13081",
+      "log": "Un Suspicious Guest apparaît au Bureau."
+     },
+     {
+      "op": "spawn",
+      "code": "13090",
+      "at": "13077",
+      "log": "Un Suspicious Guest apparaît à la Salle à manger."
+     }
+    ],
+    "4": [
+     {
+      "op": "spawn",
+      "code": "13090",
+      "at": "13078",
+      "log": "Un Suspicious Guest apparaît à l'Étude."
+     },
+     {
+      "op": "spawn",
+      "code": "13090",
+      "at": "13081",
+      "log": "Un Suspicious Guest apparaît au Bureau."
+     },
+     {
+      "op": "spawn",
+      "code": "13090",
+      "at": "13077",
+      "log": "Un Suspicious Guest apparaît à la Salle à manger."
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "players",
+   "cases": {
+    "1": [
+     {
+      "op": "remove",
+      "codes": [
+       "13094",
+       "13094",
+       "13095",
+       "13095",
+       "13095",
+       "13096",
+       "13096"
+      ],
+      "log": "À 1-2 joueurs : le set Afflicted est retiré de la partie."
+     }
+    ],
+    "2": [
+     {
+      "op": "remove",
+      "codes": [
+       "13094",
+       "13094",
+       "13095",
+       "13095",
+       "13095",
+       "13096",
+       "13096"
+      ],
+      "log": "À 1-2 joueurs : le set Afflicted est retiré de la partie."
+     }
+    ],
+    "3": [],
+    "4": []
+   }
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13091",
+    "13091",
+    "13091",
+    "13103",
+    "13103",
+    "13103"
+   ],
+   "faceUp": true,
+   "log": "Chaque Child of Blood (les deux versions, six cartes) est mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13097",
+    "13097",
+    "13097"
+   ],
+   "faceUp": true,
+   "log": "Les trois Spawn of Zburamoarte sont mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13092",
+    "13092"
+   ],
+   "faceUp": true,
+   "log": "Les deux Sanguine Rebirth sont mises de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13093a"
+   ],
+   "faceUp": true,
+   "log": "Le soutien d'histoire Chosen of Zburamoarte est mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13112",
+    "13112",
+    "13112",
+    "13113"
+   ],
+   "faceUp": true,
+   "log": "Les ennemis de Sanguine Secrets (Sanguine Cultist ×3, Blood-Crazed Zealot) sont mis de côté, hors jeu."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "seatCounters": [
+  {
+   "key": "bloodSealed",
+   "label": "Sang scellé",
+   "icon": "blood",
+   "initial": 0
+  }
+ ],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Porteurs de la campagne : si un enquêteur est porteur de Detective Reynolds, Fang of Zburamoarte, Sanguine Song, Forged Permit ou Charlie Kane (interlude), il les a dans son deck — sinon, « Générer une carte » (codes 13029, 13030, 13066, 13067, 13105) les met sur son board."
+  },
+  {
+   "when": "setup",
+   "text": "Codex des invités : quand une carte vous envoie au codex, tirez des jetons du sac (« Tirer un jeton ») jusqu'au symbole voulu, lisez l'entrée correspondante dans le guide (p. 25-28), puis scellez ce jeton par le menu de l'invité (« Sceller le jeton tiré… ») et remettez le reste (« Tout remettre »). Les pastilles sur la carte montrent ce qui y est scellé ; défausser la carte rend ses jetons au sac."
+  },
+  {
+   "when": "setup",
+   "text": "Jetons sang : mêmes règles — au plus 3 scellés par enquêteur, 12 en tout. Menu du sac ou chip « Sang scellé » du siège ; la référence de la carte de scénario montre les effets selon votre difficulté."
+  },
+  {
+   "when": "setup",
+   "text": "Invités sauvés : quand une carte place un Civilian « sous la carte de scénario de référence », passez par le menu de l'ennemi → « Placer dans Invités sauvés » — la pile à côté de la pioche en tient le compte."
+  },
+  {
+   "when": "setup",
+   "text": "Le Foyer a deux faces de jeu : double-clic pour le retourner quand une carte l'indique. Master Bedroom (et le Balcon en Facile/Standard) attendent dans la zone de côté : glissez-les en jeu quand une carte les nomme, sans les retourner."
+  },
+  {
+   "when": "mythos",
+   "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche)."
+  },
+  {
+   "when": "enemy",
+   "text": "Ennemis chasseurs : déplacez-les à la main. Relisez les capacités des ennemis prêts en fin de phase."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 (panneau Histoire) : appliquez-le à la main ; les cartes de côté qu'il nomme se glissent en jeu depuis la zone de côté."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Verso de l'agenda 2 (panneau Histoire) : suivez-le pas à pas — s'il faut toucher au sac, menu du sac → Ajuster."
+  },
+  {
+   "when": "act:2",
+   "text": "Verso de l'acte 1 (panneau Histoire) : appliquez-le à la main."
+  },
+  {
+   "when": "act:3",
+   "text": "Verso de l'acte 2 (panneau Histoire) : appliquez-le à la main."
+  }
+ ]
+}

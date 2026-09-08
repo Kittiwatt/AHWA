@@ -466,6 +466,17 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         break;
       }
       case "remove": {
+        if (step.n !== undefined) {
+          // Retrait partiel : n exemplaires du (seul) code listé — les autres copies restent en jeu/pioche.
+          const code = resoudre(step.codes[0]);
+          for (let i = 0; i < step.n; i++) {
+            const id = pool.take(code);
+            state.cards[id] = newCard(pool, code, id, { pile: "removed" }, false);
+            state.piles.removed.push(id);
+          }
+          addLog(state, "setup", step.log ?? `${step.n} exemplaire${step.n > 1 ? "s" : ""} de ${pool.def(code).name} : retiré${step.n > 1 ? "s" : ""} de la partie.`);
+          break;
+        }
         for (const code of step.codes) retirer(code);
         addLog(state, "setup", step.log ?? `${step.codes.map((c) => pool.def(c).name).join(", ")} : retiré de la partie.`);
         break;

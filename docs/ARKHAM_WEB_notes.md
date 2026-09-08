@@ -17,6 +17,71 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-08 : **COB III — Blood Money livré, et correction tablette/cultiste
+  sur toute la campagne.** En relisant les icônes pour le III (comparaison à
+  600 dpi contre les SVG du projet : la capuche du cultiste a une POINTE
+  sommitale, la tablette n'en a pas), la lecture de la session du I s'est
+  révélée fausse : les sacs de base p. 5 contiennent une **TABLETTE** (pas de
+  cultiste), l'ouverture du II ajoute **1 cultiste** (p. 12 — pas un sang),
+  celle du III **1 cultiste** de plus (p. 23). Chaîne cohérente vérifiée :
+  encart autonome II (p. 15) = base pure (tablette, 6 symboles) + sangs
+  2/3/5, le cultiste d'ouverture s'ajoutant par-dessus ; encart III (p. 24)
+  = base + cultiste du II (7 symboles : skull ×2, cultist, tablet,
+  elder_thing, auto_fail, elder_sign) + sangs 3/4/6 (Difficile = Expert,
+  9 nombres avec −6 sans −8), l'ouverture du III s'ajoutant par-dessus.
+  Srcs I et II corrigés (sacs + branches), tests II ajustés (sac campagne
+  standard 2 j = 16 + 2 sangs + 1 cultiste ; autonome difficile = encart
+  20 + cultiste = 21 ; assertions tablet/cultist ajoutées).
+  **Le III** : guide p. 21-24, codex p. 25-28. Quatre questions au lobby :
+  mode campagne/autonome, sangs (numérique 0-12), « killed Julia Stern ? »
+  (oui → les trois Julia 13087-89 retirées ; non → une par difficulté de
+  côté), « defeated Zburamoarte ? » (agenda 2 = Feeding Frenzy v. II 13071
+  sinon v. I 13070, l'autre retiré avant `story`). Campagne : base p. 5 +
+  sangs (nFrom) + cultiste du II + cultiste d'ouverture (sac standard
+  sang=2 → 20) ; autonome : `chaosSet` encart p. 24 + cultiste d'ouverture
+  (difficile → 23). Sanguine Secrets : **seuls les ennemis rassemblés**
+  (13112 ×3 + 13113, mis de côté) — Morbid Rituals 13114 ×2 `remove`
+  (non rassemblées). Afflicted seulement à 3-4 joueurs. Lieux : Bureau-
+  Étude-Salle à manger-Cuisine en enfilade (365/551/737/923, y=173),
+  **Foyer 13076 posé révélé côté (Boring Party)** à (644,411) — lieu à
+  deux faces de jeu, l'autre face au double-clic ; Master Bedroom de côté
+  face cachée ; **Balcon de côté (E/S) mais RETIRÉ (H/E)**. Priscilla
+  13083 à la Salle à manger ; Suspicious Guest ×6 : 1/2/3 spawns
+  (Étude, +Bureau, +Salle à manger) et **retrait partiel** 2/1/0 — nouvel
+  argument `n` sur l'op `remove` (un seul code, n exemplaires ;
+  `retirer()` seul retire TOUTES les copies via `pool.takeAll`, piège
+  découvert ici). Toujours 3 invités en pioche. De côté : les DEUX
+  « Child of Blood » (13091 ×3 blood_money + 13103 ×3 children_of_blood
+  — « each copy » = les six), Spawn of Zburamoarte 13097 ×3, Sanguine
+  Rebirth 13092 ×2, Chosen of Zburamoarte 13093a (recto), Wilkes
+  13084/85/86 par difficulté. Pioches : 21 (1-2 j) / 28 (3-4 j).
+  **Scellage sur cartes (codex des invités)** : `cardSeal: true` au src →
+  `CardState.sealed`, actions `chaosSealCard {id, token}` (pris des tirés,
+  sinon du sac) et `chaosReleaseCard` ; libération automatique vers le sac
+  quand la carte part en pile (`toPile`) ou en zone de victoire ; pastilles
+  22 px en haut à droite de la carte (`.scelles`, images des jetons) ;
+  menus « Sceller le jeton tiré « X » » (par type distinct de
+  `chaos.drawn`) et « Libérer le jeton « X » scellé ». Piège corrigé :
+  dans `ouvrirMenu` (menu des cartes), pas de variable locale `state` —
+  utiliser `ctx.etat.state` (le `state` local n'existe que dans
+  `ouvrirMenuOutil`) ; une ReferenceError dans ce handler avale le menu
+  SANS erreur visible. **Pile « Invités sauvés »** (`piles` + `menuFor:
+  ["enemy"]`, précédent Profondeurs du Pit) pour les Civilians placés
+  « sous la carte de scénario » — l'envoi d'une carte scellée dans la pile
+  libère d'abord ses jetons. Rappels : porteurs de campagne (Générer une
+  carte 13029/13030/13066/13067/13105 Charlie Kane), marche à suivre du
+  codex (tirer → lire le guide → sceller par le menu → Tout remettre),
+  invités sauvés par le menu ennemi, Foyer double face, journal papier.
+  Carte scénario 13068 : recto Easy/Standard, verso Hard/Expert. Tests :
+  569 messages (campagne standard 2 j : sac 20 dont tablette 1 / cultistes
+  2 / sangs 2, Foyer révélé side a, invités 2+1+3, Julia 13088 de côté,
+  scellage complet — tiré, libéré, re-libération nack, depuis le sac,
+  toPile saved libère ; autonome difficile 1 j : sac 23, Julia ×3
+  retirées, agenda v. II, Balcon retiré, pioche 21 ; gate `cardSeal`
+  refusé hors COB III). Captures bm_01-04 (lobby 4 questions, tapis,
+  pastille scellée, autonome). **La campagne Children of Blood est
+  complète (I-II-III).**
+
 - 2026-09-08 : **COB II — New Horizons livré** (dans la foulée du I).
   Guide p. 12‑15 : choix de groupe jour (Setup v. I) / nuit (v. II) —
   ce n'est PAS la résolution du I qui décide. Trois questions au lobby :
@@ -26,7 +91,7 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   op `chaosAdd {token, nFrom, plus}` → sangs de fin du I + 1 (« for the
   remainder of the campaign » à l'ouverture du II). **Autonome** :
   nouvel op `chaosSet {byDifficulty}` remplace tout le sac par l'encart
-  p. 15 (lu sur l'image : mêmes 6 icônes, pas de tablette ; Facile 18
+  p. 15 (lu sur l'image : les 6 icônes de base, tablette comprise ; Facile 18
   jetons dont 2 sangs, Standard 19 dont 3, Difficile = Expert 20 dont
   5 — la question sang est ignorée). Version jour : lieux Jour
   13039‑43, agendas Busy Day 13032 (doom 5) + Digging Deeper v. I
@@ -73,7 +138,7 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   validés : source arkham.build pour tout A, enfouissement B, scellage
   option 2 C, `branch` par difficulté D, disposition losange E). Guide
   AHC106 p. 3‑11 lus (texte extrait + tableau des sacs p. 5 lu sur
-  l'image, icône par icône : **pas de tablette** ; Facile/Standard 16
+  l'image, icône par icône — relecture du 2026-09-08 : le 3e symbole est la **tablette**, pas le cultiste ; Facile/Standard 16
   jetons, Difficile 18 dont 1 sang, Expert 20 dont 2). **Jeton `blood`**
   (`Token`, `CHAOS_TOKENS`, `JETONS_CHAOS`, recette `build_chaos_tokens
   .py` : dégradé 75 % #343433 → #1C1D1C, couches `token_blood_fill`
@@ -1532,6 +1597,12 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   lieux (`rendrePlateau`) — toute mécanique « sous un lieu » (cartes
   enfouies COB) doit être détectée au rendu pour rejoindre la couche
   des lieux, et côté serveur poser un z inférieur à celui du lieu.
+- **Ne JAMAIS supposer l'icône d'un « Add 1 ? token »** : l'extraction
+  texte perd les glyphes. Les lire sur l'image à 600 dpi et les comparer
+  aux SVG du projet — la capuche du cultiste a une pointe sommitale, la
+  tablette (fragments) n'en a pas. La confusion des deux a faussé les
+  sacs des scénarios I et II pendant une session entière (corrigé le
+  2026-09-08 en livrant le III).
 - **`aside faceUp: false` sur un lieu double face** montre son dos non
   révélé — c'est le bon outil pour les identités masquées (grottes de
   COB II : « Side Chamber » ×3 indistinguables) ; `faceUp: true`

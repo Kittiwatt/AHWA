@@ -2234,8 +2234,10 @@ async function tableNH({ joueurs = 2, difficulty, answers }) {
   assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
   const s = h.state;
   const cartes = Object.values(s.cards);
-  assert.equal(s.chaos.bag.length, 19, "sac campagne Standard : 16 + (2 + 1) sangs");
-  assert.equal(s.chaos.bag.filter((t) => t === "blood").length, 3, "trois jetons sang");
+  assert.equal(s.chaos.bag.length, 19, "sac campagne Standard : 16 + 2 sangs + 1 cultiste d'ouverture");
+  assert.equal(s.chaos.bag.filter((t) => t === "blood").length, 2, "deux jetons sang (le report, sans +1)");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 1, "le cultiste de l'ouverture du II");
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 1, "la tablette de la base p. 5");
   const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
   assert.deepEqual(lieux.map((c) => c.code).sort(), ["13039", "13040", "13041", "13042", "13043"], "cinq lieux côté Jour");
   assert.ok(lieux.every((c) => !c.faceUp), "aucun lieu révélé d'office : chacun révèle son départ");
@@ -2265,7 +2267,7 @@ async function tableNH({ joueurs = 2, difficulty, answers }) {
   const d2 = await h.action({ t: "chaosSeal", seat: 0 });
   assert.equal(d2.t, "delta");
   assert.equal(h.state.seats[0].counters.bloodSealed, 1);
-  assert.equal(h.state.chaos.bag.filter((t) => t === "blood").length, 2, "un sang scellé depuis le sac");
+  assert.equal(h.state.chaos.bag.filter((t) => t === "blood").length, 1, "un sang scellé depuis le sac");
   h.envoyer({ t: "deleteRoom" });
   await new Promise((r) => setTimeout(r, 300));
 }
@@ -2275,8 +2277,10 @@ async function tableNH({ joueurs = 2, difficulty, answers }) {
   assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
   const s = h.state;
   const cartes = Object.values(s.cards);
-  assert.equal(s.chaos.bag.length, 20, "sac autonome Difficile : 20 jetons");
+  assert.equal(s.chaos.bag.length, 21, "sac autonome Difficile : encart 20 + le cultiste d'ouverture");
   assert.equal(s.chaos.bag.filter((t) => t === "blood").length, 5, "cinq sangs (la réponse 9 est ignorée)");
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 1, "la tablette de la base");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 1, "le cultiste de l'ouverture");
   const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
   assert.deepEqual(lieux.map((c) => c.code).sort(), ["13044", "13045", "13046", "13047", "13048"], "cinq lieux côté Nuit");
   assert.equal(s.cards[s.agendaId].code, "13033", "agenda courant : Quiet Night");
@@ -2290,6 +2294,126 @@ async function tableNH({ joueurs = 2, difficulty, answers }) {
   assert.equal(grottes.length, 5, "cinq grottes Darkest Depths de côté");
   assert.ok(grottes.every((c) => !c.faceUp), "grottes face cachée");
   assert.equal(s.piles.encounter.length, 32, "pioche v. II : 32 cartes");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
+// ---- Children of Blood, scénario III : Blood Money ---------------------------------------------
+// Journal (Julia tuée ?, Zburamoarte vaincu ?), sac campagne (tablette + cultistes) ou encart p. 24,
+// invités par nombre de joueurs, scellage de jetons SUR les cartes (codex) et pile « Invités sauvés ».
+
+async function tableBM({ joueurs = 2, difficulty, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "cob_blood_money" }) });
+  assert.equal(r.status, 200, "Blood Money est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+
+{ // Campagne, Standard, 2 joueurs, 2 sangs, Julia épargnée, Zburamoarte en vie.
+  const { h } = await tableBM({ joueurs: 2, answers: { mode: "campagne", sang: 2, julia: "non", zbura: "non" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 20, "sac campagne Standard : 16 (tablette comprise) + 2 sangs + 2 cultistes");
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 1, "la tablette de la base p. 5");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 2, "les cultistes des ouvertures II et III");
+  assert.equal(s.chaos.bag.filter((t) => t === "blood").length, 2, "les sangs reportés");
+  const foyer = cartes.find((c) => c.code === "13076");
+  assert.ok(foyer.faceUp && foyer.side === "a" && foyer.loc.x === 644, "Foyer posé révélé, côté (Boring Party)");
+  assert.ok(cartes.filter((c) => c.kind === "location" && c.loc.zone === "board" && c.code !== "13076").every((c) => !c.faceUp), "les quatre pièces restent non révélées");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 644) < 130 && Math.abs(m.loc.y - 411) < 60), "pions au Foyer");
+  assert.equal(s.cards[s.agendaId].code, "13069", "agenda 1 : Party Without a Host");
+  assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["13070", "13072"], "suite : Feeding Frenzy (v. I) puis Under a Blood Moon");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a", "référence Easy/Standard");
+  assert.ok(Math.abs(cartes.find((c) => c.code === "13083").loc.x - 737) < 130, "Priscilla Thomas à la Salle à manger");
+  const invites = cartes.filter((c) => c.code === "13090");
+  assert.equal(invites.filter((c) => c.loc.zone === "board").length, 2, "deux invités en jeu à 2 joueurs (Étude, Bureau)");
+  assert.equal(invites.filter((c) => c.loc.pile === "removed").length, 1, "un invité retiré à 2 joueurs");
+  assert.equal(invites.filter((c) => c.loc.pile === "encounter").length, 3, "trois invités en pioche");
+  assert.ok(cartes.some((c) => c.code === "13088" && c.loc.zone === "aside" && c.faceUp), "Julia (Out for Blood) de côté en Standard");
+  assert.ok(cartes.filter((c) => ["13087", "13089"].includes(c.code)).every((c) => c.loc.pile === "removed"), "les autres Julia retirées");
+  assert.ok(cartes.some((c) => c.code === "13085" && c.loc.zone === "aside" && c.faceUp), "Wilkes (Too Far Gone) de côté");
+  assert.ok(cartes.some((c) => c.code === "13082" && c.loc.zone === "aside" && !c.faceUp), "Balcon de côté, face cachée (E/S)");
+  assert.ok(cartes.some((c) => c.code === "13079" && c.loc.zone === "aside" && !c.faceUp), "Master Bedroom de côté, face cachée");
+  assert.ok(cartes.some((c) => c.code === "13093a" && c.loc.zone === "aside" && c.faceUp), "Chosen of Zburamoarte de côté");
+  assert.ok(cartes.filter((c) => c.code === "13114").every((c) => c.loc.pile === "removed"), "Morbid Rituals non rassemblées (retirées)");
+  assert.ok(cartes.some((c) => c.code === "13071" && c.loc.pile === "removed"), "Feeding Frenzy (v. II) retiré (Zburamoarte en vie)");
+  assert.equal(s.piles.encounter.length, 21, "pioche Standard 2 joueurs : 21 cartes");
+  assert.ok("saved" in s.piles && s.piles.saved.length === 0, "pile « Invités sauvés » déclarée, vide");
+
+  // Scellage sur carte (codex) : tirer jusqu'à un symbole, le sceller sur un invité.
+  const invite = invites.find((c) => c.loc.zone === "board");
+  let symbole = null;
+  for (let i = 0; i < 40 && !symbole; i++) {
+    await h.action({ t: "chaosDraw" });
+    symbole = h.state.chaos.drawn.find((t) => !/^[+-]?\d/.test(t)) ?? null;
+  }
+  assert.ok(symbole, "un symbole fini par sortir du sac");
+  let d = await h.action({ t: "chaosSealCard", id: invite.id, token: symbole });
+  assert.equal(d.t, "delta", "scellage du jeton tiré sur l'invité");
+  assert.deepEqual(h.state.cards[invite.id].sealed, [symbole], "le jeton est scellé sur la carte");
+  assert.ok(!h.state.chaos.drawn.includes(symbole) || h.state.chaos.drawn.filter((t) => t === symbole).length < 2, "le jeton a quitté les tirés");
+  await h.action({ t: "chaosReturn" });
+  const sacAvant = h.state.chaos.bag.length;
+  d = await h.action({ t: "chaosReleaseCard", id: invite.id, token: symbole });
+  assert.equal(d.t, "delta");
+  assert.equal(h.state.cards[invite.id].sealed.length, 0, "libéré");
+  assert.equal(h.state.chaos.bag.length, sacAvant + 1, "le jeton libéré retourne au sac");
+  d = await h.action({ t: "chaosReleaseCard", id: invite.id, token: symbole });
+  assert.equal(d.t, "nack", "rien à libérer deux fois");
+  // Re-sceller depuis le sac (aucun tiré), puis défausser : libération automatique.
+  d = await h.action({ t: "chaosSealCard", id: invite.id, token: "skull" });
+  assert.equal(d.t, "delta", "sceller directement depuis le sac");
+  const sacApresScelle = h.state.chaos.bag.length;
+  d = await h.action({ t: "toPile", id: invite.id, pile: "saved" });
+  assert.equal(d.t, "delta", "l'invité rejoint la pile Invités sauvés");
+  assert.equal(h.state.piles.saved.length, 1, "un invité sauvé");
+  assert.equal(h.state.chaos.bag.length, sacApresScelle + 1, "défaussé/sauvé : son jeton scellé retourne au sac");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // Autonome, Difficile, 1 joueur, Julia tuée, Zburamoarte vaincu.
+  const { h } = await tableBM({ joueurs: 1, difficulty: "hard", answers: { mode: "autonome", sang: 9, julia: "oui", zbura: "oui" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 23, "sac autonome Difficile : encart 22 + le cultiste d'ouverture du III");
+  assert.equal(s.chaos.bag.filter((t) => t === "blood").length, 6, "six sangs (la réponse 9 est ignorée)");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 2, "cultiste de l'encart + cultiste d'ouverture");
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 1, "la tablette de l'encart");
+  assert.ok(cartes.filter((c) => ["13087", "13088", "13089"].includes(c.code)).every((c) => c.loc.pile === "removed"), "Julia tuée : ses trois versions retirées");
+  assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["13071", "13072"], "Zburamoarte vaincu : Feeding Frenzy (v. II)");
+  assert.ok(cartes.some((c) => c.code === "13070" && c.loc.pile === "removed"), "v. I retirée");
+  assert.ok(cartes.some((c) => c.code === "13082" && c.loc.pile === "removed"), "Balcon retiré en Difficile");
+  assert.ok(cartes.some((c) => c.code === "13086" && c.loc.zone === "aside"), "Wilkes (Ultimate Predator) de côté");
+  const invites = cartes.filter((c) => c.code === "13090");
+  assert.equal(invites.filter((c) => c.loc.zone === "board").length, 1, "un seul invité en jeu à 1 joueur");
+  assert.equal(invites.filter((c) => c.loc.pile === "removed").length, 2, "deux invités retirés à 1 joueur");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "b", "référence Hard/Expert");
+  assert.equal(s.piles.encounter.length, 21, "pioche Difficile 1 joueur : 21 cartes");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // Le scellage sur cartes n'existe que là où le scénario le déclare.
+  const { h } = await tablePit({ joueurs: 1 });
+  const uneCarte = Object.values(h.state.cards).find((c) => c.kind === "location");
+  const d = await h.action({ t: "chaosSealCard", id: uneCarte.id, token: "skull" });
+  assert.equal(d.t, "nack", "pas de scellage sur carte hors COB III");
   h.envoyer({ t: "deleteRoom" });
   await new Promise((r) => setTimeout(r, 300));
 }
