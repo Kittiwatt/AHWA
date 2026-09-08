@@ -506,6 +506,16 @@ chaos `blood` (SVG généré par la recette ArkhamCards) ; il reste dans
 le sac de scénario en scénario (« Tout remettre » le rend au sac,
 contrairement aux bénédictions/malédictions).
 
+**New Horizons (2026-09-08).** `chaosAdd {token, nFrom, plus?}` ajoute
+n exemplaires d'un jeton, n = réponse numérique du lobby (+ `plus`
+fixes) — report des sangs de la campagne, +1 de l'ouverture du II.
+`chaosSet {byDifficulty}` remplace tout le sac (mode autonome, encart
+p. 15). Les questions numériques (`type: "number"`, min/max/default)
+étaient déjà rendues au lobby. Un `aside` avec `faceUp: false` sur des
+lieux double face affiche leur dos non révélé : identités masquées
+(trois « Side Chamber » indistinguables). Les agendas de la version
+non jouée sont retirés avant `story`, qui ignore les retraits.
+
 Questions du lobby : à choix (`options`) ou **numériques** (`type:
 "number"`, `min`, `max`, `default`) ; la réponse voyage en chaîne dans
 `startSetup {answers}` et est validée par `reponseValide`. Rappels
@@ -1005,6 +1015,9 @@ nomenclature, puis mise en page.
   en Difficile/Expert uniquement).
 - **Disposition** : losange sur 5 rangées (colonnes 365/551/737/923,
   rangées 55/293/531/769/1007), le plateau zoomable absorbe la hauteur.
-- Suite prévue : II New Horizons (report du sac et des sangs, choix
-  jour/nuit selon la résolution du I, encart autonome p. 15), III
+- **II New Horizons livré le même jour** : choix de groupe jour/nuit au
+  lobby (ce n'est pas la résolution du I qui décide), report du sac par
+  question numérique (`chaosAdd nFrom` + 1) ou encart autonome p. 15
+  (`chaosSet`), grottes de côté face cachée, départ au choix des deux
+  Factory Floors (aucun lieu révélé d'office). Suite prévue : III
   Blood Money.

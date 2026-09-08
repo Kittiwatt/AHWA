@@ -1,0 +1,1703 @@
+{
+ "id": "cob_new_horizons",
+ "title": "Scénario II : New Horizons",
+ "campaign": "Children of Blood",
+ "campaignId": "cob",
+ "order": 2,
+ "packs": [
+  "cob",
+  "core_2026"
+ ],
+ "encounterSets": [
+  "new_horizons",
+  "afflicted",
+  "blood_blight",
+  "bloodthirst",
+  "hunted",
+  "infected",
+  "sanguine_secrets",
+  "vermin",
+  "children_of_blood",
+  "preyed_upon",
+  "stalked",
+  "flying_terrors",
+  "reeking_decay"
+ ],
+ "scenarioCard": "13031",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "13032",
+  "13033",
+  "13034",
+  "13035"
+ ],
+ "actDeck": [
+  "13036",
+  "13037",
+  "13038"
+ ],
+ "startLocation": "13039",
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "cultist",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "cultist",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "seal": {
+  "token": "blood",
+  "label": "Sang",
+  "counter": "bloodSealed",
+  "maxPerSeat": 3,
+  "maxTotal": 12
+ },
+ "layout": [
+  {
+   "code": "13039",
+   "x": 551,
+   "y": 173
+  },
+  {
+   "code": "13040",
+   "x": 923,
+   "y": 173
+  },
+  {
+   "code": "13041",
+   "x": 365,
+   "y": 411
+  },
+  {
+   "code": "13042",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "code": "13043",
+   "x": 1109,
+   "y": 411
+  }
+ ],
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Sac du chaos : reporter votre campagne, ou partie autonome (encart p. 15 du guide) ?",
+   "options": [
+    {
+     "id": "campagne",
+     "label": "Campagne — je reporte le sac du scénario I"
+    },
+    {
+     "id": "autonome",
+     "label": "Autonome — sac de l'encart p. 15"
+    }
+   ]
+  },
+  {
+   "id": "sang",
+   "text": "Campagne : combien de jetons Sang dans le sac à la fin du scénario I ? (le +1 de l'ouverture du II sera ajouté ; ignoré en autonome)",
+   "type": "number",
+   "min": 0,
+   "max": 12,
+   "default": 1
+  },
+  {
+   "id": "version",
+   "text": "Le groupe choisit : fouiller l'usine de jour (préparez-vous à parlementer) ou de nuit (préparez-vous à vous battre) ?",
+   "options": [
+    {
+     "id": "jour",
+     "label": "De jour — Setup (v. I)"
+    },
+    {
+     "id": "nuit",
+     "label": "De nuit — Setup (v. II)"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "branch",
+   "on": "mode",
+   "cases": {
+    "campagne": [
+     {
+      "op": "chaosAdd",
+      "token": "blood",
+      "nFrom": "sang",
+      "plus": 1,
+      "log": "Sac de campagne reporté — sangs de fin du scénario I, plus le sang de l'ouverture du scénario II"
+     }
+    ],
+    "autonome": [
+     {
+      "op": "chaosSet",
+      "byDifficulty": {
+       "easy": [
+        "+1",
+        "0",
+        "0",
+        "0",
+        "-1",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "skull",
+        "skull",
+        "cultist",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood"
+       ],
+       "standard": [
+        "+1",
+        "0",
+        "0",
+        "-1",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "-4",
+        "skull",
+        "skull",
+        "cultist",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood",
+        "blood"
+       ],
+       "hard": [
+        "0",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "-4",
+        "-5",
+        "-6",
+        "skull",
+        "skull",
+        "cultist",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood",
+        "blood",
+        "blood",
+        "blood"
+       ],
+       "expert": [
+        "0",
+        "-1",
+        "-1",
+        "-2",
+        "-2",
+        "-3",
+        "-4",
+        "-5",
+        "-6",
+        "skull",
+        "skull",
+        "cultist",
+        "elder_thing",
+        "auto_fail",
+        "elder_sign",
+        "blood",
+        "blood",
+        "blood",
+        "blood",
+        "blood"
+       ]
+      },
+      "log": "Mode autonome : sac de l'encart p. 15"
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "version",
+   "cases": {
+    "jour": [
+     {
+      "op": "remove",
+      "codes": [
+       "13044",
+       "13045",
+       "13046",
+       "13047",
+       "13048"
+      ],
+      "log": "De jour : les cinq lieux Nuit sont retirés de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13033",
+       "13035"
+      ],
+      "log": "Agendas de la version de nuit retirés (Quiet Night, Digging Deeper v. II)."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13062"
+      ],
+      "log": "Night Watchman est retiré de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13103",
+       "13103",
+       "13103",
+       "13104",
+       "13104",
+       "13110",
+       "13110",
+       "13110",
+       "13111",
+       "13111",
+       "13115",
+       "13115",
+       "13116",
+       "13116",
+       "13116",
+       "12191",
+       "12191",
+       "12192",
+       "12192"
+      ],
+      "log": "Sets de la version de nuit retirés (Children of Blood, Preyed Upon, Stalked, Reeking Decay)."
+     },
+     {
+      "op": "place",
+      "code": "13039",
+      "zone": "board",
+      "x": 551,
+      "y": 173
+     },
+     {
+      "op": "place",
+      "code": "13040",
+      "zone": "board",
+      "x": 923,
+      "y": 173
+     },
+     {
+      "op": "place",
+      "code": "13041",
+      "zone": "board",
+      "x": 365,
+      "y": 411
+     },
+     {
+      "op": "place",
+      "code": "13042",
+      "zone": "board",
+      "x": 737,
+      "y": 411
+     },
+     {
+      "op": "place",
+      "code": "13043",
+      "zone": "board",
+      "x": 1109,
+      "y": 411,
+      "log": "Les cinq lieux de l'usine (côté Jour) sont posés : les deux Factory Floors en haut, Bureau, Quai de chargement et Réserve en dessous."
+     },
+     {
+      "op": "minis",
+      "code": "13039",
+      "log": "Chaque enquêteur commence sur le Factory Floor de son choix : pions posés à l'Ouest — déplacez le vôtre à l'Est si besoin, et cliquez votre lieu de départ pour le révéler."
+     },
+     {
+      "op": "spawn",
+      "code": "13063",
+      "at": "13039",
+      "log": "Un Factory Worker apparaît au Factory Floor (West)."
+     },
+     {
+      "op": "spawn",
+      "code": "13063",
+      "at": "13040",
+      "log": "Un Factory Worker apparaît au Factory Floor (East)."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13061"
+      ],
+      "faceUp": true,
+      "log": "Javier Rivera est mis de côté, hors jeu."
+     }
+    ],
+    "nuit": [
+     {
+      "op": "remove",
+      "codes": [
+       "13039",
+       "13040",
+       "13041",
+       "13042",
+       "13043"
+      ],
+      "log": "De nuit : les cinq lieux Jour sont retirés de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13032",
+       "13034"
+      ],
+      "log": "Agendas de la version de jour retirés (Busy Day, Digging Deeper v. I)."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13061",
+       "13063",
+       "13063",
+       "13063",
+       "13063"
+      ],
+      "log": "Javier Rivera et les Factory Workers sont retirés de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13099",
+       "13099",
+       "13100",
+       "13100",
+       "13100",
+       "13102",
+       "13102",
+       "13102",
+       "13106",
+       "13106",
+       "13107",
+       "13107",
+       "13117",
+       "13117",
+       "13117"
+      ],
+      "log": "Sets de la version de jour retirés (Blood Blight, Bloodthirst, Hunted, Vermin)."
+     },
+     {
+      "op": "place",
+      "code": "13044",
+      "zone": "board",
+      "x": 551,
+      "y": 173
+     },
+     {
+      "op": "place",
+      "code": "13045",
+      "zone": "board",
+      "x": 923,
+      "y": 173
+     },
+     {
+      "op": "place",
+      "code": "13046",
+      "zone": "board",
+      "x": 365,
+      "y": 411
+     },
+     {
+      "op": "place",
+      "code": "13047",
+      "zone": "board",
+      "x": 737,
+      "y": 411
+     },
+     {
+      "op": "place",
+      "code": "13048",
+      "zone": "board",
+      "x": 1109,
+      "y": 411,
+      "log": "Les cinq lieux de l'usine (côté Nuit) sont posés : les deux Factory Floors en haut, Bureau, Quai de chargement et Réserve en dessous."
+     },
+     {
+      "op": "minis",
+      "code": "13044",
+      "log": "Chaque enquêteur commence sur le Factory Floor de son choix : pions posés à l'Ouest — déplacez le vôtre à l'Est si besoin, et cliquez votre lieu de départ pour le révéler."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13062"
+      ],
+      "faceUp": true,
+      "log": "Night Watchman est mis de côté, hors jeu."
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "difficulty",
+   "cases": {
+    "easy": [
+     {
+      "op": "aside",
+      "codes": [
+       "13058"
+      ],
+      "faceUp": true,
+      "log": "Zburamoarte (Lethargic Beast) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13059",
+       "13060"
+      ],
+      "log": "Les autres versions de Zburamoarte sont retirées."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13049",
+       "13051",
+       "13052",
+       "13053",
+       "13054"
+      ],
+      "faceUp": false,
+      "log": "Grottes mises de côté face cachée (Shallow Tunnels) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13050",
+       "13055",
+       "13056",
+       "13057"
+      ],
+      "log": "Les grottes des profondeurs sont retirées de la partie."
+     }
+    ],
+    "standard": [
+     {
+      "op": "aside",
+      "codes": [
+       "13059"
+      ],
+      "faceUp": true,
+      "log": "Zburamoarte (The Source of the Blight) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13058",
+       "13060"
+      ],
+      "log": "Les autres versions de Zburamoarte sont retirées."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13049",
+       "13051",
+       "13052",
+       "13053",
+       "13054"
+      ],
+      "faceUp": false,
+      "log": "Grottes mises de côté face cachée (Shallow Tunnels) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13050",
+       "13055",
+       "13056",
+       "13057"
+      ],
+      "log": "Les grottes des profondeurs sont retirées de la partie."
+     }
+    ],
+    "hard": [
+     {
+      "op": "aside",
+      "codes": [
+       "13060"
+      ],
+      "faceUp": true,
+      "log": "Zburamoarte (Progenitor of Monsters) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13058",
+       "13059"
+      ],
+      "log": "Les autres versions de Zburamoarte sont retirées."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13050",
+       "13051",
+       "13055",
+       "13056",
+       "13057"
+      ],
+      "faceUp": false,
+      "log": "Grottes mises de côté face cachée (Darkest Depths) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13049",
+       "13052",
+       "13053",
+       "13054"
+      ],
+      "log": "Les grottes des tunnels peu profonds sont retirées de la partie."
+     }
+    ],
+    "expert": [
+     {
+      "op": "aside",
+      "codes": [
+       "13060"
+      ],
+      "faceUp": true,
+      "log": "Zburamoarte (Progenitor of Monsters) est mis de côté, hors jeu."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13058",
+       "13059"
+      ],
+      "log": "Les autres versions de Zburamoarte sont retirées."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13050",
+       "13051",
+       "13055",
+       "13056",
+       "13057"
+      ],
+      "faceUp": false,
+      "log": "Grottes mises de côté face cachée (Darkest Depths) : l'entrée, le tunnel qui descend et trois chambres latérales — leurs dos gardent leurs secrets."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13049",
+       "13052",
+       "13053",
+       "13054"
+      ],
+      "log": "Les grottes des tunnels peu profonds sont retirées de la partie."
+     }
+    ]
+   }
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13064",
+    "13064",
+    "13064",
+    "13064"
+   ],
+   "faceUp": true,
+   "log": "Les quatre Blighted Workers sont mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13065",
+    "13065",
+    "13065",
+    "13065"
+   ],
+   "faceUp": true,
+   "log": "Les quatre Echoing in Darkness sont mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "sets": [
+    "infected"
+   ],
+   "faceUp": true,
+   "log": "Set Infected (The Blood Blight ×4) mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "sets": [
+    "flying_terrors"
+   ],
+   "faceUp": true,
+   "log": "Set Flying Terrors mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13066",
+    "13067"
+   ],
+   "faceUp": true,
+   "log": "Les soutiens d'histoire Sanguine Song et Forged Permit sont mis de côté, hors jeu."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "seatCounters": [
+  {
+   "key": "bloodSealed",
+   "label": "Sang scellé",
+   "icon": "blood",
+   "initial": 0
+  }
+ ],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Départ au choix : chaque enquêteur commence à l'un des deux Factory Floors. Cliquez votre lieu de départ pour le révéler (indices posés automatiquement) et glissez-y votre pion — ils sont posés à l'Ouest par défaut."
+  },
+  {
+   "when": "setup",
+   "text": "Jetons sang : mêmes règles qu'au scénario I — au plus 3 scellés par enquêteur, 12 en tout entre sac et enquêteurs. Menu du sac → « Sceller / Libérer », ou le chip « Sang scellé » du siège (+ scelle, − libère) ; « Ajuster… » pour les effets qui en ajoutent ou en retirent. La référence sur la carte de scénario montre l'effet des jetons selon votre difficulté."
+  },
+  {
+   "when": "setup",
+   "text": "Grottes de côté, face cachée : leurs dos (« Descending Tunnel », trois « Side Chamber » identiques) cachent ce qu'elles sont vraiment. Quand une carte les met en jeu, glissez-les depuis la zone de côté vers la rangée du bas du tapis, sans les retourner : elles entrent non révélées (clic pour révéler, indices posés automatiquement)."
+  },
+  {
+   "when": "setup",
+   "text": "Notes du journal de campagne (papier, l'app ne le tient pas) : « the investigators stole the manager's keys » conditionne l'entrée du Manager's Office ; « a sheet of arcane symbols » et « forged permits » pourront se noter en cours de partie quand les cartes l'indiquent."
+  },
+  {
+   "when": "mythos",
+   "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche)."
+  },
+  {
+   "when": "enemy",
+   "text": "Ennemis chasseurs : déplacez-les à la main. Relisez les capacités des ennemis prêts en fin de phase."
+  },
+  {
+   "when": "act:2",
+   "text": "Verso de l'acte 1 (panneau Histoire) : s'il met des grottes en jeu, glissez-les depuis la zone de côté sans les retourner — clic pour révéler quand un enquêteur y entre."
+  },
+  {
+   "when": "act:3",
+   "text": "Verso de l'acte 2 (panneau Histoire) : suivez-le pas à pas ; les cartes de côté qu'il nomme se glissent en jeu depuis la zone de côté."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 (panneau Histoire) : appliquez-le à la main — s'il faut toucher au sac, passez par menu du sac → Ajuster."
+  }
+ ],
+ "builtAt": "2026-09-08",
+ "encounterSetNames": {
+  "new_horizons": "New Horizons",
+  "afflicted": "Afflicted",
+  "blood_blight": "Blood Blight",
+  "bloodthirst": "Bloodthirst",
+  "hunted": "Hunted",
+  "infected": "Infected",
+  "sanguine_secrets": "Sanguine Secrets",
+  "vermin": "Vermin",
+  "children_of_blood": "Children of Blood",
+  "preyed_upon": "Preyed Upon",
+  "stalked": "Stalked",
+  "flying_terrors": "Flying Terrors",
+  "reeking_decay": "Reeking Decay"
+ },
+ "cards": [
+  {
+   "code": "12162",
+   "name": "Bat Horror",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "flying_terrors",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster"
+   ],
+   "health": 4
+  },
+  {
+   "code": "12163",
+   "name": "Aerial Pursuit",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "flying_terrors",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "12191",
+   "name": "Unnatural Decay",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "reeking_decay",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "12192",
+   "name": "Putrid Vapors",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "reeking_decay",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "13031",
+   "name": "New Horizons",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "13032",
+   "name": "Busy Day",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Too Much Attention",
+   "doom": 5,
+   "stage": 1
+  },
+  {
+   "code": "13033",
+   "name": "Quiet Night",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Something Has Heard You",
+   "doom": 6,
+   "stage": 1
+  },
+  {
+   "code": "13034",
+   "name": "Digging Deeper (v. I)",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Too Deep!",
+   "doom": 12,
+   "stage": 2
+  },
+  {
+   "code": "13035",
+   "name": "Digging Deeper (v. II)",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Too Deep!",
+   "doom": 14,
+   "stage": 2
+  },
+  {
+   "code": "13036",
+   "name": "To New Horizons",
+   "kind": "act",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "backName": "The Path Below",
+   "stage": 1
+  },
+  {
+   "code": "13037",
+   "name": "The Search for Answers",
+   "kind": "act",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Evidence Secured",
+   "stage": 2
+  },
+  {
+   "code": "13038",
+   "name": "Bring Down the Beast",
+   "kind": "act",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Nightmare Slain",
+   "stage": 3
+  },
+  {
+   "code": "13039",
+   "name": "Factory Floor",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "West",
+   "traits": [
+    "Warehouse",
+    "Day"
+   ]
+  },
+  {
+   "code": "13040",
+   "name": "Factory Floor",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "East",
+   "traits": [
+    "Warehouse",
+    "Day"
+   ]
+  },
+  {
+   "code": "13041",
+   "name": "Manager's Office",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Warehouse",
+    "Day"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "13042",
+   "name": "Loading Dock",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Warehouse",
+    "Day"
+   ]
+  },
+  {
+   "code": "13043",
+   "name": "Storage",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Warehouse",
+    "Day"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "13044",
+   "name": "Factory Floor",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "West",
+   "traits": [
+    "Warehouse",
+    "Night"
+   ]
+  },
+  {
+   "code": "13045",
+   "name": "Factory Floor",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "East",
+   "traits": [
+    "Warehouse",
+    "Night"
+   ]
+  },
+  {
+   "code": "13046",
+   "name": "Manager's Office",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Warehouse",
+    "Night"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "13047",
+   "name": "Loading Dock",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Warehouse",
+    "Night"
+   ]
+  },
+  {
+   "code": "13048",
+   "name": "Storage",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Warehouse",
+    "Night"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "13049",
+   "name": "Cavern Entrance",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "Shallow Tunnels",
+   "traits": [
+    "Cave",
+    "Central"
+   ]
+  },
+  {
+   "code": "13050",
+   "name": "Cavern Entrance",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "Darkest Depths",
+   "traits": [
+    "Cave",
+    "Central"
+   ]
+  },
+  {
+   "code": "13051",
+   "name": "Zburamoarte's Lair",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave",
+    "Lair"
+   ],
+   "backName": "Descending Tunnel"
+  },
+  {
+   "code": "13052",
+   "name": "Hidden Laboratory",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "Shallow Tunnels",
+   "traits": [
+    "Cave",
+    "Lab"
+   ],
+   "backName": "Side Chamber",
+   "victory": 2
+  },
+  {
+   "code": "13053",
+   "name": "Locked Chamber",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "Shallow Tunnels",
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Side Chamber",
+   "victory": 2
+  },
+  {
+   "code": "13054",
+   "name": "Secret Chamber",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "Shallow Tunnels",
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Side Chamber"
+  },
+  {
+   "code": "13055",
+   "name": "Hidden Laboratory",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "Darkest Depths",
+   "traits": [
+    "Cave",
+    "Lab"
+   ],
+   "backName": "Side Chamber",
+   "victory": 2
+  },
+  {
+   "code": "13056",
+   "name": "Locked Chamber",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "Darkest Depths",
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Side Chamber",
+   "victory": 2
+  },
+  {
+   "code": "13057",
+   "name": "Secret Chamber",
+   "kind": "location",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "Darkest Depths",
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Side Chamber"
+  },
+  {
+   "code": "13058",
+   "name": "Zburamoarte",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Lethargic Beast",
+   "traits": [
+    "Monster",
+    "Abomination",
+    "Elite"
+   ],
+   "health": 8,
+   "victory": 2
+  },
+  {
+   "code": "13059",
+   "name": "Zburamoarte",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "The Source of the Blight",
+   "traits": [
+    "Monster",
+    "Abomination",
+    "Elite"
+   ],
+   "health": 8,
+   "victory": 2
+  },
+  {
+   "code": "13060",
+   "name": "Zburamoarte",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Progenitor of Monsters",
+   "traits": [
+    "Monster",
+    "Abomination",
+    "Elite"
+   ],
+   "health": 8,
+   "victory": 2
+  },
+  {
+   "code": "13061",
+   "name": "Javier Rivera",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "New Horizons Manager",
+   "traits": [
+    "Humanoid",
+    "Civilian",
+    "Elite"
+   ],
+   "health": 3,
+   "victory": 2
+  },
+  {
+   "code": "13062",
+   "name": "Night Watchman",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Bloodthirsty Butcher",
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Elite"
+   ],
+   "health": 6,
+   "victory": 2
+  },
+  {
+   "code": "13063",
+   "name": "Factory Worker",
+   "kind": "enemy",
+   "qty": 4,
+   "set": "new_horizons",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Civilian"
+   ],
+   "health": 1
+  },
+  {
+   "code": "13064",
+   "name": "Blighted Worker",
+   "kind": "enemy",
+   "qty": 4,
+   "set": "new_horizons",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster"
+   ],
+   "health": 1
+  },
+  {
+   "code": "13065",
+   "name": "Echoing in Darkness",
+   "kind": "treachery",
+   "qty": 4,
+   "set": "new_horizons",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "13066",
+   "name": "Sanguine Song",
+   "kind": "asset",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Spell"
+   ]
+  },
+  {
+   "code": "13067",
+   "name": "Forged Permit",
+   "kind": "asset",
+   "qty": 1,
+   "set": "new_horizons",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Evidence",
+    "Illicit"
+   ]
+  },
+  {
+   "code": "13094",
+   "name": "Frenzied Hunger",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "afflicted",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "13095",
+   "name": "Torturous Transformation",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "afflicted",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power",
+    "Blight"
+   ]
+  },
+  {
+   "code": "13096",
+   "name": "Rotting Remains",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "afflicted",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "13099",
+   "name": "Blighted Blood",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "blood_blight",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse",
+    "Blight"
+   ]
+  },
+  {
+   "code": "13100",
+   "name": "Grisly Compulsion",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "blood_blight",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power"
+   ]
+  },
+  {
+   "code": "13102",
+   "name": "Bloodthirst",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "bloodthirst",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Madness"
+   ]
+  },
+  {
+   "code": "13103",
+   "name": "Child of Blood",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "children_of_blood",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster"
+   ],
+   "health": 2
+  },
+  {
+   "code": "13104",
+   "name": "Grasping Hands",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "children_of_blood",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "13106",
+   "name": "Of the Night",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "hunted",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "13107",
+   "name": "Nowhere to Hide",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "hunted",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "13110",
+   "name": "Night Feeder",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "preyed_upon",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster"
+   ],
+   "health": 4
+  },
+  {
+   "code": "13111",
+   "name": "Feeding Grounds",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "preyed_upon",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "13112",
+   "name": "Sanguine Cultist",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "sanguine_secrets",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
+   "health": 1
+  },
+  {
+   "code": "13113",
+   "name": "Blood-Crazed Zealot",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "sanguine_secrets",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
+   "health": 2
+  },
+  {
+   "code": "13114",
+   "name": "Morbid Rituals",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "sanguine_secrets",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  },
+  {
+   "code": "13115",
+   "name": "In the Shadows",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "stalked",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "13116",
+   "name": "Voices in the Night",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "stalked",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "13117",
+   "name": "Blood-Crazed Vermin",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "vermin",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Creature",
+    "Blight"
+   ],
+   "health": 1
+  },
+  {
+   "code": "13118",
+   "name": "The Blood Blight",
+   "kind": "treachery",
+   "qty": 4,
+   "set": "infected",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse",
+    "Blight"
+   ]
+  }
+ ]
+}

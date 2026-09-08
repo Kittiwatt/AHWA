@@ -2199,5 +2199,100 @@ function enfouies(s) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ---- Children of Blood, scénario II : New Horizons ---------------------------------------------
+// Jour/nuit au choix, report du sac de campagne (question numérique) ou encart autonome p. 15,
+// Zburamoarte et grottes par difficulté (grottes de côté FACE CACHÉE), spawns de jour seulement.
+
+async function tableNH({ joueurs = 2, difficulty, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "cob_new_horizons" }) });
+  assert.equal(r.status, 200, "New Horizons est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  await new Promise((r) => setTimeout(r, 200));
+  return { h, d };
+}
+
+{ // Les trois questions sont obligatoires (dont la numérique).
+  const { d } = await tableNH({ joueurs: 1, answers: { mode: "campagne", version: "jour" } });
+  assert.equal(d.t, "nack", "mise en place refusée sans la réponse « sang »");
+}
+
+{ // v. I (jour), campagne, Standard, 2 joueurs, 2 sangs reportés.
+  const { h, d } = await tableNH({ joueurs: 2, answers: { mode: "campagne", sang: 2, version: "jour" } });
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 19, "sac campagne Standard : 16 + (2 + 1) sangs");
+  assert.equal(s.chaos.bag.filter((t) => t === "blood").length, 3, "trois jetons sang");
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.deepEqual(lieux.map((c) => c.code).sort(), ["13039", "13040", "13041", "13042", "13043"], "cinq lieux côté Jour");
+  assert.ok(lieux.every((c) => !c.faceUp), "aucun lieu révélé d'office : chacun révèle son départ");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 551) < 130 && Math.abs(m.loc.y - 173) < 60), "pions posés au Factory Floor (West)");
+  assert.equal(s.cards[s.agendaId].code, "13032", "agenda courant : Busy Day");
+  assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["13034"], "suite de l'agenda : Digging Deeper (v. I) seul");
+  assert.equal(s.cards[s.actId].code, "13036", "acte 1 en place");
+  assert.equal(s.piles.actDeck.length, 2, "actes 2 et 3 en pile");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a", "référence Easy/Standard");
+  const ouvriers = cartes.filter((c) => c.code === "13063" && c.loc.zone === "board");
+  assert.equal(ouvriers.length, 2, "un Factory Worker sur chaque Factory Floor");
+  assert.equal(new Set(ouvriers.map((c) => (Math.abs(c.loc.x - 551) < 130 ? "W" : "E"))).size, 2, "un à l'Ouest, un à l'Est");
+  assert.equal(s.piles.encounter.length, 30, "pioche v. I Standard : 30 cartes (dont 2 Factory Workers restants)");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  const grottes = cote.filter((c) => ["13049", "13051", "13052", "13053", "13054"].includes(c.code));
+  assert.equal(grottes.length, 5, "cinq grottes Shallow Tunnels de côté");
+  assert.ok(grottes.every((c) => !c.faceUp), "grottes de côté face cachée (identités masquées)");
+  assert.ok(cote.filter((c) => !["13049", "13051", "13052", "13053", "13054"].includes(c.code)).every((c) => c.faceUp), "le reste de côté est face visible");
+  assert.deepEqual(cote.filter((c) => c.faceUp).map((c) => c.code).sort(),
+    ["12162", "12162", "12163", "12163", "13059", "13061", "13064", "13064", "13064", "13064", "13065", "13065", "13065", "13065", "13066", "13067", "13118", "13118", "13118", "13118"],
+    "de côté face visible : Flying Terrors, Zburamoarte (Standard), Javier, Blighted Workers, Echoing, soutiens d'histoire, Infected");
+  const retirees = cartes.filter((c) => c.loc.pile === "removed").map((c) => c.code);
+  for (const code of ["13044", "13048", "13033", "13035", "13062", "13058", "13060", "13050", "13057", "13103", "13110", "13115", "12191"]) {
+    assert.ok(retirees.includes(code), `retiré de la partie : ${code}`);
+  }
+  // Le scellage vit aussi au scénario II.
+  const d2 = await h.action({ t: "chaosSeal", seat: 0 });
+  assert.equal(d2.t, "delta");
+  assert.equal(h.state.seats[0].counters.bloodSealed, 1);
+  assert.equal(h.state.chaos.bag.filter((t) => t === "blood").length, 2, "un sang scellé depuis le sac");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // v. II (nuit), autonome, Difficile, 1 joueur : sac de l'encart p. 15, question sang ignorée.
+  const { h, d } = await tableNH({ joueurs: 1, difficulty: "hard", answers: { mode: "autonome", sang: 9, version: "nuit" } });
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 20, "sac autonome Difficile : 20 jetons");
+  assert.equal(s.chaos.bag.filter((t) => t === "blood").length, 5, "cinq sangs (la réponse 9 est ignorée)");
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.deepEqual(lieux.map((c) => c.code).sort(), ["13044", "13045", "13046", "13047", "13048"], "cinq lieux côté Nuit");
+  assert.equal(s.cards[s.agendaId].code, "13033", "agenda courant : Quiet Night");
+  assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["13035"], "suite : Digging Deeper (v. II)");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "b", "référence Hard/Expert");
+  assert.equal(cartes.filter((c) => c.code === "13063").length, 4, "Factory Workers présents seulement en pile removed");
+  assert.ok(cartes.filter((c) => c.code === "13063").every((c) => c.loc.pile === "removed"), "les quatre Factory Workers retirés");
+  assert.ok(cartes.some((c) => c.code === "13061" && c.loc.pile === "removed"), "Javier Rivera retiré");
+  assert.ok(cartes.some((c) => c.code === "13062" && c.loc.zone === "aside" && c.faceUp), "Night Watchman de côté");
+  const grottes = cartes.filter((c) => c.loc.zone === "aside" && ["13050", "13051", "13055", "13056", "13057"].includes(c.code));
+  assert.equal(grottes.length, 5, "cinq grottes Darkest Depths de côté");
+  assert.ok(grottes.every((c) => !c.faceUp), "grottes face cachée");
+  assert.equal(s.piles.encounter.length, 32, "pioche v. II : 32 cartes");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

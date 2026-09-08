@@ -17,6 +17,58 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-08 : **COB II — New Horizons livré** (dans la foulée du I).
+  Guide p. 12‑15 : choix de groupe jour (Setup v. I) / nuit (v. II) —
+  ce n'est PAS la résolution du I qui décide. Trois questions au lobby :
+  `mode` campagne/autonome, `sang` (numérique 0‑12, défaut 1 — le lobby
+  rendait déjà `type: "number"`), `version` jour/nuit. **Campagne** :
+  `chaosBag` du src = sacs p. 5 SANS leurs sangs imprimés, puis nouvel
+  op `chaosAdd {token, nFrom, plus}` → sangs de fin du I + 1 (« for the
+  remainder of the campaign » à l'ouverture du II). **Autonome** :
+  nouvel op `chaosSet {byDifficulty}` remplace tout le sac par l'encart
+  p. 15 (lu sur l'image : mêmes 6 icônes, pas de tablette ; Facile 18
+  jetons dont 2 sangs, Standard 19 dont 3, Difficile = Expert 20 dont
+  5 — la question sang est ignorée). Version jour : lieux Jour
+  13039‑43, agendas Busy Day 13032 (doom 5) + Digging Deeper v. I
+  13034, spawn Factory Worker 13063 sur CHAQUE Factory Floor (2 en
+  jeu, 2 en pioche), Night Watchman 13062 retiré, Javier 13061 de
+  côté, sets de nuit retirés (children_of_blood, preyed_upon, stalked,
+  reeking_decay) → pioche Standard 30. Version nuit : lieux Nuit
+  13044‑48, Quiet Night 13033 (doom 6) + v. II 13035, Javier + les 4
+  Factory Workers retirés, Night Watchman de côté, sets de jour
+  retirés (blood_blight, bloodthirst, hunted, vermin) → pioche 32.
+  Les agendas inutilisés sont `remove`s AVANT `story` (l'op ignore les
+  retraits — précédent For the Greater Good). Difficulté : Zburamoarte
+  13058 (Lethargic, Facile) / 13059 (Source, Standard) / 13060
+  (Progenitor, Diff./Expert) de côté, autres retirés ; **grottes de
+  côté FACE CACHÉE** (`aside faceUp: false` sur des lieux double face
+  → le dos non révélé s'affiche : « Descending Tunnel », trois « Side
+  Chamber » identiques — identités masquées comme en physique) ;
+  Shallow Tunnels 13049 + 13051‑54 (E/S) ou Darkest Depths 13050 +
+  13051 + 13055‑57 (H/E), l'autre jeu retiré. Asides communs :
+  Blighted Worker ×4, Echoing in Darkness ×4, sets infected +
+  flying_terrors, soutiens d'histoire Sanguine Song 13066 + Forged
+  Permit 13067. **Départ au choix** (« a Factory Floor of their
+  choice ») : aucun lieu révélé d'office, pions posés à l'Ouest,
+  rappel « cliquez votre lieu de départ pour le révéler et déplacez
+  votre pion ». Carte scénario 13031 : recto Easy/Standard, verso
+  Hard/Expert (vérifié sur les images) → `scenarioCardSide` comme au
+  I. `seal` + `seatCounters` reconduits (le scellage continue toute la
+  campagne) ; pas de `bury` au II. Acte 1 13036 : seuil 3 indices
+  affiché (`clues` fixes). Layout : Floors (551/923, 173), Bureau‑
+  Quai‑Réserve (365/737/1109, 411), rangée du bas libre pour les
+  grottes que les joueurs glissent depuis la zone de côté. Rappels :
+  départ au choix, journal papier (« stole the manager's keys »
+  verrouille le Bureau, « arcane symbols » / « forged permits »),
+  grottes glissées sans les retourner, act:2/3 et agenda:2 via le
+  panneau Histoire. Tests : 551 messages (questions obligatoires y
+  compris la numérique ; v. I campagne standard 2 j : sac 19 = 16 +
+  2 + 1, spawns W/E, pioche 30, grottes face cachée, asides exacts,
+  retraits en pile removed, scellage actif ; v. II autonome difficile
+  1 j : sac 20 dont 5 sangs — réponse 9 ignorée —, Quiet Night,
+  pioche 32, Workers/Javier retirés). Captures nh_01‑03 (lobby avec
+  la question numérique, tapis jour avec ouvriers, tapis nuit).
+
 - 2026-09-08 : **Children of Blood — River of Blood (COB I) livré** (choix
   validés : source arkham.build pour tout A, enfouissement B, scellage
   option 2 C, `branch` par difficulté D, disposition losange E). Guide
@@ -1480,6 +1532,13 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   lieux (`rendrePlateau`) — toute mécanique « sous un lieu » (cartes
   enfouies COB) doit être détectée au rendu pour rejoindre la couche
   des lieux, et côté serveur poser un z inférieur à celui du lieu.
+- **`aside faceUp: false` sur un lieu double face** montre son dos non
+  révélé — c'est le bon outil pour les identités masquées (grottes de
+  COB II : « Side Chamber » ×3 indistinguables) ; `faceUp: true`
+  révélerait le nom secret (« Zburamoarte's Lair »).
+- **Encart autonome COB II (p. 15)** : ses courbes de nombres diffèrent
+  des sacs de campagne (Difficile = Expert, 9 nombres, −6 sans −8) — ne
+  pas les reconstruire de tête, relire l'image.
 - **Glyphes du jeton sang** : `token_blood_fill/overlay/highlight`
   sont déjà dans `tokens.ttf` d'ArkhamCards (relancer
   `build_chaos_tokens.py --refresh` si le cache local est ancien).
@@ -1704,7 +1763,8 @@ par phase (`reminders[]` du `*.src.json`).
   sac par les résolutions précédentes ne sont pas connus d'une table
   isolée → TCU II les reporte par la question d'introduction (+ option
   autonome) ; pour la suite, question à choix multiple ou rappel
-  « ajustez le sac », à trancher avec l'utilisateur.
+  « ajustez le sac », à trancher avec l'utilisateur (COB II tranche pour
+  les sangs : question numérique + `chaosAdd nFrom`).
 - **Compteurs spécifiques par scénario** : `seatCounters` /
   `tableCounters` du `*.src.json` — `seatCounters` rendus depuis COB
   (chips génériques tapis + board joueur, icône `/img/chaos/<icon>.svg`,

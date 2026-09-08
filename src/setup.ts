@@ -400,7 +400,18 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         for (const sub of (evalCond(step.cond, answers) ? step.then : step.else ?? [])) run(sub);
         break;
       }
+      case "chaosSet": {
+        state.chaos.bag = [...(step.byDifficulty[state.difficulty] ?? [])];
+        addLog(state, "setup", `${step.log ?? "Sac du chaos remplacé"} : ${state.chaos.bag.length} jetons.`);
+        break;
+      }
       case "chaosAdd": {
+        if ("nFrom" in step) {
+          const n = Math.max(0, Number(answers[step.nFrom]) || 0) + (step.plus ?? 0);
+          for (let i = 0; i < n; i++) state.chaos.bag.push(step.token);
+          addLog(state, "setup", `${step.log ?? `Jetons ajoutés au sac`} : ${n} × ${step.token}. Sac : ${state.chaos.bag.length} jetons.`);
+          break;
+        }
         if ("byDifficulty" in step) {
           const tokens = step.byDifficulty[state.difficulty] ?? [];
           state.chaos.bag.push(...tokens);

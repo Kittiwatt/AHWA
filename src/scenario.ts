@@ -45,6 +45,8 @@ export type SetupStep =
   | { op: "chaosAdd"; byDifficulty: Record<Difficulty, Token[]>; log?: string }   // jeton(s) selon la difficulté (Interlude IV de TCU)
   | { op: "when"; cond: Cond; then: SetupStep[]; else?: SetupStep[] }     // condition composée sur les réponses
   | { op: "chaosAdd"; tokens: Token[]; log?: string }
+  | { op: "chaosAdd"; token: Token; nFrom: string; plus?: number; log?: string }   // n exemplaires d'un jeton, n = réponse numérique (+ plus fixes) — report des sangs de COB
+  | { op: "chaosSet"; byDifficulty: Record<Difficulty, Token[]>; log?: string }    // remplace tout le sac (mode autonome de COB II : encart p. 15)
   | { op: "chaosRemove"; tokens: Token[]; log?: string }   // retire un exemplaire de chaque jeton listé (jetons retirés « pour le reste de la campagne »)
   | { op: "leadsDeck"; suspects: string[]; hideouts: string[]; secret: string; pile: string; log?: string }
     // The Vanishing of Elina Harper : un suspect et une cachette tirés au hasard vont face cachée dans la pile `secret`
