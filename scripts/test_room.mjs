@@ -1516,10 +1516,21 @@ async function tableClutches({ joueurs, answers }) {
   if (evenement) {
     res = h.state.seats[0].counters.resources;
     d = await h.action({ t: "p:play", id: evenement.id, free: true });
-    assert.equal(h.state.cards[evenement.id].loc.zone, "pplay0", "un événement joué va dans Play (à défausser une fois résolu)");
+    assert.equal(h.state.cards[evenement.id].loc.zone, "pevent0", "un événement joué va dans Play (une carte)");
     assert.equal(h.state.seats[0].counters.resources, res, "sans payer");
     assert.match(h.state.log.at(-1).text, /sans payer/);
-    d = await h.action({ t: "p:discard", id: evenement.id });
+    const second = main().find((c) => defDe(h, c.id).type === "event");
+    if (second) {
+      d = await h.action({ t: "p:play", id: second.id, free: true });
+      assert.equal(h.state.cards[evenement.id].loc.pile, "pdiscard0", "le premier événement est défaussé quand un second est joué");
+      assert.equal(h.state.cards[second.id].loc.zone, "pevent0");
+      assert.ok(h.state.log.some((e) => /événement résolu/.test(e.text)));
+    }
+    d = await h.action({ t: "p:resolve", zone: "play" });
+    assert.equal(d.t, "delta", "événement résolu → défausse");
+    assert.equal(Object.values(h.state.cards).filter((c) => c.loc.zone === "pevent0").length, 0);
+    d = await h.action({ t: "p:resolve", zone: "play" });
+    assert.equal(d.t, "nack");
   }
   const skill = main().find((c) => defDe(h, c.id).type === "skill") ?? main()[0];
   d = await h.action({ t: "p:commit", id: skill.id });
@@ -1543,7 +1554,7 @@ async function tableClutches({ joueurs, answers }) {
     assert.equal(h.state.cards[autre.id].loc.pile, "phand0", "la carte reste en main");
     d = await h.action({ t: "p:play", id: autre.id, free: true });
     assert.equal(d.t, "delta", "mise en jeu sans payer");
-    assert.equal(h.state.cards[autre.id].loc.zone, "pplay0");
+    assert.equal(h.state.cards[autre.id].loc.zone, defDe(h, autre.id).type === "event" ? "pevent0" : "pplay0", "rangée selon son type");
   }
   d = await h.action({ t: "p:play", id: h.state.piles.pdeck0[0] });
   assert.equal(d.t, "nack", "une carte de la pioche ne se joue pas");
@@ -1555,7 +1566,7 @@ async function tableClutches({ joueurs, answers }) {
   d = await h.action({ t: "p:play", id: liee.id });
   assert.equal(d.t, "delta");
   assert.equal(h.state.seats[0].counters.resources, res, "carte liée : gratuite");
-  assert.equal(h.state.cards[liee.id].loc.zone, "pplay0", "carte liée jouée : Play");
+  assert.equal(h.state.cards[liee.id].loc.zone, "pevent0", "Soothing Melody est un événement : Play");
   d = await h.action({ t: "p:discard", id: liee.id });
   // Verso lié : Sophie bascule sur « In Loving Memory » (toggleSide), une autre carte se retourne (flipCard).
   const sophieEnJeu = Object.values(h.state.cards).find((c) => c.code === "03009");

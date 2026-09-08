@@ -17,7 +17,7 @@ export function initInteractionsJoueur(ctx) {
   const carteDe = (elem) => ctx.etat.state?.cards[elem?.dataset.id];
   const n = () => ctx.vue;
   const piles = () => ({ deck: `pdeck${n()}`, hand: `phand${n()}`, discard: `pdiscard${n()}`, weak: `pweak${n()}` });
-  const zones = () => ({ play: `pplay${n()}`, commit: `pcommit${n()}`, aside: `paside${n()}`, seat: `seat${n()}` });
+  const zones = () => ({ play: `pplay${n()}`, event: `pevent${n()}`, commit: `pcommit${n()}`, aside: `paside${n()}`, seat: `seat${n()}` });
 
   // ---- Glisser-déposer ----
   document.addEventListener("pointerdown", (e) => {
@@ -81,15 +81,16 @@ export function initInteractionsJoueur(ctx) {
     if (drop === `pile:${p.discard}`) { if (mienne) ctx.envoyer({ t: "p:discard", id: carte.id }); else ctx.envoyer({ t: "toPile", id: carte.id, pile: "encounterDiscard" }); return; }
     if (drop === `pile:${p.deck}`) { if (mienne) ctx.envoyer({ t: "toPile", id: carte.id, pile: p.deck, top: true }); return; }
     if (drop.startsWith("pile:")) return;
-    if (drop === z.play || drop === z.commit || drop === z.aside) { if (!mienne) return; }
+    if (drop === z.play || drop === z.event || drop === z.commit || drop === z.aside) { if (!mienne) return; }
     else if (drop !== z.seat) return;
-    // Depuis la main : Play = jouer (coût déduit, X demandé, refusé faute de ressources), Commit = engager au test
-    // (sans coût) ; depuis hors jeu vers Play = mise en jeu gratuite (cartes liées).
+    // Depuis la main : en jeu ou Play = jouer (coût déduit, X demandé, refusé faute de ressources ; le serveur range
+    // un soutien en jeu et un événement dans Play), Commit = engager au test (sans coût) ; depuis hors jeu = gratuit.
     if (carte.loc.pile === p.hand) {
-      if (drop === z.play) { jouer(carte); return; }
+      if (drop === z.play || drop === z.event) { jouer(carte); return; }
       if (drop === z.commit) { ctx.envoyer({ t: "p:commit", id: carte.id }); return; }
     }
-    if (carte.loc.zone === z.aside && drop === z.play) { ctx.envoyer({ t: "p:play", id: carte.id }); return; }
+    if (carte.loc.zone === z.aside && (drop === z.play || drop === z.event)) { ctx.envoyer({ t: "p:play", id: carte.id }); return; }
+    if (drop === z.event) { ctx.envoyer({ t: "moveCard", id: carte.id, zone: drop, x: 0, y: 0 }); return; }
     const r = cible.getBoundingClientRect();
     let x, y = 0;
     if (drop === z.play) { x = e.clientX - d.dx - r.left + cible.scrollLeft; y = e.clientY - d.dy - r.top + cible.scrollTop; }
@@ -231,7 +232,7 @@ export function initInteractionsJoueur(ctx) {
       items.push(item("Hors jeu (de côté)", () => ctx.envoyer({ t: "p:aside", id: carte.id })));
       items.push(item("Retirer de la partie", () => { if (confirm(`Retirer « ${nom} » de la partie ?`)) ctx.envoyer({ t: "p:exile", id: carte.id }); }, { danger: true }));
     } else if (mienne) {
-      const enJeu = carte.loc.zone === z.play, enCours = carte.loc.zone === z.commit, cote = carte.loc.zone === z.aside, dansPile = "pile" in carte.loc;
+      const enJeu = carte.loc.zone === z.play, enPlay = carte.loc.zone === z.event, enCours = carte.loc.zone === z.commit, cote = carte.loc.zone === z.aside, dansPile = "pile" in carte.loc;
       if (!dansPile) items.push(item(carte.exhausted ? "Redresser" : "Épuiser", () => ctx.envoyer({ t: "exhaust", id: carte.id })));
       // Retourner : une carte dont le verso est une autre carte (Sophie…) bascule de face ; les autres montrent leur dos.
       if (!dansPile) items.push(def?.backCode
@@ -243,9 +244,10 @@ export function initInteractionsJoueur(ctx) {
         if (def?.sanity !== undefined) items.push(jeton("horror"));
         items.push(jeton("generic"));
       }
-      if (enJeu || enCours) items.push(item("Poser sur mon lieu (tapis)", () => ctx.envoyer({ t: "p:toLocation", id: carte.id })));
+      if (enJeu || enCours || enPlay) items.push(item("Poser sur mon lieu (tapis)", () => ctx.envoyer({ t: "p:toLocation", id: carte.id })));
       items.push(item("En main", () => ctx.envoyer({ t: "p:toHand", id: carte.id })));
-      if (!enJeu) items.push(item(cote ? "Mettre en jeu (Play, gratuit)" : "Play", () => ctx.envoyer(cote ? { t: "p:play", id: carte.id } : { t: "moveCard", id: carte.id, zone: z.play, x: 9999, y: 0 })));
+      if (!enJeu) items.push(item(cote ? "Mettre en jeu (gratuit)" : "En jeu", () => ctx.envoyer(cote ? { t: "p:play", id: carte.id } : { t: "moveCard", id: carte.id, zone: z.play, x: 9999, y: 0 })));
+      if (!enPlay) items.push(item("Play (événement)", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: z.event, x: 0, y: 0 })));
       if (!enCours) items.push(item("Commit (engagée au test)", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: z.commit, x: 9999, y: 0 })));
       if (carte.loc.pile !== p.discard) items.push(item("Défausser", () => ctx.envoyer({ t: "p:discard", id: carte.id })));
       items.push(item("Sur la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: p.deck, top: true })));

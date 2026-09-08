@@ -498,11 +498,11 @@ function rendreSieges(ctx) {
 function bandeBoard(state, s, ctx) {
   const n = s.index;
   const tri = (a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z;
-  const play = Object.values(state.cards).filter((c) => c.loc.zone === `pplay${n}`).sort(tri);
+  const play = Object.values(state.cards).filter((c) => c.loc.zone === `pevent${n}`).sort(tri);
   const commit = Object.values(state.cards).filter((c) => c.loc.zone === `pcommit${n}`).sort(tri);
   const main = (state.piles[`phand${n}`] ?? []).length;
   return el("div", { class: "bandes-board" },
-    el("div", { class: "bande-board", title: "Cartes jouées par ce siège (son board, zone Play)" },
+    el("div", { class: "bande-board", title: "Événement joué par ce siège (zone Play de son board)" },
       el("span", { class: "etiquette", text: `Play${play.length ? "" : " —"}` }), ...play.map((c) => carteEl(c, ctx))),
     el("div", { class: "bande-board", title: "Cartes engagées au test par ce siège (zone Commit)" },
       el("span", { class: "etiquette", text: `Commit${commit.length ? "" : " —"}` }), ...commit.map((c) => carteEl(c, ctx))),

@@ -17,6 +17,17 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-08 (nuit) : **correctif de nomenclature** (l'utilisateur
+  s'était mal expliqué) : la zone board des soutiens **reste « en
+  jeu »** (`pplay<n>`) ; **Play** est une **nouvelle case d'une carte**
+  (`pevent<n>`) où l'on joue un événement (payé) jusqu'à « Résolu » →
+  défausse (jouer un second événement défausse le premier) ; **Commit**
+  (`pcommit<n>`) pour les skills engagés. `p:play` range par type
+  (soutien → en jeu, événement → Play, skill → Commit) ; `p:resolve
+  {zone: "play"}` vide la case Play. Sur le tapis, **seules Play et
+  Commit** sont visibles (bandes sous le siège), pas la zone en jeu.
+  **« Mon lieu » passe à droite** (l'utilisateur avait dit gauche par
+  erreur). Tests 406 messages, captures relues.
 - 2026-09-08 (soir) : **retours de test, push 2 — mise en page**. Page
   joueur : cartes **113 × 160** (`--carte-l/h` redéfinies sur
   `.board-joueur`), chips et jetons agrandis, sac du chaos et jetons
@@ -25,7 +36,8 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   actions et tour, main et slots en icônes, mise en place) — 104 px au
   lieu de 110‑184 ; en lecture seule le formulaire « Rejoindre ce
   siège » et l'étiquette « lecture seule » passent dans la barre
-  d'onglets ; colonne **« Mon lieu »** à gauche (lieu du pion par la
+  d'onglets ; colonne **« Mon lieu »** (à droite depuis le correctif
+  suivant ; lieu du pion par la
   même règle que « Poser sur mon lieu », rendu `carteEl` = même état
   que le tapis, pions présents, « Prendre 1 indice », « Révéler »,
   cartes posées dessus) ; Commit et zone de menace côte à côte sous

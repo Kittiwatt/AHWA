@@ -936,14 +936,27 @@ with sync_playwright() as p:
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(cours["x"] + 60, cours["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
     assert a13.locator(".bloc-cours .carte").count() == 1, "carte engagée au test (Commit)"
+    h13.wait_for_timeout(400)
+    assert h13.locator("#sieges .siege").nth(0).locator(".bande-board").count() == 2, "bandes Play / Commit du siège sur le tapis"
+    assert h13.locator("#sieges .siege").nth(0).locator(".bande-board").nth(1).locator(".carte").count() == 1, "la carte engagée est visible sur le tapis (Commit)"
+    assert h13.locator("#sieges .lien-board").first.get_attribute("target").startswith("ahwa-board-"), "un seul onglet par board"
+    # Un événement de la main dans la case Play (une carte), puis « Résolu » → défausse.
+    for _ in range(12):
+        if a13.locator("#main .eventail .carte.kind-event").count(): break
+        a13.locator(".pioche-joueur .dos-bouton").click(); a13.wait_for_timeout(300)
+    for _ in range(4): a13.locator("#entete .chip-compteur").first.locator(".pm").nth(1).click(); a13.wait_for_timeout(120)
+    src = a13.locator("#main .eventail .carte.kind-event").first.bounding_box(); case = a13.locator(".case-play").bounding_box()
+    a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
+    a13.mouse.move(case["x"] + 50, case["y"] + 60, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
+    assert a13.locator(".case-play .carte").count() == 1, "événement joué dans Play"
+    assert a13.locator("#mon-lieu .lieu-carte .carte").count() == 1, "mon lieu, à droite"
     a13.mouse.move(8, 8); a13.wait_for_timeout(200)
     a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     a13.screenshot(path=f"{OUT}/66_board_jouer_engager.png")
+    a13.get_by_role("button", name="Résolu", exact=True).click(); a13.wait_for_timeout(500)
+    assert a13.locator(".case-play .carte").count() == 0, "événement résolu → défausse"
     a13.get_by_role("button", name="Test résolu").click(); a13.wait_for_timeout(500)
     assert a13.locator(".bloc-cours .carte").count() == 0, "test résolu : Commit → défausse"
-    assert h13.locator("#sieges .siege").nth(0).locator(".bande-board").count() == 2, "bandes Play / Commit du siège sur le tapis"
-    assert h13.locator("#sieges .siege").nth(0).locator(".bande-board").nth(0).locator(".carte").count() >= 1, "la carte jouée est visible sur le tapis (Play)"
-    assert h13.locator("#sieges .lien-board").first.get_attribute("target").startswith("ahwa-board-"), "un seul onglet par board"
     a13.locator(f".zone-jeu .carte[title='{titre_soutien}']").dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
     a13.locator(".menu-carte").get_by_role("button", name="Poser sur mon lieu (tapis)").click(); a13.wait_for_timeout(600)
     assert a13.locator(".zone-jeu .carte").count() == nb_jeu, "la carte a quitté le board"

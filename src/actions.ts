@@ -17,7 +17,7 @@ const NOMS_PHASES: Record<string, string> = {
   mythos: "phase du mythe", investigation: "phase des enquêteurs", enemy: "phase des ennemis", upkeep: "phase d'entretien",
 };
 const ZONES = new Set<string>(["board", "seat0", "seat1", "seat2", "seat3", "story", "aside", "victory",
-  ...[0, 1, 2, 3].flatMap((n) => [`pplay${n}`, `pcommit${n}`, `paside${n}`])]);   // zones du board joueur (cahier §10.4)
+  ...[0, 1, 2, 3].flatMap((n) => [`pplay${n}`, `pevent${n}`, `pcommit${n}`, `paside${n}`])]);   // zones du board joueur (cahier §10.4)
 const TOKENS = new Set(["doom", "clue", "damage", "horror", "resource", "generic", "uses"]);
 const CHAOS_TOKENS = new Set<string>(["+1", "0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign", "bless", "curse", "frost"]);
 

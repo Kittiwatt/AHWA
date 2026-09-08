@@ -200,9 +200,9 @@ export function defJoueur(f: FicheJoueur): Record<string, unknown> {
 }
 
 export const PILES_JOUEUR = (n: number) => ({ deck: `pdeck${n}`, hand: `phand${n}`, discard: `pdiscard${n}`, weak: `pweak${n}` });
-export const ZONES_JOUEUR = (n: number) => ({ play: `pplay${n}` as ZoneId, commit: `pcommit${n}` as ZoneId, aside: `paside${n}` as ZoneId });
+export const ZONES_JOUEUR = (n: number) => ({ play: `pplay${n}` as ZoneId, event: `pevent${n}` as ZoneId, commit: `pcommit${n}` as ZoneId, aside: `paside${n}` as ZoneId });
 /** Piles et zones d'un board joueur : le chiffre final est le siège. */
-export const PILE_JOUEUR_RE = /^p(?:deck|hand|discard|weak|play|commit|aside)([0-3])$/;
+export const PILE_JOUEUR_RE = /^p(?:deck|hand|discard|weak|play|event|commit|aside)([0-3])$/;
 
 function nomSiege(seat: Seat, invName?: string): string {
   return seat.name ?? seat.custom?.name ?? invName ?? `Siège ${seat.index + 1}`;
@@ -523,9 +523,21 @@ export function jouerJoueur(state: RoomState, msg: ActionJoueur, n: number, inde
       const dispo = seat.counters.resources ?? 0;
       if (cout > dispo) refuser(`pas assez de ressources pour jouer ${nomJoueur(state, c)} : ${cout} nécessaire${cout > 1 ? "s" : ""}, ${dispo} disponible${dispo > 1 ? "s" : ""}`);
       seat.counters.resources = dispo - cout;
-      // Tout ce qui est joué va dans la zone Play (soutiens avec leurs Uses ; événements, à défausser une fois résolus).
-      mettreEnJeu(state, c, n);
-      addLog(state, "action", `${nom} joue ${nomJoueur(state, c)} (${detail}).`, n);
+      const type = String(def.type ?? c.kind);
+      if (type === "event") {
+        // Zone Play (une carte) : l'événement précédent, s'il y est encore, est résolu → défausse.
+        const precedent = Object.values(state.cards).find((x) => "zone" in x.loc && x.loc.zone === zones.event);
+        if (precedent) { versPile(state, precedent, piles.discard); addLog(state, "action", `${nom} défausse ${nomJoueur(state, precedent)} (événement résolu).`, n); }
+        retirerDesPiles(state, c.id);
+        c.loc = { zone: zones.event, x: 0, y: 0, z: nextZ(state) };
+        c.faceUp = true; c.exhausted = false; c.side = "a"; c.tokens = {}; delete c.revealed;
+      } else if (type === "skill") {
+        // Un skill ne se joue pas : il s'engage (Commit).
+        retirerDesPiles(state, c.id);
+        c.loc = { zone: zones.commit, x: boutDeZone(state, zones.commit), y: 0, z: nextZ(state) };
+        c.faceUp = true; c.exhausted = false; c.side = "a"; c.tokens = {}; delete c.revealed;
+      } else mettreEnJeu(state, c, n);   // soutien (ou autre) : en jeu, avec ses Uses
+      addLog(state, "action", `${nom} joue ${nomJoueur(state, c)} (${detail})${type === "event" ? " — Play" : type === "skill" ? " — Commit" : ""}.`, n);
       return {};
     }
     case "p:commit": {
@@ -539,12 +551,14 @@ export function jouerJoueur(state: RoomState, msg: ActionJoueur, n: number, inde
       return {};
     }
     case "p:resolve": {
-      // Test résolu : tout ce qui est engagé (Commit) va à la défausse (limbes → défausse, Grimoire p. 15).
-      const engagees = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === zones.commit).sort((a, b) => ("zone" in a.loc ? a.loc.z : 0) - ("zone" in b.loc ? b.loc.z : 0));
-      if (!engagees.length) refuser("aucune carte engagée");
+      // {zone: "commit" (défaut) | "play"} — test résolu : tout ce qui est engagé (Commit) va à la défausse ;
+      // événement résolu : la zone Play est vidée dans la défausse (limbes → défausse, Grimoire p. 15).
+      const zone = msg.zone === "play" ? zones.event : zones.commit;
+      const cartes = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === zone).sort((a, b) => ("zone" in a.loc ? a.loc.z : 0) - ("zone" in b.loc ? b.loc.z : 0));
+      if (!cartes.length) refuser(zone === zones.event ? "aucun événement dans Play" : "aucune carte engagée");
       const noms: string[] = [];
-      for (const c of engagees) { noms.push(nomJoueur(state, c)); if (c.player && c.ownerSeat === n) versPile(state, c, piles.discard); else versPile(state, c, "encounterDiscard"); }
-      addLog(state, "action", `${nom} — test résolu : ${noms.join(", ")} → défausse.`, n);
+      for (const c of cartes) { noms.push(nomJoueur(state, c)); if (c.player && c.ownerSeat === n) versPile(state, c, piles.discard); else versPile(state, c, "encounterDiscard"); }
+      addLog(state, "action", zone === zones.event ? `${nom} résout ${noms.join(", ")} → défausse.` : `${nom} — test résolu : ${noms.join(", ")} → défausse.`, n);
       return {};
     }
     case "p:toLocation": {

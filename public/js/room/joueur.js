@@ -414,8 +414,10 @@ async function demarrer() {
 
   function rendreJeu(state, s, peut) {
     const n = s.index;
+    const tri = (a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z;
     const enJeu = Object.values(state.cards).filter((c) => c.loc.zone === `pplay${n}`).sort((a, b) => a.loc.z - b.loc.z);
-    const engagees = Object.values(state.cards).filter((c) => c.loc.zone === `pcommit${n}`).sort((a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z);
+    const enPlay = Object.values(state.cards).filter((c) => c.loc.zone === `pevent${n}`).sort(tri);
+    const engagees = Object.values(state.cards).filter((c) => c.loc.zone === `pcommit${n}`).sort(tri);
     const menace = Object.values(state.cards).filter((c) => c.loc.zone === `seat${n}` && c.kind !== "investigator").sort((a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z);
     const sect = document.getElementById("jeu");
     const zone = el("div", { class: "zone-jeu", "data-drop": `pplay${n}` });
@@ -424,9 +426,14 @@ async function demarrer() {
       e.style.left = `${c.loc.x}px`; e.style.top = `${c.loc.y}px`; e.style.zIndex = String(c.loc.z);
       zone.append(e);
     }
-    if (!enJeu.length) zone.append(el("p", { class: "vide", text: "Play — glissez une carte de la main ici pour la jouer (coût déduit) ; clic droit : sans payer." }));
-    remplir(sect, 
-      el("section", { class: "bloc-jeu" }, el("h2", {}, "Play ", el("span", { class: "sous", text: "(cartes jouées et payées : soutiens, événements à défausser une fois résolus)" })), zone),
+    if (!enJeu.length) zone.append(el("p", { class: "vide", text: "En jeu — glissez un soutien de la main ici pour le jouer (coût déduit) ; clic droit : sans payer." }));
+    remplir(sect,
+      el("section", { class: "bloc-jeu" }, el("h2", {}, "En jeu ", el("span", { class: "sous", text: "(soutiens joués et payés, permanents, attaches)" })), zone),
+      el("section", { class: "bloc-play" },
+        el("h2", {}, "Play ", el("span", { class: "sous", text: "(événement)" })),
+        el("div", { class: "case-play", "data-drop": `pevent${n}`, title: "Glissez un événement de la main ici pour le jouer (coût déduit) ; « Résolu » l'envoie à la défausse" },
+          ...(enPlay.length ? enPlay.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Événement joué" })])),
+        enPlay.length ? el("button", { class: "bouton petit", type: "button", disabled: !peut, title: "L'événement va à la défausse", onclick: () => ctx.envoyer({ t: "p:resolve", zone: "play" }) }, "Résolu") : null),
       el("section", { class: "bloc-cours" },
         el("h2", {}, "Commit ", el("span", { class: "sous", text: "(cartes engagées au test de compétence)" })),
         el("div", { class: "bande", "data-drop": `pcommit${n}` }, ...(engagees.length ? engagees.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Glissez ici les cartes engagées au test." })]),
@@ -450,7 +457,7 @@ async function demarrer() {
         el("h2", { text: `Main — ${pluriel(cartes.length, "carte")}` }),
         !mien && cartes.length ? el("button", { class: "bouton secondaire petit", type: "button", onclick: () => { ctx.regarder = !ctx.regarder; rendre(); } }, ctx.regarder ? "Masquer" : "Regarder") : null,
         !mien ? el("span", { class: "sous", text: "main masquée : dos et nombre" }) : null,
-        mien ? el("span", { class: "sous", text: mulligan ? "cliquez les cartes à rendre" : "glissez vers en jeu, la défausse ou la pioche ; clic droit : révéler, défausser…" }) : null,
+        mien ? el("span", { class: "sous", text: mulligan ? "cliquez les cartes à rendre" : "glissez un soutien en jeu, un événement dans Play, une carte dans Commit, la défausse ou la pioche ; clic droit : révéler, défausser…" }) : null,
         mien ? el("span", { class: "espace" }) : null,
         mien ? el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || !s.deck, title: "Piocher 1 carte", onclick: () => ctx.envoyer({ t: "p:draw", n: 1 }) }, "Piocher") : null,
         mien ? el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || !cartes.length, title: "Défausser une carte de la main au hasard (nommée dans le journal)", onclick: () => ctx.envoyer({ t: "p:randomDiscard", n: 1 }) }, "Défausser au hasard") : null),

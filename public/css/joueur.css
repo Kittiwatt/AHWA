@@ -64,9 +64,9 @@
 .board-joueur .sac-forme { width: 3.4rem; height: 3.8rem; font-size: 1.25rem; }
 .board-joueur .sac-popover { left: auto; right: 0; bottom: auto; top: calc(100% + 0.4rem); z-index: 30; }
 
-/* Corps : mon lieu et piles à gauche, Play au centre, Commit et menace côte à côte dessous */
-.corps-board { position: relative; display: grid; grid-template-columns: auto auto minmax(0, 1fr); min-height: 0; }
-.mon-lieu { display: grid; align-content: start; gap: 0.5rem; padding: 0.7rem 0.8rem; background: var(--nuit); border-right: 1px solid var(--filet); overflow-y: auto; width: calc(var(--carte-l) + 1.6rem); }
+/* Corps : piles à gauche, en jeu au centre (Play, Commit et menace dessous), mon lieu à droite */
+.corps-board { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; min-height: 0; }
+.mon-lieu { display: grid; align-content: start; gap: 0.5rem; padding: 0.7rem 0.8rem; background: var(--nuit); border-left: 1px solid var(--filet); overflow-y: auto; width: calc(var(--carte-l) + 1.6rem); }
 .mon-lieu .lieu-carte .carte { --carte-l: 113px; --carte-h: 160px; }
 .mon-lieu .lieu-nom { margin: 0; font-size: 0.95rem; color: var(--papier-2); }
 .mon-lieu .pions { display: flex; flex-wrap: wrap; gap: 0.25rem; min-height: 2rem; }
@@ -80,8 +80,12 @@
 .piles-joueur .badge { font-size: 0.95rem; width: 1.8rem; height: 1.8rem; }
 .piles-joueur .hors-jeu .bande { min-height: calc(var(--carte-h) + 0.8rem); flex-direction: column; flex-wrap: nowrap; max-height: 24rem; overflow-y: auto; }
 .dos-pile.pioche-joueur { border-style: solid; }
-.jeu-joueur { display: grid; grid-template-rows: minmax(14rem, 1fr) auto; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.6rem 0.8rem; padding: 0.7rem 0.9rem; overflow: auto; }
+.jeu-joueur { display: grid; grid-template-rows: minmax(14rem, 1fr) auto; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); gap: 0.6rem 0.8rem; padding: 0.7rem 0.9rem; overflow: auto; }
 .bloc-jeu { grid-column: 1 / -1; display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 14rem; }
+.bloc-play { display: grid; grid-template-rows: auto auto auto; gap: 0.3rem; justify-items: start; }
+.case-play { width: calc(var(--carte-l) + 0.8rem); height: calc(var(--carte-h) + 0.8rem); display: grid; place-items: center; padding: 0.4rem; border: 1px dashed var(--dorure); border-radius: 4px; background: var(--zone); }
+.case-play .vide { font-size: 0.85rem; text-align: center; }
+.case-play.depot-ok { background: rgba(200, 162, 90, 0.12); }
 .zone-jeu { position: relative; min-height: 12rem; border: 1px dashed var(--zone-filet); border-radius: 4px; background: radial-gradient(ellipse at 50% 40%, var(--tapis-fond) 0%, var(--tapis-fond-2) 75%); overflow: hidden; }
 .zone-jeu .carte { position: absolute; }
 .zone-jeu > .vide { position: absolute; left: 0.6rem; top: 0.5rem; font-size: 0.9rem; }

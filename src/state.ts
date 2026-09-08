@@ -18,10 +18,10 @@ export type CardId = string;
 export type PileId = string;
 export type SeatIndex = 0 | 1 | 2 | 3;
 // Zones du tapis, plus les zones du board joueur de chaque siège (cahier §10.4) :
-// pplay = Play (cartes jouées et payées, coordonnées libres), pcommit = Commit (cartes engagées au test),
-// paside = hors jeu (cartes liées, mises de côté).
+// pplay = en jeu (soutiens joués, coordonnées libres), pevent = Play (une carte : l'événement joué, à défausser
+// une fois résolu), pcommit = Commit (cartes engagées au test), paside = hors jeu (cartes liées, mises de côté).
 export type ZoneId = "board" | "seat0" | "seat1" | "seat2" | "seat3" | "story" | "aside" | "victory"
-  | `pplay${SeatIndex}` | `pcommit${SeatIndex}` | `paside${SeatIndex}`;
+  | `pplay${SeatIndex}` | `pevent${SeatIndex}` | `pcommit${SeatIndex}` | `paside${SeatIndex}`;
 
 export type CardKind =
   | "location" | "enemy" | "treachery" | "asset" | "story" | "agenda" | "act"
