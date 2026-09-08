@@ -33,7 +33,7 @@ export type CardKind =
 export type Token =
   | "+1" | "0" | "-1" | "-2" | "-3" | "-4" | "-5" | "-6" | "-7" | "-8"
   | "skull" | "cultist" | "tablet" | "elder_thing" | "auto_fail" | "elder_sign"
-  | "bless" | "curse" | "frost";
+  | "bless" | "curse" | "frost" | "blood";   // blood : Children of Blood (reste dans le sac de scénario en scénario)
 
 // Enquêteur personnalisé (hors ArkhamDB) : nom, image (URL, facultative) et jauges saisis au lobby.
 // Son code de carte est « custom:<siège> » ; il ne figure dans aucun index.

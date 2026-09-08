@@ -146,6 +146,47 @@ class Pool {
   }
 }
 
+/** Enfouit face cachée « sous » des lieux (COB) : les instances `avec` + les `fromDeckTop` premières cartes de
+ *  la pioche de rencontre (défausse remélangée si besoin), mélangées, puis réparties aussi également que
+ *  possible entre les lieux en jeu portant `trait` — ou toutes sous `cible` (effet Forcé). La carte enfouie
+ *  dépasse du bas du lieu (elle le suit s'il est déplacé : son centre est dessus) ; jetons et épuisement
+ *  effacés ; le journal reste muet sur qui va où. Renvoie le nombre de cartes enfouies. */
+export function enfouir(state: RoomState, def: ScenarioDef, rng: Rng,
+  opts: { avec: string[]; fromDeckTop: number; trait: string; dy?: number; cible?: CardState }): number {
+  const DY = opts.dy ?? 42;
+  const traitsDe = (code: string) => def.cards.find((k) => k.code === code)?.traits ?? [];
+  const lieux = opts.cible ? [opts.cible] : Object.values(state.cards)
+    .filter((c) => c.kind === "location" && "zone" in c.loc && c.loc.zone === "board" && traitsDe(c.code).includes(opts.trait))
+    .sort((a, b) => (a.loc as { y: number }).y - (b.loc as { y: number }).y || (a.loc as { x: number }).x - (b.loc as { x: number }).x);
+  if (!lieux.length) throw new Error(`aucun lieu « ${opts.trait} » en jeu`);
+  const enfouisA = (L: CardState) => Object.values(state.cards).filter((c) =>
+    c.kind !== "location" && c.kind !== "mini" && !c.faceUp && "zone" in c.loc && c.loc.zone === "board"
+    && Math.abs(c.loc.y - ((L.loc as { y: number }).y + DY)) < 30
+    && c.loc.x >= (L.loc as { x: number }).x - 12 && c.loc.x < (L.loc as { x: number }).x + CARD_W).length;
+  const pris: string[] = [];
+  for (let k = 0; k < opts.fromDeckTop; k++) {
+    if (!state.piles.encounter.length && state.piles.encounterDiscard?.length) {
+      const d = state.piles.encounterDiscard.splice(0);
+      for (const id of d) state.cards[id].faceUp = false;
+      state.piles.encounter.push(...shuffle(d, rng));
+      addLog(state, "action", "Pioche de rencontre vide : la défausse est remélangée.");
+    }
+    const id = state.piles.encounter.shift();
+    if (!id) break;   // plus rien à piocher : on enfouit ce qu'on a
+    pris.push(id);
+  }
+  for (const id of shuffle([...opts.avec, ...pris], rng)) {
+    const c = state.cards[id];
+    for (const pile of Object.values(state.piles)) { const i = pile.indexOf(id); if (i >= 0) pile.splice(i, 1); }
+    const L = opts.cible ?? lieux.slice().sort((a, b) => enfouisA(a) - enfouisA(b))[0];
+    const k = enfouisA(L);
+    c.tokens = {}; c.exhausted = false; c.faceUp = false;
+    // Sous le lieu au sens propre : z juste inférieur à celui du repaire, la carte glisse dessous et seul son bas dépasse.
+    c.loc = { zone: "board", x: (L.loc as { x: number }).x + 10 + k * 26, y: (L.loc as { y: number }).y + DY, z: Math.max(0, ((L.loc as { z?: number }).z ?? 1) - 1) };
+  }
+  return opts.avec.length + pris.length;
+}
+
 function newCard(pool: Pool, code: string, id: CardId, loc: CardState["loc"], faceUp: boolean): CardState {
   const d = pool.def(code);
   return { id, code, kind: d.kind, storyBack: d.storyBack, loc, faceUp, exhausted: false, side: "a", tokens: {} };
@@ -407,7 +448,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         break;
       }
       case "branch": {
-        const cle = step.on === "players" ? String(state.playerCount) : answers[step.on];
+        const cle = step.on === "players" ? String(state.playerCount) : step.on === "difficulty" ? state.difficulty : answers[step.on];
         const suite = step.cases[cle] ?? step.cases["default"] ?? [];
         if (step.log) addLog(state, "setup", step.log);
         for (const sub of suite) run(sub);
@@ -578,7 +619,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       case "story": {
         const sc = pool.take(def.scenarioCard);
         const cs = newCard(pool, def.scenarioCard, sc, { zone: "story", x: 0, y: 0, z: z++ }, true);
-        cs.side = "b"; // verso = référence des jetons du chaos, la face utile en jeu
+        cs.side = def.scenarioCardSide?.[state.difficulty] ?? "b"; // référence des jetons du chaos : la face utile en jeu (COB : recto en Easy/Standard)
         state.cards[sc] = cs;
         // Un agenda ou un acte retiré plus tôt par la mise en place (versions alternatives selon le journal,
         // ex. deux actes 1 de For the Greater Good) est simplement ignoré : le premier restant devient courant.
@@ -631,6 +672,17 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         }
         state.piles.encounter = shuffle(ids, rng);
         addLog(state, "setup", step.log ?? `Pioche de rencontre mélangée : ${ids.length} cartes.`);
+        break;
+      }
+      case "bury": {
+        // Après buildEncounter : les instances des codes `with` (mises de côté plus tôt) + les premières
+        // cartes de la pioche, mélangées et réparties face cachée sous les lieux du trait donné.
+        const codes = new Set(step.with ?? []);
+        const avec = Object.entries(state.cards)
+          .filter(([, c]) => codes.has(c.code) && "zone" in c.loc && c.loc.zone === "aside")
+          .map(([id]) => id);
+        const n = enfouir(state, def, rng, { avec, fromDeckTop: step.fromDeckTop ?? 0, trait: step.trait, dy: step.dy });
+        addLog(state, "setup", step.log ?? `${n} cartes mélangées et enfouies face cachée sous les lieux « ${step.trait} » — personne ne sait laquelle est où.`);
         break;
       }
       case "hook":

@@ -2010,6 +2010,7 @@ async function tableHarper({ joueurs = 2, answers }) {
   assert.match(h.state.log.at(-1).text, /pose .* sur le tapis \(sur son lieu\)/);
   d = await h.action({ t: "moveCard", id: enJeu.id, zone: "pplay0", x: 9999, y: 0 });
   assert.equal(h.state.cards[enJeu.id].loc.zone, "pplay0", "retour sur le board");
+  await bob.attendre((m) => m.t === "delta" && m.rev >= h.state.rev);   // draine les diffusions en attente avant d'agir (aléa vu le 2026-09-08)
   d = await bob.action({ t: "p:toLocation", id: enJeu.id, seat: 0 });
   assert.equal(d.reason, "siege");
   // Les cartes joueur se déplacent avec les gestes existants et gardent leur propriétaire ; les ressources peuvent passer en négatif.
@@ -2039,6 +2040,161 @@ async function tableHarper({ joueurs = 2, answers }) {
   assert.equal(h.state.seats[0].counters.resources, 0);
   d = await h.action({ t: "clearInvestigator" });
   assert.equal(h.state.seats[0].deck, null, "clearInvestigator efface le deck");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
+// ---- Children of Blood, scénario I : River of Blood --------------------------------------------
+// Sacs par difficulté (jetons sang), lieux Aube/Crépuscule, Julia par difficulté, civils par nombre
+// de joueurs, enfouissement (setup + actions) et scellage des jetons sang.
+
+async function tableCob({ joueurs = 2, difficulty } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "cob_river_of_blood" }) });
+  assert.equal(r.status, 200, "River of Blood est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+    autres.push(c);
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers: {} });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h, autres };
+}
+
+const LAIRS_XY = [[365, 531], [737, 55], [737, 1007]];
+function enfouies(s) {
+  return Object.values(s.cards).filter((c) => c.kind !== "location" && c.kind !== "mini" && !c.faceUp
+    && c.loc.zone === "board" && LAIRS_XY.some(([x, y]) => Math.abs(c.loc.y - (y + 42)) < 30 && c.loc.x >= x - 12 && c.loc.x < x + 126));
+}
+
+{ // Standard, 2 joueurs : côté Aube, Julia 13025, sac 16 jetons sans sang, 3 cartes enfouies.
+  const { h } = await tableCob({ joueurs: 2 });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux.length, 8, "huit lieux en jeu");
+  assert.ok(lieux.every((c) => Number(c.code) % 2 === 0), "Standard : tous les lieux côté Aube (codes pairs)");
+  const water = lieux.find((c) => c.code === "13008");
+  assert.ok(water.faceUp && water.loc.x === 923 && water.loc.y === 293 && water.tokens.clue === 2, "Water Street révélé, 1 indice par enquêteur");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 923) < 130 && Math.abs(m.loc.y - 293) < 60), "pions sur Water Street");
+  assert.equal(s.cards[s.scenarioId ?? "scenario"]?.side ?? cartes.find((c) => c.kind === "scenario").side, "a", "carte scénario côté référence Facile/Standard");
+  const retirees = cartes.filter((c) => ["13024", "13026", "13009", "13011", "13097", "13109"].includes(c.code));
+  assert.ok(retirees.length && retirees.every((c) => c.loc.pile === "removed"), "autres Julia, lieux Crépuscule, Agents et Mongrels : retirés de la partie");
+  assert.ok(!cartes.some((c) => c.code === "13117" && c.loc.pile === "removed"), "Vermin reste en pioche en Standard");
+  // De côté : Night Feeder ×3, Infected ×4, Reynolds, Fang, civils ×3 (Julia a été enfouie).
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["13027", "13027", "13027", "13029", "13030", "13110", "13110", "13110", "13118", "13118", "13118", "13118"], "mises de côté standard 2 joueurs");
+  assert.ok(cote.every((c) => c.faceUp), "tout est de côté face visible");
+  // Civil apparu à Main Street.
+  const civ = cartes.filter((c) => c.code === "13027" && c.loc.zone === "board");
+  assert.equal(civ.length, 1, "un civil en jeu à 2 joueurs");
+  assert.ok(Math.abs(civ[0].loc.x - 923) < 130 && Math.abs(civ[0].loc.y - 769) < 200, "civil à Main Street");
+  // Enfouies : 3 cartes face cachée, une sous chaque repaire ; Julia parmi elles ; journal muet sur qui est où.
+  const ent = enfouies(s);
+  assert.equal(ent.length, 3, "trois cartes enfouies");
+  assert.equal(new Set(ent.map((c) => `${LAIRS_XY.find(([x, y]) => Math.abs(c.loc.y - (y + 42)) < 30 && c.loc.x >= x - 12)}`)).size, 3, "une sous chaque repaire");
+  assert.ok(ent.some((c) => c.code === "13025"), "Julia est enfouie quelque part");
+  assert.ok(s.log.some((e) => e.text.includes("enfouies face cachée : une sous chaque repaire")), "journal de l'enfouissement");
+  assert.ok(!s.log.some((e) => /Julia[^.]*sous (Unvisited|Waterfront|Back)/.test(e.text)), "le journal ne dit pas sous quel repaire est Julia");
+  assert.equal(s.piles.encounter.length, 34, "pioche standard 2 joueurs : 36 cartes − 2 enfouies");
+  assert.equal(s.chaos.bag.length, 16, "sac Standard : 16 jetons");
+  assert.equal(s.chaos.bag.filter((t) => t === "blood").length, 0, "pas de sang en Standard");
+  assert.equal(s.seats[0].counters.bloodSealed, 0, "compteur Sang scellé initialisé");
+
+  // Scellage : rien à sceller tant que le sac n'a pas de sang ; Ajuster borné à 12 (sac + scellés).
+  let d = await h.action({ t: "chaosSeal", seat: 0 });
+  assert.equal(d.t, "nack", "sceller sans sang disponible refuse");
+  d = await h.action({ t: "chaosAdjust", token: "blood", delta: 3 });
+  assert.equal(h.state.chaos.bag.filter((t) => t === "blood").length, 3);
+  for (let i = 0; i < 3; i++) { d = await h.action({ t: "chaosSeal", seat: 0 }); assert.equal(d.t, "delta"); }
+  assert.equal(h.state.seats[0].counters.bloodSealed, 3);
+  assert.equal(h.state.chaos.sealed.filter((t) => t === "blood").length, 3);
+  assert.equal(h.state.chaos.bag.filter((t) => t === "blood").length, 0);
+  d = await h.action({ t: "chaosSeal", seat: 0 });
+  assert.equal(d.t, "nack", "au plus 3 scellés par enquêteur");
+  d = await h.action({ t: "chaosAdjust", token: "blood", delta: 20 });
+  assert.equal(h.state.chaos.bag.filter((t) => t === "blood").length, 9, "Ajuster borne le sang à 12 entre sac et scellés");
+  d = await h.action({ t: "chaosRelease", seat: 0 });
+  assert.equal(h.state.seats[0].counters.bloodSealed, 2);
+  assert.equal(h.state.chaos.bag.filter((t) => t === "blood").length, 10, "libérer rend le jeton au sac");
+  // Sceller le jeton qu'on vient de tirer : on pioche jusqu'à révéler un sang (le sac en est plein).
+  let tire = false;
+  for (let i = 0; i < 40 && !tire; i++) {
+    await h.action({ t: "chaosDraw" });
+    if (h.state.chaos.drawn.includes("blood")) tire = true;
+  }
+  assert.ok(tire, "un jeton sang fini par sortir du sac");
+  const drawnAvant = h.state.chaos.drawn.filter((t) => t === "blood").length;
+  d = await h.action({ t: "chaosSeal", seat: 1 });
+  assert.equal(d.t, "delta");
+  assert.equal(h.state.chaos.drawn.filter((t) => t === "blood").length, drawnAvant - 1, "le jeton scellé vient des tirés en priorité");
+  assert.ok(h.state.log.some((e) => e.text.includes("pris des jetons tirés")), "journal : pris des jetons tirés");
+  await h.action({ t: "chaosReturn" });
+
+  // Enfouissement en cours de partie : Julia (enfouie) + 2 cartes de la pioche → 5 cartes enfouies en tout.
+  const pioche0 = h.state.piles.encounter.length;
+  d = await h.action({ t: "bury" });
+  assert.equal(d.t, "delta");
+  assert.equal(enfouies(h.state).length, 5, "3 enfouies + 2 nouvelles (Julia re-mélangée)");
+  assert.equal(h.state.piles.encounter.length, pioche0 - 2);
+  assert.ok(h.state.log.at(-1).text.includes("dont Julia Stern"), "le lot est nommé, pas la répartition");
+  // Révéler Julia, la poser sur un repaire, l'enfouir par son menu (+1 carte) ; hors repaire, refus.
+  const julia = Object.values(h.state.cards).find((c) => c.code === "13025");
+  await h.action({ t: "flipCard", id: julia.id });
+  await h.action({ t: "moveCard", id: julia.id, zone: "board", x: 375, y: 545 });
+  d = await h.action({ t: "buryAt", id: julia.id });
+  assert.equal(d.t, "delta", "Julia posée sur l'île s'enfouit dessous");
+  const surIle = enfouies(h.state).filter((c) => Math.abs(c.loc.y - (531 + 42)) < 30);
+  assert.ok(surIle.some((c) => c.code === "13025") && surIle.length >= 2, "Julia + 1 carte de la pioche sous l'île");
+  assert.equal(h.state.cards[julia.id].faceUp, false, "Julia est repassée face cachée");
+  await h.action({ t: "flipCard", id: julia.id });
+  await h.action({ t: "moveCard", id: julia.id, zone: "board", x: 923, y: 293 });
+  d = await h.action({ t: "buryAt", id: julia.id });
+  assert.equal(d.t, "nack", "pas d'enfouissement hors d'un repaire");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // Difficile, 3 joueurs : côté Crépuscule, Julia 13026, sac 18 jetons dont 1 sang, Afflicted en pioche, 2 civils.
+  const { h } = await tableCob({ joueurs: 3, difficulty: "hard" });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.ok(lieux.every((c) => Number(c.code) % 2 === 1), "Difficile : tous les lieux côté Crépuscule (codes impairs)");
+  const water = lieux.find((c) => c.code === "13009");
+  assert.ok(water.faceUp && water.tokens.clue === 3, "Water Street (Crépuscule) révélé, 3 indices à 3 joueurs");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "b", "carte scénario côté référence Difficile/Expert");
+  assert.equal(s.chaos.bag.length, 18, "sac Difficile : 18 jetons");
+  assert.equal(s.chaos.bag.filter((t) => t === "blood").length, 1, "un jeton sang en Difficile");
+  const civ = cartes.filter((c) => c.code === "13027" && c.loc.zone === "board");
+  assert.equal(civ.length, 2, "deux civils en jeu à 3 joueurs (Main + Garrison)");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["13027", "13027", "13029", "13030", "13097", "13097", "13097", "13118", "13118", "13118", "13118"], "de côté : 2 civils, Spawn ×3, Infected ×4, Reynolds, Fang");
+  assert.ok(enfouies(s).some((c) => c.code === "13026"), "Julia (Preying Upon Arkham) enfouie");
+  const retireesH = cartes.filter((c) => ["13110", "13111", "13117"].includes(c.code));
+  assert.ok(retireesH.length && retireesH.every((c) => c.loc.pile === "removed"), "Preyed Upon et Vermin retirés en Difficile");
+  assert.equal(s.piles.encounter.length, 41, "pioche difficile 3 joueurs : 43 cartes − 2 enfouies (Afflicted et Mongrels inclus)");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // Le scellage et l'enfouissement n'existent que là où le scénario les déclare.
+  const { h } = await tablePit({ joueurs: 1 });
+  let d = await h.action({ t: "chaosSeal", seat: 0 });
+  assert.equal(d.t, "nack", "pas de scellage hors COB");
+  d = await h.action({ t: "bury" });
+  assert.equal(d.t, "nack", "pas d'enfouissement hors COB");
   h.envoyer({ t: "deleteRoom" });
   await new Promise((r) => setTimeout(r, 300));
 }

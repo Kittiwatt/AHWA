@@ -575,18 +575,18 @@
    "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
   }
  ],
- "builtAt": "2026-09-04",
+ "builtAt": "2026-09-08",
  "encounterSetNames": {
   "in_the_clutches_of_chaos": "In the Clutches of Chaos",
-  "music_of_the_damned": "Music of the Damned",
-  "secrets_of_the_universe": "Secrets of the Universe",
   "agents_of_azathoth": "Agents of Azathoth",
+  "nightgaunts": "Nightgaunts",
+  "music_of_the_damned": "Music of the Damned",
   "anettes_coven": "Anette's Coven",
-  "witchcraft": "Witchcraft",
-  "silver_twilight_lodge": "Silver Twilight Lodge",
   "city_of_sins": "City of Sins",
-  "striking_fear": "Striking Fear",
-  "nightgaunts": "Nightgaunts"
+  "witchcraft": "Witchcraft",
+  "secrets_of_the_universe": "Secrets of the Universe",
+  "silver_twilight_lodge": "Silver Twilight Lodge",
+  "striking_fear": "Striking Fear"
  },
  "cards": [
   {

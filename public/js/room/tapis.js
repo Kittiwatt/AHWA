@@ -249,13 +249,18 @@ function rendrePlateau(ctx) {
   const { state } = ctx.etat;
   rendreChemins(ctx);
   const cartes = Object.values(state.cards).filter((c) => c.loc.zone === "board").sort((a, b) => a.loc.z - b.loc.z);
+  // Cartes enfouies (COB) : face cachée dans la bande qui dépasse sous un lieu → couche des lieux,
+  // juste sous leur repaire (glissées dessous, seul le bas visible). Détection par position, comme au serveur.
+  const lieuxPlateau = cartes.filter((c) => c.kind === "location");
+  const enfouie = (c) => c.kind !== "location" && c.kind !== "mini" && !c.faceUp
+    && lieuxPlateau.some((L) => Math.abs(c.loc.y - (L.loc.y + 42)) < 30 && c.loc.x >= L.loc.x - 12 && c.loc.x < L.loc.x + CARTE_L);
   const vus = new Set([couche]);
   for (const c of cartes) {
     const e = carteEl(c, ctx);
     e.style.left = `${c.loc.x}px`;
     e.style.top = `${c.loc.y}px`;
-    // Les lieux forment la couche du bas : un pion ou une carte ne passe jamais dessous.
-    e.style.zIndex = String((c.kind === "location" ? 0 : 100000) + c.loc.z);
+    // Les lieux forment la couche du bas : un pion ou une carte ne passe jamais dessous — sauf une carte enfouie.
+    e.style.zIndex = String((c.kind === "location" || enfouie(c) ? 0 : 100000) + c.loc.z);
     if (e.parentElement !== plateau) plateau.append(e);
     vus.add(e);
   }
@@ -551,7 +556,15 @@ function rendreSieges(ctx) {
             chipJauge({ token: "resource", libelle: "Ressources", unite: "ressource", img: "/img/tokens/tok_ressources.png", texte: String(s.counters.resources ?? 0), peut, onDelta: (d) => compteur("resources", d) }),
             chipJauge({ token: "clue", libelle: "Indices", unite: "indice", img: "/img/tokens/tok_indices.png", texte: String(s.counters.clues ?? 0), peut, onDelta: (d) => compteur("clues", d) }),
             chipJauge({ token: "damage", libelle: `Dégâts (vie ${s.counters.health})`, unite: "dégât", img: "/img/tokens/tok_degats.png", texte: `${degats}/${s.counters.health}`, peut, onDelta: (d) => jeton("damage", d) }),
-            chipJauge({ token: "horror", libelle: `Horreur (santé mentale ${s.counters.sanity})`, unite: "horreur", img: "/img/tokens/tok_horreur.png", texte: `${horreur}/${s.counters.sanity}`, peut, onDelta: (d) => jeton("horror", d) })),
+            chipJauge({ token: "horror", libelle: `Horreur (santé mentale ${s.counters.sanity})`, unite: "horreur", img: "/img/tokens/tok_horreur.png", texte: `${horreur}/${s.counters.sanity}`, peut, onDelta: (d) => jeton("horror", d) }),
+            // Compteurs propres au scénario (COB : jetons sang scellés — le chip passe par le sac).
+            ...(ctx.scenario.seatCounters ?? []).map((sc) => chipJauge({
+              token: sc.key, libelle: sc.label + (ctx.scenario.seal?.counter === sc.key ? " (+ : sceller depuis le sac, − : libérer vers le sac)" : ""), unite: sc.label.toLowerCase(),
+              img: sc.icon ? `/img/chaos/${sc.icon}.svg` : "/img/tokens/tok_ressources.png", texte: String(s.counters[sc.key] ?? 0), peut,
+              onDelta: (d) => ctx.scenario.seal?.counter === sc.key
+                ? ctx.envoyer({ t: d > 0 ? "chaosSeal" : "chaosRelease", seat: s.index })
+                : compteur(sc.key, d),
+            }))),
         el("dl", { class: "compteurs" },
           el("div", { class: "compteur actions" },
             el("dt", {}, el("span", { text: "Actions" })),

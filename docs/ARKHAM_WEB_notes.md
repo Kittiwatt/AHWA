@@ -17,6 +17,84 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-08 : **Children of Blood — River of Blood (COB I) livré** (choix
+  validés : source arkham.build pour tout A, enfouissement B, scellage
+  option 2 C, `branch` par difficulté D, disposition losange E). Guide
+  AHC106 p. 3‑11 lus (texte extrait + tableau des sacs p. 5 lu sur
+  l'image, icône par icône : **pas de tablette** ; Facile/Standard 16
+  jetons, Difficile 18 dont 1 sang, Expert 20 dont 2). **Jeton `blood`**
+  (`Token`, `CHAOS_TOKENS`, `JETONS_CHAOS`, recette `build_chaos_tokens
+  .py` : dégradé 75 % #343433 → #1C1D1C, couches `token_blood_fill`
+  #C22026 + overlay/highlight #353534 — glyphes déjà dans la police
+  ArkhamCards). **Scellage** : `seal {token, label, counter, maxPerSeat,
+  maxTotal}` du src → actions `chaosSeal`/`chaosRelease {seat}` (jeton
+  pris des tirés d'abord, sinon du sac ; compteur de siège borné 3 ;
+  `chaosAdjust` borne sac + scellés à 12) ; menu du sac « Sceller / 
+  Libérer … (n/3) » + le chip du compteur passe par le sac (+ scelle,
+  − libère). **`seatCounters` enfin rendus** (chips génériques tapis +
+  board joueur, icône `/img/chaos/<icon>.svg`) — COB premier
+  utilisateur (`bloodSealed`). **Enfouissement** : helper `enfouir()`
+  (setup.ts, partagé setup/actions) — `avec` + `fromDeckTop` premières
+  cartes (défausse remélangée au besoin), mélangées, réparties aussi
+  également que possible sous les lieux du `trait` (« Lair »), jetons
+  et épuisement effacés, x en éventail (+26/carte), y = lieu + 42,
+  **z = z du lieu − 1** ; au rendu, une carte face cachée dans la bande
+  sous un lieu rejoint la couche des lieux (détection par position,
+  `rendrePlateau`) → glissée dessous, seul le bas dépasse. Op de setup
+  `bury` (instances `with` prises de côté) + actions `bury` (menu de la
+  pioche, libellé `bury.menuPile`) et `buryAt {id}` (menu des codes
+  `bury.withAny` posés sur le tapis, refus hors d'un lieu du trait) ;
+  journal nomme le lot (« dont Julia Stern »), jamais la répartition.
+  **`branch on:"difficulty"`** et **`scenarioCardSide`** (COB : référence
+  E/S au recto, H/E au verso). Src : lieux en paires Aube (codes pairs
+  13008‑22, E/S) / Crépuscule (impairs 13009‑23, H/E), l'autre moitié
+  retirée ; Julia par difficulté (13024/25/26, une de côté puis enfouie,
+  les deux autres retirées) ; E/S retirent `agents_of_zburamoarte` +
+  `mongrels`, H/E retirent `preyed_upon` + `vermin` ; Night Feeder ×3
+  (E/S) ou Spawn ×3 (H/E) de côté ; civil 13027 à Main Street (+1 à
+  Garrison à 3‑4 j, codes de lieu par difficulté), le reste de côté
+  (×3 / ×2) ; `afflicted` retiré à 1‑2 j ; `infected` + Reynolds + Fang
+  de côté ; `bury` final (Julia + 2). Grille 5 rangées : colonnes
+  365/551/737/923, rangées 55/293/531/769/1007 (le plateau zoomable
+  absorbe la hauteur, capture à l'appui). Bibliothèque : campagne `cob`
+  (guide FFG), II New Horizons et III Blood Money `planned`. Tests :
+  547 messages (bloc COB : Aube/Crépuscule, 3 Julia, sacs 16/18, côté
+  de la carte scénario, civils et `afflicted` selon joueurs, pioche
+  34/41, retraits en pile `removed`, enfouissement setup + `bury` +
+  `buryAt` + refus hors repaire, scellage : refus sans jeton, borne 3,
+  borne 12 d'Ajuster, libération, priorité aux tirés ; refus de
+  `chaosSeal`/`bury` hors COB) ; captures cob_01‑06 (losange, glissé-
+  dessous, menu du sac grisé à bon escient, chip Sang, sac 18). Aléa de
+  synchronisation corrigé dans le bloc board joueur (drainage des
+  diffusions avant l'action inter-sièges).
+- 2026-09-08 : **Source de données du build : arkham.build pour tout**
+  (décision utilisateur — les images venaient déjà de
+  `cdn.arkham.build`, ce sont les métadonnées qui basculent). Deux
+  fetchs mis en cache : `api.arkham.build/v1/cache/cards` (dump unique,
+  6 606 entrées) et `/v1/cache/metadata` (noms des packs
+  `pack[].real_name` et des sets `card_encounter_set[].real_name`).
+  Couche `donnees()`/`traduire()` : garde `id === code` (élimine 559
+  variantes taboo), `real_*` → champs ArkhamDB, `back_link_id` résolu
+  en `linked_card` imbriqué (+ `linked_to_code/name` pour les cartes
+  joueur), versos `hidden` écartés de la liste principale mais gardés
+  dans `cards_index` (parité du générateur ; garde d'erreur si un verso
+  n'a plus de recto), `imagesrc` ≈ `official`, `backimagesrc` ≈
+  `double_sided || back_link_id`, **`bonded_to` reconstruit par regex
+  `/^Bonded \((.+?)\)[.,]/m`** sur `real_text` et `bonded_count` =
+  quantité sauf `{06025: 1, 06028: 1, 06283: 1}`. Diff complet contre
+  l'existant : 13 scénarios identiques (ordre des `encounterSetNames`
+  = ordre du src désormais) sauf **Josef 05085 natif** (plus de
+  synthèse ; gagne `backCode 05085b`/`backKind story` — `storyBack` le
+  protégeait déjà) ; `investigators.json` 89 entrées octet pour octet ;
+  `player_cards.json` 1838 → 1867 (+29 cartes 60xxx du Core révisé avec
+  images, 60154/60254 comprises — leur exclusion du tirage de faiblesse
+  reste dans `joueur.ts`), 11 drapeaux `d` légitimes en plus (Sophie,
+  Dream‑Gate, Disciplines, Flux Stabilizer…), **12032 Laboratory
+  Assistant corrigé** (`sk {i:1}` → `{w:1}` : l'icône imprimée est la
+  volonté, vérifiée sur la carte — erreur ArkhamDB) ; `cards_index`
+  5 711 → 6 047 (versos en plus), seule perte `86024b` Hub Dimension
+  (double face sans lien côté arkham.build, négligeable).
+
 - 2026-09-09 : **The Vanishing of Elina Harper (TIC II) livré** (choix
   validés : lobby A, pile Leads A, référence et cartes cachées OK,
   liste des pistes A, accusation A, verso de l'agenda 1 A, disposition
@@ -1273,7 +1351,21 @@ Commandes : `npm run dev`, `npm run check` (tsc + dry-run),
   rendu : glyphe SVG via fontTools, centré dans une pastille
   (`scripts/build_slot_icons.py`).
 
-- API : `/api/public/cards/<pack>.json` (filtrer par `encounter_code`),
+- **Le build lit arkham.build, plus ArkhamDB** (2026-09-08) :
+  `api.arkham.build/v1/cache/cards` (dump unique de toutes les cartes,
+  champs `real_*`, ~5,4 Mo) + `/v1/cache/metadata` (`pack[].real_name`,
+  `card_encounter_set[].real_name`, cycles, campagnes). Particularités
+  du dump : variantes taboo en entrées séparées (`id` = « code-taboo »,
+  filtrer `id === code`) ; versos de cartes liées en entrées `hidden`
+  référencées par `back_link_id` du recto (01121a → 01121b, 05055 →
+  05055b, Josef 05085 → 05085b : le recto existe toujours) ; pas de
+  `bonded_to`/`bonded_count` (reconstruits : regex sur `real_text` +
+  trois exceptions), pas d'`imagesrc` (`official` fait foi, le CDN a
+  tout, versos compris) ; `cost -2` = X comme ArkhamDB ; `clues_fixed`,
+  `duplicate_of_code`, `alternate_of_code`, `subtype_code`,
+  `skill_*`, `permanent`, `restrictions` présents.
+- API ArkhamDB (encore utilisée à l'exécution pour l'import de deck) :
+  `/api/public/cards/<pack>.json` (filtrer par `encounter_code`),
   `/api/public/card/<code>`, `/api/public/decklist/<id>`,
   `/api/public/deck/<id>` (deck perso : seulement s'il est partageable).
   Sets du Core dans le pack `core`. Cache local systématique.
@@ -1368,6 +1460,33 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
 (Unknown Places) ; enchaînement de sets (films).
 
 ## 5. Pièges connus (à enrichir)
+
+- **Dump arkham.build** (2026-09-08) : ne jamais déduire le recto d'un
+  verso par le code (`01121b` ↔ recto `01121a`, pas `01121`) — passer
+  par l'ensemble des `back_link_id` ; `bonded_count` ≠ quantité pour
+  06025 / 06028 / 06283 (imprimées ×2, liées ×1) ; `86024b` Hub
+  Dimension est le seul verso sans entrée (double face sans lien) ;
+  **12032** y est correct (volonté) là où ArkhamDB dit intellect — en
+  cas de divergence, trancher sur l'image de la carte.
+- **Sacs COB (p. 5)** : aucun jeton tablette, à aucune difficulté — ne
+  pas le supposer par habitude ; les jetons sang ne figurent qu'en
+  Difficile (1) et Expert (2) et se conservent de scénario en scénario.
+- **`retirer()` du setup instancie en pile `removed`** (via
+  `pool.takeAll`) : les cartes « retirées de la partie » existent dans
+  `state.cards` avec `loc.pile === "removed"` — les tests doivent
+  vérifier la pile, pas l'absence ; répéter un code dans `remove`
+  (quantités) est inoffensif (`takeAll` prend tout au premier passage).
+- **Rendu du plateau : les non-lieux sont à `+100000`** au‑dessus des
+  lieux (`rendrePlateau`) — toute mécanique « sous un lieu » (cartes
+  enfouies COB) doit être détectée au rendu pour rejoindre la couche
+  des lieux, et côté serveur poser un z inférieur à celui du lieu.
+- **Glyphes du jeton sang** : `token_blood_fill/overlay/highlight`
+  sont déjà dans `tokens.ttf` d'ArkhamCards (relancer
+  `build_chaos_tokens.py --refresh` si le cache local est ancien).
+- **Banc de test multi-clients** : une action d'un client B juste après
+  une action d'un client A peut consommer la diffusion de A comme si
+  c'était sa réponse — drainer avec `attendre(rev >= h.state.rev)`
+  avant l'action (corrigé dans le bloc board joueur le 2026-09-08).
 
 - Assets Workers avec `html_handling: auto-trailing-slash` : demander
   `/room.html` au binding ASSETS renvoie une 307 vers `/room` → toujours
@@ -1574,7 +1693,8 @@ par phase (`reminders[]` du `*.src.json`).
   champ `storyBack: [codes]` du `*.src.json` (déjà pris en charge par
   le build).
 - **Composition du sac par difficulté** : TCU saisi (2026-09-04), TIC
-  saisi (2026-09-08, p. 3 du guide lue sur l'image) ; reste TDC, TDE‑A
+  saisi (2026-09-08, p. 3 du guide lue sur l'image), COB saisi
+  (2026-09-08, p. 5, jetons sang compris) ; reste TDC, TDE‑A
   et Film Fatale (section Setup / encart du guide).
 - **Jetons de campagne TIC** : les flashbacks retirent des jetons du sac
   « pour le reste de la campagne » (icônes p. 6, à lire sur l'image) et
@@ -1586,8 +1706,10 @@ par phase (`reminders[]` du `*.src.json`).
   autonome) ; pour la suite, question à choix multiple ou rappel
   « ajustez le sac », à trancher avec l'utilisateur.
 - **Compteurs spécifiques par scénario** : `seatCounters` /
-  `tableCounters` du `*.src.json` (vides pour NotZ I) — recenser ceux
-  des 10 scénarios PCIO à leur migration.
+  `tableCounters` du `*.src.json` — `seatCounters` rendus depuis COB
+  (chips génériques tapis + board joueur, icône `/img/chaos/<icon>.svg`,
+  routage `seal` vers le sac) ; `tableCounters` toujours sans rendu —
+  recenser ceux des 10 scénarios PCIO à leur migration.
 - (v2) **Pioches multiples** : `piles` extensible déclaré par le
   scénario (`shuffleable`, `discardPile`) — Wages of Sin, Film Fatale,
   Unknown Places.

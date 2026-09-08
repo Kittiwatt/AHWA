@@ -72,6 +72,10 @@ export type SetupStep =
   | { op: "randomKey"; at: string; log?: string }   // une clé de côté face cachée, tirée au hasard, posée sur une carte en jeu sans être regardée (journal muet sur sa couleur)
   | { op: "addClues"; code: string; n: number; log?: string }                  // indices fixes sur un lieu en jeu (révélé ou non)
   | { op: "removeClues"; from: string[]; n?: number; nFrom?: string; log?: string }   // retire n indices (ou la réponse numérique nFrom) aussi également que possible
+  | { op: "bury"; fromDeckTop?: number; with?: string[]; trait: string; dy?: number; log?: string }
+    // cartes enfouies face cachée sous les lieux du trait donné (« Lair ») : les `with` (codes, prises où
+    // qu'elles soient — de côté après un aside) + les `fromDeckTop` premières cartes de la pioche de
+    // rencontre, mélangées puis réparties aussi également que possible ; journal muet sur qui va où
   | { op: "log"; text: string }
   | { op: "hook"; name: string; log?: string };
 
@@ -123,6 +127,7 @@ export type ScenarioDef = {
   agendaDeck: string[];
   actDeck: string[];
   startLocation?: string;
+  scenarioCardSide?: Record<Difficulty, "a" | "b">;   // face de la carte de scénario selon la difficulté (COB : référence Easy/Standard au recto, Hard/Expert au verso) ; défaut « b »
   extraCards?: string[];
   piles?: { id: string; label: string; discard?: string; isDiscard?: boolean; trait?: string; gather?: { backName: string }; around?: boolean; menuFor?: CardKind[] }[];
     // piles supplémentaires : pioche déclarée (ex. « Cultist deck »), ou seconde pioche de rencontre avec sa défausse
@@ -153,6 +158,14 @@ export type ScenarioDef = {
     // jetons d'inondation (The Innsmouth Conspiracy) : menus des lieux, panneau « Marée » ; `byAgenda[stage]` = quand cet agenda devient
     // courant, tous les lieux révélés montent d'un niveau (`increase`) ou sont totalement inondés (`full`), et `onReveal` devient la règle
     // appliquée à chaque révélation de lieu (0 rien, 1 + un niveau, 2 totalement)
+  seal?: { token: Token; label: string; counter: string; maxPerSeat: number; maxTotal?: number };
+    // scellage de jetons du chaos sur les enquêteurs (COB : jetons sang) : actions chaosSeal / chaosRelease —
+    // le jeton passe du sac (ou des tirés) au compteur de siège `counter` et inversement ; `maxPerSeat` borne
+    // le compteur (règle imprimée), `maxTotal` borne sac + scellés pour chaosAdjust
+  bury?: { withAny: string[]; fromDeckTop: number; trait: string; dy?: number; menuPile: string; menuCard: string };
+    // enfouissement en cours de partie (COB) : action `bury` sur la pioche de rencontre (les `withAny`
+    // présentes en jeu/de côté + fromDeckTop cartes, réparties sous les lieux du trait) et action `buryAt`
+    // sur une carte de `withAny` (elle + 1 carte de la pioche, sous son lieu) ; libellés des menus du front
   seatCounters: { key: string; label: string; icon?: string; initial: number }[];
   tableCounters: { key: string; label: string; icon?: string; initial: number }[];
   reminders: Reminder[];

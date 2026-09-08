@@ -264,6 +264,10 @@ export function initInteractions(ctx) {
         }
         // Parley (The Vanishing of Elina Harper) : révéler 1 à 3 pistes pour tous, en prendre une, remélanger le reste.
         if (L && id === L.pile) for (const n of [1, 2, 3]) if (ids.length >= n) items.push(item(`Parley : révéler ${n} piste${n > 1 ? "s" : ""}`, () => ctx.envoyer({ t: "leadsReveal", n }), { off: Boolean(state.piles[L.shown]?.length) }));
+        // Enfouissement (COB) : Julia + les premières cartes de la pioche, réparties sous les repaires.
+        if (ctx.scenario.bury && id === "encounter") {
+          items.push(item(ctx.scenario.bury.menuPile, () => ctx.envoyer({ t: "bury" }), { off: !ids.length && !defausse.length }));
+        }
         items.push(item("Piocher (retourner la première carte)", () => ctx.envoyer({ t: "drawEncounter", pile: id }), { off: Boolean(haut?.faceUp) || (!ids.length && !defausse.length) }));
         items.push(item("Chercher (puis mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
         items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: id }), { off: !ids.length }));
@@ -278,6 +282,20 @@ export function initInteractions(ctx) {
       items.push(item("Tout remettre", () => ctx.envoyer({ t: "chaosReturn" }), { off: !state.chaos.drawn.length }));
       items.push(item("Composition", () => document.querySelector("#chaos .sac-popover")?.classList.toggle("epingle"), { off: false }));
       items.push(item("Ajuster…", () => ouvrirAjustementSac(ctx)));
+      // Scellage déclaré par le scénario (COB : jetons sang scellés sur les enquêteurs).
+      const sc = ctx.scenario.seal;
+      if (sc) {
+        const dispo = state.chaos.bag.filter((t) => t === sc.token).length + state.chaos.drawn.filter((t) => t === sc.token).length;
+        for (const s of state.seats.filter((s) => s.investigatorCode)) {
+          const n = s.counters[sc.counter] ?? 0;
+          items.push(item(`Sceller un jeton ${sc.label} sur ${nomSiege(s, ctx)} (${n}/${sc.maxPerSeat})`,
+            () => ctx.envoyer({ t: "chaosSeal", seat: s.index }), { off: !dispo || n >= sc.maxPerSeat }));
+        }
+        for (const s of state.seats.filter((s) => (s.counters[sc.counter] ?? 0) > 0)) {
+          items.push(item(`Libérer un jeton ${sc.label} de ${nomSiege(s, ctx)} (retour au sac)`,
+            () => ctx.envoyer({ t: "chaosRelease", seat: s.index })));
+        }
+      }
     }
     menu = el("div", { class: "menu-carte", role: "menu" }, ...items);
     menu.pos = null;
@@ -353,6 +371,10 @@ export function initInteractions(ctx) {
       if (carte.loc.zone !== "board") items.push(item("Sur le tapis", () => ctx.envoiSurTapis(carte)));
     } else if (carte.kind !== "mini") {
       items.push(item(carte.exhausted ? "Redresser" : "Épuiser", () => ctx.envoyer({ t: "exhaust", id: carte.id })));
+      // Enfouissement (COB) : Julia, posée sur un repaire, s'enfouit dessous avec 1 carte de la pioche.
+      if (ctx.scenario.bury?.withAny.includes(carte.code) && carte.loc.zone === "board") {
+        items.push(item(ctx.scenario.bury.menuCard, () => ctx.envoyer({ t: "buryAt", id: carte.id })));
+      }
       if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") items.push(item("Révéler (indices automatiques)", () => ctx.envoyer({ t: "revealLocation", id: carte.id })));
       if (carte.kind === "location" && (carte.tokens.clue ?? 0) > 0) items.push(item("Prendre 1 indice", () => ctx.envoyer({ t: "takeClue", id: carte.id })));
       if (carte.kind === "location" && carte.loc.zone === "board") {

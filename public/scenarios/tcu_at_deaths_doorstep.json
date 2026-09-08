@@ -548,16 +548,16 @@
    "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
   }
  ],
- "builtAt": "2026-09-04",
+ "builtAt": "2026-09-08",
  "encounterSetNames": {
   "at_deaths_doorstep": "At Death's Doorstep",
-  "the_watcher": "The Watcher",
   "silver_twilight_lodge": "Silver Twilight Lodge",
   "spectral_predators": "Spectral Predators",
   "trapped_spirits": "Trapped Spirits",
-  "realm_of_death": "Realm of Death",
   "inexorable_fate": "Inexorable Fate",
-  "chilling_cold": "Chilling Cold"
+  "chilling_cold": "Chilling Cold",
+  "realm_of_death": "Realm of Death",
+  "the_watcher": "The Watcher"
  },
  "cards": [
   {
@@ -883,6 +883,9 @@
     "Silver Twilight",
     "Elite"
    ],
+   "backCode": "05085b",
+   "backKind": "story",
+   "backName": "Josef's Plan",
    "health": 3,
    "victory": 2
   },

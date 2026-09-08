@@ -803,17 +803,17 @@
    "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
   }
  ],
- "builtAt": "2026-09-04",
+ "builtAt": "2026-09-08",
  "encounterSetNames": {
   "union_and_disillusion": "Union and Disillusion",
-  "the_watcher": "The Watcher",
+  "inexorable_fate": "Inexorable Fate",
+  "realm_of_death": "Realm of Death",
+  "spectral_predators": "Spectral Predators",
+  "ancient_evils": "Ancient Evils",
+  "chilling_cold": "Chilling Cold",
   "anettes_coven": "Anette's Coven",
   "silver_twilight_lodge": "Silver Twilight Lodge",
-  "spectral_predators": "Spectral Predators",
-  "realm_of_death": "Realm of Death",
-  "inexorable_fate": "Inexorable Fate",
-  "ancient_evils": "Ancient Evils",
-  "chilling_cold": "Chilling Cold"
+  "the_watcher": "The Watcher"
  },
  "cards": [
   {
@@ -885,6 +885,9 @@
     "Silver Twilight",
     "Elite"
    ],
+   "backCode": "05085b",
+   "backKind": "story",
+   "backName": "Josef's Plan",
    "health": 3,
    "victory": 2
   },

@@ -325,11 +325,11 @@
  "encounterSetNames": {
   "the_pit_of_despair": "The Pit of Despair",
   "creatures_of_the_deep": "Creatures of the Deep",
+  "flooded_caverns": "Flooded Caverns",
   "rising_tide": "Rising Tide",
   "shattered_memories": "Shattered Memories",
-  "flooded_caverns": "Flooded Caverns",
-  "rats": "Rats",
-  "agents_of_cthulhu": "Agents of Cthulhu"
+  "agents_of_cthulhu": "Agents of Cthulhu",
+  "rats": "Rats"
  },
  "cards": [
   {

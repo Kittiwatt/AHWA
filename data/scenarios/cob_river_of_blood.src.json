@@ -1,0 +1,946 @@
+{
+ "_source": "Guide de campagne Children of Blood (FFG AHC106, images-cdn.fantasyflightgames.com), p. 6-11 ; cartes et sets vérifiés sur le dump arkham.build (pack cob + sets flying_terrors et dead_ends du Core 2026). Sacs du chaos lus sur le tableau p. 5 (icônes vérifiées une à une : pas de tablette ; jetons sang en Difficile/Expert). Lieux en paires Aube/Crépuscule : Facile-Standard jouent la version Aube (codes pairs 13008-13022), Difficile-Expert la version Crépuscule (codes impairs 13009-13023), l'autre moitié est retirée. Julia Stern existe en trois versions selon la difficulté (13024/13025/13026) : une mise de côté, les deux autres retirées. Diagramme p. 9 : losange sur 5 rangées, île sans flèches (sa connexion spéciale est au dos de la carte). Enfouissement : Julia + les 2 premières cartes de la pioche, mélangées, une face cachée sous chaque repaire (trait Lair).",
+ "id": "cob_river_of_blood",
+ "title": "Scénario I : River of Blood",
+ "campaign": "Children of Blood",
+ "campaignId": "cob",
+ "order": 1,
+ "packs": [
+  "cob",
+  "core_2026"
+ ],
+ "encounterSets": [
+  "river_of_blood",
+  "blood_blight",
+  "blood_moon",
+  "children_of_blood",
+  "hunted",
+  "infected",
+  "misinformation",
+  "preyed_upon",
+  "vermin",
+  "agents_of_zburamoarte",
+  "mongrels",
+  "afflicted",
+  "flying_terrors",
+  "dead_ends"
+ ],
+ "scenarioCard": "13001",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "13002",
+  "13003",
+  "13004",
+  "13005"
+ ],
+ "actDeck": [
+  "13006",
+  "13007"
+ ],
+ "startLocation": "13008",
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "cultist",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign",
+   "blood"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "cultist",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign",
+   "blood",
+   "blood"
+  ]
+ },
+ "seal": {
+  "token": "blood",
+  "label": "Sang",
+  "counter": "bloodSealed",
+  "maxPerSeat": 3,
+  "maxTotal": 12
+ },
+ "bury": {
+  "withAny": [
+   "13024",
+   "13025",
+   "13026"
+  ],
+  "fromDeckTop": 2,
+  "trait": "Lair",
+  "menuPile": "Enfouir sous les repaires (Julia + les 2 premières cartes, mélangées)",
+  "menuCard": "Enfouir sous ce lieu (+ 1 carte de la pioche, mélangées)"
+ },
+ "layout": [
+  {
+   "code": "13020",
+   "x": 737,
+   "y": 55
+  },
+  {
+   "code": "13010",
+   "x": 551,
+   "y": 293
+  },
+  {
+   "code": "13008",
+   "x": 923,
+   "y": 293
+  },
+  {
+   "code": "13018",
+   "x": 365,
+   "y": 531
+  },
+  {
+   "code": "13016",
+   "x": 737,
+   "y": 531
+  },
+  {
+   "code": "13012",
+   "x": 551,
+   "y": 769
+  },
+  {
+   "code": "13014",
+   "x": 923,
+   "y": 769
+  },
+  {
+   "code": "13022",
+   "x": 737,
+   "y": 1007
+  }
+ ],
+ "questions": [],
+ "setup": [
+  {
+   "op": "branch",
+   "on": "difficulty",
+   "cases": {
+    "easy": [
+     {
+      "op": "remove",
+      "codes": [
+       "13009",
+       "13011",
+       "13013",
+       "13015",
+       "13017",
+       "13019",
+       "13021",
+       "13023"
+      ],
+      "log": "Facile : la ville est jouée côté Aube — les huit lieux Crépuscule sont retirés de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13025",
+       "13026"
+      ],
+      "log": "Les versions Standard et Difficile/Expert de Julia Stern sont retirées."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13097",
+       "13097",
+       "13097",
+       "13098",
+       "13098",
+       "13109",
+       "13109",
+       "13109"
+      ],
+      "log": "Sets Agents of Zburamoarte et Mongrels retirés de la partie (Facile/Standard)."
+     },
+     {
+      "op": "place",
+      "code": "13020",
+      "zone": "board",
+      "x": 737,
+      "y": 55
+     },
+     {
+      "op": "place",
+      "code": "13010",
+      "zone": "board",
+      "x": 551,
+      "y": 293
+     },
+     {
+      "op": "place",
+      "code": "13008",
+      "zone": "board",
+      "x": 923,
+      "y": 293,
+      "reveal": true,
+      "log": "Les huit lieux (côté Aube) sont posés en losange ; Water Street est révélé : chaque enquêteur y commence la partie."
+     },
+     {
+      "op": "place",
+      "code": "13018",
+      "zone": "board",
+      "x": 365,
+      "y": 531
+     },
+     {
+      "op": "place",
+      "code": "13016",
+      "zone": "board",
+      "x": 737,
+      "y": 531
+     },
+     {
+      "op": "place",
+      "code": "13012",
+      "zone": "board",
+      "x": 551,
+      "y": 769
+     },
+     {
+      "op": "place",
+      "code": "13014",
+      "zone": "board",
+      "x": 923,
+      "y": 769
+     },
+     {
+      "op": "place",
+      "code": "13022",
+      "zone": "board",
+      "x": 737,
+      "y": 1007
+     },
+     {
+      "op": "minis",
+      "code": "13008"
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13024"
+      ],
+      "faceUp": true,
+      "log": "Julia Stern (On the Run) est mise de côté, hors jeu."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13110",
+       "13110",
+       "13110"
+      ],
+      "faceUp": true,
+      "log": "Night Feeder ×3 est mis de côté, hors jeu."
+     },
+     {
+      "op": "spawn",
+      "code": "13027",
+      "at": "13014",
+      "log": "Un Waterfront Civilian apparaît à Main Street."
+     },
+     {
+      "op": "branch",
+      "on": "players",
+      "cases": {
+       "3": [
+        {
+         "op": "spawn",
+         "code": "13027",
+         "at": "13010",
+         "log": "À 3-4 joueurs : un second Waterfront Civilian apparaît à Garrison Street."
+        }
+       ],
+       "4": [
+        {
+         "op": "spawn",
+         "code": "13027",
+         "at": "13010",
+         "log": "À 3-4 joueurs : un second Waterfront Civilian apparaît à Garrison Street."
+        }
+       ]
+      }
+     }
+    ],
+    "standard": [
+     {
+      "op": "remove",
+      "codes": [
+       "13009",
+       "13011",
+       "13013",
+       "13015",
+       "13017",
+       "13019",
+       "13021",
+       "13023"
+      ],
+      "log": "Standard : la ville est jouée côté Aube — les huit lieux Crépuscule sont retirés de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13024",
+       "13026"
+      ],
+      "log": "Les versions Facile et Difficile/Expert de Julia Stern sont retirées."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13097",
+       "13097",
+       "13097",
+       "13098",
+       "13098",
+       "13109",
+       "13109",
+       "13109"
+      ],
+      "log": "Sets Agents of Zburamoarte et Mongrels retirés de la partie (Facile/Standard)."
+     },
+     {
+      "op": "place",
+      "code": "13020",
+      "zone": "board",
+      "x": 737,
+      "y": 55
+     },
+     {
+      "op": "place",
+      "code": "13010",
+      "zone": "board",
+      "x": 551,
+      "y": 293
+     },
+     {
+      "op": "place",
+      "code": "13008",
+      "zone": "board",
+      "x": 923,
+      "y": 293,
+      "reveal": true,
+      "log": "Les huit lieux (côté Aube) sont posés en losange ; Water Street est révélé : chaque enquêteur y commence la partie."
+     },
+     {
+      "op": "place",
+      "code": "13018",
+      "zone": "board",
+      "x": 365,
+      "y": 531
+     },
+     {
+      "op": "place",
+      "code": "13016",
+      "zone": "board",
+      "x": 737,
+      "y": 531
+     },
+     {
+      "op": "place",
+      "code": "13012",
+      "zone": "board",
+      "x": 551,
+      "y": 769
+     },
+     {
+      "op": "place",
+      "code": "13014",
+      "zone": "board",
+      "x": 923,
+      "y": 769
+     },
+     {
+      "op": "place",
+      "code": "13022",
+      "zone": "board",
+      "x": 737,
+      "y": 1007
+     },
+     {
+      "op": "minis",
+      "code": "13008"
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13025"
+      ],
+      "faceUp": true,
+      "log": "Julia Stern (Stalking the Streets) est mise de côté, hors jeu."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13110",
+       "13110",
+       "13110"
+      ],
+      "faceUp": true,
+      "log": "Night Feeder ×3 est mis de côté, hors jeu."
+     },
+     {
+      "op": "spawn",
+      "code": "13027",
+      "at": "13014",
+      "log": "Un Waterfront Civilian apparaît à Main Street."
+     },
+     {
+      "op": "branch",
+      "on": "players",
+      "cases": {
+       "3": [
+        {
+         "op": "spawn",
+         "code": "13027",
+         "at": "13010",
+         "log": "À 3-4 joueurs : un second Waterfront Civilian apparaît à Garrison Street."
+        }
+       ],
+       "4": [
+        {
+         "op": "spawn",
+         "code": "13027",
+         "at": "13010",
+         "log": "À 3-4 joueurs : un second Waterfront Civilian apparaît à Garrison Street."
+        }
+       ]
+      }
+     }
+    ],
+    "hard": [
+     {
+      "op": "remove",
+      "codes": [
+       "13008",
+       "13010",
+       "13012",
+       "13014",
+       "13016",
+       "13018",
+       "13020",
+       "13022"
+      ],
+      "log": "Difficile : la ville est jouée côté Crépuscule — les huit lieux Aube sont retirés de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13024",
+       "13025"
+      ],
+      "log": "Les versions Facile et Standard de Julia Stern sont retirées."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13110",
+       "13110",
+       "13110",
+       "13111",
+       "13111",
+       "13117",
+       "13117",
+       "13117"
+      ],
+      "log": "Sets Preyed Upon et Vermin retirés de la partie (Difficile/Expert)."
+     },
+     {
+      "op": "place",
+      "code": "13021",
+      "zone": "board",
+      "x": 737,
+      "y": 55
+     },
+     {
+      "op": "place",
+      "code": "13011",
+      "zone": "board",
+      "x": 551,
+      "y": 293
+     },
+     {
+      "op": "place",
+      "code": "13009",
+      "zone": "board",
+      "x": 923,
+      "y": 293,
+      "reveal": true,
+      "log": "Les huit lieux (côté Crépuscule) sont posés en losange ; Water Street est révélé : chaque enquêteur y commence la partie."
+     },
+     {
+      "op": "place",
+      "code": "13019",
+      "zone": "board",
+      "x": 365,
+      "y": 531
+     },
+     {
+      "op": "place",
+      "code": "13017",
+      "zone": "board",
+      "x": 737,
+      "y": 531
+     },
+     {
+      "op": "place",
+      "code": "13013",
+      "zone": "board",
+      "x": 551,
+      "y": 769
+     },
+     {
+      "op": "place",
+      "code": "13015",
+      "zone": "board",
+      "x": 923,
+      "y": 769
+     },
+     {
+      "op": "place",
+      "code": "13023",
+      "zone": "board",
+      "x": 737,
+      "y": 1007
+     },
+     {
+      "op": "minis",
+      "code": "13009"
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13026"
+      ],
+      "faceUp": true,
+      "log": "Julia Stern (Preying Upon Arkham) est mise de côté, hors jeu."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13097",
+       "13097",
+       "13097"
+      ],
+      "faceUp": true,
+      "log": "Spawn of Zburamoarte ×3 est mis de côté, hors jeu."
+     },
+     {
+      "op": "spawn",
+      "code": "13027",
+      "at": "13015",
+      "log": "Un Waterfront Civilian apparaît à Main Street."
+     },
+     {
+      "op": "branch",
+      "on": "players",
+      "cases": {
+       "3": [
+        {
+         "op": "spawn",
+         "code": "13027",
+         "at": "13011",
+         "log": "À 3-4 joueurs : un second Waterfront Civilian apparaît à Garrison Street."
+        }
+       ],
+       "4": [
+        {
+         "op": "spawn",
+         "code": "13027",
+         "at": "13011",
+         "log": "À 3-4 joueurs : un second Waterfront Civilian apparaît à Garrison Street."
+        }
+       ]
+      }
+     }
+    ],
+    "expert": [
+     {
+      "op": "remove",
+      "codes": [
+       "13008",
+       "13010",
+       "13012",
+       "13014",
+       "13016",
+       "13018",
+       "13020",
+       "13022"
+      ],
+      "log": "Expert : la ville est jouée côté Crépuscule — les huit lieux Aube sont retirés de la partie."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13024",
+       "13025"
+      ],
+      "log": "Les versions Facile et Standard de Julia Stern sont retirées."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "13110",
+       "13110",
+       "13110",
+       "13111",
+       "13111",
+       "13117",
+       "13117",
+       "13117"
+      ],
+      "log": "Sets Preyed Upon et Vermin retirés de la partie (Difficile/Expert)."
+     },
+     {
+      "op": "place",
+      "code": "13021",
+      "zone": "board",
+      "x": 737,
+      "y": 55
+     },
+     {
+      "op": "place",
+      "code": "13011",
+      "zone": "board",
+      "x": 551,
+      "y": 293
+     },
+     {
+      "op": "place",
+      "code": "13009",
+      "zone": "board",
+      "x": 923,
+      "y": 293,
+      "reveal": true,
+      "log": "Les huit lieux (côté Crépuscule) sont posés en losange ; Water Street est révélé : chaque enquêteur y commence la partie."
+     },
+     {
+      "op": "place",
+      "code": "13019",
+      "zone": "board",
+      "x": 365,
+      "y": 531
+     },
+     {
+      "op": "place",
+      "code": "13017",
+      "zone": "board",
+      "x": 737,
+      "y": 531
+     },
+     {
+      "op": "place",
+      "code": "13013",
+      "zone": "board",
+      "x": 551,
+      "y": 769
+     },
+     {
+      "op": "place",
+      "code": "13015",
+      "zone": "board",
+      "x": 923,
+      "y": 769
+     },
+     {
+      "op": "place",
+      "code": "13023",
+      "zone": "board",
+      "x": 737,
+      "y": 1007
+     },
+     {
+      "op": "minis",
+      "code": "13009"
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13026"
+      ],
+      "faceUp": true,
+      "log": "Julia Stern (Preying Upon Arkham) est mise de côté, hors jeu."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13097",
+       "13097",
+       "13097"
+      ],
+      "faceUp": true,
+      "log": "Spawn of Zburamoarte ×3 est mis de côté, hors jeu."
+     },
+     {
+      "op": "spawn",
+      "code": "13027",
+      "at": "13015",
+      "log": "Un Waterfront Civilian apparaît à Main Street."
+     },
+     {
+      "op": "branch",
+      "on": "players",
+      "cases": {
+       "3": [
+        {
+         "op": "spawn",
+         "code": "13027",
+         "at": "13011",
+         "log": "À 3-4 joueurs : un second Waterfront Civilian apparaît à Garrison Street."
+        }
+       ],
+       "4": [
+        {
+         "op": "spawn",
+         "code": "13027",
+         "at": "13011",
+         "log": "À 3-4 joueurs : un second Waterfront Civilian apparaît à Garrison Street."
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "op": "branch",
+   "on": "players",
+   "cases": {
+    "1": [
+     {
+      "op": "remove",
+      "codes": [
+       "13094",
+       "13094",
+       "13095",
+       "13095",
+       "13095",
+       "13096",
+       "13096"
+      ],
+      "log": "À 1-2 joueurs : le set Afflicted est retiré de la partie."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13027",
+       "13027",
+       "13027"
+      ],
+      "faceUp": true,
+      "log": "Les 3 Waterfront Civilian restants sont mis de côté, hors jeu."
+     }
+    ],
+    "2": [
+     {
+      "op": "remove",
+      "codes": [
+       "13094",
+       "13094",
+       "13095",
+       "13095",
+       "13095",
+       "13096",
+       "13096"
+      ],
+      "log": "À 1-2 joueurs : le set Afflicted est retiré de la partie."
+     },
+     {
+      "op": "aside",
+      "codes": [
+       "13027",
+       "13027",
+       "13027"
+      ],
+      "faceUp": true,
+      "log": "Les 3 Waterfront Civilian restants sont mis de côté, hors jeu."
+     }
+    ],
+    "3": [
+     {
+      "op": "aside",
+      "codes": [
+       "13027",
+       "13027"
+      ],
+      "faceUp": true,
+      "log": "Les 2 Waterfront Civilian restants sont mis de côté, hors jeu."
+     }
+    ],
+    "4": [
+     {
+      "op": "aside",
+      "codes": [
+       "13027",
+       "13027"
+      ],
+      "faceUp": true,
+      "log": "Les 2 Waterfront Civilian restants sont mis de côté, hors jeu."
+     }
+    ]
+   }
+  },
+  {
+   "op": "aside",
+   "sets": [
+    "infected"
+   ],
+   "faceUp": true,
+   "log": "Set Infected (The Blood Blight ×4) mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "13029",
+    "13030"
+   ],
+   "faceUp": true,
+   "log": "Detective Reynolds et Fang of Zburamoarte sont mis de côté, hors jeu."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  },
+  {
+   "op": "bury",
+   "fromDeckTop": 2,
+   "with": [
+    "13024",
+    "13025",
+    "13026"
+   ],
+   "trait": "Lair",
+   "log": "Les 2 premières cartes de la pioche et Julia Stern sont mélangées puis enfouies face cachée : une sous chaque repaire. Personne ne sait laquelle est où."
+  }
+ ],
+ "seatCounters": [
+  {
+   "key": "bloodSealed",
+   "label": "Sang scellé",
+   "icon": "blood",
+   "initial": 0
+  }
+ ],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Jetons sang (guide, p. 3) : ils restent dans le sac d'un scénario à l'autre. Un enquêteur peut en avoir au plus 3 scellés sur lui, et il ne peut jamais y avoir plus de 12 jetons sang entre le sac et les enquêteurs. Dans l'app : menu du sac → « Sceller / Libérer », ou le chip « Sang scellé » du siège (+ scelle depuis le sac, − libère vers le sac) ; « Ajuster… » sert aux effets qui en ajoutent ou en retirent."
+  },
+  {
+   "when": "setup",
+   "text": "Cartes enfouies : elles dépassent du bas des trois repaires, face cachée, et suivent leur lieu s'il est déplacé. Quand une carte vous dit d'en révéler une : menu de la carte → « Retourner » (traîtrise → défaussez-la ; ennemi → il apparaît là). Le menu de la pioche de rencontre permet de ré-enfouir Julia avec les 2 premières cartes ; le menu de Julia posée sur un repaire l'enfouit sous ce lieu avec 1 carte."
+  },
+  {
+   "when": "setup",
+   "text": "Predator (mot-clé, guide p. 4) : au moment indiqué, un ennemi prêt et non engagé qui a ce mot-clé blesse un autre ennemi non-Elite de force inférieure à son lieu. Appliquez les dégâts à la main sur la carte visée."
+  },
+  {
+   "when": "setup",
+   "text": "Unvisited Isle : sa capacité demande de noter « the investigators found a sacrificial dagger » — notez-le sur votre journal de campagne papier (l'app ne tient pas le journal). Le dos de la carte ajoute une connexion vers River Docks pendant les déplacements des ennemis."
+  },
+  {
+   "when": "mythos",
+   "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche)."
+  },
+  {
+   "when": "enemy",
+   "text": "Ennemis chasseurs : déplacez-les à la main (la connexion spéciale de l'île peut jouer). Julia et les ennemis à mot-clé Predator ont des effets de fin de phase : relisez leurs cartes."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 (lisez-le dans le panneau Histoire) : s'il faut ajouter un jeton sang au sac, passez par menu du sac → Ajuster ; révélez ensuite chaque carte enfouie une à une (menu → Retourner) et appliquez ce qui est écrit."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Verso de l'agenda 2 : soins et ré-enfouissement — utilisez le menu de la pioche de rencontre (« Enfouir sous les repaires ») après avoir soigné Julia, puis chaque enquêteur pioche un Waterfront Civilian de côté tant qu'il en reste (glissez-les depuis la zone de côté)."
+  },
+  {
+   "when": "agenda:4",
+   "text": "Verso de l'agenda 3 : mêmes gestes qu'au verso de l'agenda 1 (sang au sac via Ajuster si la condition est remplie, puis révélation des cartes enfouies)."
+  },
+  {
+   "when": "act:2",
+   "text": "Verso de l'acte 1 : posez les indices demandés sur chaque lieu révélé sans points de victoire (menu du lieu → Indices). Si l'acte 2 vous renvoie à l'acte 1, utilisez le panneau Histoire pour revenir en arrière."
+  }
+ ]
+}

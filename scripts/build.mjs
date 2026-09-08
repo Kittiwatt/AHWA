@@ -2,12 +2,17 @@
 // Build des données de jeu (à lancer avant un commit qui touche data/scenarios/*.src.json) :
 //   node scripts/build.mjs
 //
-// 1. Pour chaque data/scenarios/<id>.src.json (déclaratif, écrit à la main), interroge ArkhamDB
-//    (cache dans data/cache/) et écrit public/scenarios/<id>.json : source + liste des cartes
-//    des sets de rencontre (codes, quantités, valeurs d'indices, seuils de doom), sans texte de carte.
+// 1. Pour chaque data/scenarios/<id>.src.json (déclaratif, écrit à la main), lit le cache de cartes
+//    d'arkham.build (mis en cache dans data/cache/) et écrit public/scenarios/<id>.json : source + liste
+//    des cartes des sets de rencontre (codes, quantités, valeurs d'indices, seuils de doom), sans texte de carte.
 // 2. Écrit public/data/investigators.json : index compact des investigateurs (lobby), avec les cartes
 //    qu'ils commencent en jeu ; public/data/player_cards.json : index des cartes joueur (board joueur).
 // 3. Écrit src/scenarios.generated.ts : registre des scénarios importé par le Worker.
+//
+// Source de données : arkham.build (décision 2026-09-08) — un seul dump de toutes les cartes
+// (https://api.arkham.build/v1/cache/cards) + métadonnées (packs, noms des sets de rencontre),
+// normalisés ici vers la forme ArkhamDB que le reste du build attend. ArkhamDB n'est plus interrogé
+// au build ; les images restent servies par cdn.arkham.build en jeu, comme avant.
 //
 // Les fichiers générés sont commités : le déploiement Workers Builds ne relance pas ce script.
 
@@ -20,7 +25,7 @@ const racine = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = path.join(racine, "data", "cache");
 const SRC = path.join(racine, "data", "scenarios");
 const OUT = path.join(racine, "public", "scenarios");
-const ARKHAMDB = "https://arkhamdb.com/api/public";
+const ARKHAM_BUILD = "https://api.arkham.build/v1/cache";
 
 async function json(url, cacheName) {
   await mkdir(CACHE, { recursive: true });
@@ -35,6 +40,78 @@ async function json(url, cacheName) {
   await writeFile(fichier, JSON.stringify(data));
   return data;
 }
+
+// ---------------------------------------------------------------------------
+// Couche arkham.build → forme ArkhamDB.
+//
+// Le dump `cards` liste TOUTES les cartes (joueur et rencontre) avec des champs `real_*`
+// (real_name, real_traits…), les variantes taboo en entrées séparées (`id` = « code-taboo »),
+// et les versos de cartes liées en entrées propres marquées `hidden` (05055b, 01121b…),
+// référencées par `back_link_id`. On reconstruit ici l'objet `linked_card` imbriqué
+// qu'ArkhamDB servait, et on écarte taboos et versos de la liste principale.
+// ---------------------------------------------------------------------------
+
+let _donnees = null;
+
+async function donnees() {
+  if (_donnees) return _donnees;
+  const brut = (await json(`${ARKHAM_BUILD}/cards`, "arkham_build_cards.json")).data.all_card;
+  const meta = (await json(`${ARKHAM_BUILD}/metadata`, "arkham_build_metadata.json")).data;
+  const nomsPacks = Object.fromEntries(meta.pack.map((p) => [p.code, p.real_name]));
+  const nomsSets = Object.fromEntries(meta.card_encounter_set.map((s) => [s.code, s.real_name]));
+  // Entrées de base : une par code (les variantes taboo ont `id` ≠ `code`).
+  const bases = brut.filter((c) => c.id === c.code);
+  const parCode = new Map(bases.map((c) => [c.code, c]));
+  const traduire = (c, avecLien = true) => {
+    const o = {
+      ...c,
+      name: c.real_name,
+      subname: c.real_subname,
+      traits: c.real_traits,
+      back_name: c.real_back_name,
+      text: c.real_text,
+      pack_name: nomsPacks[c.pack_code],
+      encounter_name: nomsSets[c.encounter_code],
+      // Tout le catalogue officiel a ses images sur cdn.arkham.build : l'ancien filtre
+      // `imagesrc` d'ArkhamDB devient « carte officielle » (les exceptions connues,
+      // 60154/60254, restent gérées côté serveur pour le tirage de faiblesse).
+      imagesrc: c.official ? `cdn:${c.code}` : null,
+      backimagesrc: c.double_sided || c.back_link_id ? `cdn:${c.code}b` : null,
+    };
+    // Le dump n'a pas bonded_to / bonded_count : le nom vient du mot-clé imprimé « Bonded (X). »
+    // (début de ligne du texte), le compte vaut la quantité sauf trois exceptions héritées
+    // d'ArkhamDB (cartes TDE imprimées ×2 mais liées ×1).
+    const bonded = /^Bonded \((.+?)\)[.,]/m.exec(c.real_text ?? "");
+    if (bonded) {
+      o.bonded_to = bonded[1];
+      o.bonded_count = { "06025": 1, "06028": 1, "06283": 1 }[c.code] ?? c.quantity ?? 1;
+    }
+    if (avecLien && c.back_link_id) {
+      const verso = parCode.get(c.back_link_id);
+      if (!verso) throw new Error(`${c.code} : verso lié ${c.back_link_id} introuvable dans le dump arkham.build`);
+      o.linked_card = traduire(verso, false);
+      // Cartes joueur liées (Sophie 03009 ↔ 03009b…) : ArkhamDB exposait linked_to_code/name.
+      o.linked_to_code = verso.code;
+      o.linked_to_name = verso.real_name;
+    }
+    return o;
+  };
+  _donnees = {
+    // Liste principale : sans les versos (`hidden` + cible d'un back_link) ni les taboos.
+    cartes: bases.filter((c) => !c.hidden).map((c) => traduire(c)),
+    // Versos orphelins éventuels (recto absent du dump) : matière à synthèse, comme avant.
+    versosCaches: bases.filter((c) => c.hidden).map((c) => traduire(c, false)),
+    nomsSets,
+  };
+  process.stdout.write(`  arkham.build : ${_donnees.cartes.length} cartes (hors versos et taboos)\n`);
+  return _donnees;
+}
+
+async function cartesRencontre() { return (await donnees()).cartes.filter((c) => c.encounter_code); }
+async function cartesJoueur() { return (await donnees()).cartes.filter((c) => !c.encounter_code); }
+// Pour l'index de l'outil « Générer une carte » : tout, versos cachés compris (on pouvait déjà
+// générer un verso par son code — 01121b The Masked Hunter — avec l'ancienne source).
+async function toutesCartes() { const d = await donnees(); return [...d.cartes, ...d.versosCaches]; }
 
 // Correspondance type ArkhamDB → kind du modèle d'état (cahier des charges §3.2).
 const KIND = {
@@ -94,25 +171,25 @@ function carte(c, src) {
 
 async function buildScenario(fichierSrc) {
   const src = JSON.parse(await readFile(fichierSrc, "utf8"));
-  // Un pack ArkhamDB (`pack`) ou plusieurs (`packs`, ex. TCU + sets du Core).
+  // Un pack (`pack`) ou plusieurs (`packs`, ex. TCU + sets du Core, COB + Core 2026).
   const packs = src.packs ?? [src.pack];
-  const cartesPack = (await Promise.all(packs.map((p) => json(`${ARKHAMDB}/cards/${p}.json?encounter=1`, `${p}.json`)))).flat();
+  const cartesPack = (await cartesRencontre()).filter((c) => packs.includes(c.pack_code));
   const sets = new Set(src.encounterSets);
   const extra = new Set(src.extraCards ?? []);
-  // Cartes dont ArkhamDB ne connaît que le verso (ex. 05085b « Josef's Plan », verso de l'ennemi 05085 Josef
-  // Meiger absent de l'API) : le recto est synthétisé depuis `linked_card`, le verso n'est pas une carte à part.
-  const codesPack = new Set(cartesPack.map((c) => c.code));
-  const versosSeuls = cartesPack.filter((c) => c.linked_card && c.code === `${c.linked_card.code}b` && !codesPack.has(c.linked_card.code));
-  const synthetises = versosSeuls.map((c) => ({ ...c.linked_card, quantity: c.linked_card.quantity ?? 1, double_sided: true, linked_card: null, _verso: c }));
-  const exclus = new Set(versosSeuls.map((c) => c.code));
-  const cards = [...cartesPack.filter((c) => !exclus.has(c.code)), ...synthetises]
+  // Le dump arkham.build a un recto pour toute carte liée (Josef Meiger 05085 compris : plus de
+  // synthèse) ; si un verso caché se retrouvait un jour sans recto, on veut le savoir tout de suite.
+  const lies = new Set(cartesPack.map((c) => c.back_link_id).filter(Boolean));
+  for (const v of (await donnees()).versosCaches.filter((c) => packs.includes(c.pack_code) && sets.has(c.encounter_code))) {
+    if (!lies.has(v.code)) throw new Error(`${src.id} : verso ${v.code} sans recto dans le dump arkham.build`);
+  }
+  const cards = cartesPack
     .filter((c) => sets.has(c.encounter_code) || extra.has(c.code))
     .sort((a, b) => a.code.localeCompare(b.code))
     .map((c) => carte(c, src));
-  for (const c of synthetises) if (sets.has(c.encounter_code)) process.stdout.write(`  ${src.id} : ${c.code} ${c.name} synthétisé depuis le verso ${c._verso.code}\n`);
   for (const code of extra) if (!cards.some((c) => c.code === code)) throw new Error(`${src.id} : carte hors set ${code} introuvable dans le pack`);
   const encounterSetNames = {};
-  for (const c of cartesPack) if (sets.has(c.encounter_code)) encounterSetNames[c.encounter_code] = c.encounter_name;
+  const nomsSets = (await donnees()).nomsSets;
+  for (const s of src.encounterSets) if (nomsSets[s]) encounterSetNames[s] = nomsSets[s];
 
   // Contrôles de cohérence entre la source et ArkhamDB.
   const codes = new Set(cards.map((c) => c.code));
@@ -169,7 +246,7 @@ function commenceEnJeu(c) {
 }
 
 async function buildInvestigators() {
-  const cartes = await json(`${ARKHAMDB}/cards/?encounter=0`, "player.json");
+  const cartes = await cartesJoueur();
   const inv = cartes
     .filter((c) => c.type_code === "investigator" && !c.duplicate_of_code && !c.hidden && c.imagesrc)
     .map((c) => ({
@@ -196,7 +273,7 @@ async function buildInvestigators() {
 
 /** Index compact de TOUTES les cartes (joueur et rencontre) pour l'outil « Générer une carte ». */
 async function buildCardsIndex() {
-  const cartes = await json(`${ARKHAMDB}/cards/?encounter=1`, "all_encounter.json");
+  const cartes = await toutesCartes();
   const idx = cartes
     .filter((c) => c.imagesrc)
     .map((c) => ({
@@ -218,7 +295,7 @@ async function buildCardsIndex() {
  * (code / nom), sk icônes de compétence {w, i, c, a, x}, pk pack, tr traits.
  */
 async function buildPlayerCards() {
-  const cartes = await json(`${ARKHAMDB}/cards/?encounter=0`, "player.json");
+  const cartes = await cartesJoueur();
   const TYPES = new Set(["asset", "event", "skill", "treachery", "enemy", "story", "location"]);
   const idx = cartes
     .filter((c) => TYPES.has(c.type_code) && !c.hidden && c.imagesrc)

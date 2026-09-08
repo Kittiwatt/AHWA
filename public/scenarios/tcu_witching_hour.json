@@ -266,15 +266,15 @@
    "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
   }
  ],
- "builtAt": "2026-09-04",
+ "builtAt": "2026-09-08",
  "encounterSetNames": {
   "the_witching_hour": "The Witching Hour",
-  "agents_of_azathoth": "Agents of Azathoth",
   "anettes_coven": "Anette's Coven",
-  "witchcraft": "Witchcraft",
   "city_of_sins": "City of Sins",
-  "striking_fear": "Striking Fear",
+  "witchcraft": "Witchcraft",
   "ancient_evils": "Ancient Evils",
+  "striking_fear": "Striking Fear",
+  "agents_of_azathoth": "Agents of Azathoth",
   "agents_of_shub": "Agents of Shub-Niggurath"
  },
  "cards": [

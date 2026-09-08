@@ -4,7 +4,7 @@
 
 import type { CardState, LogEntry, Phase, RoomState, Token, ZoneId } from "./state";
 import type { ScenarioDef } from "./scenario";
-import { addLog, nextZ, nomVisible, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI, cleDeCouleur, LIBELLES_INONDATION, poserCleSur, texteMaree } from "./setup";
+import { addLog, nextZ, nomVisible, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI, cleDeCouleur, LIBELLES_INONDATION, poserCleSur, texteMaree, enfouir } from "./setup";
 import { Refus, refuser } from "./refus";
 import { entretienJoueur, PILE_JOUEUR_RE } from "./joueur";
 
@@ -23,7 +23,7 @@ const JETONS_RESERVE = new Set<Token>(["bless", "curse"]);   // révélés, ils 
 // Grille des diagrammes de placement (cartes 126 × 178 avec leurs marges) : « en dessous, à gauche, à droite » d'un lieu.
 const PAS_X = 186, PAS_Y = 238;
 const AUTOUR: [string, number, number][] = [["en dessous", 0, PAS_Y], ["à gauche", -PAS_X, 0], ["à droite", PAS_X, 0]];
-const CHAOS_TOKENS = new Set<string>(["+1", "0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign", "bless", "curse", "frost"]);
+const CHAOS_TOKENS = new Set<string>(["+1", "0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign", "bless", "curse", "frost", "blood"]);
 
 function carte(state: RoomState, id: unknown): CardState {
   const c = state.cards[String(id)];
@@ -882,8 +882,80 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       let delta = Math.round(Number(msg.delta) || 0);
       // Au plus 10 bénédictions et 10 malédictions entre le sac et les cartes qui en scellent.
       if (delta > 0 && JETONS_RESERVE.has(t)) delta = Math.min(delta, 10 - state.chaos.bag.filter((k) => k === t).length - state.chaos.sealed.filter((k) => k === t).length);
+      // Jeton scellable du scénario (COB : sang, 12 au plus entre le sac et les enquêteurs).
+      if (delta > 0 && def.seal?.token === t && def.seal.maxTotal) {
+        delta = Math.min(delta, def.seal.maxTotal - state.chaos.bag.filter((k) => k === t).length - state.chaos.sealed.filter((k) => k === t).length);
+      }
       if (delta > 0) for (let k = 0; k < delta; k++) state.chaos.bag.push(t);
       else for (let k = 0; k < -delta; k++) { const i = state.chaos.bag.indexOf(t); if (i < 0) break; state.chaos.bag.splice(i, 1); }
+      return {};
+    }
+    case "chaosSeal": {
+      // Sceller un jeton (COB : sang) sur un enquêteur : le jeton quitte les tirés (celui qu'on vient de
+      // révéler) ou le sac, et le compteur de siège déclaré par le scénario monte de 1 (borné par la règle).
+      const sc = def.seal ?? refuser("pas de jeton à sceller dans ce scénario");
+      const n = siege(state, msg.seat);
+      const compteur = state.seats[n].counters[sc.counter] ?? 0;
+      if (compteur >= sc.maxPerSeat) refuser(`au plus ${sc.maxPerSeat} jetons ${sc.label} scellés par enquêteur`);
+      let source = "des jetons tirés";
+      let i = state.chaos.drawn.indexOf(sc.token);
+      if (i >= 0) state.chaos.drawn.splice(i, 1);
+      else {
+        i = state.chaos.bag.indexOf(sc.token);
+        if (i < 0) refuser(`aucun jeton ${sc.label} dans le sac ni parmi les tirés`);
+        state.chaos.bag.splice(i, 1);
+        source = "du sac";
+      }
+      state.chaos.sealed.push(sc.token);
+      state.seats[n].counters[sc.counter] = compteur + 1;
+      addLog(state, "action", `Un jeton ${sc.label} est scellé sur ${nomSiege(state, n, def)} (pris ${source} ; ${compteur + 1}/${sc.maxPerSeat}). Sac : ${state.chaos.bag.length} jetons.`);
+      return {};
+    }
+    case "chaosRelease": {
+      // Libérer un jeton scellé : il retourne dans le sac.
+      const sc = def.seal ?? refuser("pas de jeton à sceller dans ce scénario");
+      const n = siege(state, msg.seat);
+      const compteur = state.seats[n].counters[sc.counter] ?? 0;
+      if (compteur <= 0) refuser(`aucun jeton ${sc.label} scellé sur ce siège`);
+      state.seats[n].counters[sc.counter] = compteur - 1;
+      const i = state.chaos.sealed.indexOf(sc.token);
+      if (i >= 0) state.chaos.sealed.splice(i, 1);
+      state.chaos.bag.push(sc.token);
+      addLog(state, "action", `${nomSiege(state, n, def)} libère un jeton ${sc.label} : il retourne dans le sac (${state.chaos.bag.length} jetons).`);
+      return {};
+    }
+    case "bury": {
+      // COB : « mélangez les 2 premières cartes de la pioche avec Julia, une face cachée sous chaque repaire ».
+      const b = def.bury ?? refuser("pas d'enfouissement dans ce scénario");
+      const codes = new Set(b.withAny);
+      const avec = Object.entries(state.cards)
+        .filter(([, c]) => codes.has(c.code) && "zone" in c.loc && ["board", "aside", ...SEAT_ZONES].includes((c.loc as { zone: string }).zone))
+        .map(([id]) => id);
+      const enJeuTrait = Object.values(state.cards).some((c) => c.kind === "location" && "zone" in c.loc && c.loc.zone === "board"
+        && (def.cards.find((k) => k.code === c.code)?.traits ?? []).includes(b.trait));
+      if (!enJeuTrait) refuser(`aucun lieu « ${b.trait} » en jeu`);
+      if (!avec.length && !state.piles.encounter.length && !state.piles.encounterDiscard?.length) refuser("rien à enfouir");
+      const n = enfouir(state, def, rng, { avec, fromDeckTop: b.fromDeckTop, trait: b.trait, dy: b.dy });
+      addLog(state, "action", `${n} cartes${avec.length ? ` (dont ${avec.map((id) => nomVisible(def, { ...state.cards[id], faceUp: true } as CardState, state.extraDefs)).join(", ")})` : ""} mélangées et enfouies face cachée sous les lieux « ${b.trait} » — personne ne sait laquelle est où.`);
+      return {};
+    }
+    case "buryAt": {
+      // COB, effet Forcé : la carte (Julia) est retournée face cachée sous le lieu où elle se trouve,
+      // avec la première carte de la pioche de rencontre.
+      const b = def.bury ?? refuser("pas d'enfouissement dans ce scénario");
+      const c = carte(state, msg.id);
+      if (!b.withAny.includes(c.code)) refuser("cette carte ne s'enfouit pas");
+      if (!("zone" in c.loc) || c.loc.zone !== "board") refuser("posez d'abord la carte sur son lieu");
+      const { x, y } = c.loc as { x: number; y: number };
+      const lieu = Object.values(state.cards)
+        .filter((L) => L.kind === "location" && "zone" in L.loc && L.loc.zone === "board"
+          && (def.cards.find((k) => k.code === L.code)?.traits ?? []).includes(b.trait))
+        .find((L) => Math.abs(x + CARD_W / 2 - ((L.loc as { x: number }).x + CARD_W / 2)) < CARD_W
+          && Math.abs(y + CARD_H / 2 - ((L.loc as { y: number }).y + CARD_H / 2)) < CARD_H)
+        ?? refuser(`${nomVisible(def, c, state.extraDefs)} n'est pas sur un lieu « ${b.trait} »`);
+      const nom = nomVisible(def, c, state.extraDefs);
+      const n = enfouir(state, def, rng, { avec: [String(msg.id)], fromDeckTop: 1, trait: b.trait, cible: lieu, dy: b.dy });
+      addLog(state, "action", `${nom} est retourné face cachée et enfoui sous ${nomVisible(def, lieu, state.extraDefs)}, avec ${n - 1 ? "la première carte de la pioche, mélangées — personne ne sait laquelle est laquelle" : "rien d'autre (pioche vide)"}.`);
       return {};
     }
     default:

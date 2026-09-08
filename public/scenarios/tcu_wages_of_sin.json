@@ -494,16 +494,16 @@
    "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
   }
  ],
- "builtAt": "2026-09-04",
+ "builtAt": "2026-09-08",
  "encounterSetNames": {
   "the_wages_of_sin": "The Wages of Sin",
-  "the_watcher": "The Watcher",
   "anettes_coven": "Anette's Coven",
-  "witchcraft": "Witchcraft",
   "city_of_sins": "City of Sins",
-  "trapped_spirits": "Trapped Spirits",
+  "inexorable_fate": "Inexorable Fate",
   "realm_of_death": "Realm of Death",
-  "inexorable_fate": "Inexorable Fate"
+  "trapped_spirits": "Trapped Spirits",
+  "witchcraft": "Witchcraft",
+  "the_watcher": "The Watcher"
  },
  "cards": [
   {

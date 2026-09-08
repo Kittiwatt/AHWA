@@ -17,7 +17,7 @@ export const FACTIONS = {
 export const JETONS_CHAOS = {
   "+1": "+1", "0": "0", "-1": "−1", "-2": "−2", "-3": "−3", "-4": "−4", "-5": "−5", "-6": "−6", "-7": "−7", "-8": "−8",
   skull: "Crâne", cultist: "Cultiste", tablet: "Tablette", elder_thing: "Ancien", auto_fail: "Échec auto",
-  elder_sign: "Signe des anciens", bless: "Bénédiction", curse: "Malédiction", frost: "Givre",
+  elder_sign: "Signe des anciens", bless: "Bénédiction", curse: "Malédiction", frost: "Givre", blood: "Sang",
 };
 
 /** URL de l'image à afficher pour une carte selon sa face et son côté. */

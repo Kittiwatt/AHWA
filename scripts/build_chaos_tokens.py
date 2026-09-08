@@ -49,6 +49,7 @@ DEGRADES = {
     "elder_sign": [("0%", "#33A1FB"), ("50%", "#3C8AC9"), ("100%", "#457398")],
     "bless": [("25%", "#9C702A"), ("100%", "#695823")],
     "curse": [("25%", "#362330"), ("100%", "#3B224A")],
+    "blood": [("75%", "#343433"), ("100%", "#1C1D1C")],
 }
 
 def couches(jeton):
@@ -69,10 +70,13 @@ def couches(jeton):
         return [("token_bless_fill", "#9D702A"), ("token_bless_overlay", CREME)]
     if jeton == "curse":
         return [("token_curse_fill", "#35232F"), ("token_curse_overlay", CREME)]
+    if jeton == "blood":
+        # Jeton sang (Children of Blood) : recette ChaosToken.tsx d'Arkham Cards, fond sombre + goutte rouge.
+        return [("token_blood_fill", "#C22026"), ("token_blood_overlay", "#353534"), ("token_blood_highlight", "#353534")]
     raise KeyError(jeton)
 
 JETONS = ["+1", "0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8",
-          "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign", "bless", "curse", "frost"]
+          "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign", "bless", "curse", "frost", "blood"]
 
 def nom_fichier(jeton):
     return jeton.replace("+", "p").replace("-", "m") + ".svg"
