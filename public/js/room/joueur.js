@@ -5,7 +5,7 @@
 
 import { creerConnexion } from "./net.js";
 import { el, pluriel, surveillerPleinEcran } from "./dom.js";
-import { CDN, FACTIONS, urlImage, totauxCompetences, elTotauxCompetences } from "./cartes.js";
+import { CDN, FACTIONS, totauxCompetences, elTotauxCompetences } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { blocDeck } from "./deck.js";
 import { carteEl, PHASES, rendreChaos, initLoupe } from "./tapis.js";
@@ -356,11 +356,17 @@ async function demarrer() {
     const posees = Object.values(state.cards).filter((c) => c.kind !== "mini" && c.kind !== "location" && dans(c)).sort((a, b) => a.loc.z - b.loc.z);
     const indices = lieu.tokens.clue ?? 0;
     const nomLieu = ctx.defs.get(lieu.code)?.name ?? lieu.code;
+    // Les pions des enquêteurs présents sont posés sur le lieu, à cheval sur son bord haut, comme sur le tapis
+    // (mêmes éléments `.mini` : portrait cerclé de la couleur de classe) — retour de test du 2026-09-09.
+    const pionsSurLieu = pions.sort((a, b) => a.loc.x - b.loc.x).map((p, i) => {
+      const e = carteEl(p, ctx);
+      e.style.left = `${4 + i * 37}px`; e.style.top = ""; e.style.zIndex = "";
+      return e;
+    });
     remplir(sect, ...[
       el("h2", { text: "Mon lieu" }),
-      el("div", { class: "lieu-carte" }, carteSansAP(lieu)),
+      el("div", { class: "lieu-carte" }, carteSansAP(lieu), el("div", { class: "pions-lieu" }, ...pionsSurLieu)),
       el("p", { class: "lieu-nom", text: lieu.faceUp ? nomLieu : "Lieu non révélé" }),
-      el("div", { class: "pions" }, ...pions.map((p) => el("img", { class: "pion", src: urlImage(p, ctx.defs.get(p.code)), alt: "", title: nomSiege(state.seats[Number(p.id.replace("mini-", ""))] ?? {}, ctx) }))),
       el("div", { class: "ligne-boutons" },
         el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || indices <= 0, title: "Prendre 1 indice du lieu (+1 à votre réserve)", onclick: () => ctx.envoyer({ t: "takeClue", id: lieu.id }) }, "Prendre 1 indice"),
         lieu.faceUp || !peut ? null : el("button", { class: "bouton secondaire petit", type: "button", onclick: () => ctx.envoyer({ t: "revealLocation", id: lieu.id }) }, "Révéler")),
@@ -415,6 +421,9 @@ async function demarrer() {
       el("div", { class: "pile", "data-drop": `pile:pdiscard${n}`, "data-outil": `pdiscard${n}`, title: "Défausse — déposez ici pour défausser ; clic droit : consulter, reprendre" },
         el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteSansAP(dessus) : el("span", { class: "sous", text: "défausse" })),
         el("span", { class: "badge", text: String(defausse.length) }), el("span", { class: "etiquette-pile", text: "Défausse" })),
+      // Recherche dans la défausse (sans la mélanger : son ordre compte), bouton visible — retour de test du 2026-09-09.
+      el("button", { class: "bouton secondaire petit rechercher-defausse", type: "button", disabled: !peut || !defausse.length, title: "Rechercher dans la défausse (son ordre est conservé) : reprendre une carte en main, la remettre sur ou sous la pioche",
+        onclick: () => { ctx.derniereRecherche = { pile: `pdiscard${n}`, complete: false }; ctx.envoyer({ t: "p:search", pile: `pdiscard${n}` }); } }, "Rechercher (sans mélanger)"),
       el("section", { class: "hors-jeu" },
         el("h2", { text: "Hors jeu" }),
         el("div", { class: "bande", "data-drop": `paside${n}` }, ...(cote.length ? cote.map((c) => carteSansAP(c)) : [el("p", { class: "vide", text: "Cartes liées et mises de côté." })]))),
@@ -503,4 +512,3 @@ async function demarrer() {
   }
 }
 
-export { urlImage };

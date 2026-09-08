@@ -73,10 +73,12 @@
 .corps-board { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; min-height: 0; }
 /* Colonnes latérales : une carte + marge, sans barre de défilement horizontale (retour de test 1920 × 1080) */
 .mon-lieu { padding: 0.7rem 0.9rem; background: var(--nuit); border-left: 1px solid var(--filet); overflow: visible; width: calc(var(--carte-l) + 3rem); box-sizing: border-box; }
+.mon-lieu .lieu-carte { position: relative; margin-top: 1.1rem; width: 113px; }
 .mon-lieu .lieu-carte .carte { --carte-l: 113px; --carte-h: 160px; }
+/* Pions des enquêteurs présents : sur le lieu, à cheval sur son bord haut, comme sur le tapis (35 px, rangée). */
+.mon-lieu .lieu-carte .pions-lieu .mini { position: absolute; top: -17px; width: 35px; height: 35px; border-width: 2px; cursor: default; }
 .mon-lieu .lieu-nom { margin: 0; font-size: 0.95rem; color: var(--papier-2); }
-.mon-lieu .pions { display: flex; flex-wrap: wrap; gap: 0.25rem; min-height: 2rem; }
-.mon-lieu .pion { width: 2.4rem; height: 2.4rem; border-radius: 50%; object-fit: cover; border: 2px solid var(--dorure); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); }
+.piles-joueur .rechercher-defausse { justify-self: start; margin-top: -0.4rem; white-space: normal; text-align: left; line-height: 1.15; }
 .mon-lieu .ligne-boutons { margin: 0; display: grid; gap: 0.3rem; }
 .mon-lieu .ligne-boutons .bouton { padding-left: 0.4rem; padding-right: 0.4rem; white-space: normal; }
 .mon-lieu .sur-le-lieu { display: grid; gap: 0.3rem; }

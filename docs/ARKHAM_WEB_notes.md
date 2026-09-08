@@ -17,7 +17,20 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
-- 2026-09-08 : **The Pit of Despair (TIC I) livré** — première table de
+- 2026-09-09 : **retours d'UX sur le board joueur** (deux) — bouton
+  **« Rechercher (sans mélanger) »** sous la défausse de la page joueur
+  (même fenêtre que « Consulter » du clic droit : ordre conservé,
+  reprendre en main / sur ou sous la pioche / mélanger ; grisé si la
+  défausse est vide) ; dans **« Mon lieu »**, les enquêteurs présents
+  sont posés **sur le lieu**, à cheval sur son bord haut, comme sur le
+  tapis (mêmes éléments `.mini` via `carteEl`, 35 px, `.pions-lieu`), au
+  lieu d'une rangée de portraits en dessous. Au passage : titre de la
+  fenêtre de défausse au singulier (« 1 carte »), import `urlImage`
+  inutilisé retiré de `joueur.js` (attention : un `export { urlImage }`
+  orphelin en fin de fichier cassait le module — la page joueur restait
+  sur « Connexion à la table… » ; toujours ouvrir la page après un
+  changement d'import). Captures 58b et 62b.
+- 2026-09-09 : **The Pit of Despair (TIC I) livré** — première table de
   The Innsmouth Conspiracy (choix validés par l'utilisateur : clés OK,
   inondation A avec B en secours, pile Tidal Tunnel OK, profondeurs A,
   chambre de départ A, visuels A puis B plus tard). Guide TIC lu en

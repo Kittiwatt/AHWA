@@ -318,7 +318,8 @@ export function ouvrirDialogueBoard(ctx, pile, cartes) {
         ctx.peutAgir() ? el("span", { class: "actions-peek" }, ...boutons.map(([lib, msg]) => el("button", { class: "lien-outil", type: "button", onclick: () => agir(msg) }, lib))) : null));
   }));
   rendre(cartes);
-  const titre = pioche ? (complete ? `Pioche — ${cartes.length} cartes (du dessus au dessous)` : `Pioche — les ${cartes.length} première${cartes.length > 1 ? "s" : ""} (ordre conservé)`) : `Défausse — ${cartes.length} cartes (la plus récente d'abord)`;
+  const nb = `${cartes.length} carte${cartes.length > 1 ? "s" : ""}`;
+  const titre = pioche ? (complete ? `Pioche — ${nb} (du dessus au dessous)` : `Pioche — les ${cartes.length} première${cartes.length > 1 ? "s" : ""} (ordre conservé)`) : `Défausse — ${nb} (la plus récente d'abord, ordre conservé)`;
   const d = el("dialog", { class: "dialogue" },
     el("header", {}, el("h2", { text: titre }), el("button", { class: "bouton", type: "button", onclick: () => d.close() }, pioche && complete ? "Fermer et mélanger" : "Fermer")),
     cartes.length ? liste : el("p", { class: "vide", text: "Aucune carte." }));

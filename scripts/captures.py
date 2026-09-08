@@ -905,7 +905,10 @@ with sync_playwright() as p:
     assert a13.locator(".entete-joueur:not(.lecture)").count() == 1, "board actif pour son siège"
     assert a13.locator("#entete .chip-compteur").count() == 4, "quatre compteurs compacts (ressources, indices, vie, santé)"
     assert a13.locator("#mon-lieu .lieu-carte .carte").count() == 1, "mon lieu : le lieu du pion"
+    assert a13.locator("#mon-lieu .lieu-carte .pions-lieu .mini").count() == 2, "les deux pions sur le lieu, à cheval sur son bord haut"
+    assert a13.locator("#piles-joueur .rechercher-defausse").is_disabled(), "défausse vide : bouton de recherche grisé"
     a13.screenshot(path=f"{OUT}/58_board_joueur.png")
+    a13.locator("#mon-lieu").screenshot(path=f"{OUT}/58b_board_mon_lieu.png")
     # Le même board vu par Bob : lecture seule, main masquée.
     lb13 = page_board(j13, code13, 0, attendre="#board-joueur:not([hidden])")
     lb13.wait_for_load_state("networkidle"); lb13.wait_for_timeout(1000)
@@ -955,6 +958,12 @@ with sync_playwright() as p:
     a13.mouse.move(dst["x"] + dst["width"] / 2, dst["y"] + dst["height"] / 2, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
     assert a13.locator("#main .eventail .carte").count() == 5, "carte défaussée par glisser"
     assert a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .carte").count() == 1, "dessus de la défausse visible"
+    # Bouton « Rechercher (sans mélanger) » sous la défausse : fenêtre de la défausse, ordre conservé (retour de test du 2026-09-09).
+    a13.locator("#piles-joueur .rechercher-defausse").click(); a13.wait_for_selector("dialog[open] .carte-peek", timeout=5000)
+    assert "Défausse — 1 carte" in a13.locator("dialog[open] h2").inner_text(), "fenêtre de la défausse"
+    a13.screenshot(path=f"{OUT}/62b_board_recherche_defausse.png")
+    a13.keyboard.press("Escape"); a13.wait_for_timeout(300)
+    assert a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .badge").inner_text() == "1", "la défausse n'a pas été mélangée ni vidée"
     a13.locator("#main .eventail .carte").first.dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
     a13.screenshot(path=f"{OUT}/62_board_menu_main.png")
     a13.locator(".menu-carte").get_by_role("button", name="Révéler à tous").click(); a13.wait_for_timeout(400)
