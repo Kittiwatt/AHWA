@@ -136,10 +136,12 @@ export function initInteractionsJoueur(ctx) {
     const dos = e.target.closest(".pioche-joueur .dos-bouton");
     if (dos) { ctx.envoyer({ t: "p:draw", n: 1 }); return; }
     const chip = e.target.closest(".chip");
+    const pmj = e.target.closest(".jeton .pmj");
     const elem = e.target.closest(".carte");
     if (!elem || elem.closest("dialog, .loupe")) return;
     const carte = carteDe(elem);
     if (!carte) return;
+    if (pmj) { e.preventDefault(); e.stopPropagation(); ctx.envoyer({ t: "addToken", id: carte.id, token: pmj.closest(".jeton").dataset.token, delta: pmj.classList.contains("moins") ? -1 : 1 }); return; }
     if (chip) { e.preventDefault(); ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: e.target.closest(".chip-moins") ? -1 : 1 }); return; }
     const deck = ctx.etat.state.seats[n()].deck;
     if (elem.closest(".eventail") && deck?.board.setup === "mulligan") {

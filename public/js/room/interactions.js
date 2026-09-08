@@ -156,10 +156,16 @@ export function initInteractions(ctx) {
     }
     const chipMoins = e.target.closest(".chip-moins");
     const chip = e.target.closest(".chip");
+    const pmj = e.target.closest(".jeton .pmj");
     const elem = e.target.closest(".carte");
     if (!elem || elem.closest("dialog, .loupe")) return;
     const carte = carteDe(elem);
     if (!carte) return;
+    if (pmj) {
+      e.preventDefault(); e.stopPropagation();
+      ctx.envoyer({ t: "addToken", id: carte.id, token: pmj.closest(".jeton").dataset.token, delta: pmj.classList.contains("moins") ? -1 : 1 });
+      return;
+    }
     if (chip) {
       e.preventDefault();
       ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: chipMoins ? -1 : 1 });

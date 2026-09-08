@@ -60,14 +60,19 @@
 .mise-en-place { display: grid; align-content: center; }
 .mise-en-place .ligne-boutons { margin: 0; }
 /* Sac du chaos dans la barre de phase, à gauche de « Phase suivante » ; sa composition s'ouvre vers le bas */
-.board-joueur .barre-phase .chaos { align-self: center; margin-right: 0.6rem; }
-.board-joueur .sac-forme { width: 3.4rem; height: 3.8rem; font-size: 1.25rem; }
-.board-joueur .sac-popover { left: auto; right: 0; bottom: auto; top: calc(100% + 0.4rem); z-index: 30; }
+/* Sac du chaos et « Phase suivante » dans la colonne de droite, sous « Mon lieu » (retour de test du 2026-09-09) */
+.mon-lieu { display: flex; flex-direction: column; gap: 0.5rem; }
+.mon-lieu > #mon-lieu { display: grid; align-content: start; gap: 0.5rem; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.outils-joueur { margin-top: auto; display: grid; gap: 0.6rem; justify-items: center; padding-top: 0.6rem; border-top: 1px solid var(--filet); }
+.outils-joueur .chaos { position: relative; }
+.outils-joueur #phase-suivante { width: 100%; }
+.board-joueur .sac-forme { width: 3.6rem; height: 4rem; font-size: 1.3rem; }
+.board-joueur .sac-popover { left: auto; right: 0; bottom: calc(100% + 0.4rem); top: auto; z-index: 30; }
 
 /* Corps : piles à gauche, en jeu au centre (Play, Commit et menace dessous), mon lieu à droite */
 .corps-board { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; min-height: 0; }
 /* Colonnes latérales : une carte + marge, sans barre de défilement horizontale (retour de test 1920 × 1080) */
-.mon-lieu { display: grid; align-content: start; gap: 0.5rem; padding: 0.7rem 0.9rem; background: var(--nuit); border-left: 1px solid var(--filet); overflow-y: auto; overflow-x: hidden; width: calc(var(--carte-l) + 3rem); box-sizing: border-box; }
+.mon-lieu { padding: 0.7rem 0.9rem; background: var(--nuit); border-left: 1px solid var(--filet); overflow: visible; width: calc(var(--carte-l) + 3rem); box-sizing: border-box; }
 .mon-lieu .lieu-carte .carte { --carte-l: 113px; --carte-h: 160px; }
 .mon-lieu .lieu-nom { margin: 0; font-size: 0.95rem; color: var(--papier-2); }
 .mon-lieu .pions { display: flex; flex-wrap: wrap; gap: 0.25rem; min-height: 2rem; }
@@ -156,6 +161,20 @@
 .board-joueur .carte .chip { font-size: 0.9rem; gap: 3px; padding: 2px 6px 2px 2px; }
 .board-joueur .carte .chip img { width: 24px; height: 24px; }
 .board-joueur .carte .jeton { width: 28px; height: 28px; font-size: 0.9rem; }
+/* Pions des cartes joueur : grands, le visuel dégagé, le nombre dans une pastille au coin, ± au survol */
+.carte.joueur .jeton { position: relative; width: 34px; height: 34px; text-shadow: none; overflow: visible; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.75); }
+.board-joueur .carte.joueur .jeton { width: 46px; height: 46px; }
+.carte.joueur .jeton .n { position: absolute; right: -5px; bottom: -5px; min-width: 18px; height: 18px; padding: 0 3px; display: grid; place-items: center; border-radius: 999px; background: var(--papier); color: var(--nuit); font-size: 0.75rem; font-weight: 700; line-height: 1; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
+.board-joueur .carte.joueur .jeton .n { min-width: 22px; height: 22px; font-size: 0.9rem; }
+.carte.joueur .jeton .pmj { display: none; position: absolute; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; padding: 0; border: 0; border-radius: 50%; background: var(--dorure); color: var(--nuit); font: 700 0.95rem/1 var(--sans, sans-serif); cursor: pointer; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
+.carte.joueur .jeton .pmj.moins { left: -18px; }
+.carte.joueur .jeton .pmj.plus { right: -18px; }
+.carte.joueur .jeton:hover .pmj, .carte.joueur .jeton:focus-within .pmj { display: grid; place-items: center; }
+.carte.joueur .jeton .pmj:hover { filter: brightness(1.15); }
+.carte.joueur .jetons { gap: 6px; }
+.board-joueur .carte.joueur .jetons { gap: 8px; }
+/* Loupe à droite quand sa place habituelle recouvrirait la carte survolée */
+.loupe.a-droite { left: auto; right: 0.75rem; }
 .board-joueur .tires .jeton-chaos-img { width: 2.6rem !important; height: 2.6rem !important; }
 
 /* Cartes joueur : la pile de pions (Uses, etc.) en bas sur le texte de la carte, un peu à droite du milieu — elle ne

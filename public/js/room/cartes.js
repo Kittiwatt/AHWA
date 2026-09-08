@@ -74,7 +74,7 @@ const JETONS = [
   ["uses", "/img/tokens/tok_ressources.png", "use"],
 ];
 
-export function elJetons(tokens = {}, usesType = null) {
+export function elJetons(tokens = {}, usesType = null, pastille = false) {
   const frag = document.createDocumentFragment();
   for (const [cle, img0, libelle0] of JETONS) {
     const n = tokens[cle] ?? 0;
@@ -83,9 +83,16 @@ export function elJetons(tokens = {}, usesType = null) {
     const [img, libelle] = cle === "uses" && usesType ? imageUses(usesType) : [img0, libelle0];
     const j = document.createElement("span");
     j.className = `jeton jeton-${cle}`;
+    j.dataset.token = cle;
     j.title = cle === "uses" && usesType ? `${n} ${libelle}` : `${n} ${libelle}${n > 1 ? "s" : ""}`;
     j.style.backgroundImage = `url(${img})`;
-    j.textContent = String(n);
+    if (pastille) {
+      // Cartes joueur : le nombre dans une pastille au coin du pion (le visuel reste lisible) et ± au survol.
+      const nb = document.createElement("b"); nb.className = "n"; nb.textContent = String(n);
+      const moins = document.createElement("button"); moins.type = "button"; moins.className = "pmj moins"; moins.title = `−1 ${libelle}`; moins.textContent = "−";
+      const plus = document.createElement("button"); plus.type = "button"; plus.className = "pmj plus"; plus.title = `+1 ${libelle}`; plus.textContent = "+";
+      j.append(moins, nb, plus);
+    } else j.textContent = String(n);
     frag.append(j);
   }
   if ((tokens.generic ?? 0) > 0) {
@@ -162,7 +169,7 @@ export function majCarte(el, carte, ctx) {
   el.dataset.loupe = loupePermise(carte, def) ? "1" : "";
   const jetons = el.querySelector(".jetons");
   const tokens = jauges.length ? { ...carte.tokens, ...Object.fromEntries(jauges.map((t) => [t, 0])) } : carte.tokens;
-  jetons.replaceChildren(elJetons(tokens, def?.uses?.type ?? null));
+  jetons.replaceChildren(elJetons(tokens, def?.uses?.type ?? null, Boolean(def?.player)));
   return el;
 }
 

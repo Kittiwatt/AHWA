@@ -73,7 +73,8 @@ with sync_playwright() as p:
     alice.screenshot(path=f"{OUT}/04_tapis_hote.png")
     # Loupe sur le Study.
     alice.hover("#plateau .carte")
-    alice.wait_for_timeout(400)
+    alice.wait_for_timeout(1400)   # la loupe arrive après une seconde
+    assert not alice.locator("#loupe").is_hidden(), "loupe au survol après le délai"
     alice.screenshot(path=f"{OUT}/05_tapis_loupe.png")
     bob.wait_for_load_state("networkidle")
     bob.wait_for_timeout(800)
@@ -348,7 +349,7 @@ with sync_playwright() as p:
     hote.locator(".menu-carte").get_by_role("button", name="Retourner (lire le verso)").click(); hote.wait_for_timeout(500)
     assert hote.locator("#histoire .carte.kind-agenda .chip-damage").count() == 1, "verso ennemi : compteur de dégâts"
     assert "/4" in hote.locator("#histoire .carte.kind-agenda .chip-damage .chip-n").inner_text()
-    hote.locator("#histoire .carte.kind-agenda").hover(); hote.wait_for_timeout(400)
+    hote.locator("#histoire .carte.kind-agenda").hover(); hote.wait_for_timeout(1400)
     hote.screenshot(path=f"{OUT}/18_masks_agenda_verso.png")
     # Cultist deck : clic = retourner la première carte.
     hote.locator("#pioches .pile[data-outil='pile:cultist'] .dos-bouton").click()
@@ -986,8 +987,18 @@ with sync_playwright() as p:
     h13.locator(".menu-carte").get_by_role("button", name="Reprendre sur le board de Alice").click(); h13.wait_for_timeout(600)
     assert a13.locator(".zone-jeu .carte").count() == nb_avant_pose, "retour sur le board depuis le tapis"
     # Loupe sur une carte de la main (retour de test du 2026-09-08).
-    a13.locator("#main .eventail .carte").first.hover(); a13.wait_for_timeout(300)
+    a13.locator("#main .eventail .carte").first.hover(); a13.wait_for_timeout(400)
+    assert a13.locator("#loupe").is_hidden(), "la loupe attend une seconde"
+    a13.wait_for_timeout(1000)
     assert not a13.locator("#loupe").is_hidden(), "la loupe s'ouvre sur une carte de la main"
+    # Pions des cartes joueur : pastille du nombre et ± au survol ; sac et « Phase suivante » sous « Mon lieu ».
+    assert a13.locator(".mon-lieu #chaos .sac-forme").count() == 1 and a13.locator(".mon-lieu #phase-suivante").count() == 1
+    pion = a13.locator(".zone-jeu .carte.joueur .jeton").first
+    if pion.count():
+        avant = int(pion.locator(".n").inner_text())
+        pion.hover(); a13.wait_for_timeout(200)
+        pion.locator(".pmj.plus").click(); a13.wait_for_timeout(400)
+        assert int(a13.locator(".zone-jeu .carte.joueur .jeton").first.locator(".n").inner_text()) == avant + 1, "+1 pion au survol"
     browser.close()
 
 if erreurs:

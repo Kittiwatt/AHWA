@@ -687,9 +687,11 @@ Disposition validée sur captures :
   indices, vie et santé mentale avec dégâts et horreur ; actions et
   « Prendre mon tour » / « Fin de mon tour » ; main et **occupation des
   slots** en icônes Arkham Cards (dépassement surligné, jamais bloqué) ;
-  mise en place / mulligan. La barre de phase porte la phase courante,
-  « Phase suivante » et le sac du chaos ; la barre d'onglets porte le
-  formulaire « Rejoindre ce siège » et l'étiquette « lecture seule ».
+  mise en place / mulligan. La barre de phase porte la phase courante ;
+  le **sac du chaos et « Phase suivante »** sont dans la colonne de
+  droite sous « Mon lieu » (révisé le 2026-09-09) ; la barre d'onglets
+  porte le formulaire « Rejoindre ce siège » et l'étiquette « lecture
+  seule ».
 - **Mon lieu** (colonne de droite, ajout du 2026-09-08) : le lieu où
   se trouve le pion du siège (le plus proche du pion, comme « Poser sur
   mon lieu »), dans l'état du tapis (indices, jetons, révélé ou non), les
@@ -703,7 +705,8 @@ Disposition validée sur captures :
   main / sur la pioche / sous la pioche / mélanger dans la pioche),
   hors jeu (rangée de vignettes, glisser vers la main ou en jeu).
 - **Centre** : **en jeu** (zone libre des soutiens : pions Uses du bon
-  type et en bonne quantité posés au jeu de la carte, jauges
+  type et en bonne quantité posés au jeu de la carte — grands, le
+  nombre dans une pastille au coin, **± au survol du pion** —, jauges
   des alliés, épuisé = rotation, « Autre face » pour les cartes à verso
   lié comme Sophie, « Retourner » pour les autres) ; dessous, côte à
   côte : **Play** (case d'une carte : l'événement joué, bouton
@@ -782,6 +785,10 @@ sert à montrer une carte à tous sans la sortir de la main.
   n'y figure pas.
 - **Plein écran** (F11, `display-mode: fullscreen`) : la barre du haut
   s'efface sur les deux pages.
+- **Loupe** (toutes les pages) : au survol après **une seconde**, et
+  déportée à droite quand sa place habituelle recouvrirait la carte
+  survolée. Le Commit volant porte un bouton **« Test résolu »** actif
+  pour le siège concerné.
 - `nextPhase` → entretien : automatisations joueur (§10.6).
 - Cartes joueur posées sur le tapis par « Poser sur mon lieu » : rendues
   comme les autres (dos joueur, menu « Reprendre sur mon board ») ; une

@@ -521,7 +521,10 @@ function rendreCommitVolant(ctx) {
     el("h2", { text: "Commit — cartes engagées au test" }),
     el("div", { class: "commit-corps" },
       el("div", { class: "commit-groupes" }, ...parSiege.map(({ s, cartes }) => el("div", { class: "commit-groupe" },
-        el("span", { class: "etiquette", text: nomSiege(s, ctx) }),
+        el("span", { class: "etiquette" }, el("span", { text: nomSiege(s, ctx) }),
+          // « Test résolu » : réservé au siège concerné (action p:* de son board).
+          el("button", { class: "bouton petit", type: "button", disabled: ctx.etat.moi.seat !== s.index, title: ctx.etat.moi.seat === s.index ? "Les cartes engagées vont à votre défausse" : `Seul ${nomSiege(s, ctx)} peut résoudre son test`,
+            onclick: () => ctx.envoyer({ t: "p:resolve" }) }, "Test résolu")),
         el("div", { class: "commit-cartes" }, ...cartes.map((c) => carteEl(c, ctx)))))),
       elTotauxCompetences(totauxCompetences(toutes, ctx.defs))),
   );
@@ -542,6 +545,8 @@ function ligneCompteur(libelle, valeur, icone, peut, moins, plus, unite) {
 
 // ---- Loupe ------------------------------------------------------------------------
 
+const LOUPE_DELAI = 1000;
+
 export function initLoupe(ctx) {
   const loupe = document.getElementById("loupe");
   const img = loupe.querySelector("img");
@@ -559,28 +564,43 @@ export function initLoupe(ctx) {
     loupe.hidden = false;
     return true;
   };
+  // Survol : la loupe arrive après un délai d'une seconde (retour de test du 2026-09-09) et se place à l'écart de
+  // la carte survolée (à droite si sa place habituelle la recouvrirait).
+  let attente = null;
+  const placer = (cible) => {
+    const r = cible.getBoundingClientRect(), l = loupe.getBoundingClientRect();
+    const recouvre = r.left < l.right && r.right > l.left && r.top < l.bottom && r.bottom > l.top;
+    loupe.classList.toggle("a-droite", recouvre);
+  };
   document.addEventListener("pointerover", (e) => {
     if (fixe || e.pointerType === "touch") return;
     const cible = e.target.closest?.(".carte, [data-loupe-id]");
     if (!cible || cible.dataset.loupe !== "1" || cible.closest(".fantome, .bande.floue")) return;
-    montrerCarte(cible);
+    clearTimeout(attente);
+    attente = setTimeout(() => { if (montrerCarte(cible)) { loupe.classList.remove("a-droite"); placer(cible); } }, LOUPE_DELAI);
   });
   // Image directe (verso de l'enquêteur…) : loupe épinglée jusqu'au prochain toucher.
   document.addEventListener("ahwa:loupe-image", (e) => {
+    clearTimeout(attente);
     img.src = e.detail.src;
     loupe.classList.toggle("paysage", Boolean(e.detail.paysage));
+    loupe.classList.remove("a-droite");
     loupe.hidden = false;
     fixe = true; courant = null;
     setTimeout(() => document.addEventListener("pointerdown", () => { fixe = false; loupe.hidden = true; }, { once: true }), 50);
   });
   document.addEventListener("pointerout", (e) => {
     if (fixe) return;
+    const cible = e.target.closest?.(".carte, [data-loupe-id]");
+    if (cible && (!e.relatedTarget || !cible.contains(e.relatedTarget))) clearTimeout(attente);
     if (courant && (!e.relatedTarget || !courant.contains(e.relatedTarget))) { courant = null; loupe.hidden = true; }
   });
   // Tactile / menu : loupe épinglée jusqu'au prochain toucher.
   document.addEventListener("ahwa:loupe", (e) => {
     const cible = e.detail;
+    clearTimeout(attente);
     fixe = montrerCarte(cible);
+    if (fixe) { loupe.classList.remove("a-droite"); placer(cible); }
     if (fixe) setTimeout(() => document.addEventListener("pointerdown", () => { fixe = false; courant = null; loupe.hidden = true; }, { once: true }), 50);
   });
 }

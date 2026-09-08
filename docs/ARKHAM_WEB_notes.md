@@ -17,6 +17,19 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 (suite) : **troisième salve de retours**. Page joueur :
+  sac du chaos et « Phase suivante » déplacés dans la colonne de droite
+  sous « Mon lieu » (`.outils-joueur`, popover du sac vers le haut ;
+  l'aside passe en `overflow: visible`, seul `#mon-lieu` défile, sinon
+  le popover serait rogné) ; **pions des cartes joueur** : 46 px sur le
+  board (34 sur le tapis), visuel dégagé, nombre dans une **pastille**
+  au coin (`.jeton .n`), boutons **±** au survol (`.pmj`, `elJetons(…,
+  pastille)`, clic géré dans les deux interactions). **Loupe** : délai
+  d'une seconde (`LOUPE_DELAI`, timer annulé au pointerout) et classe
+  `a-droite` quand la loupe recouvrirait la carte survolée (la carte
+  tout à gauche restait cachée). Tapis : **« Test résolu »** dans le
+  Commit volant, actif pour le siège concerné (`p:resolve` agit sur le
+  siège de la connexion). Captures : les survols attendent 1,4 s.
 - 2026-09-09 : **pions d'utilisation par type**. Images fournies par
   l'utilisateur (conversation du projet) copiées dans
   `public/img/tokens/uses/` (18 pions 140 × 140, disque inscrit, coins
