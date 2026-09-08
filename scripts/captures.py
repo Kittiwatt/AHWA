@@ -288,8 +288,9 @@ with sync_playwright() as p:
     assert "Barricade" in alice.locator("dialog .carte-peek").first.inner_text()
     alice.screenshot(path=f"{OUT}/19_generateur.png")
     alice.locator("dialog .carte-peek").first.get_by_role("button", name="Générer").click()
-    alice.wait_for_timeout(500)
+    # Première génération d'une table : le DO charge l'index des cartes (850 Ko) — attendre la carte, pas un délai fixe.
     generee = alice.locator("#sieges .siege").nth(0).locator(".menace .carte[data-id^='gen-']")
+    generee.first.wait_for(timeout=10000)
     assert generee.count() == 1, "carte générée dans la zone de menace"
     assert "01038" in generee.first.locator("img").get_attribute("src")
 
@@ -894,19 +895,63 @@ with sync_playwright() as p:
     a13.locator("dialog[open] .carte-peek").first.get_by_role("button", name="En main").click(); a13.wait_for_timeout(400)
     a13.keyboard.press("Escape"); a13.wait_for_timeout(300)
     assert a13.locator("#main .eventail .carte").count() == 6
-    src = a13.locator("#main .eventail .carte").nth(1).bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
+    # Glisser un soutien de la main en jeu = le jouer (un événement irait « en cours ») ; piocher jusqu'à en avoir un.
+    for _ in range(12):
+        if a13.locator("#main .eventail .carte.kind-asset").count(): break
+        a13.locator(".pioche-joueur .dos-bouton").click(); a13.wait_for_timeout(300)
+    src = a13.locator("#main .eventail .carte.kind-asset").first.bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(zone["x"] + 300, zone["y"] + 60, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
-    assert a13.locator(".zone-jeu .carte").count() == 2, "carte mise en jeu par glisser"
+    assert a13.locator(".zone-jeu .carte").count() == 2, "soutien mis en jeu par glisser"
     # Entretien depuis la table : Alice pioche 1 et gagne 1 ressource.
+    main_avant = a13.locator("#main .eventail .carte").count()
+    res_avant = int(a13.locator("#entete .compteur").first.locator(".valeur").inner_text())
     for _ in range(4):
         if "Entretien" in h13.locator("#phases .phase.courante").inner_text(): break
         h13.get_by_role("button", name="Phase suivante").click(); h13.wait_for_timeout(400)
     a13.wait_for_timeout(600)
-    assert a13.locator("#main .eventail .carte").count() == 6, "entretien : +1 carte"
-    assert "6" in a13.locator("#entete .compteur").first.inner_text(), "entretien : +1 ressource (6)"
+    assert a13.locator("#main .eventail .carte").count() == main_avant + 1, "entretien : +1 carte"
+    assert int(a13.locator("#entete .compteur").first.locator(".valeur").inner_text()) == res_avant + 1, "entretien : +1 ressource"
     a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     a13.screenshot(path=f"{OUT}/65_board_apres_entretien.png")
+
+    # ---- Board joueur, étape 3 : jouer par glisser (coût déduit, badge de slot), engager au test, « Résolu »,
+    #      « Poser sur mon lieu » et retour depuis le tapis ----
+    a13.on("dialog", lambda d: d.accept("1") if d.type == "prompt" else d.accept())
+    for _ in range(12):
+        if a13.locator("#main .eventail .carte.kind-asset").count(): break
+        a13.locator(".pioche-joueur .dos-bouton").click(); a13.wait_for_timeout(300)
+    soutien = a13.locator("#main .eventail .carte.kind-asset").first
+    titre_soutien = soutien.get_attribute("title")
+    nb_jeu = a13.locator(".zone-jeu .carte").count()
+    src = soutien.bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
+    a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
+    a13.mouse.move(zone["x"] + 420, zone["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
+    assert a13.locator(".zone-jeu .carte").count() == nb_jeu + 1, "soutien joué par glisser (coût déduit)"
+    assert "joue" in h13.locator("#journal").inner_text(), "le journal de la table consigne le jeu de la carte"
+    src = a13.locator("#main .eventail .carte").first.bounding_box(); cours = a13.locator(".bloc-cours .bande").bounding_box()
+    a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
+    a13.mouse.move(cours["x"] + 60, cours["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
+    assert a13.locator(".bloc-cours .carte").count() == 1, "carte engagée au test (en cours)"
+    a13.mouse.move(8, 8); a13.wait_for_timeout(200)
+    a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    a13.screenshot(path=f"{OUT}/66_board_jouer_engager.png")
+    a13.get_by_role("button", name="Résolu").click(); a13.wait_for_timeout(500)
+    assert a13.locator(".bloc-cours .carte").count() == 0, "résolu : en cours → défausse"
+    a13.locator(f".zone-jeu .carte[title='{titre_soutien}']").dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
+    a13.locator(".menu-carte").get_by_role("button", name="Poser sur mon lieu (tapis)").click(); a13.wait_for_timeout(600)
+    assert a13.locator(".zone-jeu .carte").count() == nb_jeu, "la carte a quitté le board"
+    h13.wait_for_timeout(400)
+    assert h13.locator(f"#plateau .carte[title='{titre_soutien}']").count() == 1, "la carte est sur le tapis"
+    h13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h13.screenshot(path=f"{OUT}/67_tapis_carte_joueur_posee.png")
+    h13.locator(f"#plateau .carte[title='{titre_soutien}']").dispatch_event("contextmenu"); h13.wait_for_selector(".menu-carte")
+    h13.screenshot(path=f"{OUT}/68_tapis_menu_carte_joueur.png")
+    h13.locator(".menu-carte").get_by_role("button", name="Reprendre sur le board de Alice").click(); h13.wait_for_timeout(600)
+    assert a13.locator(".zone-jeu .carte").count() == nb_jeu + 1, "retour sur le board depuis le tapis"
+    # Loupe sur une carte de la main (retour de test du 2026-09-08).
+    a13.locator("#main .eventail .carte").first.hover(); a13.wait_for_timeout(300)
+    assert not a13.locator("#loupe").is_hidden(), "la loupe s'ouvre sur une carte de la main"
     browser.close()
 
 if erreurs:

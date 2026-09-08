@@ -3,9 +3,10 @@
 import { el } from "./dom.js";
 import { faceVisible } from "./cartes.js";
 import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, encart } from "./tapis.js";
+import { nomSiege } from "./lobby.js";
 import { ouvrirAjustementSac } from "./dialogues.js";
 
-const LIBELLES_JETONS = { clue: "Indice", doom: "Doom", damage: "Dégât", horror: "Horreur", resource: "Ressource", generic: "Marqueur" };
+const LIBELLES_JETONS = { clue: "Indice", doom: "Doom", damage: "Dégât", horror: "Horreur", resource: "Ressource", generic: "Marqueur", uses: "Uses" };
 
 export function initInteractions(ctx) {
   let drag = null;
@@ -282,10 +283,10 @@ export function initInteractions(ctx) {
     if (!carte) return;
     const def = ctx.defs.get(carte.code);
     const peut = assis();
-    const item = (libelle, action, options = {}) => el("button", { type: "button", class: `item${options.danger ? " danger" : ""}`, disabled: !peut && !options.libre,
+    const item = (libelle, action, options = {}) => el("button", { type: "button", class: `item${options.danger ? " danger" : ""}`, disabled: (!peut && !options.libre) || options.off,
       onclick: () => { action(); fermerMenu(); } }, libelle);
-    const jeton = (token) => el("div", { class: "item jetons-ligne" },
-      el("span", { text: LIBELLES_JETONS[token] }),
+    const jeton = (token, libelle) => el("div", { class: "item jetons-ligne" },
+      el("span", { text: libelle ?? LIBELLES_JETONS[token] ?? token }),
       el("button", { class: "pm", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "addToken", id: carte.id, token, delta: -1 }) }, "−"),
       el("span", { class: "valeur", text: String(carte.tokens[token] ?? 0) }),
       el("button", { class: "pm", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "addToken", id: carte.id, token, delta: 1 }) }, "+"));
@@ -294,8 +295,23 @@ export function initInteractions(ctx) {
     const nom = ctx.investigateurs.get(carte.code)?.name ?? faceVisible(carte, def).name ?? carte.code;
     items.push(el("p", { class: "titre-menu", text: nom }));
     if (elem.dataset.loupe === "1") items.push(item("Agrandir", () => document.dispatchEvent(new CustomEvent("ahwa:loupe", { detail: elem })), { libre: true }));
-    const rencontre = ["enemy", "treachery", "asset", "story"].includes(carte.kind);
-    if (carte.kind === "agenda" || carte.kind === "act") {
+    const rencontre = !carte.player && ["enemy", "treachery", "asset", "story"].includes(carte.kind);
+    if (carte.player) {
+      // Carte d'un deck joueur posée sur le tapis (« Poser sur mon lieu ») ou dans une zone de menace : retour sur le
+      // board de son siège, gestes d'usage ; seul son siège peut la renvoyer sur son board ou la défausser.
+      const proprio = carte.ownerSeat;
+      const mienne = ctx.etat.moi.seat === proprio;
+      const nomProprio = nomSiege(ctx.etat.state.seats[proprio], ctx);
+      items.push(item(carte.exhausted ? "Redresser" : "Épuiser", () => ctx.envoyer({ t: "exhaust", id: carte.id })));
+      if (def?.uses) items.push(jeton("uses", `Uses (${def.uses.type})`));
+      if (def?.health !== undefined) items.push(jeton("damage"));
+      if (def?.sanity !== undefined) items.push(jeton("horror"));
+      items.push(jeton("generic"));
+      items.push(item(`Reprendre sur le board de ${nomProprio}`, () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: `pplay${proprio}`, x: 9999, y: 0 }), { off: !mienne }));
+      items.push(item(`Défausse de ${nomProprio}`, () => ctx.envoyer({ t: "p:discard", id: carte.id }), { off: !mienne }));
+      if (carte.loc.zone !== "board") items.push(item("Sur le tapis", () => ctx.envoiSurTapis(carte)));
+      if (carte.loc.zone !== `seat${proprio}`) items.push(item(`Zone de menace de ${nomProprio}`, () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: `seat${proprio}`, x: 9999, y: 0 })));
+    } else if (carte.kind === "agenda" || carte.kind === "act") {
       const agenda = carte.kind === "agenda";
       const courant = carte.id === (agenda ? ctx.etat.state.agendaId : ctx.etat.state.actId);
       items.push(item(carte.faceUp ? "Retourner (lire le verso)" : "Retourner (recto)", () => ctx.envoyer({ t: "flipCard", id: carte.id })));

@@ -83,6 +83,13 @@ export function initInteractionsJoueur(ctx) {
     if (drop.startsWith("pile:")) return;
     if (drop === z.play || drop === z.limbo || drop === z.aside) { if (!mienne) return; }
     else if (drop !== z.seat) return;
+    // Depuis la main : en jeu = jouer (coût déduit, X demandé), en cours = engager au test (sans coût) ;
+    // depuis hors jeu vers en jeu = mise en jeu gratuite (cartes liées).
+    if (carte.loc.pile === p.hand) {
+      if (drop === z.play) { jouer(carte); return; }
+      if (drop === z.limbo) { ctx.envoyer({ t: "p:commit", id: carte.id }); return; }
+    }
+    if (carte.loc.zone === z.aside && drop === z.play) { ctx.envoyer({ t: "p:play", id: carte.id }); return; }
     const r = cible.getBoundingClientRect();
     let x, y = 0;
     if (drop === z.play) { x = e.clientX - d.dx - r.left + cible.scrollLeft; y = e.clientY - d.dy - r.top + cible.scrollTop; }
@@ -90,6 +97,16 @@ export function initInteractionsJoueur(ctx) {
     x = Math.max(0, Math.round(x)); y = Math.max(0, Math.round(y));
     if (carte.loc.zone === drop && Math.abs(x - carte.loc.x) < 1 && Math.abs(y - carte.loc.y) < 1) return;
     ctx.envoyer({ t: "moveCard", id: carte.id, zone: drop, x, y });
+  }
+
+  /** Jouer une carte de la main : coût imprimé déduit ; X est demandé au joueur (jamais bloqué, cahier D1). */
+  function jouer(carte) {
+    const def = ctx.defs.get(carte.code);
+    if (def?.cost === -2) {
+      const v = prompt("Cette carte coûte X : combien de ressources ?", "0");
+      if (v === null) return;
+      ctx.envoyer({ t: "p:play", id: carte.id, cost: Math.max(0, Number(v) || 0) });
+    } else ctx.envoyer({ t: "p:play", id: carte.id });
   }
 
   // ---- Clics : pioche = piocher ; main pendant le mulligan = sélection ; chips ±1 ; double-clic = épuiser ----
@@ -201,8 +218,12 @@ export function initInteractionsJoueur(ctx) {
     const enMain = carte.loc.pile === p.hand;
     if (elem.dataset.loupe === "1" || (enMain && mienne)) items.push(item("Agrandir", () => document.dispatchEvent(new CustomEvent("ahwa:loupe", { detail: elem })), { libre: true }));
     if (mienne && enMain) {
+      const cout = def?.cost;
+      const libelleJouer = cout === -2 ? "Jouer (X…)" : typeof cout === "number" && cout > 0 ? `Jouer (payer ${cout})` : "Jouer";
+      items.push(item(libelleJouer, () => jouer(carte)));
+      items.push(item("Engager au test (en cours)", () => ctx.envoyer({ t: "p:commit", id: carte.id })));
+      items.push(item("Mettre en jeu sans payer", () => ctx.envoyer({ t: "p:play", id: carte.id, free: true })));
       items.push(item(carte.revealed ? "Masquer aux autres" : "Révéler à tous", () => ctx.envoyer({ t: "p:reveal", id: carte.id })));
-      items.push(item("Mettre en jeu (sans payer)", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: z.play, x: 9999, y: 0 })));
       items.push(item("Défausser", () => ctx.envoyer({ t: "p:discard", id: carte.id })));
       items.push(item("Sur la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: p.deck, top: true })));
       items.push(item("Sous la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: p.deck, top: false })));
@@ -219,8 +240,9 @@ export function initInteractionsJoueur(ctx) {
         if (def?.sanity !== undefined) items.push(jeton("horror"));
         items.push(jeton("generic"));
       }
+      if (enJeu || enCours) items.push(item("Poser sur mon lieu (tapis)", () => ctx.envoyer({ t: "p:toLocation", id: carte.id })));
       items.push(item("En main", () => ctx.envoyer({ t: "p:toHand", id: carte.id })));
-      if (!enJeu) items.push(item("En jeu", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: z.play, x: 9999, y: 0 })));
+      if (!enJeu) items.push(item(cote ? "Mettre en jeu (gratuit)" : "En jeu", () => ctx.envoyer(cote ? { t: "p:play", id: carte.id } : { t: "moveCard", id: carte.id, zone: z.play, x: 9999, y: 0 })));
       if (!enCours) items.push(item("En cours (limbes)", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: z.limbo, x: 9999, y: 0 })));
       if (carte.loc.pile !== p.discard) items.push(item("Défausser", () => ctx.envoyer({ t: "p:discard", id: carte.id })));
       items.push(item("Sur la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: p.deck, top: true })));

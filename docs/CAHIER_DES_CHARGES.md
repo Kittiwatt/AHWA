@@ -719,15 +719,15 @@ loupe). Disposition à trancher sur maquette (captures) ; proposition :
 | `p:keep` | `pweak` remélangé dans `pdeck` ; `setup = "done"` |
 | `p:draw {n = 1}` | pioche n (≤ 10) en main ; pioche vide → `pdiscard` remélangée dans `pdeck` puis pioche, **rappel « prends 1 horreur »** (encart + journal) ; pioche et défausse vides → rappel « enquêteur vaincu » (rien de plus) |
 | `p:aside {id}` | → hors jeu (`paside`), en fin de rangée, face visible |
-| `p:play {id, cost?, free?}` | main → `pplay` (asset) ou `plimbo` (événement) ; `resources −= coût imprimé`, ou `cost` fourni quand le coût est X, ou 0 si `free` ; jamais refusé, un total négatif est surligné ; à l'entrée en jeu `tokens.uses = def.uses.n`, jauges des alliés ; journal « X joue Y » (sans le texte) |
-| `p:commit {id}` | carte de la main → `plimbo` sans coût (skill engagé, ou carte rangée là volontairement) |
-| `p:resolve` | tout `plimbo` → `pdiscard`, face visible. « Garder en jeu » = `moveCard` vers `pplay` |
+| `p:play {id, cost?, free?}` | main → `pplay` (asset) ou `plimbo` (événement, skill) ; `resources −= coût imprimé`, ou `cost` fourni quand le coût est X (`-2`), ou 0 si `free` ; une carte **hors jeu** (liée) se met en jeu gratuitement ; jamais refusé, un total négatif est surligné ; à l'entrée en jeu `tokens.uses = def.uses.n`, jauges des alliés ; journal « X joue Y (2 ressources / X = 3 / sans payer) » |
+| `p:commit {id}` | carte de la main → `plimbo` sans coût (engagée au test) |
+| `p:resolve` | tout `plimbo` → `pdiscard` (une carte de rencontre égarée là → défausse de rencontre), face visible. « Garder en jeu » = menu « En jeu » (`moveCard` vers `pplay`) |
 | `p:discard {id}` / `p:randomDiscard {n = 1}` | → `pdiscard` ; le tirage au hasard nomme la carte au journal |
 | `p:toHand {id}` | défausse, pioche (après recherche), en jeu ou hors jeu → fin de main |
 | `p:reveal {id, v}` | bascule `revealed` sur une carte de la main |
 | `p:search {pile, n?}` | `peek` au demandeur : les n premières dans l'ordre (regarder) ou toute la pile (chercher) ; à la fermeture d'une recherche complète le client envoie `shufflePile` ; journal « X regarde les n premières cartes » |
 | `p:exile {id}` | → `removed`, journal (exil, retrait de la partie) |
-| `p:toLocation {id}` | → `board`, posée à côté du lieu où se trouve le pion du siège (décalage vers le bas), sinon au centre ; menu « Reprendre sur mon board » = `moveCard` vers `pplay` |
+| `p:toLocation {id}` | → `board`, posée sur le lieu où se trouve le pion du siège (lieu le plus proche du pion, à moins d'une carte et demie ; décalée vers le bas), sinon au centre ; depuis le tapis, menu « Reprendre sur le board de X » = `moveCard` vers `pplay` (réservé au siège), « Défausse de X » = `p:discard` |
 
 Réutilisés tels quels : `moveCard` (glisser entre zones, y compris la
 menace), `toPile {top, shuffle}` (sur / sous / mélanger dans la pioche),
@@ -793,10 +793,11 @@ sert à montrer une carte à tous sans la sortir de la main.
    d'E3, main masquée chez les autres, `revealed`, hors jeu, entretien
    automatique, pioche vide. Tests (mulligan une seule fois, faiblesse
    en main de départ, deck vide) et captures 61‑65.
-3. **Jeu** : `p:play` (coût, X, sans payer, négatif), limbes et
-   « Résolu », Uses et jauges, badges de slot et occupation, exil,
-   « Poser sur mon lieu » et retour, journal. Régression sur les tables
-   existantes, budget messages mesuré sur une manche.
+3. **Jeu** — *livrée le 2026-09-08* : `p:play` (coût, X, sans payer,
+   négatif), limbes et « Résolu », Uses et jauges, badges de slot
+   (icônes d'Arkham Cards, `scripts/build_slot_icons.py`) et
+   occupation, exil, « Poser sur mon lieu » et retour, journal.
+   Régression sur les tables existantes ; captures 66‑68.
 
 ### 10.10 Points ouverts et v2
 
@@ -805,9 +806,11 @@ sert à montrer une carte à tous sans la sortir de la main.
   (jamais le texte) — à valider.
 - **Code de siège** : visible de toute la table (décision A3) ou du seul
   siège — à confirmer à l'usage.
-- **Images des jetons Uses** : chip générique avec le type en libellé ;
-  images par type (munitions, charges, secrets, provisions, primes…)
-  plus tard.
+- **Images des jetons Uses** : rendus avec l'image du jeton ressource
+  cerclée (la règle : des jetons ressource posés sur la carte) ; Arkham
+  Cards n'a pas d'icône par type (vérifié le 2026-09-08 :
+  `arkhamicons` couvre slots, factions, compétences, vie / santé
+  mentale, action / réaction / libre, pas les Uses).
 - **Decks annexes** (hunch deck de Joe Diamond, Underworld Market,
   cartes sous l'enquêteur) : piles supplémentaires par siège, v2.
 - **Attaches** entre cartes joueur : empilement visuel seulement (v1).

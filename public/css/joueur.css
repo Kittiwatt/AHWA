@@ -99,3 +99,8 @@
 .jeton-uses { box-shadow: 0 0 0 2px var(--dorure-2); }
 .pile.depot-ok .dos-pile { outline: 2px solid var(--dorure-2); }
 .zone-jeu.depot-ok, .eventail.depot-ok { background: rgba(200, 162, 90, 0.12); }
+
+/* Étape 3 : jouer, badges de slot, ressources négatives */
+.carte .badge-slot { position: absolute; left: 3px; top: 3px; display: flex; gap: 1px; z-index: 2; pointer-events: none; }
+.carte .badge-slot img { width: 1.15rem; height: 1.15rem; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6)); }
+.compteur.negatif .valeur { color: var(--wip); font-weight: 700; }

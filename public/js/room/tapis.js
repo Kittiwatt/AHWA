@@ -510,8 +510,12 @@ export function initLoupe(ctx) {
   const img = loupe.querySelector("img");
   let courant = null, fixe = false;
   const montrerCarte = (cible) => {
-    const carte = ctx.etat.state?.cards[cible.dataset.id];
-    if (!carte || !loupePermise(carte, ctx.defs.get(carte.code))) return false;
+    const enEtat = ctx.etat.state?.cards[cible.dataset.id];
+    if (!enEtat) return false;
+    // L'élément fait foi pour la face montrée : une carte de la main (face cachée dans l'état) est rendue
+    // face visible pour son joueur et pour une carte révélée (page joueur).
+    const carte = !enEtat.faceUp && !cible.classList.contains("retournee") ? { ...enEtat, faceUp: true } : enEtat;
+    if (!loupePermise(carte, ctx.defs.get(carte.code))) return false;
     courant = cible;
     img.src = urlImage(carte, ctx.defs.get(carte.code));
     loupe.classList.toggle("paysage", cible.classList.contains("paysage"));

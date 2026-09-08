@@ -1497,6 +1497,76 @@ async function tableClutches({ joueurs, answers }) {
   await new Promise((r) => setTimeout(r, 300));
   assert.ok(bob.recus.some((m) => m.t === "reminder" && /vaincu/.test(m.entry.text)), "pioche et défausse vides : rappel de la défaite");
   await sync(h, bob);
+
+  // ---- Étape 3 : jouer (auto-pay, X, sans payer), engager, résoudre, poser sur son lieu ----
+  const defDe = (c, id) => c.state.extraDefs[c.state.cards[id].code];
+  const main = () => h.state.piles.phand0.map((id) => h.state.cards[id]);
+  const asset = main().find((c) => defDe(h, c.id).type === "asset" && defDe(h, c.id).cost > 0);
+  assert.ok(asset, "un soutien à coût positif en main");
+  let res = h.state.seats[0].counters.resources;
+  d = await h.action({ t: "p:play", id: asset.id });
+  assert.equal(d.t, "delta", `p:play (${d.reason ?? ""})`);
+  assert.equal(h.state.cards[asset.id].loc.zone, "pplay0", "le soutien est en jeu");
+  assert.equal(h.state.cards[asset.id].faceUp, true);
+  assert.equal(h.state.seats[0].counters.resources, res - defDe(h, asset.id).cost, "coût imprimé déduit");
+  const u = defDe(h, asset.id).uses;
+  if (u) assert.equal(h.state.cards[asset.id].tokens.uses, u.n, "jetons Uses posés");
+  assert.match(h.state.log.at(-1).text, new RegExp(`joue .* \\(${defDe(h, asset.id).cost} ressource`));
+  const evenement = main().find((c) => defDe(h, c.id).type === "event");
+  if (evenement) {
+    res = h.state.seats[0].counters.resources;
+    d = await h.action({ t: "p:play", id: evenement.id, free: true });
+    assert.equal(h.state.cards[evenement.id].loc.zone, "plimbo0", "un événement joué va en cours");
+    assert.equal(h.state.seats[0].counters.resources, res, "sans payer");
+    assert.match(h.state.log.at(-1).text, /sans payer/);
+  }
+  const skill = main().find((c) => defDe(h, c.id).type === "skill") ?? main()[0];
+  d = await h.action({ t: "p:commit", id: skill.id });
+  assert.equal(h.state.cards[skill.id].loc.zone, "plimbo0", "carte engagée au test en cours");
+  assert.match(h.state.log.at(-1).text, /engage/);
+  const enCours = Object.values(h.state.cards).filter((c) => c.loc.zone === "plimbo0");
+  d = await h.action({ t: "p:resolve" });
+  assert.equal(d.t, "delta");
+  assert.ok(enCours.every((c) => h.state.cards[c.id].loc.pile === "pdiscard0" && h.state.cards[c.id].faceUp), "résolu : tout en cours → défausse");
+  d = await h.action({ t: "p:resolve" });
+  assert.equal(d.t, "nack", "rien en cours");
+  // Coût X : la valeur vient du joueur ; ressources négatives admises ; jouer depuis la main seulement.
+  d = await h.action({ t: "setSeatCounter", seat: 0, key: "resources", value: 1 });
+  const autre = main().find((c) => typeof defDe(h, c.id).cost === "number" && defDe(h, c.id).cost > 1);
+  if (autre) {
+    d = await h.action({ t: "p:play", id: autre.id });
+    assert.equal(d.t, "delta", "jamais bloqué");
+    assert.ok(h.state.seats[0].counters.resources < 0, "ressources négatives après un jeu trop cher");
+  }
+  d = await h.action({ t: "p:play", id: h.state.piles.pdeck0[0] });
+  assert.equal(d.t, "nack", "une carte de la pioche ne se joue pas");
+  d = await bob.action({ t: "p:play", id: h.state.piles.phand0[0] });
+  assert.equal(d.t, "nack");
+  // Cartes liées : mise en jeu gratuite depuis hors jeu.
+  const liee = Object.values(h.state.cards).find((c) => c.loc.zone === "paside0" && c.code === "05314");
+  res = h.state.seats[0].counters.resources;
+  d = await h.action({ t: "p:play", id: liee.id });
+  assert.equal(d.t, "delta");
+  assert.equal(h.state.seats[0].counters.resources, res, "carte liée : gratuite");
+  assert.equal(h.state.cards[liee.id].loc.zone, "plimbo0", "Soothing Melody est un événement : en cours");
+  d = await h.action({ t: "p:resolve" });
+  // Poser sur mon lieu : le pion d'Alice est sur un lieu du tapis ; la carte se pose à côté.
+  const mini = h.state.cards["mini-0"];
+  assert.equal(mini.loc.zone, "board");
+  const enJeu = Object.values(h.state.cards).find((c) => c.loc.zone === "pplay0" && c.code !== "03009");
+  d = await h.action({ t: "p:toLocation", id: enJeu.id });
+  assert.equal(d.t, "delta");
+  const posee = h.state.cards[enJeu.id];
+  assert.equal(posee.loc.zone, "board");
+  const lieuProche = Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board")
+    .sort((a, b) => Math.hypot(a.loc.x - mini.loc.x, a.loc.y - mini.loc.y) - Math.hypot(b.loc.x - mini.loc.x, b.loc.y - mini.loc.y))[0];
+  assert.ok(Math.abs(posee.loc.x - lieuProche.loc.x - 24) < 1 && Math.abs(posee.loc.y - (lieuProche.loc.y + 178 - 70)) < 1, "posée sur le lieu du pion");
+  assert.equal(posee.ownerSeat, 0);
+  assert.match(h.state.log.at(-1).text, /pose .* sur le tapis \(sur son lieu\)/);
+  d = await h.action({ t: "moveCard", id: enJeu.id, zone: "pplay0", x: 9999, y: 0 });
+  assert.equal(h.state.cards[enJeu.id].loc.zone, "pplay0", "retour sur le board");
+  d = await bob.action({ t: "p:toLocation", id: enJeu.id, seat: 0 });
+  assert.equal(d.reason, "siege");
   // Les cartes joueur se déplacent avec les gestes existants et gardent leur propriétaire ; les ressources peuvent passer en négatif.
   d = await h.action({ t: "moveCard", id: liees[0].id, zone: "pplay0", x: 10, y: 20 });
   assert.equal(d.t, "delta");

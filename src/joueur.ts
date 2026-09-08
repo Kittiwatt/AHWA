@@ -8,7 +8,7 @@
 
 import type { CardId, CardKind, CardState, LogEntry, RoomState, Seat, SeatDeck, ZoneId } from "./state";
 import { emptyBoard } from "./state";
-import { addLog, shuffle, CARD_W, nextZ, type Rng } from "./setup";
+import { addLog, shuffle, CARD_W, CARD_H, MINI, nextZ, type Rng } from "./setup";
 import { Refus, refuser } from "./refus";
 
 type Resultat = { reminders?: LogEntry[]; peek?: { cards: { id: string; code: string }[]; pile: string } };
@@ -500,8 +500,77 @@ export function jouerJoueur(state: RoomState, msg: ActionJoueur, n: number, inde
       addLog(state, "action", `${nom} met ${nomJoueur(state, c)} hors jeu (de côté).`, n);
       return {};
     }
+    // ---- Jouer (étape 3, cahier §10.6) ----
+    case "p:play": {
+      // Depuis la main (payée) ou hors jeu (cartes liées : gratuite) : asset → en jeu, événement → « en cours ».
+      const c = carteDuSiege(state, msg.id, n);
+      const def = defDe(state, c.code) ?? refuser("carte sans définition");
+      const depuisMain = "pile" in c.loc && c.loc.pile === piles.hand;
+      const depuisCote = "zone" in c.loc && c.loc.zone === zones.aside;
+      if (!depuisMain && !depuisCote) refuser("jouez une carte de votre main (ou une carte mise de côté)");
+      const libre = Boolean(msg.free) || depuisCote;
+      const imprime = def.cost as number | null | undefined;
+      let cout = 0, detail = "sans payer";
+      if (!libre) {
+        if (imprime === -2) { cout = Math.max(0, Math.round(Number(msg.cost) || 0)); detail = `X = ${cout}`; }
+        else if (typeof imprime === "number" && imprime > 0) { cout = imprime; detail = `${cout} ressource${cout > 1 ? "s" : ""}`; }
+        else detail = "coût 0";
+      }
+      seat.counters.resources = (seat.counters.resources ?? 0) - cout;
+      const type = String(def.type ?? c.kind);
+      if (type === "asset") mettreEnJeu(state, c, n);
+      else {
+        retirerDesPiles(state, c.id);
+        c.loc = { zone: zones.limbo, x: boutDeZone(state, zones.limbo), y: 0, z: nextZ(state) };
+        c.faceUp = true; c.exhausted = false; c.side = "a"; c.tokens = {}; delete c.revealed;
+      }
+      addLog(state, "action", `${nom} joue ${nomJoueur(state, c)} (${detail})${type === "asset" ? "" : " — en cours"}.`, n);
+      return {};
+    }
+    case "p:commit": {
+      // Engager une carte de la main (test de compétence) : « en cours », sans coût.
+      const c = carteDuSiege(state, msg.id, n);
+      if (!("pile" in c.loc) || c.loc.pile !== piles.hand) refuser("engagez une carte de votre main");
+      retirerDesPiles(state, c.id);
+      c.loc = { zone: zones.limbo, x: boutDeZone(state, zones.limbo), y: 0, z: nextZ(state) };
+      c.faceUp = true; c.exhausted = false; c.side = "a"; c.tokens = {}; delete c.revealed;
+      addLog(state, "action", `${nom} engage ${nomJoueur(state, c)} au test.`, n);
+      return {};
+    }
+    case "p:resolve": {
+      // Tout ce qui est « en cours » va à la défausse (limbes → défausse, Grimoire p. 15).
+      const enCours = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === zones.limbo).sort((a, b) => ("zone" in a.loc ? a.loc.z : 0) - ("zone" in b.loc ? b.loc.z : 0));
+      if (!enCours.length) refuser("rien en cours");
+      const noms: string[] = [];
+      for (const c of enCours) { noms.push(nomJoueur(state, c)); if (c.player && c.ownerSeat === n) versPile(state, c, piles.discard); else versPile(state, c, "encounterDiscard"); }
+      addLog(state, "action", `${nom} résout : ${noms.join(", ")} → défausse.`, n);
+      return {};
+    }
+    case "p:toLocation": {
+      // Pose une carte de son board sur le tapis, sur le lieu où se trouve son pion (sinon au centre).
+      const c = carteDuSiege(state, msg.id, n);
+      const mini = state.cards[`mini-${n}`];
+      let cible: CardState | null = null;
+      if (mini && "zone" in mini.loc && mini.loc.zone === "board") {
+        const mx = mini.loc.x + MINI / 2, my = mini.loc.y + MINI / 2;
+        let meilleur = Infinity;
+        for (const l of Object.values(state.cards)) {
+          if (l.kind !== "location" || !("zone" in l.loc) || l.loc.zone !== "board") continue;
+          const d = Math.hypot(l.loc.x + CARD_W / 2 - mx, l.loc.y + 10 - my);
+          if (d < meilleur) { meilleur = d; cible = l; }
+        }
+        if (cible && meilleur > CARD_W * 1.5) cible = null;
+      }
+      retirerDesPiles(state, c.id);
+      const x = cible && "zone" in cible.loc ? cible.loc.x + 24 : 737 - CARD_W / 2;
+      const y = cible && "zone" in cible.loc ? cible.loc.y + CARD_H - 70 : 411 - CARD_H / 2;
+      c.loc = { zone: "board", x, y, z: nextZ(state) };
+      c.faceUp = true; delete c.revealed;
+      addLog(state, "action", `${nom} pose ${nomJoueur(state, c)} sur le tapis${cible ? " (sur son lieu)" : ""}.`, n);
+      return {};
+    }
     default:
-      return refuser(`action « ${msg.t} » inconnue (board joueur : étape 3)`);
+      return refuser(`action « ${msg.t} » inconnue`);
   }
 }
 

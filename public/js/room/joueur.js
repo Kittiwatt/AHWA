@@ -241,8 +241,8 @@ async function demarrer() {
       moi.seat === x.index ? el("span", { class: "vous", text: "vous" }) : null)));
   }
 
-  function compteurLigne(libelle, valeur, icone, peut, moins, plus, unite) {
-    return el("div", { class: "compteur" },
+  function compteurLigne(libelle, valeur, icone, peut, moins, plus, unite, negatif = false) {
+    return el("div", { class: `compteur${negatif ? " negatif" : ""}`, title: negatif ? "Ressources négatives : la carte a été jouée sans assez de ressources (rien n'est bloqué)" : null },
       el("dt", {}, icone ? el("img", { src: icone, alt: "" }) : null, el("span", { text: libelle })),
       el("dd", {},
         el("button", { class: "pm", type: "button", disabled: !peut, title: `−1 ${unite}`, onclick: moins }, "−"),
@@ -296,7 +296,7 @@ async function demarrer() {
           state.lead === n ? el("span", { class: "sous", text: "★ enquêteur principal" }) : null),
         peut ? null : blocRejoindre(state, moi, n, true)),
       el("dl", { class: "compteurs" },
-        compteurLigne("Ressources", String(s.counters.resources ?? 0), "/img/tokens/tok_ressources.png", peut, () => compteur("resources", -1), () => compteur("resources", 1), "ressource"),
+        compteurLigne("Ressources", String(s.counters.resources ?? 0), "/img/tokens/tok_ressources.png", peut, () => compteur("resources", -1), () => compteur("resources", 1), "ressource", (s.counters.resources ?? 0) < 0),
         compteurLigne("Indices", String(s.counters.clues ?? 0), "/img/tokens/tok_indices.png", peut, () => compteur("clues", -1), () => compteur("clues", 1), "indice"),
         compteurLigne("Vie", `${Math.max(0, s.counters.health - degats)} / ${s.counters.health}`, "/img/tokens/tok_degats.png", peut, () => jeton("damage", -1), () => jeton("damage", 1), "dégât"),
         compteurLigne("Santé", `${Math.max(0, s.counters.sanity - horreur)} / ${s.counters.sanity}`, "/img/tokens/tok_horreur.png", peut, () => jeton("horror", -1), () => jeton("horror", 1), "horreur")),
@@ -386,13 +386,13 @@ async function demarrer() {
       e.style.left = `${c.loc.x}px`; e.style.top = `${c.loc.y}px`; e.style.zIndex = String(c.loc.z);
       zone.append(e);
     }
-    if (!enJeu.length) zone.append(el("p", { class: "vide", text: "En jeu — assets, permanents, attaches." }));
+    if (!enJeu.length) zone.append(el("p", { class: "vide", text: "En jeu — glissez une carte de la main ici pour la jouer (coût déduit) ; clic droit : sans payer." }));
     sect.replaceChildren(
       el("section", { class: "bloc-jeu" }, el("h2", { text: "En jeu" }), zone),
       el("section", { class: "bloc-cours" },
         el("h2", {}, "En cours ", el("span", { class: "sous", text: "(événements joués, cartes engagées au test)" })),
         el("div", { class: "bande", "data-drop": `plimbo${n}` }, ...(enCours.length ? enCours.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Rien en cours." })]),
-          enCours.length ? el("button", { class: "bouton petit", type: "button", disabled: true, title: "Résolu → défausse : étape 3" }, "Résolu") : null)),
+          enCours.length ? el("button", { class: "bouton petit", type: "button", disabled: !peut, title: "Tout ce qui est en cours va à la défausse (clic droit sur une carte : « En jeu » pour la garder)", onclick: () => ctx.envoyer({ t: "p:resolve" }) }, "Résolu") : null)),
       el("section", { class: "bloc-menace" },
         el("h2", { text: "Zone de menace" }),
         el("div", { class: "menace", "data-drop": `seat${n}` }, ...(menace.length ? menace.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Ennemis engagés, traîtrises et soutiens histoire — les mêmes que sur le tapis." })]))),

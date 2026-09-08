@@ -34,17 +34,22 @@ de base aléatoire tirée ou choisie) ; chaque siège a une page
 `/r/<code>/j/<n>` — son board (pioche, défausse, hors jeu, en jeu, en
 cours, zone de menace, main, compteurs, sac, phases), en lecture seule
 pour les autres — et un code de siège à 4 chiffres permet de le
-rejoindre depuis un second appareil. Mise en place du joueur, mulligan et
-jeu des cartes : étapes 2 et 3 (cahier §10). Le cahier des charges et le
+rejoindre depuis un second appareil. Mise en place du joueur (permanents,
+5 ressources, main de 5, mulligan), pioche / main / défausse, entretien
+automatique, jeu des cartes (coût déduit, X, sans payer, « en cours » et
+« Résolu », badges de slot, « Poser sur mon lieu ») : étapes 2 et 3
+livrées (cahier §10). Le cahier des charges et le
 mémo de suivi sont dans `docs/` — **`docs/ARKHAM_WEB_notes.md` fait
 foi**, à lire avant toute modification.
 
 ## Crédits
 
-Les icônes des jetons du chaos (`public/img/chaos/`) sont générées par
-`scripts/build_chaos_tokens.py` à partir de la police `assets/tokens.ttf` du
-projet open source [Arkham Cards](https://github.com/zzorba/ArkhamCards)
-(zzorba), en reprenant sa recette de composition. Merci à ses auteurs.
+Les icônes des jetons du chaos (`public/img/chaos/`) et des slots
+(`public/img/slots/`) sont générées par `scripts/build_chaos_tokens.py` et
+`scripts/build_slot_icons.py` à partir des polices `assets/tokens.ttf` et
+`assets/arkhamicons.ttf` du projet open source
+[Arkham Cards](https://github.com/zzorba/ArkhamCards) (zzorba), en
+reprenant sa recette de composition. Merci à ses auteurs.
 
 ## Architecture
 

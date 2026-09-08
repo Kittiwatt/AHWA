@@ -17,6 +17,32 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-08 : **board joueur, étape 3 livrée** (cahier §10.9) — jouer.
+  Serveur (`src/joueur.ts`) : `p:play {id, cost?, free?}` (main → en
+  jeu pour un soutien avec ses Uses, → « en cours » pour un événement ou
+  un skill ; coût imprimé, X fourni par le joueur, gratuit si `free` ou
+  depuis hors jeu ; ressources jamais bloquées), `p:commit` (engager au
+  test, sans coût), `p:resolve` (tout « en cours » → défausse ; une
+  carte de rencontre égarée là → défausse de rencontre), `p:toLocation`
+  (sur le tapis, sur le lieu le plus proche du pion du siège — `MINI`
+  est un nombre, 44 — sinon au centre). Front : dépôt main → en jeu =
+  jouer (prompt pour X), main → en cours = engager, hors jeu → en jeu =
+  gratuit ; menus « Jouer (payer n) », « Engager au test », « Mettre en
+  jeu sans payer », « Poser sur mon lieu » ; bouton « Résolu » ;
+  ressources négatives surlignées ; **badges de slot** sur les soutiens
+  joueur face visible (`.badge-slot` dans `majCarte`, icônes
+  `public/img/slots/*.svg` générées par `scripts/build_slot_icons.py`
+  depuis `arkhamicons.ttf` d'Arkham Cards : hand, hand_x2, arcane,
+  arcane_x2, ally, body, accessory, tarot, head + health, sanity,
+  action, free, reaction, per_investigator) ; sur le tapis, menu des
+  cartes joueur (reprendre sur le board, défausse du joueur, menace,
+  jetons). **Retour de test corrigé** : la loupe ne s'ouvrait pas sur
+  les cartes de la main (l'état les dit face cachée, l'élément est rendu
+  face visible : `initLoupe` se fie désormais à la classe `retournee`
+  de l'élément). Tests : 400 messages (jouer, X, gratuit, engager,
+  résoudre, cartes liées gratuites, poser sur son lieu et retour,
+  gardes) ; captures 66‑68. Arkham Cards n'a **pas** d'icône par type
+  d'Uses : ces jetons restent l'image ressource cerclée.
 - 2026-09-07 : **board joueur, étape 2 livrée** (cahier §10.9) — mise en
   place du joueur, mulligan, pioche / main / défausse, entretien
   automatique, pioche vide. Serveur (`src/joueur.ts`) : `p:setup`
@@ -576,10 +602,9 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** (réordonnée le 2026-09-07) : **board joueur,
-  étape 3** (cahier §10.9 : `p:play` avec auto-pay / X / sans payer,
-  limbes « Résolu » et « Garder en jeu », badges de slot, « Poser sur mon
-  lieu » et retour, journal, budget messages mesuré). Ensuite le prologue
+- **Prochaine étape** : retours de test de l'utilisateur sur le board
+  joueur (les trois étapes sont déployées), puis les points ouverts du
+  cahier §10.10 (customisations, decks annexes, attaches). Ensuite le prologue
   Disappearance at the Twilight Estate (pack `tcu`, set
   `disappearance_at_the_twilight_estate` : choix des enquêteurs neutres
   05046‑49, lieux 05071‑77 / Spectral 05078‑84 à réutiliser), puis le
@@ -923,6 +948,14 @@ Commandes : `npm run dev`, `npm run check` (tsc + dry-run),
   un scénario existant, mise à jour de ce mémo.
 
 ## 3. Acquis ArkhamDB / arkham.build (portables tels quels)
+
+- Arkham Cards (github.com/zzorba/ArkhamCards) : polices d'icônes
+  `assets/arkhamicons.ttf` (+ `arkhamicons-config.json` : slots, vie /
+  santé mentale, factions, compétences, action / réaction / libre,
+  per_investigator, chiffres), `tokens.ttf` (jetons du chaos, déjà
+  utilisée), `cardicons.ttf` ; aucune image par type d'Uses. Recette de
+  rendu : glyphe SVG via fontTools, centré dans une pastille
+  (`scripts/build_slot_icons.py`).
 
 - API : `/api/public/cards/<pack>.json` (filtrer par `encounter_code`),
   `/api/public/card/<code>`, `/api/public/decklist/<id>`,
