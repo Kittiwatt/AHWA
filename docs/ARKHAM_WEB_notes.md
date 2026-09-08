@@ -1419,6 +1419,12 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
 - `test_room.mjs` : en solo, le delta 1 est consommé par l'action de
   l'hôte — un `attendre(delta rev === joueurs)` ne résout jamais (ne
   l'attendre qu'à partir de deux joueurs).
+- Workers Builds peut échouer **sans cause dans le dépôt** (5d9325a :
+  `completed/failure`, aucun changement de configuration, `npm run check`
+  au vert en local) : relancer par un commit vide (`--allow-empty`)
+  avant de chercher plus loin — la relance 8ed2a43 est passée. Vérifier
+  ensuite que le site sert bien le nouveau code (`curl` d'un fichier
+  modifié), pas seulement le statut du check.
 - `ss` n'existe pas dans le bac à sable : vérifier `wrangler dev` par
   `curl http://127.0.0.1:8788/` ; deux `wrangler dev` sur le même port
   → le second meurt sans bruit.
