@@ -173,7 +173,11 @@ export function initInteractionsJoueur(ctx) {
   document.addEventListener("contextmenu", (e) => {
     const elem = e.target.closest(".carte");
     const outil = e.target.closest("[data-outil]");
-    if (outil && !(elem && carteDe(elem))) { e.preventDefault(); ouvrirMenuOutil(outil.dataset.outil, e.clientX, e.clientY); return; }
+    // Sur la défausse ou la pile hors jeu, la carte du dessus est la pile : son clic droit ouvre le menu de la pile
+    // (rechercher, reprendre la dernière…), sinon le menu de la pile serait inaccessible dès qu'elle contient une carte
+    // (retour de test du 2026-09-09). La pioche garde le menu de la carte révélée dessus.
+    const pileEntiere = outil && elem?.closest(".dos-pile") && [piles().discard, zones().aside].includes(outil.dataset.outil);
+    if (outil && (pileEntiere || !(elem && carteDe(elem)))) { e.preventDefault(); ouvrirMenuOutil(outil.dataset.outil, e.clientX, e.clientY); return; }
     if (!elem || elem.closest("dialog, .loupe") || !carteDe(elem)) return;
     e.preventDefault();
     ouvrirMenu(elem, e.clientX, e.clientY);

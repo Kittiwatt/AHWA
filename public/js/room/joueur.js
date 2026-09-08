@@ -411,15 +411,20 @@ async function demarrer() {
               ? el("button", { class: "dos-bouton vide", type: "button", disabled: !peut, title: "Pioche vide : clic pour remélanger la défausse et piocher (prends 1 horreur)" }, el("span", { class: "sous", text: "vide" }))
               : el("span", { class: "sous", text: "vide" })),
         el("span", { class: "badge", text: String(pioche.length) }), el("span", { class: "etiquette-pile", text: "Pioche" })),
-      el("div", { class: "pile", "data-drop": `pile:pdiscard${n}`, "data-outil": `pdiscard${n}`, title: "Défausse — déposez ici pour défausser ; clic droit : rechercher (sans mélanger), reprendre" },
+      el("div", { class: "pile", "data-drop": `pile:pdiscard${n}`, "data-outil": `pdiscard${n}`, title: "Défausse — déposez ici pour défausser ; clic droit (même sur la carte du dessus) : rechercher (sans mélanger), reprendre ; clic sur « Défausse » : rechercher" },
         el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteSansAP(dessus) : el("span", { class: "sous", text: "défausse" })),
-        el("span", { class: "badge", text: String(defausse.length) }), el("span", { class: "etiquette-pile", text: "Défausse" })),
+        el("span", { class: "badge", text: String(defausse.length) }),
+        // L'étiquette est un bouton : rechercher dans la défausse sans la mélanger (retour de test du 2026-09-09).
+        el("button", { class: "etiquette-pile cliquable", type: "button", disabled: !peut || !defausse.length, title: "Rechercher dans la défausse (sans mélanger)",
+          onclick: () => { ctx.derniereRecherche = { pile: `pdiscard${n}`, complete: false }; ctx.envoyer({ t: "p:search", pile: `pdiscard${n}` }); } }, "Défausse")),
       // Hors jeu : une seule pile (la dernière carte arrivée dessus), clic = chercher dedans (retour de test du 2026-09-09).
       el("div", { class: "pile hors-jeu", "data-drop": `paside${n}`, "data-outil": `paside${n}`, title: "Hors jeu (cartes liées, mises de côté) — clic : chercher dedans ; déposez ici pour mettre une carte hors jeu" },
         el("div", { class: `dos-pile pile-hors-jeu${cote.length ? "" : " vide"}` },
           cote.length ? el("button", { class: "dos-bouton", type: "button", disabled: !peut && !ctx.regarder, title: "Chercher dans les cartes hors jeu", onclick: () => ouvrirDialogueBoard(ctx, `paside${n}`, cote.slice().reverse().map((c) => ({ id: c.id, code: c.code }))) }, carteSansAP(cote[cote.length - 1]))
             : el("span", { class: "sous", text: "hors jeu" })),
-        el("span", { class: "badge", text: String(cote.length) }), el("span", { class: "etiquette-pile", text: "Hors jeu" })),
+        el("span", { class: "badge", text: String(cote.length) }),
+        el("button", { class: "etiquette-pile cliquable", type: "button", disabled: (!peut && !ctx.regarder) || !cote.length, title: "Chercher dans les cartes hors jeu",
+          onclick: () => ouvrirDialogueBoard(ctx, `paside${n}`, cote.slice().reverse().map((c) => ({ id: c.id, code: c.code }))) }, "Hors jeu")),
     );
   }
 

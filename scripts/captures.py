@@ -960,13 +960,18 @@ with sync_playwright() as p:
     a13.mouse.move(dst["x"] + dst["width"] / 2, dst["y"] + dst["height"] / 2, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
     assert a13.locator("#main .eventail .carte").count() == 5, "carte défaussée par glisser"
     assert a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .carte").count() == 1, "dessus de la défausse visible"
-    # Clic droit sur la défausse → « Rechercher (sans mélanger) » : fenêtre de la défausse, ordre conservé (retour de test du 2026-09-09).
-    a13.locator("#piles-joueur .pile[data-outil='pdiscard0']").dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
+    # Clic droit sur la carte du dessus de la défausse = menu de la pile → « Rechercher (sans mélanger) » : fenêtre de la
+    # défausse, ordre conservé (retour de test du 2026-09-09).
+    a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .dos-pile .carte").dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
+    assert "Défausse" in a13.locator(".menu-carte .titre-menu").inner_text(), "le clic droit sur la carte du dessus ouvre le menu de la pile"
     a13.locator(".menu-carte").get_by_role("button", name="Rechercher (sans mélanger)").click(); a13.wait_for_selector("dialog[open] .carte-peek", timeout=5000)
     assert "Défausse — 1 carte" in a13.locator("dialog[open] h2").inner_text(), "fenêtre de la défausse"
     a13.screenshot(path=f"{OUT}/62b_board_recherche_defausse.png")
     a13.keyboard.press("Escape"); a13.wait_for_timeout(300)
     assert a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .badge").inner_text() == "1", "la défausse n'a pas été mélangée ni vidée"
+    # L'étiquette « Défausse » ouvre aussi la recherche.
+    a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .etiquette-pile").click(); a13.wait_for_selector("dialog[open] .carte-peek", timeout=5000)
+    a13.keyboard.press("Escape"); a13.wait_for_timeout(300)
     a13.locator("#main .eventail .carte").first.dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
     a13.screenshot(path=f"{OUT}/62_board_menu_main.png")
     a13.locator(".menu-carte").get_by_role("button", name="Révéler à tous").click(); a13.wait_for_timeout(400)

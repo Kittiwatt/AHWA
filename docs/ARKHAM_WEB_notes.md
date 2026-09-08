@@ -17,6 +17,15 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 : **défausse du board : menu de la pile même sur la carte du
+  dessus** — dès qu'une carte était dans la défausse, le clic droit
+  ouvrait le menu de cette carte et « Rechercher (sans mélanger) »
+  devenait inaccessible. Sur la défausse et la pile hors jeu, le clic
+  droit sur la carte du dessus ouvre désormais le menu de la pile
+  (`pileEntiere` dans `interactions-joueur.js` ; la pioche garde le menu
+  de la carte révélée dessus), et les étiquettes « Défausse » / « Hors
+  jeu » sont des boutons qui ouvrent la recherche (`.etiquette-pile
+  .cliquable`, soulignés en pointillé).
 - 2026-09-09 : **retours d'UX, deuxième salve** (board joueur et tapis).
   **Jauges d'enquêteur uniformisées** : ressources, indices, dégâts et
   horreur sont les mêmes chips que sur les cartes (clic = +1, « − » au
