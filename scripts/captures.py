@@ -184,7 +184,7 @@ with sync_playwright() as p:
     alice.locator("#plateau .carte .jeton-clue").first.dblclick()
     alice.wait_for_timeout(400)
     assert "3" in alice.locator("#plateau .carte .jeton-clue").first.inner_text(), "3 indices restent sur le Study"
-    assert "1" in alice.locator("#sieges .siege").nth(0).locator(".compteur").nth(2).locator(".valeur").inner_text(), "Alice a 1 indice"
+    assert alice.locator("#sieges .siege").nth(0).locator(".jauges-inv .chip-clue .chip-n").inner_text() == "1", "Alice a 1 indice"
     # Bouton d'action (flèche) : 2 → 1 → 0 puis désactivé.
     assert alice.locator("#sieges .siege").nth(0).locator(".bouton-action").count() == 1
     alice.locator("#sieges .siege").nth(0).screenshot(path=f"{OUT}/11_siege_bouton_action.png")
@@ -892,7 +892,7 @@ with sync_playwright() as p:
     h13.wait_for_load_state("networkidle"); h13.wait_for_timeout(1200)
     h13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     assert h13.locator("#sieges .siege").nth(0).get_by_role("link", name="Voir le board").count() == 1
-    assert "Ressources" in h13.locator("#sieges .siege").nth(0).inner_text()
+    assert h13.locator("#sieges .siege").nth(0).locator(".jauges-inv .chip").count() == 4, "quatre jauges en chips sur le siège (ressources, indices, dégâts, horreur)"
     h13.locator("#sieges").screenshot(path=f"{OUT}/57_tapis_sieges_board.png")
     # Board d'Alice dans un second onglet (siège rejoint automatiquement) : entête, piles, cartes liées hors jeu.
     a13 = page_board(h13, code13, 0, attendre="#board-joueur:not([hidden])")
@@ -901,12 +901,14 @@ with sync_playwright() as p:
     a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     assert a13.locator("#onglets .onglet").count() == 2, "un onglet par siège avec enquêteur"
     assert a13.locator("#piles-joueur .pile").first.locator(".badge").inner_text() == "33", "pioche de 33 cartes"
-    assert a13.locator("#piles-joueur .hors-jeu .carte").count() == 3, "3 Soothing Melody hors jeu"
+    assert a13.locator("#piles-joueur .pile.hors-jeu .badge").inner_text() == "3", "hors jeu : une pile de 3 (Soothing Melody)"
+    assert a13.locator("#piles-joueur .pile.hors-jeu .carte").count() == 1, "seule la dernière carte hors jeu est visible"
     assert a13.locator(".entete-joueur:not(.lecture)").count() == 1, "board actif pour son siège"
-    assert a13.locator("#entete .chip-compteur").count() == 4, "quatre compteurs compacts (ressources, indices, vie, santé)"
+    assert a13.locator("#entete .jauges-inv .chip").count() == 4, "quatre jauges en chips (ressources, indices, dégâts, horreur)"
+    assert a13.locator("#main .bouton-action").count() == 1 and a13.locator("#main #phase-suivante").count() == 1, "bouton d'action, tour et phase au-dessus de la main"
+    assert a13.locator("#entete #phase-suivante").count() == 0, "plus de Phase suivante dans l'entête"
     assert a13.locator("#mon-lieu .lieu-carte .carte").count() == 1, "mon lieu : le lieu du pion"
     assert a13.locator("#mon-lieu .lieu-carte .pions-lieu .mini").count() == 2, "les deux pions sur le lieu, à cheval sur son bord haut"
-    assert a13.locator("#piles-joueur .rechercher-defausse").is_disabled(), "défausse vide : bouton de recherche grisé"
     a13.screenshot(path=f"{OUT}/58_board_joueur.png")
     a13.locator("#mon-lieu").screenshot(path=f"{OUT}/58b_board_mon_lieu.png")
     # Le même board vu par Bob : lecture seule, main masquée.
@@ -941,7 +943,7 @@ with sync_playwright() as p:
     a13.wait_for_selector(".mise-en-place.mulligan", timeout=8000); a13.wait_for_load_state("networkidle"); a13.wait_for_timeout(800)
     assert a13.locator("#main .eventail .carte").count() == 5, "main de 5"
     assert a13.locator(".zone-jeu .carte").count() == 1, "Sophie commence en jeu"
-    assert a13.locator("#entete .chip-compteur").first.locator(".valeur").inner_text() == "5", "5 ressources"
+    assert a13.locator("#entete .chip-resource .chip-n").inner_text() == "5", "5 ressources"
     a13.locator("#main .eventail .carte").nth(0).click(); a13.locator("#main .eventail .carte").nth(2).click()
     a13.wait_for_timeout(300)
     assert a13.locator("#main .eventail .carte.choisie").count() == 2, "2 cartes choisies pour le mulligan"
@@ -958,8 +960,9 @@ with sync_playwright() as p:
     a13.mouse.move(dst["x"] + dst["width"] / 2, dst["y"] + dst["height"] / 2, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
     assert a13.locator("#main .eventail .carte").count() == 5, "carte défaussée par glisser"
     assert a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .carte").count() == 1, "dessus de la défausse visible"
-    # Bouton « Rechercher (sans mélanger) » sous la défausse : fenêtre de la défausse, ordre conservé (retour de test du 2026-09-09).
-    a13.locator("#piles-joueur .rechercher-defausse").click(); a13.wait_for_selector("dialog[open] .carte-peek", timeout=5000)
+    # Clic droit sur la défausse → « Rechercher (sans mélanger) » : fenêtre de la défausse, ordre conservé (retour de test du 2026-09-09).
+    a13.locator("#piles-joueur .pile[data-outil='pdiscard0']").dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
+    a13.locator(".menu-carte").get_by_role("button", name="Rechercher (sans mélanger)").click(); a13.wait_for_selector("dialog[open] .carte-peek", timeout=5000)
     assert "Défausse — 1 carte" in a13.locator("dialog[open] h2").inner_text(), "fenêtre de la défausse"
     a13.screenshot(path=f"{OUT}/62b_board_recherche_defausse.png")
     a13.keyboard.press("Escape"); a13.wait_for_timeout(300)
@@ -984,20 +987,20 @@ with sync_playwright() as p:
     for _ in range(12):
         if a13.locator("#main .eventail .carte.kind-asset").count(): break
         a13.locator(".pioche-joueur .dos-bouton").click(); a13.wait_for_timeout(300)
-    for _ in range(5): a13.locator("#entete .chip-compteur").first.locator(".pm").nth(1).click(); a13.wait_for_timeout(120)
+    for _ in range(5): a13.locator("#entete .chip-resource .chip-n").click(); a13.wait_for_timeout(120)
     src = a13.locator("#main .eventail .carte.kind-asset").first.bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(zone["x"] + 300, zone["y"] + 60, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
     assert a13.locator(".zone-jeu .carte").count() == 2, "soutien mis en jeu par glisser"
     # Entretien depuis la table : Alice pioche 1 et gagne 1 ressource.
     main_avant = a13.locator("#main .eventail .carte").count()
-    res_avant = int(a13.locator("#entete .chip-compteur").first.locator(".valeur").inner_text())
+    res_avant = int(a13.locator("#entete .chip-resource .chip-n").inner_text())
     for _ in range(4):
         if "Entretien" in h13.locator("#phases .phase.courante").inner_text(): break
         h13.get_by_role("button", name="Phase suivante").click(); h13.wait_for_timeout(400)
     a13.wait_for_timeout(600)
     assert a13.locator("#main .eventail .carte").count() == main_avant + 1, "entretien : +1 carte"
-    assert int(a13.locator("#entete .chip-compteur").first.locator(".valeur").inner_text()) == res_avant + 1, "entretien : +1 ressource"
+    assert int(a13.locator("#entete .chip-resource .chip-n").inner_text()) == res_avant + 1, "entretien : +1 ressource"
     a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     a13.screenshot(path=f"{OUT}/65_board_apres_entretien.png")
 
@@ -1010,7 +1013,7 @@ with sync_playwright() as p:
     soutien = a13.locator("#main .eventail .carte.kind-asset").first
     titre_soutien = soutien.get_attribute("title")
     nb_jeu = a13.locator(".zone-jeu .carte").count()
-    for _ in range(5): a13.locator("#entete .chip-compteur").first.locator(".pm").nth(1).click(); a13.wait_for_timeout(120)
+    for _ in range(5): a13.locator("#entete .chip-resource .chip-n").click(); a13.wait_for_timeout(120)
     src = soutien.bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(zone["x"] + 420, zone["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
@@ -1034,8 +1037,8 @@ with sync_playwright() as p:
         assert int(a13.locator(f".zone-jeu .carte[title='{titre_soutien}'] .chip-uses .chip-n").inner_text()) == avant_uses - 1, "clic sur la jauge Uses = −1"
     src = a13.locator("#main .eventail .carte").first.bounding_box(); cours = a13.locator(".bloc-cours .bande").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
-    a13.mouse.move(cours["x"] + 60, cours["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
-    assert a13.locator(".bloc-cours .carte").count() == 1, "carte engagée au test (Commit)"
+    a13.mouse.move(cours["x"] + 150, cours["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)   # à droite du sac du chaos
+    assert a13.locator(".bloc-cours .bande .carte").count() == 1, "carte engagée au test (Commit)"
     h13.wait_for_timeout(400)
     assert not h13.locator("#commit-volant").is_hidden(), "le Commit volant apparaît sur le tapis dès qu'une carte est engagée"
     assert h13.locator("#commit-volant .carte").count() == 1, "la carte engagée est visible dans le Commit volant"
@@ -1046,7 +1049,7 @@ with sync_playwright() as p:
     for _ in range(12):
         if a13.locator("#main .eventail .carte.kind-event").count(): break
         a13.locator(".pioche-joueur .dos-bouton").click(); a13.wait_for_timeout(300)
-    for _ in range(4): a13.locator("#entete .chip-compteur").first.locator(".pm").nth(1).click(); a13.wait_for_timeout(120)
+    for _ in range(4): a13.locator("#entete .chip-resource .chip-n").click(); a13.wait_for_timeout(120)
     src = a13.locator("#main .eventail .carte.kind-event").first.bounding_box(); case = a13.locator(".case-play").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(case["x"] + 50, case["y"] + 60, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
@@ -1065,7 +1068,7 @@ with sync_playwright() as p:
     a13.get_by_role("button", name="Résolu", exact=True).click(); a13.wait_for_timeout(500)
     assert a13.locator(".case-play .carte").count() == 0, "événement résolu → défausse"
     a13.get_by_role("button", name="Test résolu").click(); a13.wait_for_timeout(500)
-    assert a13.locator(".bloc-cours .carte").count() == 0, "test résolu : Commit → défausse"
+    assert a13.locator(".bloc-cours .bande .carte").count() == 0, "test résolu : Commit → défausse"
     h13.wait_for_timeout(400)
     assert h13.locator("#commit-volant").is_hidden(), "le Commit volant disparaît une fois le test résolu"
     nb_avant_pose = a13.locator(".zone-jeu .carte").count()
@@ -1086,7 +1089,24 @@ with sync_playwright() as p:
     a13.wait_for_timeout(700)
     assert not a13.locator("#loupe").is_hidden(), "la loupe s'ouvre sur une carte de la main"
     # Pions des cartes joueur : pastille du nombre et ± au survol ; sac et « Phase suivante » sous « Mon lieu ».
-    assert a13.locator(".mon-lieu #chaos .sac-forme").count() == 1 and a13.locator("#entete #phase-suivante").count() == 1, "sac à droite, Phase suivante dans l'entête"
+    assert a13.locator(".bloc-cours .sac-joueur #chaos .sac-forme").count() == 1, "sac du chaos à droite de Play, sur Commit"
+    # Jetons tirés : ils s'étalent à droite du sac, par-dessus les cartes engagées ; capture de la zone de jeu et de l'entête de la main.
+    for _ in range(4): a13.locator(".sac-joueur .sac-forme").click(); a13.wait_for_timeout(250)
+    assert a13.locator(".sac-joueur .tires .jeton-chaos-img").count() == 4, "quatre jetons tirés"
+    a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    a13.screenshot(path=f"{OUT}/70b_board_sac_commit_actions.png")
+    a13.locator(".sac-joueur .remettre").click(); a13.wait_for_timeout(300)
+    # Bouton d'action au-dessus de la main : dépense une action (3 → 2).
+    a13.locator("#main .bouton-action").click(); a13.wait_for_timeout(400)
+    assert a13.locator("#main .bouton-action .n").inner_text() == "2", "action dépensée"
+    # Chip de dégâts : clic = +1, « − » au survol = −1 (même geste que sur les cartes).
+    a13.locator("#entete .chip-damage .chip-n").click(); a13.wait_for_timeout(300)
+    assert a13.locator("#entete .chip-damage .chip-n").inner_text().startswith("1/"), "clic sur la chip : +1 dégât"
+    a13.locator("#entete .chip-damage").hover(); a13.wait_for_timeout(150)
+    a13.locator("#entete .chip-damage .chip-moins").click(); a13.wait_for_timeout(300)
+    assert a13.locator("#entete .chip-damage .chip-n").inner_text().startswith("0/"), "« − » : −1 dégât"
+    a13.locator("#entete").screenshot(path=f"{OUT}/70c_board_entete_chips.png")
+    h13.locator("#sieges .siege").nth(0).screenshot(path=f"{OUT}/70d_tapis_siege_chips.png")
     jauge = a13.locator(".zone-jeu .carte.joueur .chip-uses").first
     if jauge.count():
         avant = int(jauge.locator(".chip-n").inner_text())

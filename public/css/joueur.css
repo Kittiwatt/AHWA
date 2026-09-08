@@ -43,11 +43,11 @@
 .entete-joueur .fiche strong { font-size: 1.15rem; }
 .entete-joueur .fiche .sous { font-size: 0.9rem; }
 .entete-joueur .etoile { color: var(--dorure-2); }
-.compteurs-compacts { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; }
-.chip-compteur { display: inline-flex; align-items: center; gap: 0.25rem; }
-.chip-compteur img { width: 1.9rem; height: 1.9rem; }
-.chip-compteur .valeur { min-width: 2.4rem; text-align: center; font-size: 1.2rem; font-variant-numeric: tabular-nums; }
-.chip-compteur .pm { width: 1.5rem; height: 1.5rem; font-size: 1rem; }
+/* Jauges de l'enquêteur : mêmes chips que sur les cartes (clic = +1, « − » au survol), en plus grand dans l'entête */
+.compteurs-compacts { display: flex; flex-wrap: wrap; gap: 0.4rem 0.7rem; }
+.entete-joueur .jauges-inv .chip { font-size: 1.15rem; gap: 4px; padding: 2px 8px 2px 2px; }
+.entete-joueur .jauges-inv .chip img { width: 32px; height: 32px; }
+.entete-joueur .jauges-inv .chip .chip-n { min-width: 1.6em; }
 .tour-actions { display: flex; align-items: center; gap: 0.6rem; }
 .tour-actions .actions-pips .pip { width: 0.95rem; height: 0.95rem; }
 .slots { display: flex; flex-wrap: wrap; gap: 0.3rem 0.4rem; align-items: center; font-size: 0.95rem; }
@@ -59,15 +59,19 @@
 .slots .slot img { width: 1.6rem; height: 1.6rem; }
 .mise-en-place { display: grid; align-content: center; }
 .mise-en-place .ligne-boutons { margin: 0; }
-/* Sac du chaos dans la barre de phase, à gauche de « Phase suivante » ; sa composition s'ouvre vers le bas */
-/* Sac du chaos et « Phase suivante » dans la colonne de droite, sous « Mon lieu » (retour de test du 2026-09-09) */
 .mon-lieu { display: flex; flex-direction: column; gap: 0.5rem; }
 .mon-lieu > #mon-lieu { display: grid; align-content: start; gap: 0.5rem; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
-.outils-joueur { margin-top: auto; display: grid; gap: 0.6rem; justify-items: center; padding-top: 0.6rem; border-top: 1px solid var(--filet); }
-.outils-joueur .chaos { position: relative; }
-.outils-joueur #phase-suivante { width: 100%; }
+/* Sac du chaos : juste à droite de Play, par-dessus la bande Commit ; les jetons tirés s'étalent vers la droite sur les
+   cartes engagées (retour de test du 2026-09-09). Le #chaos hors du bloc Commit (avant le premier rendu) reste invisible. */
+.corps-board > #chaos { display: none; }
+.bloc-cours { position: relative; }
+.sac-joueur { position: absolute; left: 0.3rem; top: 1.9rem; z-index: 6; pointer-events: none; }
+.sac-joueur .chaos, .sac-joueur .sac { pointer-events: auto; }
+.sac-joueur .sac { align-items: flex-start; }
+.sac-joueur .tires { max-width: 40rem; margin-top: 0.3rem; }
+.bloc-cours .bande { padding-left: 4.6rem; }
 .board-joueur .sac-forme { width: 3.6rem; height: 4rem; font-size: 1.3rem; }
-.board-joueur .sac-popover { left: auto; right: 0; bottom: calc(100% + 0.4rem); top: auto; z-index: 30; }
+.board-joueur .sac-popover { left: 0; right: auto; bottom: calc(100% + 0.4rem); top: auto; z-index: 30; }
 
 /* Corps : piles à gauche, en jeu au centre (Play, Commit et menace dessous), mon lieu à droite */
 .corps-board { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; min-height: 0; }
@@ -78,7 +82,8 @@
 /* Pions des enquêteurs présents : sur le lieu, à cheval sur son bord haut, comme sur le tapis (35 px, rangée). */
 .mon-lieu .lieu-carte .pions-lieu .mini { position: absolute; top: -17px; width: 35px; height: 35px; border-width: 2px; cursor: default; }
 .mon-lieu .lieu-nom { margin: 0; font-size: 0.95rem; color: var(--papier-2); }
-.piles-joueur .rechercher-defausse { justify-self: start; margin-top: -0.4rem; white-space: normal; text-align: left; line-height: 1.15; }
+/* Au-dessus de la main : bouton d'action (comme sur la page scénario), tour, phase — à droite de l'aide */
+.main-joueur header .tour-main { display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 0.4rem; align-self: center; }
 .mon-lieu .ligne-boutons { margin: 0; display: grid; gap: 0.3rem; }
 .mon-lieu .ligne-boutons .bouton { padding-left: 0.4rem; padding-right: 0.4rem; white-space: normal; }
 .mon-lieu .sur-le-lieu { display: grid; gap: 0.3rem; }
@@ -87,7 +92,8 @@
 .piles-joueur { display: grid; align-content: start; gap: 0.9rem; padding: 0.7rem 0.9rem; background: var(--nuit); border-right: 1px solid var(--filet); overflow-y: auto; overflow-x: hidden; width: calc(var(--carte-l) + 3rem); box-sizing: border-box; }
 .piles-joueur .pile { justify-self: start; margin-bottom: 0.6rem; }
 .piles-joueur .badge { font-size: 0.95rem; width: 1.8rem; height: 1.8rem; }
-.piles-joueur .hors-jeu .bande { min-height: calc(var(--carte-h) + 0.8rem); flex-direction: column; flex-wrap: nowrap; max-height: 24rem; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; width: 100%; }
+.piles-joueur .pile.hors-jeu .dos-bouton { width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
+.piles-joueur .pile.hors-jeu .dos-bouton .carte { pointer-events: none; }
 .dos-pile.pioche-joueur { border-style: solid; }
 .jeu-joueur { display: grid; grid-template-rows: minmax(14rem, 1fr) auto; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); gap: 0.6rem 0.8rem; padding: 0.7rem 0.9rem; overflow: auto; }
 .bloc-jeu { grid-column: 1 / -1; display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 14rem; }
@@ -191,9 +197,7 @@
 /* Ligne de statut (refus, informations) dans la barre de phase */
 .barre-phase .statut { margin: 0 0 0 auto; font-size: 0.9rem; color: var(--wip); }
 /* Jetons du chaos tirés dans la colonne de droite : petits, en grille, bornés */
-.outils-joueur .sac { flex-direction: column; align-items: center; }
-.outils-joueur .tires { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.2rem; max-width: calc(var(--carte-l) + 1rem); max-height: 8rem; overflow-y: auto; }
-.outils-joueur .tires .jeton-chaos-img { width: 1.7rem !important; height: 1.7rem !important; }
+
 /* Journal : lignes locales (refus, informations propres à ce client) */
 .journal .entree.locale { border-left: 3px solid var(--wip); padding-left: 0.4rem; }
 

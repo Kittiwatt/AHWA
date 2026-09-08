@@ -190,6 +190,29 @@ export function majCarte(el, carte, ctx) {
 
 export const MINI = 44;
 
+/** Jauges d'un enquêteur (ressources, indices, dégâts, horreur) hors carte : la même chip que sur les cartes
+ *  (clic sur la chip = +1, bouton « − » au survol), pour que tout se manipule pareil (retour de test du 2026-09-09).
+ *  `texte` est ce qui s'affiche (« 2/9 » pour les dégâts, « 5 » pour les ressources). */
+export function chipJauge({ token, libelle, img, texte, peut, onDelta, unite = libelle.toLowerCase() }) {
+  const chip = document.createElement("span");
+  chip.className = `chip chip-${token} jauge-inv${peut ? "" : " inactive"}`;
+  chip.dataset.token = token;
+  chip.title = peut ? `${libelle} : clic +1` : libelle;
+  const moins = document.createElement("button");
+  moins.type = "button"; moins.className = "chip-moins"; moins.dataset.token = token; moins.dataset.delta = "-1";
+  moins.title = `−1 ${unite}`; moins.textContent = "−"; moins.disabled = !peut;
+  const image = document.createElement("img");
+  image.src = img; image.alt = libelle; image.draggable = false;
+  const n = document.createElement("b");
+  n.className = "chip-n"; n.textContent = texte;
+  chip.append(moins, image, n);
+  if (peut) chip.addEventListener("click", (e) => {
+    e.preventDefault(); e.stopPropagation();
+    onDelta(e.target.closest(".chip-moins") ? -1 : 1);
+  });
+  return chip;
+}
+
 /** Couleurs des chemins tracés entre lieux (une par chemin, dans l'ordre). */
 export const COULEURS_CHEMINS = ["#e0c07a", "#5aa9e6", "#7bd389", "#e07a7a", "#c98ce0", "#f0a35e", "#6ee0d6", "#e8e87a", "#b0b0ff", "#ff9ecb"];
 

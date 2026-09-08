@@ -17,6 +17,29 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 : **retours d'UX, deuxième salve** (board joueur et tapis).
+  **Jauges d'enquêteur uniformisées** : ressources, indices, dégâts et
+  horreur sont les mêmes chips que sur les cartes (clic = +1, « − » au
+  survol), via `chipJauge()` de `cartes.js` — dans l'entête du board
+  (`.jauges-inv`, plus grandes) et dans les sièges du tapis (colonne
+  `.jauges-col`, `ligneCompteur` supprimée ; dégâts et horreur affichés
+  « subis/max » comme sur les cartes). Les pips d'actions restent (le
+  « + » donne une action supplémentaire). **Board joueur** : le bouton
+  qui dépense une action (`.bouton-action`, le même que sur le tapis),
+  « Fin de mon tour » / « Prendre mon tour » et « Phase suivante » sont
+  **au-dessus de la main**, à droite de l'aide (`blocTour`, `.tour-main`) ;
+  le **sac du chaos** est **juste à droite de Play, par-dessus la bande
+  Commit** (`.sac-joueur` absolu dans `.bloc-cours`, `#chaos` persistant
+  déplacé à chaque `rendreJeu` pour garder la composition épinglée ;
+  `padding-left` de la bande pour le sac, les jetons tirés recouvrent
+  les cartes engagées) ; **hors jeu = une seule pile** (dernière carte
+  arrivée visible, badge, clic ou menu « Chercher » → fenêtre locale
+  avec En jeu / En main / Défausser / Sur la pioche — pas d'aller-retour
+  serveur, les cartes sont déjà connues) ; le bouton « Rechercher (sans
+  mélanger) » de la veille est retiré au profit de l'entrée du **clic
+  droit sur la défausse** (remplace « Consulter »). Captures : le
+  dépôt d'une carte dans Commit se fait à droite du sac (le sac
+  intercepte les pointeurs). Captures 70b‑70d.
 - 2026-09-09 : **retours d'UX sur le board joueur** (deux) — bouton
   **« Rechercher (sans mélanger) »** sous la défausse de la page joueur
   (même fenêtre que « Consulter » du clic droit : ordre conservé,

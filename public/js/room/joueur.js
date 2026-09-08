@@ -5,7 +5,7 @@
 
 import { creerConnexion } from "./net.js";
 import { el, pluriel, surveillerPleinEcran } from "./dom.js";
-import { CDN, FACTIONS, totauxCompetences, elTotauxCompetences } from "./cartes.js";
+import { CDN, FACTIONS, totauxCompetences, elTotauxCompetences, chipJauge } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { blocDeck } from "./deck.js";
 import { carteEl, PHASES, rendreChaos, initLoupe } from "./tapis.js";
@@ -291,12 +291,6 @@ async function demarrer() {
       : el("img", { class: "portrait", src: `${CDN}${s.investigatorCode}.webp`, alt: "", "data-loupe-id": `inv-${n}`, "data-loupe": "1", title: "Survoler : agrandir la carte" });
     const verso = inv?.custom ? null : el("button", { class: "lien-outil verso", type: "button", title: "Lire le dos de la carte d'enquêteur",
       onclick: () => document.dispatchEvent(new CustomEvent("ahwa:loupe-image", { detail: { src: `${CDN}${s.investigatorCode}b.webp`, paysage: true } })) }, "verso");
-    // Compteur compact : icône, valeur, ± ; le libellé est dans l'infobulle.
-    const chip = (libelle, valeur, icone, moins, plus, unite, extra = "") => el("div", { class: `chip-compteur${extra}`, title: libelle },
-      el("img", { src: icone, alt: libelle }),
-      el("button", { class: "pm", type: "button", disabled: !peut, title: `−1 ${unite}`, onclick: moins }, "−"),
-      el("span", { class: "valeur", text: valeur }),
-      el("button", { class: "pm", type: "button", disabled: !peut, title: `+1 ${unite}`, onclick: plus }, "+"));
     const entete = document.getElementById("entete");
     entete.style.setProperty("--faction", faction.couleur);
     entete.classList.toggle("lecture", !peut);
@@ -306,21 +300,20 @@ async function demarrer() {
         el("div", { class: "fiche" },
           el("strong", {}, state.lead === n ? el("span", { class: "etoile", title: "enquêteur principal", text: "★ " }) : null, nomSiege(s, ctx)),
           inv ? el("span", { class: "sous", text: `${s.name ? `${inv.name} — ` : ""}${inv.subname ?? ""}`.replace(/ — $/, "") }) : null)),
-      el("div", { class: "compteurs-compacts" },
-        chip("Ressources", String(s.counters.resources ?? 0), "/img/tokens/tok_ressources.png", () => compteur("resources", -1), () => compteur("resources", 1), "ressource"),
-        chip("Indices", String(s.counters.clues ?? 0), "/img/tokens/tok_indices.png", () => compteur("clues", -1), () => compteur("clues", 1), "indice"),
-        chip("Vie (dégâts)", `${Math.max(0, s.counters.health - degats)}/${s.counters.health}`, "/img/tokens/tok_degats.png", () => jeton("damage", -1), () => jeton("damage", 1), "dégât"),
-        chip("Santé mentale (horreur)", `${Math.max(0, s.counters.sanity - horreur)}/${s.counters.sanity}`, "/img/tokens/tok_horreur.png", () => jeton("horror", -1), () => jeton("horror", 1), "horreur")),
+      // Jauges : les mêmes chips que sur les cartes (clic = +1, « − » au survol) — uniformisées le 2026-09-09.
+      el("div", { class: "jauges-inv compteurs-compacts" },
+        chipJauge({ token: "resource", libelle: "Ressources", unite: "ressource", img: "/img/tokens/tok_ressources.png", texte: String(s.counters.resources ?? 0), peut, onDelta: (d) => compteur("resources", d) }),
+        chipJauge({ token: "clue", libelle: "Indices", unite: "indice", img: "/img/tokens/tok_indices.png", texte: String(s.counters.clues ?? 0), peut, onDelta: (d) => compteur("clues", d) }),
+        chipJauge({ token: "damage", libelle: `Dégâts (vie ${s.counters.health})`, unite: "dégât", img: "/img/tokens/tok_degats.png", texte: `${degats}/${s.counters.health}`, peut, onDelta: (d) => jeton("damage", d) }),
+        chipJauge({ token: "horror", libelle: `Horreur (santé mentale ${s.counters.sanity})`, unite: "horreur", img: "/img/tokens/tok_horreur.png", texte: `${horreur}/${s.counters.sanity}`, peut, onDelta: (d) => jeton("horror", d) })),
+      // Les pips d'actions restent ici (le « + » donne une action supplémentaire) ; le bouton qui les dépense, le tour et la
+      // phase sont au-dessus de la main (retour de test du 2026-09-09).
       el("div", { class: "tour-actions" },
         el("div", { class: "actions-pips", title: "Actions restantes" },
           el("button", { class: "pm", type: "button", disabled: !peut, title: "Dépenser une action", onclick: () => compteur("actions", -1) }, "−"),
           ...[0, 1, 2].map((i) => el("span", { class: `pip${i < actions ? " plein" : ""}` })),
           actions > 3 ? el("span", { class: "plus", text: `+${actions - 3}` }) : null,
           el("button", { class: "pm", type: "button", disabled: !peut, title: "Action supplémentaire", onclick: () => compteur("actions", 1) }, "+")),
-        state.phase === "resolution" ? null : enTour
-          ? el("button", { class: "bouton petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "endTurn", seat: n }) }, "Fin de mon tour")
-          : el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "takeTurn", seat: n }) }, aJoue ? "Rejouer" : "Prendre mon tour"),
-        el("button", { class: "bouton secondaire petit", type: "button", id: "phase-suivante", disabled: moi.seat === null || state.phase === "resolution", title: "Passer à la phase suivante (automatisations de la table)", onclick: () => ctx.envoyer({ t: "nextPhase" }) }, "Phase suivante"),
         aJoue && !enTour ? el("span", { class: "sous", text: "a joué" }) : null),
       el("div", { class: "slots", title: "Main et occupation des slots d'après les cartes jouées (dépassement surligné, jamais bloqué)" },
         el("span", { class: "slot main", title: `Main : ${main} carte${main > 1 ? "s" : ""}` }, el("span", { class: "libelle", text: "Main" }), el("span", { text: String(main) })),
@@ -418,15 +411,15 @@ async function demarrer() {
               ? el("button", { class: "dos-bouton vide", type: "button", disabled: !peut, title: "Pioche vide : clic pour remélanger la défausse et piocher (prends 1 horreur)" }, el("span", { class: "sous", text: "vide" }))
               : el("span", { class: "sous", text: "vide" })),
         el("span", { class: "badge", text: String(pioche.length) }), el("span", { class: "etiquette-pile", text: "Pioche" })),
-      el("div", { class: "pile", "data-drop": `pile:pdiscard${n}`, "data-outil": `pdiscard${n}`, title: "Défausse — déposez ici pour défausser ; clic droit : consulter, reprendre" },
+      el("div", { class: "pile", "data-drop": `pile:pdiscard${n}`, "data-outil": `pdiscard${n}`, title: "Défausse — déposez ici pour défausser ; clic droit : rechercher (sans mélanger), reprendre" },
         el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteSansAP(dessus) : el("span", { class: "sous", text: "défausse" })),
         el("span", { class: "badge", text: String(defausse.length) }), el("span", { class: "etiquette-pile", text: "Défausse" })),
-      // Recherche dans la défausse (sans la mélanger : son ordre compte), bouton visible — retour de test du 2026-09-09.
-      el("button", { class: "bouton secondaire petit rechercher-defausse", type: "button", disabled: !peut || !defausse.length, title: "Rechercher dans la défausse (son ordre est conservé) : reprendre une carte en main, la remettre sur ou sous la pioche",
-        onclick: () => { ctx.derniereRecherche = { pile: `pdiscard${n}`, complete: false }; ctx.envoyer({ t: "p:search", pile: `pdiscard${n}` }); } }, "Rechercher (sans mélanger)"),
-      el("section", { class: "hors-jeu" },
-        el("h2", { text: "Hors jeu" }),
-        el("div", { class: "bande", "data-drop": `paside${n}` }, ...(cote.length ? cote.map((c) => carteSansAP(c)) : [el("p", { class: "vide", text: "Cartes liées et mises de côté." })]))),
+      // Hors jeu : une seule pile (la dernière carte arrivée dessus), clic = chercher dedans (retour de test du 2026-09-09).
+      el("div", { class: "pile hors-jeu", "data-drop": `paside${n}`, "data-outil": `paside${n}`, title: "Hors jeu (cartes liées, mises de côté) — clic : chercher dedans ; déposez ici pour mettre une carte hors jeu" },
+        el("div", { class: `dos-pile pile-hors-jeu${cote.length ? "" : " vide"}` },
+          cote.length ? el("button", { class: "dos-bouton", type: "button", disabled: !peut && !ctx.regarder, title: "Chercher dans les cartes hors jeu", onclick: () => ouvrirDialogueBoard(ctx, `paside${n}`, cote.slice().reverse().map((c) => ({ id: c.id, code: c.code }))) }, carteSansAP(cote[cote.length - 1]))
+            : el("span", { class: "sous", text: "hors jeu" })),
+        el("span", { class: "badge", text: String(cote.length) }), el("span", { class: "etiquette-pile", text: "Hors jeu" })),
     );
   }
 
@@ -461,6 +454,9 @@ async function demarrer() {
         enPlay.length ? el("button", { class: "bouton petit", type: "button", disabled: !peut, title: "L'événement va à la défausse", onclick: () => ctx.envoyer({ t: "p:resolve", zone: "play" }) }, "Résolu") : null),
       el("section", { class: "bloc-cours" },
         el("h2", {}, "Commit ", el("span", { class: "sous", text: "(cartes engagées au test de compétence)" })),
+        // Le sac du chaos vit ici, juste à droite de Play, par-dessus la bande Commit : les jetons tirés recouvrent les cartes
+        // engagées s'il y en a beaucoup (retour de test du 2026-09-09). L'élément #chaos est persistant (composition épinglée).
+        el("div", { class: "sac-joueur" }, document.getElementById("chaos")),
         el("div", { class: "bande", "data-drop": `pcommit${n}` }, ...(engagees.length ? engagees.map((c) => carteSansAP(c)) : [el("p", { class: "vide", text: "Glissez ici les cartes engagées au test." })]),
           elTotauxCompetences(totauxCompetences(engagees, ctx.defs)),
           engagees.length ? el("button", { class: "bouton petit", type: "button", disabled: !peut, title: "Les cartes engagées vont à la défausse", onclick: () => ctx.envoyer({ t: "p:resolve" }) }, "Test résolu") : null)),
@@ -468,6 +464,23 @@ async function demarrer() {
         el("h2", { text: "Zone de menace" }),
         el("div", { class: "menace", "data-drop": `seat${n}` }, ...(menace.length ? menace.map((c) => carteSansAP(c)) : [el("p", { class: "vide", text: "Ennemis engagés, traîtrises et soutiens histoire — les mêmes que sur le tapis." })]))),
     );
+  }
+
+  /** Au-dessus de la main (retour de test du 2026-09-09) : le bouton qui dépense une action (le même que sur la page
+   *  scénario), puis « Fin de mon tour » / « Prendre mon tour » et « Phase suivante ». */
+  function blocTour(state, s, peut) {
+    const n = s.index;
+    const actions = s.counters.actions ?? 0;
+    const enTour = state.turn.seat === n, aJoue = state.turn.done.includes(n);
+    return el("span", { class: "tour-main" },
+      el("button", { class: "bouton-action", type: "button", disabled: !peut || actions <= 0,
+        title: actions > 0 ? `Dépenser une action (${actions} restante${actions > 1 ? "s" : ""})` : "Plus d'action ce tour (« + » dans l'entête pour une action supplémentaire)",
+        onclick: () => ctx.envoyer({ t: "setSeatCounter", seat: n, key: "actions", delta: -1 }) },
+        el("span", { class: "fleche", html: ICONE_ACTION }), el("span", { class: "n", text: String(actions) })),
+      state.phase === "resolution" ? null : enTour
+        ? el("button", { class: "bouton petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "endTurn", seat: n }) }, "Fin de mon tour")
+        : el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "takeTurn", seat: n }) }, aJoue ? "Rejouer" : "Prendre mon tour"),
+      el("button", { class: "bouton secondaire petit", type: "button", id: "phase-suivante", disabled: !peut || state.phase === "resolution", title: "Passer à la phase suivante (automatisations de la table)", onclick: () => ctx.envoyer({ t: "nextPhase" }) }, "Phase suivante"));
   }
 
   function rendreMain(state, s, mien) {
@@ -484,6 +497,7 @@ async function demarrer() {
         !mien && cartes.length ? el("button", { class: "bouton secondaire petit", type: "button", onclick: () => { ctx.regarder = !ctx.regarder; rendre(); } }, ctx.regarder ? "Masquer" : "Regarder") : null,
         !mien ? el("span", { class: "sous", text: "main masquée : dos et nombre" }) : null,
         mien ? el("span", { class: "sous", text: mulligan ? "cliquez les cartes à rendre" : "AP au survol = payer et jouer ; glisser = poser sans payer (en jeu, Play, Commit, défausse, pioche) ; clic droit : révéler, défausser…" }) : null,
+        mien ? blocTour(state, s, peut) : null,
         mien ? el("span", { class: "espace" }) : null,
         mien ? el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || !s.deck, title: "Piocher 1 carte", onclick: () => ctx.envoyer({ t: "p:draw", n: 1 }) }, "Piocher") : null,
         mien ? el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || !cartes.length, title: "Défausser une carte de la main au hasard (nommée dans le journal)", onclick: () => ctx.envoyer({ t: "p:randomDiscard", n: 1 }) }, "Défausser au hasard") : null),

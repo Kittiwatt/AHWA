@@ -770,6 +770,18 @@ Disposition validée sur captures :
   « Regarder » (révélation locale, rien n'est envoyé), cartes `revealed`
   face visible. Les spectateurs ont la même vue.
 
+**Retours du 2026-09-09 (UX)** : les jauges d'enquêteur (ressources,
+indices, dégâts, horreur) sont des chips identiques à celles des cartes
+(clic = +1, « − » au survol) dans l'entête du board comme dans les
+sièges du tapis ; le bouton qui dépense une action, « Fin de mon tour /
+Prendre mon tour » et « Phase suivante » sont au-dessus de la main ; le
+sac du chaos est à droite de Play, par-dessus la bande Commit (les
+jetons tirés recouvrent les cartes engagées) ; « Hors jeu » est une
+pile (clic = chercher : En jeu / En main / Défausser / Sur la pioche) ;
+la défausse se cherche par le clic droit (« Rechercher (sans
+mélanger) », ordre conservé) ; dans « Mon lieu », les pions des
+enquêteurs présents sont posés sur le lieu.
+
 ### 10.6 Actions `p:*` (réservées aux connexions du siège)
 
 | t | Effet |

@@ -224,9 +224,13 @@ export function initInteractionsJoueur(ctx) {
     } else if (outil === p.discard) {
       const ids = state.piles[p.discard] ?? [];
       items.push(el("p", { class: "titre-menu", text: `Défausse — ${ids.length}` }));
-      items.push(item("Consulter", () => { ctx.derniereRecherche = { pile: p.discard, complete: false }; ctx.envoyer({ t: "p:search", pile: p.discard }); }, { off: !ids.length }));
+      items.push(item("Rechercher (sans mélanger)", () => { ctx.derniereRecherche = { pile: p.discard, complete: false }; ctx.envoyer({ t: "p:search", pile: p.discard }); }, { off: !ids.length }));
       items.push(item("Reprendre la dernière en main", () => ctx.envoyer({ t: "p:toHand", id: ids[0] }), { off: !ids.length }));
       items.push(item("Remettre la dernière sur la pioche", () => ctx.envoyer({ t: "toPile", id: ids[0], pile: p.deck, top: true }), { off: !ids.length }));
+    } else if (outil === zones().aside) {
+      const cote = Object.values(state.cards).filter((c) => c.loc.zone === outil).sort((a, b) => b.loc.x - a.loc.x || b.loc.z - a.loc.z);
+      items.push(el("p", { class: "titre-menu", text: `Hors jeu — ${cote.length}` }));
+      items.push(item("Chercher", () => ouvrirDialogueBoard(ctx, outil, cote.map((c) => ({ id: c.id, code: c.code }))), { off: !cote.length }));
     } else return;
     poser(items, x, y, null);
   }
@@ -304,6 +308,7 @@ export function initInteractionsJoueur(ctx) {
 export function ouvrirDialogueBoard(ctx, pile, cartes) {
   const n = ctx.vue;
   const pioche = pile === `pdeck${n}`;
+  const horsJeu = pile === `paside${n}`;   // zone hors jeu montrée comme une pile : les cartes sont déjà connues du client
   const complete = Boolean(ctx.derniereRecherche?.complete) && ctx.derniereRecherche?.pile === pile;
   const liste = el("div", { class: "grille-cartes" });
   const rendre = (restantes) => liste.replaceChildren(...restantes.map((c) => {
@@ -311,7 +316,9 @@ export function ouvrirDialogueBoard(ctx, pile, cartes) {
     const agir = (msg) => { ctx.envoyer(msg); rendre(restantes.filter((x) => x.id !== c.id)); };
     const boutons = pioche
       ? [["En main", { t: "p:toHand", id: c.id }], ["Défausser", { t: "p:discard", id: c.id }], ["En jeu", { t: "moveCard", id: c.id, zone: `pplay${n}`, x: 9999, y: 0 }]]
-      : [["En main", { t: "p:toHand", id: c.id }], ["Sur la pioche", { t: "toPile", id: c.id, pile: `pdeck${n}`, top: true }], ["Sous la pioche", { t: "toPile", id: c.id, pile: `pdeck${n}`, top: false }], ["Mélanger", { t: "toPile", id: c.id, pile: `pdeck${n}`, shuffle: true }]];
+      : horsJeu
+        ? [["En jeu", { t: "moveCard", id: c.id, zone: `pplay${n}`, x: 9999, y: 0 }], ["En main", { t: "p:toHand", id: c.id }], ["Défausser", { t: "p:discard", id: c.id }], ["Sur la pioche", { t: "toPile", id: c.id, pile: `pdeck${n}`, top: true }]]
+        : [["En main", { t: "p:toHand", id: c.id }], ["Sur la pioche", { t: "toPile", id: c.id, pile: `pdeck${n}`, top: true }], ["Sous la pioche", { t: "toPile", id: c.id, pile: `pdeck${n}`, top: false }], ["Mélanger", { t: "toPile", id: c.id, pile: `pdeck${n}`, shuffle: true }]];
     return el("figure", { class: "carte-peek" },
       el("img", { src: `${CDN}${c.code}.webp`, alt: def?.name ?? c.code, loading: "lazy" }),
       el("figcaption", {}, el("span", { text: def?.name ?? c.code }),
@@ -319,7 +326,8 @@ export function ouvrirDialogueBoard(ctx, pile, cartes) {
   }));
   rendre(cartes);
   const nb = `${cartes.length} carte${cartes.length > 1 ? "s" : ""}`;
-  const titre = pioche ? (complete ? `Pioche — ${nb} (du dessus au dessous)` : `Pioche — les ${cartes.length} première${cartes.length > 1 ? "s" : ""} (ordre conservé)`) : `Défausse — ${nb} (la plus récente d'abord, ordre conservé)`;
+  const titre = pioche ? (complete ? `Pioche — ${nb} (du dessus au dessous)` : `Pioche — les ${cartes.length} première${cartes.length > 1 ? "s" : ""} (ordre conservé)`)
+    : horsJeu ? `Hors jeu — ${nb} (la dernière arrivée d'abord)` : `Défausse — ${nb} (la plus récente d'abord, ordre conservé)`;
   const d = el("dialog", { class: "dialogue" },
     el("header", {}, el("h2", { text: titre }), el("button", { class: "bouton", type: "button", onclick: () => d.close() }, pioche && complete ? "Fermer et mélanger" : "Fermer")),
     cartes.length ? liste : el("p", { class: "vide", text: "Aucune carte." }));

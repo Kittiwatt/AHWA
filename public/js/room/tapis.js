@@ -3,7 +3,7 @@
 // les états (tour en cours, a joué, seuil atteint) sont des indications visuelles.
 
 import { el, pluriel } from "./dom.js";
-import { majCarte, majMini, majCle, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos, COULEURS_CHEMINS, totauxCompetences, elTotauxCompetences } from "./cartes.js";
+import { majCarte, majMini, majCle, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos, COULEURS_CHEMINS, totauxCompetences, elTotauxCompetences, chipJauge } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { ouvrirDialogueCartes, ouvrirAjustementSac, ouvrirDepenseIndices, ouvrirGenerateur } from "./dialogues.js";
 
@@ -505,15 +505,14 @@ function rendreSieges(ctx) {
       ),
       el("div", { class: "siege-corps" },
         carteInv ? carteEl(carteInv, ctx) : el("div", { class: "carte paysage vide" }),
+        // Jauges de l'enquêteur : les mêmes chips que sur les cartes (clic = +1, « − » au survol) — uniformisées le 2026-09-09.
+        el("div", { class: "jauges-col" },
+          el("div", { class: "jauges-inv" },
+            chipJauge({ token: "resource", libelle: "Ressources", unite: "ressource", img: "/img/tokens/tok_ressources.png", texte: String(s.counters.resources ?? 0), peut, onDelta: (d) => compteur("resources", d) }),
+            chipJauge({ token: "clue", libelle: "Indices", unite: "indice", img: "/img/tokens/tok_indices.png", texte: String(s.counters.clues ?? 0), peut, onDelta: (d) => compteur("clues", d) }),
+            chipJauge({ token: "damage", libelle: `Dégâts (vie ${s.counters.health})`, unite: "dégât", img: "/img/tokens/tok_degats.png", texte: `${degats}/${s.counters.health}`, peut, onDelta: (d) => jeton("damage", d) }),
+            chipJauge({ token: "horror", libelle: `Horreur (santé mentale ${s.counters.sanity})`, unite: "horreur", img: "/img/tokens/tok_horreur.png", texte: `${horreur}/${s.counters.sanity}`, peut, onDelta: (d) => jeton("horror", d) })),
         el("dl", { class: "compteurs" },
-          ligneCompteur("Vie", `${Math.max(0, s.counters.health - degats)} / ${s.counters.health}`, "/img/tokens/tok_degats.png", peut,
-            () => jeton("damage", -1), () => jeton("damage", 1), "dégât"),
-          ligneCompteur("Santé", `${Math.max(0, s.counters.sanity - horreur)} / ${s.counters.sanity}`, "/img/tokens/tok_horreur.png", peut,
-            () => jeton("horror", -1), () => jeton("horror", 1), "horreur"),
-          ligneCompteur("Indices", String(s.counters.clues ?? 0), "/img/tokens/tok_indices.png", peut,
-            () => compteur("clues", -1), () => compteur("clues", 1), "indice"),
-          ligneCompteur("Ressources", String(s.counters.resources ?? 0), "/img/tokens/tok_ressources.png", peut,
-            () => compteur("resources", -1), () => compteur("resources", 1), "ressource"),
           el("div", { class: "compteur actions" },
             el("dt", {}, el("span", { text: "Actions" })),
             el("dd", { class: "actions-pips" },
@@ -521,7 +520,7 @@ function rendreSieges(ctx) {
               ...[0, 1, 2].map((i) => el("span", { class: `pip${i < (s.counters.actions ?? 0) ? " plein" : ""}` })),
               (s.counters.actions ?? 0) > 3 ? el("span", { class: "plus", text: `+${s.counters.actions - 3}` }) : null,
               el("button", { class: "pm", type: "button", disabled: !peut, title: "Action supplémentaire", onclick: () => compteur("actions", 1) }, "+"))),
-        ),
+        )),
         el("div", { class: "menace", "data-drop": `seat${s.index}` }, ...(menace.length ? menace.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Zone de menace — déposez ici les ennemis engagés et les traîtrises" })])),
         // Board joueur partagé : la case Play (l'événement joué) à côté de la menace ; Commit est volant (rendreCommitVolant).
         s.deck ? casePlay(state, s, ctx) : null,
@@ -567,15 +566,6 @@ function rendreCommitVolant(ctx) {
   if (outils) zone.style.bottom = `${outils.offsetHeight + 20}px`;
 }
 
-function ligneCompteur(libelle, valeur, icone, peut, moins, plus, unite) {
-  return el("div", { class: "compteur" },
-    el("dt", {}, el("img", { src: icone, alt: "" }), el("span", { text: libelle })),
-    el("dd", {},
-      el("button", { class: "pm", type: "button", disabled: !peut, title: `−1 ${unite}`, onclick: moins }, "−"),
-      el("span", { class: "valeur", text: valeur }),
-      el("button", { class: "pm", type: "button", disabled: !peut, title: `+1 ${unite}`, onclick: plus }, "+")),
-  );
-}
 
 // ---- Loupe ------------------------------------------------------------------------
 

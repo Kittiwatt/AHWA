@@ -407,6 +407,15 @@ body.mode-lien #plateau .carte.kind-location { outline: 2px dashed var(--dorure-
 .pile.depot-ok { outline: 2px solid var(--dorure-2); outline-offset: 4px; border-radius: 4px; }
 .pile .dos-pile.depot-ok { outline: none; }
 .chip .chip-n { font-variant-numeric: tabular-nums; }
+/* Jauges d'un enquêteur (sièges du tapis, entête du board) : la même chip, hors carte */
+.jauges-inv { display: flex; flex-wrap: wrap; gap: 0.35rem 0.5rem; }
+.siege .jauges-col { display: grid; gap: 0.4rem; align-content: start; }
+.siege .jauges-inv { flex-direction: column; align-items: flex-start; }
+.siege .jauges-inv .chip { font-size: 1rem; gap: 3px; padding: 2px 7px 2px 2px; }
+.siege .jauges-inv .chip img { width: 26px; height: 26px; }
+.siege .jauges-inv .chip .chip-n { min-width: 1.5em; }
+.chip.inactive { cursor: default; }
+.chip.inactive:hover .chip-moins { display: none; }
 
 /* Agenda / acte hors de l'histoire : emplacement vide qui explique où est la carte */
 .carte.absente { display: grid; place-items: center; gap: 0.3rem; border: 1px dashed var(--zone-filet); background: var(--zone); box-shadow: none; color: var(--papier-2); font-size: 0.85rem; text-align: center; padding: 0.4rem; cursor: default; }
