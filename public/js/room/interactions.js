@@ -4,6 +4,7 @@ import { el } from "./dom.js";
 import { faceVisible } from "./cartes.js";
 import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, encart } from "./tapis.js";
 import { nomSiege } from "./lobby.js";
+import { libelleUses } from "./uses.js";
 import { ouvrirAjustementSac } from "./dialogues.js";
 
 const LIBELLES_JETONS = { clue: "Indice", doom: "Doom", damage: "Dégât", horror: "Horreur", resource: "Ressource", generic: "Marqueur", uses: "Uses" };
@@ -303,7 +304,7 @@ export function initInteractions(ctx) {
       const mienne = ctx.etat.moi.seat === proprio;
       const nomProprio = nomSiege(ctx.etat.state.seats[proprio], ctx);
       items.push(item(carte.exhausted ? "Redresser" : "Épuiser", () => ctx.envoyer({ t: "exhaust", id: carte.id })));
-      if (def?.uses) items.push(jeton("uses", `Uses (${def.uses.type})`));
+      if (def?.uses) items.push(jeton("uses", `Uses (${libelleUses(def.uses.type)})`));
       if (def?.health !== undefined) items.push(jeton("damage"));
       if (def?.sanity !== undefined) items.push(jeton("horror"));
       items.push(jeton("generic"));

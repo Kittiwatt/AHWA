@@ -1,0 +1,147 @@
+{
+  "fichiers": "public/img/tokens/uses/<fichier>.png ; repli sur uses.png",
+  "types": {
+    "charges": {
+      "fichier": "charges.png",
+      "label": "charges",
+      "alias": [
+        "charge"
+      ]
+    },
+    "ammo": {
+      "fichier": "ammo.png",
+      "label": "munitions",
+      "alias": []
+    },
+    "supplies": {
+      "fichier": "supplies.png",
+      "label": "provisions",
+      "alias": [
+        "supply"
+      ]
+    },
+    "secrets": {
+      "fichier": "secrets.png",
+      "label": "secrets",
+      "alias": [
+        "secret"
+      ]
+    },
+    "resources": {
+      "fichier": "../tok_ressources.png",
+      "label": "ressources",
+      "alias": [
+        "resource"
+      ]
+    },
+    "offerings": {
+      "fichier": "offerings.png",
+      "label": "offrandes",
+      "alias": [
+        "offering"
+      ]
+    },
+    "leylines": {
+      "fichier": "leylines.png",
+      "label": "lignes telluriques",
+      "alias": [
+        "leyline"
+      ]
+    },
+    "renown": {
+      "fichier": "renown.png",
+      "label": "renommée",
+      "alias": []
+    },
+    "keys": {
+      "fichier": "keys.png",
+      "label": "clés",
+      "alias": [
+        "key"
+      ]
+    },
+    "evidence": {
+      "fichier": "evidence.png",
+      "label": "preuves",
+      "alias": []
+    },
+    "inspiration": {
+      "fichier": "inspiration.png",
+      "label": "inspiration",
+      "alias": []
+    },
+    "rumors": {
+      "fichier": "rumors.png",
+      "label": "rumeurs",
+      "alias": [
+        "rumor"
+      ]
+    },
+    "chances": {
+      "fichier": "chances.png",
+      "label": "chances",
+      "alias": [
+        "chance"
+      ]
+    },
+    "locks": {
+      "fichier": "locks.png",
+      "label": "verrous",
+      "alias": [
+        "lock",
+        "[per_investigator] locks"
+      ]
+    },
+    "bounties": {
+      "fichier": "bounties.png",
+      "label": "primes",
+      "alias": [
+        "bounty"
+      ]
+    },
+    "tickets": {
+      "fichier": "tickets.png",
+      "label": "tickets",
+      "alias": [
+        "ticket"
+      ]
+    },
+    "arrow": {
+      "fichier": "arrow.png",
+      "label": "flèches",
+      "alias": [
+        "arrows"
+      ]
+    },
+    "shell": {
+      "fichier": "shell.png",
+      "label": "obus",
+      "alias": [
+        "shells"
+      ]
+    }
+  },
+  "repli": {
+    "fichier": "uses.png",
+    "label": "usages",
+    "concerne": [
+      "tries",
+      "whistles",
+      "durability",
+      "down",
+      "time",
+      "aether",
+      "brilliance",
+      "wishes",
+      "portents",
+      "truths",
+      "leads",
+      "discoveries",
+      "signs",
+      "obligations",
+      "obsessions",
+      "shards",
+      "x"
+    ]
+  }
+}

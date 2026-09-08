@@ -1,0 +1,40 @@
+// Pions d'utilisation (Uses) : images fournies par l'utilisateur (public/img/tokens/uses/, table data/uses_tokens.json).
+// Type ArkhamDB (« Uses (3 charges) ») et alias → image et libellé ; repli sur uses.png.
+export const USES_IMAGES = {
+  "charges": ["/img/tokens/uses/charges.png", "charges"],
+  "charge": ["/img/tokens/uses/charges.png", "charges"],
+  "ammo": ["/img/tokens/uses/ammo.png", "munitions"],
+  "supplies": ["/img/tokens/uses/supplies.png", "provisions"],
+  "supply": ["/img/tokens/uses/supplies.png", "provisions"],
+  "secrets": ["/img/tokens/uses/secrets.png", "secrets"],
+  "secret": ["/img/tokens/uses/secrets.png", "secrets"],
+  "resources": ["/img/tokens/tok_ressources.png", "ressources"],
+  "resource": ["/img/tokens/tok_ressources.png", "ressources"],
+  "offerings": ["/img/tokens/uses/offerings.png", "offrandes"],
+  "offering": ["/img/tokens/uses/offerings.png", "offrandes"],
+  "leylines": ["/img/tokens/uses/leylines.png", "lignes telluriques"],
+  "leyline": ["/img/tokens/uses/leylines.png", "lignes telluriques"],
+  "renown": ["/img/tokens/uses/renown.png", "renommée"],
+  "keys": ["/img/tokens/uses/keys.png", "clés"],
+  "key": ["/img/tokens/uses/keys.png", "clés"],
+  "evidence": ["/img/tokens/uses/evidence.png", "preuves"],
+  "inspiration": ["/img/tokens/uses/inspiration.png", "inspiration"],
+  "rumors": ["/img/tokens/uses/rumors.png", "rumeurs"],
+  "rumor": ["/img/tokens/uses/rumors.png", "rumeurs"],
+  "chances": ["/img/tokens/uses/chances.png", "chances"],
+  "chance": ["/img/tokens/uses/chances.png", "chances"],
+  "locks": ["/img/tokens/uses/locks.png", "verrous"],
+  "lock": ["/img/tokens/uses/locks.png", "verrous"],
+  "[per_investigator] locks": ["/img/tokens/uses/locks.png", "verrous"],
+  "bounties": ["/img/tokens/uses/bounties.png", "primes"],
+  "bounty": ["/img/tokens/uses/bounties.png", "primes"],
+  "tickets": ["/img/tokens/uses/tickets.png", "tickets"],
+  "ticket": ["/img/tokens/uses/tickets.png", "tickets"],
+  "arrow": ["/img/tokens/uses/arrow.png", "flèches"],
+  "arrows": ["/img/tokens/uses/arrow.png", "flèches"],
+  "shell": ["/img/tokens/uses/shell.png", "obus"],
+  "shells": ["/img/tokens/uses/shell.png", "obus"],
+};
+export const USES_REPLI = ["/img/tokens/uses/uses.png", "usages"];
+export function imageUses(type) { return USES_IMAGES[String(type ?? "").toLowerCase()] ?? USES_REPLI; }
+export function libelleUses(type) { return imageUses(type)[1]; }

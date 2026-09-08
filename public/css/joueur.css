@@ -157,3 +157,8 @@
 .board-joueur .carte .chip img { width: 24px; height: 24px; }
 .board-joueur .carte .jeton { width: 28px; height: 28px; font-size: 0.9rem; }
 .board-joueur .tires .jeton-chaos-img { width: 2.6rem !important; height: 2.6rem !important; }
+
+/* Cartes joueur : la pile de pions (Uses, etc.) en bas sur le texte de la carte, un peu à droite du milieu — elle ne
+   cache plus le coût en haut à gauche (retour de test du 2026-09-09). */
+.carte.joueur .jetons { left: 56%; top: auto; bottom: 15%; right: auto; transform: translateX(-50%); justify-content: center; max-width: 84%; }
+.carte.joueur .jetons .jeton { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }

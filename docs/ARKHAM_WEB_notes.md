@@ -17,6 +17,18 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 : **pions d'utilisation par type**. Images fournies par
+  l'utilisateur (conversation du projet) copiées dans
+  `public/img/tokens/uses/` (18 pions 140 × 140, disque inscrit, coins
+  blancs rognés par le `border-radius`), table `data/uses_tokens.json`
+  (type ArkhamDB et alias → fichier, libellé ; `resources` = jeton
+  ressource ; repli `uses.png` pour tries, whistles, durability…) →
+  `public/js/room/uses.js` (`imageUses`, `libelleUses`). `elJetons`
+  choisit l'image du pion `uses` d'après `def.uses.type` ; classe
+  `joueur` sur les cartes joueur ; leur pile de pions est placée **en
+  bas sur le texte, à 56 % de la largeur** (`.carte.joueur .jetons`),
+  plus en haut à gauche sur le coût. Les jetons `tok_*` du projet
+  (versions à marge) ne remplacent pas ceux du dépôt.
 - 2026-09-09 : **deuxième salve de retours**. Tapis : la **case Play**
   du siège passe à côté de la zone de menace (grille `.siege-corps` à
   quatre colonnes, `casePlay`), les bandes sous le siège disparaissent ;

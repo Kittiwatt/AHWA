@@ -932,6 +932,11 @@ with sync_playwright() as p:
     a13.mouse.move(zone["x"] + 420, zone["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
     assert a13.locator(".zone-jeu .carte").count() == nb_jeu + 1, "soutien joué par glisser (coût déduit)"
     assert "joue" in h13.locator("#journal").inner_text(), "le journal de la table consigne le jeu de la carte"
+    uses = a13.locator(f".zone-jeu .carte[title='{titre_soutien}'] .jeton-uses")
+    if uses.count():
+        assert "/img/tokens/" in (uses.first.get_attribute("style") or ""), "pion Uses du type de la carte (images fournies)"
+        pos = a13.evaluate("""(t) => { const e = document.querySelector(`.zone-jeu .carte[title="${t}"] .jetons`); const c = e.closest('.carte').getBoundingClientRect(); const r = e.getBoundingClientRect(); return (r.top + r.height / 2 - c.top) / c.height; }""", titre_soutien)
+        assert pos > 0.6, "la pile de pions est en bas de la carte, sur le texte"
     src = a13.locator("#main .eventail .carte").first.bounding_box(); cours = a13.locator(".bloc-cours .bande").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(cours["x"] + 60, cours["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)

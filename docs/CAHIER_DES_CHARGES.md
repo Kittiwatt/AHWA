@@ -702,7 +702,8 @@ Disposition validée sur captures :
   (dernière carte visible, compte ; menu : consulter → reprendre en
   main / sur la pioche / sous la pioche / mélanger dans la pioche),
   hors jeu (rangée de vignettes, glisser vers la main ou en jeu).
-- **Centre** : **en jeu** (zone libre des soutiens : chips Uses, jauges
+- **Centre** : **en jeu** (zone libre des soutiens : pions Uses du bon
+  type et en bonne quantité posés au jeu de la carte, jauges
   des alliés, épuisé = rotation, « Autre face » pour les cartes à verso
   lié comme Sophie, « Retourner » pour les autres) ; dessous, côte à
   côte : **Play** (case d'une carte : l'événement joué, bouton
@@ -840,11 +841,14 @@ nomenclature, puis mise en page.
   (jamais le texte) — à valider.
 - **Code de siège** : visible de toute la table (décision A3) ou du seul
   siège — à confirmer à l'usage.
-- **Images des jetons Uses** : rendus avec l'image du jeton ressource
-  cerclée (la règle : des jetons ressource posés sur la carte) ; Arkham
-  Cards n'a pas d'icône par type (vérifié le 2026-09-08 :
-  `arkhamicons` couvre slots, factions, compétences, vie / santé
-  mentale, action / réaction / libre, pas les Uses).
+- **Images des jetons Uses** : *réglé le 2026-09-09* — pions fournis par
+  l'utilisateur pour chaque type (`public/img/tokens/uses/`, table
+  `data/uses_tokens.json` : charges, munitions, provisions, secrets,
+  offrandes, lignes telluriques, renommée, clés, preuves, inspiration,
+  rumeurs, chances, verrous, primes, tickets, flèches, obus ; ressources
+  = jeton ressource ; repli `uses.png`). Posés automatiquement au jeu
+  d'un soutien, dans la bonne quantité, **en bas de la carte sur le
+  texte, un peu à droite du milieu** (le coût reste visible).
 - **Decks annexes** (hunch deck de Joe Diamond, Underworld Market,
   cartes sous l'enquêteur) : piles supplémentaires par siège, v2.
 - **Attaches** entre cartes joueur : empilement visuel seulement (v1).

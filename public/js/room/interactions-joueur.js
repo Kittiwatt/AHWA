@@ -6,11 +6,10 @@
 import { el } from "./dom.js";
 import { CDN, faceVisible } from "./cartes.js";
 
-const LIBELLES_JETONS = { uses: "Uses", damage: "Dégât", horror: "Horreur", doom: "Doom", clue: "Indice", generic: "Marqueur" };
-const LIBELLES_USES = { ammo: "munitions", charges: "charges", charge: "charges", secrets: "secrets", supplies: "provisions", resources: "ressources", offerings: "offrandes",
-  bounties: "primes", evidence: "preuves", leylines: "lignes telluriques", keys: "clés", whistles: "sifflets", tickets: "tickets", tries: "essais", durability: "durabilité", time: "temps" };
+import { libelleUses } from "./uses.js";
 
-export function libelleUses(type) { return LIBELLES_USES[type] ?? type; }
+const LIBELLES_JETONS = { uses: "Uses", damage: "Dégât", horror: "Horreur", doom: "Doom", clue: "Indice", generic: "Marqueur" };
+export { libelleUses };
 
 export function initInteractionsJoueur(ctx) {
   let drag = null, menu = null, pressionLongue = null, dernierLacher = 0;

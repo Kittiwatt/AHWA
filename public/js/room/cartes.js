@@ -62,6 +62,8 @@ export function initiales(nom) {
   return nom.replace(/["“”]/g, "").split(/[\s-]+/).filter(Boolean).map((m) => m[0]).slice(0, 2).join("").toUpperCase();
 }
 
+import { imageUses } from "./uses.js";
+
 const JETONS = [
   ["clue", "/img/tokens/tok_indices.png", "indice"],
   ["doom", "/img/tokens/tok_doom.png", "doom"],
@@ -72,14 +74,16 @@ const JETONS = [
   ["uses", "/img/tokens/tok_ressources.png", "use"],
 ];
 
-export function elJetons(tokens = {}) {
+export function elJetons(tokens = {}, usesType = null) {
   const frag = document.createDocumentFragment();
-  for (const [cle, img, libelle] of JETONS) {
+  for (const [cle, img0, libelle0] of JETONS) {
     const n = tokens[cle] ?? 0;
     if (n <= 0) continue;
+    // Uses : le pion du type de la carte (munitions, charges, secrets… ; images fournies), pas un jeton ressource.
+    const [img, libelle] = cle === "uses" && usesType ? imageUses(usesType) : [img0, libelle0];
     const j = document.createElement("span");
     j.className = `jeton jeton-${cle}`;
-    j.title = `${n} ${libelle}${n > 1 ? "s" : ""}`;
+    j.title = cle === "uses" && usesType ? `${n} ${libelle}` : `${n} ${libelle}${n > 1 ? "s" : ""}`;
     j.style.backgroundImage = `url(${img})`;
     j.textContent = String(n);
     frag.append(j);
@@ -105,7 +109,7 @@ export function majCarte(el, carte, ctx) {
   }
   const face0 = faceVisible(carte, def);
   const paysage = face0.liee ? ["agenda", "act", "investigator"].includes(face0.kind) : estPaysage(carte);
-  el.className = `carte kind-${carte.kind}${paysage ? " paysage" : ""}${carte.exhausted ? " epuisee" : ""}${carte.faceUp ? "" : " retournee"}${def?.custom ? " custom" : ""}`;
+  el.className = `carte kind-${carte.kind}${paysage ? " paysage" : ""}${carte.exhausted ? " epuisee" : ""}${carte.faceUp ? "" : " retournee"}${def?.custom ? " custom" : ""}${def?.player ? " joueur" : ""}`;
   // Enquêteur personnalisé sans image (ou image injoignable) : son nom sur un fond uni.
   if (def?.custom) {
     let etiquette = el.querySelector(".nom-custom");
@@ -158,7 +162,7 @@ export function majCarte(el, carte, ctx) {
   el.dataset.loupe = loupePermise(carte, def) ? "1" : "";
   const jetons = el.querySelector(".jetons");
   const tokens = jauges.length ? { ...carte.tokens, ...Object.fromEntries(jauges.map((t) => [t, 0])) } : carte.tokens;
-  jetons.replaceChildren(elJetons(tokens));
+  jetons.replaceChildren(elJetons(tokens, def?.uses?.type ?? null));
   return el;
 }
 
