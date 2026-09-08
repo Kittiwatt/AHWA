@@ -4,7 +4,7 @@
 // Tout passe par ctx.envoyer : un geste = un message. Seul le siège agit sur son board (ctx.peutAgir()).
 
 import { el } from "./dom.js";
-import { CDN, faceVisible } from "./cartes.js";
+import { CDN, faceVisible, urlArkhamDB } from "./cartes.js";
 
 import { libelleUses } from "./uses.js";
 
@@ -259,6 +259,10 @@ export function initInteractionsJoueur(ctx) {
     items.push(el("p", { class: "titre-menu", text: nom }));
     const enMain = carte.loc.pile === p.hand;
     if (elem.dataset.loupe === "1" || (enMain && mienne)) items.push(item("Agrandir", () => document.dispatchEvent(new CustomEvent("ahwa:loupe", { detail: elem })), { libre: true }));
+    // Page de la carte sur ArkhamDB, dans un nouvel onglet — pour une face visible du lecteur : carte face visible, carte de
+    // sa main, carte révélée à tous (retour de test du 2026-09-09).
+    const adb = carte.faceUp || carte.revealed === true || (enMain && (mienne || ctx.regarder)) ? urlArkhamDB(carte, def) : null;
+    if (adb) items.push(item("Voir sur ArkhamDB", () => window.open(adb, "_blank", "noopener"), { libre: true }));
     if (mienne && enMain) {
       const cout = def?.cost;
       const libelleJouer = cout === -2 ? "Auto-pay : jouer (X…)" : typeof cout === "number" && cout > 0 ? `Auto-pay : jouer (payer ${cout})` : "Auto-pay : jouer";

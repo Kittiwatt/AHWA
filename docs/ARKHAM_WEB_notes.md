@@ -17,6 +17,16 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 : **« Voir sur ArkhamDB »** dans le menu (clic droit) de
+  toute carte, tapis et board joueur : ouvre `https://arkhamdb.com/card/
+  <code>` dans un nouvel onglet (`urlArkhamDB()` de `cartes.js`). Rien
+  pour les clés, pions, espaces vides et enquêteurs personnalisés ;
+  jamais pour un dos (un lieu non révélé, une carte de rencontre face
+  cachée : la page montrerait le recto) ; sur le board, les cartes de sa
+  main (ou d'une main regardée) et les cartes révélées à tous l'ont ; un
+  verso lié visible (verso-lieu, Nathan Wick) mène à sa propre carte.
+  Vérifié par script : lieu non révélé sans entrée, lieu révélé → onglet
+  `/card/07047`, clé sans entrée, enquêteur avec.
 - 2026-09-09 : **défausse du board : menu de la pile même sur la carte du
   dessus** — dès qu'une carte était dans la défausse, le clic droit
   ouvrait le menu de cette carte et « Rechercher (sans mélanger) »

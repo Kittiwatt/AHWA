@@ -195,6 +195,7 @@ with sync_playwright() as p:
     assert alice.locator("#sieges .siege").nth(0).locator(".bouton-action").is_disabled(), "plus d'action : bouton désactivé"
     alice.locator("#sieges .siege").nth(0).locator(".menace .carte").first.click(button="right")
     alice.wait_for_selector(".menu-carte")
+    assert alice.locator(".menu-carte").get_by_role("button", name="Voir sur ArkhamDB").count() == 1, "menu : Voir sur ArkhamDB (carte face visible)"
     alice.screenshot(path=f"{OUT}/07_menu_contextuel.png")
     alice.locator(".menu-carte").get_by_role("button", name="Défausser").click()
     alice.wait_for_timeout(400)
@@ -973,6 +974,7 @@ with sync_playwright() as p:
     a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .etiquette-pile").click(); a13.wait_for_selector("dialog[open] .carte-peek", timeout=5000)
     a13.keyboard.press("Escape"); a13.wait_for_timeout(300)
     a13.locator("#main .eventail .carte").first.dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
+    assert a13.locator(".menu-carte").get_by_role("button", name="Voir sur ArkhamDB").count() == 1, "menu d'une carte de la main : Voir sur ArkhamDB"
     a13.screenshot(path=f"{OUT}/62_board_menu_main.png")
     a13.locator(".menu-carte").get_by_role("button", name="Révéler à tous").click(); a13.wait_for_timeout(400)
     assert a13.locator("#main .eventail .carte.revelee").count() == 1, "carte montrée à tous"
@@ -1115,8 +1117,9 @@ with sync_playwright() as p:
     jauge = a13.locator(".zone-jeu .carte.joueur .chip-uses").first
     if jauge.count():
         avant = int(jauge.locator(".chip-n").inner_text())
-        jauge.hover(); a13.wait_for_timeout(200)
-        jauge.locator(".chip-plus").click(); a13.wait_for_timeout(400)
+        # force : une carte posée face cachée plus tard peut recouvrir la jauge selon l'ordre du deck (aléa du test)
+        jauge.hover(force=True); a13.wait_for_timeout(200)
+        jauge.locator(".chip-plus").click(force=True); a13.wait_for_timeout(400)
         assert int(a13.locator(".zone-jeu .carte.joueur .chip-uses").first.locator(".chip-n").inner_text()) == avant + 1, "« + » de la jauge Uses au survol"
     browser.close()
 

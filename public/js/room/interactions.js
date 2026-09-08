@@ -1,7 +1,7 @@
 // Interactions sur les cartes : glisser-déposer (message au lâcher), clic, double-clic, menu contextuel.
 
 import { el } from "./dom.js";
-import { faceVisible, cleDeCouleur, INONDATION } from "./cartes.js";
+import { faceVisible, cleDeCouleur, INONDATION, urlArkhamDB } from "./cartes.js";
 import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, journalLocal } from "./tapis.js";
 import { nomSiege } from "./lobby.js";
 import { libelleUses } from "./uses.js";
@@ -307,6 +307,9 @@ export function initInteractions(ctx) {
     const nom = ctx.investigateurs.get(carte.code)?.name ?? faceVisible(carte, def).name ?? carte.code;
     items.push(el("p", { class: "titre-menu", text: nom }));
     if (elem.dataset.loupe === "1") items.push(item("Agrandir", () => document.dispatchEvent(new CustomEvent("ahwa:loupe", { detail: elem })), { libre: true }));
+    // Page de la carte sur ArkhamDB, dans un nouvel onglet — seulement pour une face visible (retour de test du 2026-09-09).
+    const adb = carte.faceUp ? urlArkhamDB(carte, def) : null;
+    if (adb) items.push(item("Voir sur ArkhamDB", () => window.open(adb, "_blank", "noopener"), { libre: true }));
     const rencontre = !carte.player && ["enemy", "treachery", "asset", "story"].includes(carte.kind);
     if (carte.player) {
       // Carte d'un deck joueur posée sur le tapis (« Poser sur mon lieu ») ou dans une zone de menace : retour sur le

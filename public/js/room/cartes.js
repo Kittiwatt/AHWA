@@ -43,6 +43,15 @@ export function faceVisible(carte, def) {
   return { kind: carte.kind, name: versoMontre ? def.backName : def?.name, health: def?.health, sanity: def?.sanity, healthPerInvestigator: def?.healthPerInvestigator, liee: false };
 }
 
+/** Page ArkhamDB de la face visible d'une carte (menu « Voir sur ArkhamDB »), ou null : rien pour les clés, pions,
+ *  espaces vides et enquêteurs personnalisés ; un verso lié visible (acte dont le dos est un lieu, Nathan Wick) renvoie
+ *  à sa propre carte. Le dos ne mène jamais à la page (il révélerait le recto). */
+export function urlArkhamDB(carte, def) {
+  if (!carte || carte.kind === "key" || carte.kind === "mini" || carte.kind === "proxy" || def?.custom) return null;
+  const code = def?.backCode && carte.faceUp && carte.side === "b" ? def.backCode : carte.code;
+  return /^[0-9a-z]+$/i.test(code) ? `https://arkhamdb.com/card/${code}` : null;
+}
+
 /** La face actuellement visible peut-elle être agrandie ? (jamais le dos d'une carte histoire) */
 export function loupePermise(carte, def) {
   if (carte.faceUp) return true;

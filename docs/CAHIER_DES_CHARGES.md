@@ -780,7 +780,9 @@ jetons tirés recouvrent les cartes engagées) ; « Hors jeu » est une
 pile (clic = chercher : En jeu / En main / Défausser / Sur la pioche) ;
 la défausse se cherche par le clic droit (« Rechercher (sans
 mélanger) », ordre conservé) ; dans « Mon lieu », les pions des
-enquêteurs présents sont posés sur le lieu.
+enquêteurs présents sont posés sur le lieu. Le menu de toute carte
+(tapis et board) propose « Voir sur ArkhamDB » (nouvel onglet), sauf
+pour un dos, une clé, un pion ou un enquêteur personnalisé.
 
 ### 10.6 Actions `p:*` (réservées aux connexions du siège)
 
