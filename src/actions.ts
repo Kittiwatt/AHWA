@@ -151,14 +151,41 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
   // Effets déclarés par le scénario quand cet agenda devient courant (verso de l'agenda précédent) : des cartes de côté
   // (et la défausse) rejoignent la pioche de rencontre, mélangée — The Vanishing of Elina Harper.
   const effet = agenda && stage ? def.agendaEffects?.[String(stage)] : undefined;
-  if (effet?.shuffleAside?.length) {
-    const cartes = Object.values(state.cards).filter((k) => "zone" in k.loc && k.loc.zone === "aside" && effet.shuffleAside!.includes(k.code));
-    for (const k of cartes) { k.loc = { pile: "encounter" }; k.faceUp = false; k.tokens = {}; k.exhausted = false; state.piles.encounter.push(k.id); }
-    let defausse = 0;
-    if (effet.withDiscard) { defausse = state.piles.encounterDiscard.length; remelangerDefausse(state, Math.random); }
-    else shuffle(state.piles.encounter, Math.random);
-    for (const id of state.piles.encounter) state.cards[id].faceUp = false;
-    reminders.push(addLog(state, "reminder", `${effet.log ?? `Agenda ${stage}`} : ${cartes.length} carte${cartes.length > 1 ? "s" : ""} de côté (${[...new Set(cartes.map((k) => nomCarte(def, k)))].join(", ") || "aucune"})${effet.withDiscard ? ` et les ${defausse} de la défausse` : ""} mélangée${cartes.length + defausse > 1 ? "s" : ""} dans la pioche de rencontre.`));
+  if (effet) {
+    const parties: string[] = [];
+    // Inondation des lieux (par trait, tous ou révélés seulement).
+    if (effet.flood) parties.push(inonderLieux(state, def, effet.flood.mode, effet.flood.trait, effet.flood.scope ?? "all"));
+    // Cartes de côté (et la défausse) mélangées dans la pioche de rencontre.
+    if (effet.shuffleAside?.length) {
+      const cartes = Object.values(state.cards).filter((k) => "zone" in k.loc && k.loc.zone === "aside" && effet.shuffleAside!.includes(k.code));
+      for (const k of cartes) { k.loc = { pile: "encounter" }; k.faceUp = false; k.tokens = {}; k.exhausted = false; state.piles.encounter.push(k.id); }
+      let defausse = 0;
+      if (effet.withDiscard) { defausse = state.piles.encounterDiscard.length; remelangerDefausse(state, Math.random); }
+      else shuffle(state.piles.encounter, Math.random);
+      for (const id of state.piles.encounter) state.cards[id].faceUp = false;
+      parties.push(`${cartes.length} carte${cartes.length > 1 ? "s" : ""} de côté (${[...new Set(cartes.map((k) => nomCarte(def, k)))].join(", ") || "aucune"})${effet.withDiscard ? ` et les ${defausse} de la défausse` : ""} mélangée${cartes.length + defausse > 1 ? "s" : ""} dans la pioche de rencontre`);
+    }
+    // Une carte de côté apparaît sur un lieu (Angry Mob à Innsmouth Square), puis une clé cachée au hasard dessus.
+    if (effet.spawnAside) {
+      const k = Object.values(state.cards).find((c) => c.code === effet.spawnAside!.code && "zone" in c.loc && c.loc.zone === "aside");
+      const lieu = Object.values(state.cards).find((c) => c.code === effet.spawnAside!.at && c.kind === "location" && "zone" in c.loc && c.loc.zone === "board");
+      if (k && lieu) {
+        const { x: lx, y: ly } = lieu.loc as { x: number; y: number };
+        k.loc = { zone: "board", x: lx + 36, y: ly + 46, z: nextZ(state) };
+        k.faceUp = true; k.side = effet.spawnAside.side ?? k.side; k.exhausted = false;
+        parties.push(`${nomCarte(def, k)} apparaît à ${nomCarte(def, lieu)}`);
+      } else parties.push(`${effet.spawnAside.code} introuvable de côté (ou lieu absent) : à faire à la main`);
+    }
+    if (effet.randomKeyOn) {
+      const cible = Object.values(state.cards).find((c) => c.code === effet.randomKeyOn && "zone" in c.loc && c.loc.zone === "board");
+      const cachees = Object.values(state.cards).filter((k) => k.kind === "key" && !k.faceUp && "zone" in k.loc && k.loc.zone === "aside");
+      if (cible && cachees.length) {
+        const cle = cachees[Math.floor(Math.random() * cachees.length)];
+        poserCleSur(state, cle, cible, nextZ(state));
+        parties.push(`une clé face cachée, tirée au hasard parmi les ${cachees.length} de côté, est posée sur ${nomCarte(def, cible)} sans être regardée`);
+      } else parties.push("aucune clé cachée de côté (ou cible absente) : clé à poser à la main");
+    }
+    if (parties.length) reminders.push(addLog(state, "reminder", `${effet.log ?? `Agenda ${stage}`} : ${parties.join(" ; ")}.`));
   }
   // Marée (TIC) : l'agenda qui devient courant inonde les lieux révélés et fixe la règle appliquée à chaque révélation.
   const maree = agenda && stage ? def.flood?.byAgenda?.[String(stage)] : undefined;
@@ -195,6 +222,19 @@ function emplacementLibre(state: RoomState, def: ScenarioDef): { x: number; y: n
 /** Pile qui ne se pioche, ne se consulte ni ne se mélange : les cartes cachées sous la carte de référence. */
 function pileSecrete(def: ScenarioDef, pile: string): boolean {
   return Boolean(def.leads && pile === def.leads.secret);
+}
+
+/** Inonde les lieux du tapis d'un trait donné (ou tous), révélés ou non selon `scope` : « increase » (+1, plafond 2) ou « full ». */
+function inonderLieux(state: RoomState, def: ScenarioDef, mode: "increase" | "full", trait?: string, scope: "all" | "revealed" = "all"): string {
+  const lieux = Object.values(state.cards).filter((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board"
+    && (scope === "all" || k.faceUp) && (!trait || (def.cards.find((d) => d.code === k.code)?.traits ?? []).includes(trait)));
+  let n = 0;
+  for (const l of lieux) {
+    const avant = l.tokens.flood ?? 0;
+    const apres = mode === "full" ? 2 : Math.min(2, avant + 1);
+    if (apres !== avant) { l.tokens.flood = apres; n++; }
+  }
+  return `${n} lieu${n > 1 ? "x" : ""}${trait ? ` « ${trait} »` : ""} ${mode === "full" ? "totalement inondé" : "monte d'un niveau d'inondation"}${n > 1 ? "s" : ""} (sur ${lieux.length})`;
 }
 
 /** Inonde tous les lieux révélés du tapis : « increase » (+1 niveau, plafond 2), « full » (niveau 2), « decrease », « clear ». */
@@ -844,6 +884,23 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       reminders.push(addLog(state, "reminder", `Journal de campagne (papier) : entourez ${nom(verite.suspect.code)} et ${nom(verite.hideout.code)} sous « Possible Suspects / Possible Hideouts ».`));
       reminders.push(...rappels(state, def, "act:2"), ...rappels(state, def, "agenda:3"));
       return { reminders };
+    }
+
+    // ---- Barrières entre lieux adjacents (In Too Deep) --------------------------------
+    case "setBarrier": {
+      // {a, b, delta} : +1 / −1 barrière entre deux lieux du tapis (0 = plus de barrière, l'entrée disparaît).
+      const a = carte(state, msg.a), b = carte(state, msg.b);
+      if (a.id === b.id || a.kind !== "location" || b.kind !== "location") refuser("une barrière sépare deux lieux");
+      state.barriers ??= [];
+      const delta = Math.round(Number(msg.delta) || 0);
+      const i = state.barriers.findIndex((k) => (k.a === a.id && k.b === b.id) || (k.a === b.id && k.b === a.id));
+      const avant = i >= 0 ? state.barriers[i].n : 0;
+      const apres = Math.max(0, avant + delta);
+      if (apres === avant) return {};
+      if (i >= 0) { if (apres) state.barriers[i].n = apres; else state.barriers.splice(i, 1); }
+      else state.barriers.push({ a: a.id, b: b.id, n: apres });
+      addLog(state, "action", `Barrière${apres > 1 ? "s" : ""} entre ${nomCarte(def, a)} et ${nomCarte(def, b)} : ${apres} (${delta > 0 ? "+" : ""}${apres - avant}).`);
+      return {};
     }
 
     // ---- Chemins entre lieux --------------------------------------------------------

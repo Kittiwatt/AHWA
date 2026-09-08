@@ -40,7 +40,7 @@ export type SetupStep =
     // jetons posés au hasard sur des lieux du tapis : à chaque manche (rounds[joueurs-1]), picks[joueurs-1] lieux distincts reçoivent n jetons (brèches d'In the Clutches of Chaos)
   | { op: "pickRandomSet"; from: string[]; n?: number; log?: string }   // garde n sets dans la pioche, retire les autres (sans révéler lesquels)
   | { op: "addDoom"; n?: number; nFrom?: string; log?: string }         // doom sur l'agenda courant (après « story ») ; nFrom = réponse numérique
-  | { op: "addTokens"; at: string; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic"; n?: number; nFrom?: string; log?: string }   // jetons sur une carte en jeu (code ou slot), ex. ressource = brasero allumé ; nFrom = réponse numérique
+  | { op: "addTokens"; at: string; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic" | "flood"; n?: number; nFrom?: string; log?: string }   // jetons sur une carte en jeu (code ou slot), ex. ressource = brasero allumé ; nFrom = réponse numérique
   | { op: "emptySpace"; positions: { x: number; y: number }[]; log?: string }   // espaces vides posés au setup (dos de carte joueur)
   | { op: "chaosAdd"; byDifficulty: Record<Difficulty, Token[]>; log?: string }   // jeton(s) selon la difficulté (Interlude IV de TCU)
   | { op: "when"; cond: Cond; then: SetupStep[]; else?: SetupStep[] }     // condition composée sur les réponses
@@ -58,7 +58,10 @@ export type SetupStep =
   | { op: "spawn"; code: string; at: string; log?: string }
   | { op: "setStart"; code: string; log?: string }
   | { op: "minis"; code: string; log?: string }
-  | { op: "aside"; codes?: string[]; sets?: string[]; faceUp?: boolean; log?: string }   // codes (répétés selon la quantité) ou sets entiers
+  | { op: "aside"; codes?: string[]; sets?: string[]; faceUp?: boolean; side?: "a" | "b"; log?: string }   // codes (répétés selon la quantité) ou sets entiers ; `side: "b"` = mise de côté sur son verso lié (Angry Mob)
+  | { op: "barriers"; pairs: { a: string; b: string; n: number }[]; log?: string }   // barrières (jetons ressource) entre deux lieux adjacents (In Too Deep)
+  | { op: "placeKey"; color: string; at?: string; atRandom?: string[]; faceUp?: boolean; log?: string }
+    // une clé de couleur posée sur une carte en jeu (code) — ou sur un lieu tiré au hasard parmi `atRandom` (mode autonome)
   | { op: "dealToSeats"; from: string[]; n: number; rows: { x: number; y: number; dx?: number }[]; start?: boolean; log?: string }
     // n cartes tirées au hasard dans from, distribuées une à une aux enquêteurs dans l'ordre des joueurs
     // (principal d'abord) ; rangée i = i-ème enquêteur servi ; le reste est retiré ; start : chacun commence
@@ -84,12 +87,16 @@ export type SetupStep =
 // Condition composée sur les réponses du lobby (op « when ») : réponse égale, tout, au moins un, au moins n, non.
 export type Cond =
   | { q: string; is: string }
+  | { q: string; has: string }   // question à cases à cocher (type "multi") : l'option est cochée
   | { all: Cond[] }
   | { any: Cond[] }
   | { atLeast: number; of: Cond[] }
   | { not: Cond };
 
-export function evalCond(c: Cond, answers: Record<string, string>): boolean {
+export type Answers = Record<string, string | string[]>;
+
+export function evalCond(c: Cond, answers: Answers): boolean {
+  if ("q" in c && "has" in c) { const r = answers[c.q]; return Array.isArray(r) && r.includes(c.has); }
   if ("q" in c) return String(answers[c.q]) === c.is;
   if ("all" in c) return c.all.every((k) => evalCond(k, answers));
   if ("any" in c) return c.any.some((k) => evalCond(k, answers));
@@ -97,19 +104,21 @@ export function evalCond(c: Cond, answers: Record<string, string>): boolean {
   return !evalCond(c.not, answers);
 }
 
-// Question au lobby : à choix (options) ou numérique (type "number", bornes min/max, valeur par défaut).
+// Question au lobby : à choix (options), numérique (type "number", bornes min/max, valeur par défaut) ou à cases à cocher
+// (type "multi" : la réponse est la liste des options cochées, éventuellement vide — cond `{ q, has }`).
 export type Question = {
   id: string; text: string;
   options?: { id: string; label: string }[];
-  type?: "number"; min?: number; max?: number; default?: number;
+  type?: "number" | "multi"; min?: number; max?: number; default?: number;
 };
 
-/** Réponse valide ? (choix parmi les options, ou entier dans les bornes) */
+/** Réponse valide ? (choix parmi les options, entier dans les bornes, ou liste d'options cochées) */
 export function reponseValide(q: Question, r: unknown): boolean {
   if (q.type === "number") {
     const n = Number(r);
     return Number.isInteger(n) && n >= (q.min ?? 0) && n <= (q.max ?? Number.MAX_SAFE_INTEGER);
   }
+  if (q.type === "multi") return Array.isArray(r) && r.every((x) => (q.options ?? []).some((o) => o.id === x)) && new Set(r).size === r.length;
   return (q.options ?? []).some((o) => o.id === r);
 }
 
@@ -146,10 +155,17 @@ export type ScenarioDef = {
   swaps?: { pair: [string, string]; labels: [string, string] }[];   // lieux qui se remplacent (normal ↔ Spectral), avec le libellé de chaque version
   mythosDoom?: boolean;     // false : la phase du mythe n'ajoute pas de doom automatiquement (brèches d'In the Clutches of Chaos)
   emptySpace?: boolean;     // le scénario pose des « espaces vides » (dos de carte joueur) : action emptySpace, menu des lieux (Before the Black Throne)
+  barriers?: boolean;       // barrières entre lieux adjacents (In Too Deep) : action setBarrier, jetons sur les arêtes, menu des lieux « +1 barrière vers… »
   flood?: { byAgenda?: Record<string, { all?: "increase" | "full"; onReveal?: 0 | 1 | 2 }> };
-  agendaEffects?: Record<string, { shuffleAside?: string[]; withDiscard?: boolean; log?: string }>;
-    // quand l'agenda `stage` devient courant : les cartes de côté portant ces codes (et la défausse si withDiscard) sont
-    // mélangées dans la pioche de rencontre (verso de l'agenda 1 de The Vanishing of Elina Harper)
+  agendaEffects?: Record<string, {
+    shuffleAside?: string[]; withDiscard?: boolean;                       // cartes de côté (et la défausse) mélangées dans la pioche
+    flood?: { trait?: string; mode: "increase" | "full"; scope?: "all" | "revealed" };   // inondation des lieux (du trait, tous ou révélés)
+    spawnAside?: { code: string; at: string; side?: "a" | "b" };          // une carte de côté apparaît sur un lieu (code)
+    randomKeyOn?: string;                                                 // une clé cachée au hasard posée sur cette carte
+    log?: string;
+  }>;
+    // quand l'agenda `stage` devient courant (verso de l'agenda précédent) : effets mécaniques appliqués dans l'ordre
+    // inondation, mélange, apparition, clé — The Vanishing of Elina Harper (mélange), In Too Deep (tout)
   leads?: {
     pile: string; secret: string; shown: string;   // piles : Leads deck, cartes cachées sous la référence, pistes révélées par le Parley
     reference: string;                              // carte de référence (story) : Finding Agent Harper

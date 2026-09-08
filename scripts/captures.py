@@ -839,6 +839,57 @@ with sync_playwright() as p:
     h15.mouse.move(420, 520); h15.wait_for_timeout(300)
     h15.screenshot(path=f"{OUT}/81_harper_apres_accusation.png")
 
+    # ---- In Too Deep (TIC III) : questions à cocher, quinze lieux et 24 barrières, clé noire, suspect out for blood, effets d'agenda ----
+    code16, token16 = creer("tic_in_too_deep")
+    print("room In Too Deep", code16)
+    h16 = page_pour(browser, "Hôte", host=True, code=code16, token=token16)
+    h16.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h16.get_by_role("button", name="Choisir un enquêteur").click(); h16.wait_for_selector("dialog.dialogue-inv[open]")
+    h16.fill("dialog .recherche", "silas"); h16.wait_for_timeout(300); h16.locator("dialog .inv").first.click()
+    h16.wait_for_selector(".siege-lobby.moi .fiche")
+    j16 = page_pour(browser, "Bob", code=code16, token=None)
+    j16.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j16.get_by_role("button", name="Choisir un enquêteur").click(); j16.wait_for_selector("dialog.dialogue-inv[open]")
+    j16.fill("dialog .recherche", "dexter"); j16.wait_for_timeout(300); j16.locator("dialog .inv").first.click()
+    j16.wait_for_selector(".siege-lobby.moi .fiche")
+    h16.wait_for_timeout(400)
+    h16.locator("input[name='q-mode'][value='campaign']").check()
+    h16.locator("input[name='q-hideout'][value='07133']").check()
+    h16.locator("input[name='q-blood'][value='07076']").check(); h16.wait_for_timeout(150)
+    h16.locator("input[name='q-blood'][value='07081']").check(); h16.wait_for_timeout(150)
+    h16.locator("input[name='q-tokens_out'][value='tablet']").check(); h16.wait_for_timeout(200)
+    assert h16.locator("input[name='q-blood']:checked").count() == 2, "deux suspects cochés"
+    h16.locator(".reglage.questions").screenshot(path=f"{OUT}/82_deep_lobby_questions.png")
+    h16.get_by_role("button", name="Lancer la mise en place").click()
+    h16.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h16.wait_for_load_state("networkidle"); h16.wait_for_timeout(1500)
+    assert h16.locator("#plateau .carte.kind-location").count() == 15, "quinze lieux"
+    assert h16.locator("#plateau .barriere").count() == 13, "treize arêtes barrées"
+    total = sum(int(t) for t in h16.locator("#plateau .barriere .chip-n").all_inner_texts())
+    assert total == 24, f"24 barrières ({total})"
+    assert h16.locator("#plateau .mini.cle:not(.cachee)").count() == 1, "clé noire sur le tapis"
+    assert h16.locator("#aside .mini.cle.cachee").count() == 6, "six clés cachées de côté"
+    assert h16.locator("#plateau .carte.kind-enemy").count() == 2, "deux suspects out for blood en jeu"
+    assert h16.locator("#plateau .carte.kind-location img.inondation").count() == 3, "trois lieux inondés"
+    assert h16.locator("#chaos .sac-forme").inner_text().strip() == "19", "sac 20 − 1 tablette"
+    h16.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h16.mouse.move(700, 520); h16.wait_for_timeout(300)
+    h16.screenshot(path=f"{OUT}/83_deep_tapis.png")
+    # Clic sur une barrière = −1 ; « + » au survol = +1.
+    bar = h16.locator("#plateau .barriere").first
+    n0 = int(bar.locator(".chip-n").inner_text())
+    bar.locator(".chip-n").click(); h16.wait_for_timeout(500)
+    assert sum(int(t) for t in h16.locator("#plateau .barriere .chip-n").all_inner_texts()) == 23, "clic : −1 barrière"
+    # Agenda 2 puis 3 : inondation par trait, Angry Mob au Square avec une clé cachée.
+    h16.locator("#histoire").get_by_role("button", name="Avancer l'agenda").click(); h16.wait_for_timeout(800)
+    h16.locator("#histoire").get_by_role("button", name="Avancer l'agenda").click(); h16.wait_for_timeout(800)
+    assert h16.locator("#plateau .carte.kind-story").count() == 1, "Angry Mob (référence retournée) sur le tapis"
+    assert h16.locator("#plateau .mini.cle.cachee").count() == 1, "une clé cachée posée sur Angry Mob"
+    assert h16.locator("#plateau .carte.kind-location img.inondation").count() >= 9, "lieux côtiers et du centre inondés"
+    h16.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h16.mouse.move(700, 520); h16.wait_for_timeout(300)
+    h16.screenshot(path=f"{OUT}/84_deep_agenda3.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

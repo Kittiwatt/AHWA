@@ -151,7 +151,7 @@ export function initPlateau() {
 
   let glisse = null;
   zoneBoard.addEventListener("pointerdown", (e) => {
-    if (e.target.closest(".carte, .mini, button, .table-outils, .loupe, details")) return;
+    if (e.target.closest(".carte, .mini, .barriere, button, .table-outils, .loupe, details")) return;   // .barriere : la capture du pointeur avalerait le clic
     glisse = { x: e.clientX, y: e.clientY, tx: vue.tx, ty: vue.ty };
     zoneBoard.setPointerCapture(e.pointerId);
     zoneBoard.classList.add("glisse");
@@ -264,8 +264,33 @@ function rendrePlateau(ctx) {
     if (e.parentElement !== plateau) plateau.append(e);
     vus.add(e);
   }
+  // Barrières (In Too Deep) : un jeton ressource au milieu de l'arête entre deux lieux adjacents, avec le nombre ;
+  // clic = −1 (une barrière franchie), « + » au survol — même geste que la jauge Uses.
+  const barrieres = new Map((state.barriers ?? []).map((b) => [`${b.a}|${b.b}`, b]));
+  for (const [cle, b] of barrieres) {
+    const a = state.cards[b.a], c = state.cards[b.b];
+    if (!a || !c || a.loc.zone !== "board" || c.loc.zone !== "board") continue;
+    const p = centreLieu(a), q = centreLieu(c);
+    let e = elsBarrieres.get(cle);
+    if (!e) {
+      e = el("span", { class: "chip chip-barriere barriere", "data-a": b.a, "data-b": b.b, title: "Barrière : clic = −1 (franchie), + au survol" },
+        el("button", { class: "chip-moins", type: "button", title: "−1 barrière" }, "−"),
+        el("img", { src: "/img/tokens/tok_ressources.png", alt: "barrière", draggable: false }),
+        el("b", { class: "chip-n" }),
+        el("button", { class: "chip-plus", type: "button", title: "+1 barrière" }, "+"));
+      elsBarrieres.set(cle, e);
+    }
+    e.querySelector(".chip-n").textContent = String(b.n);
+    e.style.left = `${(p.x + q.x) / 2 - 30}px`;
+    e.style.top = `${(p.y + q.y) / 2 - 18}px`;
+    e.style.zIndex = String(200000);
+    if (e.parentElement !== plateau) plateau.append(e);
+    vus.add(e);
+  }
+  for (const [cle, e] of elsBarrieres) if (!barrieres.has(cle)) { e.remove(); elsBarrieres.delete(cle); }
   for (const e of [...plateau.children]) if (!vus.has(e)) e.remove();
 }
+const elsBarrieres = new Map();
 
 // ---- Colonne gauche : histoire ---------------------------------------------------
 

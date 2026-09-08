@@ -1610,6 +1610,131 @@ async function tableHarper({ joueurs = 2, answers }) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ In Too Deep (TIC III) : questions à cocher, clé noire sur la cachette entourée, suspects out for blood, 24
+// barrières (clic −1 / +1, menu), effets d'agenda (inondation par trait, mélange, Angry Mob + clé cachée, tout inondé) ============
+async function tableDeep({ joueurs = 2, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tic_in_too_deep" }) });
+  assert.equal(r.status, 200, "In Too Deep est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "07001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["07001", "07002", "07003", "07004"][i] });
+    autres.push(c);
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  return { h, autres, d, code };
+}
+{
+  // Réponse à cocher invalide (option inconnue) refusée ; puis mise en place complète en campagne.
+  const mauvaise = await tableDeep({ joueurs: 1, answers: { mode: "campaign", hideout: "07133", blood: ["07099"], tokens_out: [] } });
+  assert.equal(mauvaise.d.t, "nack", "option à cocher inconnue refusée");
+  mauvaise.h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+  const { h, autres: [j2], d } = await tableDeep({ joueurs: 2, answers: { mode: "campaign", hideout: "07133", blood: ["07076", "07081"], tokens_out: ["tablet", "elder_thing"] } });
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 18, "sac : 20 moins tablette et ancien");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 2);
+  // Quinze lieux : grille 5 × 3, Desolate Coastline révélé en bas à droite avec les pions ; les autres non révélés.
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux.length, 15, "quinze lieux");
+  const coast = lieux.find((c) => c.code === "07143");
+  assert.ok(coast.faceUp && coast.loc.x === 1109 && coast.loc.y === 649 && coast.tokens.clue === 1, "Desolate Coastline révélé, 1 indice (fixe)");
+  assert.ok(lieux.filter((c) => c.code !== "07143").every((c) => !c.faceUp), "les quatorze autres non révélés");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.x >= 1109 && m.loc.y === 649 - 22), "pions sur le point de départ");
+  assert.deepEqual(lieux.filter((c) => c.loc.y === 173).sort((a, b) => a.loc.x - b.loc.x).map((c) => c.code), ["07142", "07129", "07134", "07141", "07132"], "rangée nord");
+  // Inondation initiale : trois lieux partiellement inondés.
+  assert.deepEqual(lieux.filter((c) => c.tokens.flood).map((c) => c.code).sort(), ["07132", "07138", "07143"], "trois lieux partiellement inondés");
+  assert.ok(lieux.filter((c) => c.tokens.flood).every((c) => c.tokens.flood === 1));
+  // Barrières : 24 sur 13 arêtes.
+  assert.equal(s.barriers.length, 13, "treize arêtes barrées");
+  assert.equal(s.barriers.reduce((n, b) => n + b.n, 0), 24, "24 barrières");
+  const idDe = (code) => lieux.find((c) => c.code === code).id;
+  const bar = (a, b) => s.barriers.find((k) => (k.a === idDe(a) && k.b === idDe(b)) || (k.a === idDe(b) && k.b === idDe(a)));
+  assert.equal(bar("07142", "07129").n, 4, "quatre barrières entre Railroad Station et l'Ordre"); assert.equal(bar("07140", "07133").n, 3); assert.equal(bar("07131", "07143").n, 2);
+  // Clés : noire sur Innsmouth Jail (cachette entourée), six autres de côté face cachée.
+  const cles = cartes.filter((c) => c.kind === "key");
+  assert.equal(cles.length, 7, "sept clés");
+  const noire = cles.find((c) => c.code === "key:black");
+  assert.ok(noire.faceUp && noire.loc.zone === "board" && Math.abs(noire.loc.x - 737) < 40 && noire.loc.y > 649 && noire.loc.y < 649 + 178, "clé noire sur Innsmouth Jail");
+  assert.equal(cles.filter((c) => c.loc.zone === "aside" && !c.faceUp).length, 6, "six clés cachées de côté");
+  // Suspects out for blood : Robert Friendly à Innsmouth Harbour, Othera Gilman à Gilman House, sans indices ; les autres absents.
+  const friendly = cartes.find((c) => c.code === "07076"), gilman = cartes.find((c) => c.code === "07081");
+  assert.ok(friendly.loc.zone === "board" && Math.abs(friendly.loc.x - 1109) < 60 && Math.abs(friendly.loc.y - 411) < 60 && !friendly.tokens.clue, "Robert Friendly à Innsmouth Harbour, sans indices");
+  assert.ok(gilman.loc.zone === "board" && Math.abs(gilman.loc.x - 551) < 60 && Math.abs(gilman.loc.y - 649) < 60, "Othera Gilman à Gilman House");
+  assert.ok(!cartes.some((c) => ["07077", "07078", "07079", "07080"].includes(c.code) && c.loc.pile !== "removed"), "les autres suspects retirés");
+  // De côté : Ravager ×2, Young Deep One ×2, Joe Sargent, Teachings, Shoggoth, Angry Mob (référence sur son verso).
+  const cote = cartes.filter((c) => c.loc.zone === "aside" && c.kind !== "key");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["01181", "01181", "07062a", "07144", "07145", "07145", "07150", "07151"], "cartes de côté");
+  const mob = cote.find((c) => c.code === "07062a");
+  assert.ok(mob.faceUp && mob.side === "b", "Angry Mob : la référence de côté sur son verso");
+  assert.equal(s.piles.encounter.length, 33, "pioche : 33 cartes");
+  assert.equal(s.piles.agendaDeck.length, 3); assert.equal(s.cards[s.agendaId].code, "07124"); assert.equal(s.cards[s.actId].code, "07128");
+  // Barrières : clic −1, +1, disparition à 0, refus hors lieux.
+  let d2 = await h.action({ t: "setBarrier", a: idDe("07129"), b: idDe("07134"), delta: -1 });
+  assert.equal(d2.t, "delta"); assert.ok(!h.state.barriers.some((k) => (k.a === idDe("07129") && k.b === idDe("07134")) || (k.b === idDe("07129") && k.a === idDe("07134"))), "à 0 la barrière disparaît");
+  d2 = await h.action({ t: "setBarrier", a: idDe("07129"), b: idDe("07134"), delta: 2 });
+  assert.equal(h.state.barriers.find((k) => (k.a === idDe("07129") && k.b === idDe("07134")) || (k.b === idDe("07129") && k.a === idDe("07134"))).n, 2, "recréée à 2");
+  d2 = await h.action({ t: "setBarrier", a: idDe("07129"), b: idDe("07134"), delta: -5 });
+  assert.equal(h.state.barriers.reduce((n, b) => n + b.n, 0), 23, "23 barrières");
+  d2 = await h.action({ t: "setBarrier", a: friendly.id, b: idDe("07138"), delta: 1 }); assert.equal(d2.t, "nack", "une barrière sépare deux lieux");
+  assert.ok(h.state.log.some((e) => e.text.startsWith("Barrière")), "journal des barrières");
+  // Agenda 2 : lieux côtiers +1 (révélés ou non), Ravager ×2 + Young Deep One ×2 + défausse dans la pioche.
+  d2 = await h.action({ t: "toPile", id: h.state.piles.encounter[0], pile: "encounterDiscard" });
+  const avant = h.state.piles.encounter.length;
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07125", "agenda 2 courant");
+  const L = () => Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.ok(L().filter((c) => c.code === "07132" || c.code === "07138" || c.code === "07143").every((c) => c.tokens.flood === 2), "côtiers déjà inondés : totalement");
+  assert.ok(L().filter((c) => ["07131", "07136", "07141"].includes(c.code)).every((c) => c.tokens.flood === 1), "autres côtiers (non révélés) : partiellement");
+  assert.ok(L().filter((c) => ["07142", "07139"].includes(c.code)).every((c) => !c.tokens.flood), "non côtiers intacts");
+  assert.equal(h.state.piles.encounter.length, avant + 1 + 4, "défausse (1) + 4 cartes de côté dans la pioche");
+  assert.ok(!Object.values(h.state.cards).some((c) => ["07145", "01181"].includes(c.code) && c.loc.zone === "aside"));
+  assert.ok(h.state.log.some((e) => e.kind === "reminder" && e.text.startsWith("Verso de l'agenda 1")), "rappel de l'effet");
+  // Agenda 3 : centre-ville +1, Angry Mob à Innsmouth Square avec une clé cachée au hasard.
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07126", "agenda 3 courant");
+  assert.ok(L().filter((c) => c.code === "07139").every((c) => c.tokens.flood === 1), "Innsmouth Square (Midtown) partiellement inondé");
+  assert.ok(L().filter((c) => c.code === "07131").every((c) => c.tokens.flood === 2), "Shoreward Slums (Coastal + Midtown) totalement");
+  const mobApres = h.state.cards[mob.id];
+  assert.ok(mobApres.loc.zone === "board" && mobApres.side === "b" && Math.abs(mobApres.loc.x - 737) < 60 && Math.abs(mobApres.loc.y - 411) < 60, "Angry Mob à Innsmouth Square");
+  assert.equal(Object.values(h.state.cards).filter((c) => c.kind === "key" && c.loc.zone === "aside" && !c.faceUp).length, 5, "une clé cachée a quitté la zone de côté");
+  assert.ok(Object.values(h.state.cards).some((c) => c.kind === "key" && !c.faceUp && c.loc.zone === "board" && Math.abs(c.loc.y - mobApres.loc.y) < 178), "posée sur Angry Mob, toujours cachée");
+  // Agenda 4 : tout monte d'un niveau.
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07127");
+  assert.ok(L().every((c) => (c.tokens.flood ?? 0) >= 1), "tous les lieux inondés au moins partiellement");
+  assert.ok(L().find((c) => c.code === "07132").tokens.flood === 2);
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.barriers, h.state.barriers, "les autres clients suivent");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // Autonome : sac de base, personne out for blood, clé noire sur une cachette au hasard ; « aucune » en campagne = pas de clé noire.
+  const { h, d } = await tableDeep({ joueurs: 1, answers: { mode: "standalone", hideout: "none", blood: ["07076", "07077"], tokens_out: ["cultist"] } });
+  assert.equal(d.t, "delta");
+  assert.equal(h.state.chaos.bag.length, 20, "autonome : sac de base");
+  assert.ok(!Object.values(h.state.cards).some((c) => c.code === "07076" && c.loc.zone === "board"), "personne out for blood en autonome");
+  const noire = Object.values(h.state.cards).find((c) => c.code === "key:black");
+  assert.ok(noire && noire.loc.zone === "board", "clé noire posée au hasard");
+  assert.equal(h.state.piles.encounter.length, 33);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+  const { h: g, d: dg } = await tableDeep({ joueurs: 1, answers: { mode: "campaign", hideout: "none", blood: [], tokens_out: [] } });
+  assert.equal(dg.t, "delta");
+  assert.ok(!Object.values(g.state.cards).some((c) => c.code === "key:black"), "aucune cachette entourée : pas de clé noire");
+  assert.equal(Object.values(g.state.cards).filter((c) => c.kind === "key").length, 6);
+  g.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 // ============ Board joueur, étape 1 (cahier §10) : import du deck au lobby, faiblesse aléatoire, code de siège et
 // connexions multiples, decks créés à la mise en place, actions p:* réservées au siège ============
 {

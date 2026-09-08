@@ -192,7 +192,7 @@ function newCard(pool: Pool, code: string, id: CardId, loc: CardState["loc"], fa
   return { id, code, kind: d.kind, storyBack: d.storyBack, loc, faceUp, exhausted: false, side: "a", tokens: {} };
 }
 
-export type Answers = Record<string, string>;
+export type Answers = Record<string, string | string[]>;
 
 export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.random, answers: Answers = {}): LogEntry[] {
   const seated = state.seats.filter((s) => s.investigatorCode);
@@ -214,6 +214,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
   state.actId = null;
   delete state.leads;
   delete state.flood;
+  delete state.barriers;
   state.log = [];
   state.turn = { seat: null, done: [] };
   state.playerCount = seated.length;
@@ -244,7 +245,10 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
 
   addLog(state, "setup", `Mise en place de « ${def.title} » pour ${state.playerCount} enquêteur${state.playerCount > 1 ? "s" : ""}, difficulté ${state.difficulty}.`);
   for (const q of def.questions) {
-    const libelle = q.type === "number" ? String(Number(answers[q.id])) : q.options!.find((o) => o.id === answers[q.id])!.label;
+    const r = answers[q.id];
+    const libelle = q.type === "number" ? String(Number(r))
+      : q.type === "multi" ? ((Array.isArray(r) ? r : []).map((id) => q.options!.find((o) => o.id === id)?.label ?? id).join(", ") || "aucun")
+      : q.options!.find((o) => o.id === r)!.label;
     addLog(state, "setup", `${q.text} ${libelle}.`);
   }
 
@@ -459,7 +463,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         break;
       }
       case "branch": {
-        const cle = step.on === "players" ? String(state.playerCount) : step.on === "difficulty" ? state.difficulty : answers[step.on];
+        const cle = step.on === "players" ? String(state.playerCount) : step.on === "difficulty" ? state.difficulty : String(answers[step.on]);
         const suite = step.cases[cle] ?? step.cases["default"] ?? [];
         if (step.log) addLog(state, "setup", step.log);
         for (const sub of suite) run(sub);
@@ -554,6 +558,34 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
           : `Clés mises de côté : ${noms.map((t) => LIBELLES_CLES[t] ?? t).join(", ")} (jetons pris dans la collection, pas dans le sac).`));
         break;
       }
+      case "barriers": {
+        // Barrières (In Too Deep) : n jetons ressource entre deux lieux adjacents en jeu, selon le diagramme du guide.
+        state.barriers ??= [];
+        let total = 0;
+        for (const p of step.pairs) {
+          const a = enJeu(p.a), b = enJeu(p.b);
+          if (p.n <= 0) continue;
+          const ex = state.barriers.find((k) => (k.a === a.id && k.b === b.id) || (k.a === b.id && k.b === a.id));
+          if (ex) ex.n += p.n; else state.barriers.push({ a: a.id, b: b.id, n: p.n });
+          total += p.n;
+        }
+        addLog(state, "setup", step.log ?? `${total} barrières (jetons ressource) posées entre les lieux, selon le diagramme du guide : elles bloquent le déplacement des enquêteurs entre deux lieux tant qu'il en reste une.`);
+        break;
+      }
+      case "placeKey": {
+        // Une clé de couleur posée sur une carte en jeu : celle du journal (`at`) ou un lieu au hasard parmi `atRandom` (mode autonome).
+        if (!COULEURS_CLES.includes(step.color)) throw new Error(`setup : couleur de clé inconnue ${step.color}`);
+        const cibleCode = step.at ?? (step.atRandom ? step.atRandom[Math.floor(rng() * step.atRandom.length)] : undefined);
+        if (!cibleCode) throw new Error("setup : placeKey sans cible");
+        const cible = enJeu(cibleCode);
+        const id = `key-${step.color}`;
+        if (state.cards[id]) throw new Error(`setup : la clé ${step.color} existe déjà`);
+        const cle: CardState = { id, code: `key:${step.color}`, kind: "key", storyBack: false, loc: { zone: "board", x: 0, y: 0, z: 0 }, faceUp: step.faceUp ?? true, exhausted: false, side: "a", tokens: {} };
+        state.cards[id] = cle;
+        poserCleSur(state, cle, cible, z++);
+        addLog(state, "setup", step.log ?? `Clé ${LIBELLES_CLES[step.color]} posée sur ${nomVisible(def, cible)}${step.at ? "" : " (tiré au hasard)"}.`);
+        break;
+      }
       case "randomKey": {
         // Une clé de côté face cachée, tirée au hasard, posée sur une carte en jeu sans être regardée (journal muet sur sa couleur).
         const cible = enJeu(step.at);
@@ -599,8 +631,9 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         codes.forEach((code, i) => {
           const id = pool.take(code);
           state.cards[id] = newCard(pool, code, id, { zone: "aside", x: (deja + i) * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, step.faceUp ?? false);
+          if (step.side) state.cards[id].side = step.side;   // mise de côté sur son verso lié (Angry Mob = verso de Finding Agent Harper)
         });
-        addLog(state, "setup", step.log ?? `${[...new Set(codes)].map((c) => pool.def(c).name).join(", ")} : de côté, hors jeu.`);
+        addLog(state, "setup", step.log ?? `${[...new Set(codes)].map((c) => step.side === "b" ? (pool.def(c).backName ?? pool.def(c).name) : pool.def(c).name).join(", ")} : de côté, hors jeu.`);
         break;
       }
       case "dealToSeats": {

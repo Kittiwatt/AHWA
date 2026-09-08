@@ -143,6 +143,13 @@ export function initInteractions(ctx) {
 
   // ---- Clic : lieu face cachée = révélation ; carte révélée sur la pioche = la prendre ;
   //      chips d'ennemi = ±1 ; double-clic : épuiser / redresser ; double-clic sur les indices = en prendre un ----
+  // Barrières (In Too Deep) : clic sur le jeton = −1 (barrière franchie), « + » = +1.
+  document.addEventListener("click", (e) => {
+    const bar = e.target.closest(".barriere");
+    if (!bar || !assis()) return;
+    e.preventDefault(); e.stopPropagation();
+    ctx.envoyer({ t: "setBarrier", a: bar.dataset.a, b: bar.dataset.b, delta: e.target.closest(".chip-plus") ? 1 : -1 });
+  }, true);
   document.addEventListener("click", (e) => {
     if (Date.now() - dernierLacher < 200) { e.stopPropagation(); return; }
     if (!assis()) return;
@@ -403,6 +410,12 @@ export function initInteractions(ctx) {
           for (const [lib, dx, dy] of [["au-dessus", 0, -238], ["au-dessous", 0, 238], ["à gauche", -186, 0], ["à droite", 186, 0]]) {
             items.push(item(`Espace vide ${lib}`, () => ctx.envoyer({ t: "emptySpace", x: carte.loc.x + dx, y: carte.loc.y + dy })));
           }
+        }
+        // Barrières (In Too Deep) : +1 barrière vers chaque lieu adjacent (orthogonalement) du tapis.
+        if (ctx.scenario.barriers) {
+          const voisins = Object.values(state.cards).filter((c) => c.kind === "location" && c.id !== carte.id && c.loc.zone === "board"
+            && ((Math.abs(c.loc.y - carte.loc.y) < 20 && Math.abs(Math.abs(c.loc.x - carte.loc.x) - 186) < 40) || (Math.abs(c.loc.x - carte.loc.x) < 20 && Math.abs(Math.abs(c.loc.y - carte.loc.y) - 238) < 40)));
+          for (const v of voisins) items.push(item(`+1 barrière vers ${faceVisible(v, ctx.defs.get(v.code)).name}`, () => ctx.envoyer({ t: "setBarrier", a: carte.id, b: v.id, delta: 1 })));
         }
         // Lieux d'une pile posés autour de ce lieu (TIC « Tidal Tunnel deck ») : en dessous, à gauche, à droite, aux emplacements libres.
         for (const p of (ctx.scenario.piles ?? []).filter((p) => p.around)) {

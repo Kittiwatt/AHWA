@@ -1,0 +1,1633 @@
+{
+ "id": "tic_in_too_deep",
+ "title": "In Too Deep",
+ "campaign": "The Innsmouth Conspiracy",
+ "campaignId": "tic",
+ "order": 3,
+ "packs": [
+  "itd",
+  "tic",
+  "core"
+ ],
+ "encounterSets": [
+  "in_too_deep",
+  "creatures_of_the_deep",
+  "rising_tide",
+  "syzygy",
+  "the_locals",
+  "agents_of_cthulhu"
+ ],
+ "extraCards": [
+  "07076",
+  "07077",
+  "07078",
+  "07079",
+  "07080",
+  "07081",
+  "07062a"
+ ],
+ "scenarioCard": "07123",
+ "agendaDeck": [
+  "07124",
+  "07125",
+  "07126",
+  "07127"
+ ],
+ "actDeck": [
+  "07128"
+ ],
+ "startLocation": "07143",
+ "piles": [],
+ "flood": {},
+ "barriers": true,
+ "agendaEffects": {
+  "2": {
+   "log": "Verso de l'agenda 1",
+   "flood": {
+    "trait": "Coastal",
+    "mode": "increase",
+    "scope": "all"
+   },
+   "shuffleAside": [
+    "07145",
+    "01181"
+   ],
+   "withDiscard": true
+  },
+  "3": {
+   "log": "Verso de l'agenda 2",
+   "flood": {
+    "trait": "Midtown",
+    "mode": "increase",
+    "scope": "all"
+   },
+   "spawnAside": {
+    "code": "07062a",
+    "at": "07139",
+    "side": "b"
+   },
+   "randomKeyOn": "07062a"
+  },
+  "4": {
+   "log": "Verso de l'agenda 3",
+   "flood": {
+    "mode": "increase",
+    "scope": "all"
+   }
+  }
+ },
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "layout": [
+  {
+   "code": "07143",
+   "x": 1109,
+   "y": 649
+  }
+ ],
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Campagne ou scénario seul ?",
+   "options": [
+    {
+     "id": "campaign",
+     "label": "Campagne : journal des scénarios I et II (questions suivantes)"
+    },
+    {
+     "id": "standalone",
+     "label": "Scénario seul (mode autonome) : sac de base, personne « out for blood », cachette entourée tirée au hasard"
+    }
+   ]
+  },
+  {
+   "id": "hideout",
+   "text": "Cachette entourée au journal (« Possible Hideouts », scénario II) :",
+   "options": [
+    {
+     "id": "none",
+     "label": "Aucune (pas de clé noire)"
+    },
+    {
+     "id": "07129",
+     "label": "Esoteric Order of Dagon"
+    },
+    {
+     "id": "07130",
+     "label": "Sawbone Alley"
+    },
+    {
+     "id": "07131",
+     "label": "Shoreward Slums"
+    },
+    {
+     "id": "07132",
+     "label": "The House on Water Street"
+    },
+    {
+     "id": "07133",
+     "label": "Innsmouth Jail"
+    },
+    {
+     "id": "07134",
+     "label": "New Church Green"
+    }
+   ]
+  },
+  {
+   "id": "blood",
+   "text": "Suspects notés « out for blood » au journal (scénario II) :",
+   "type": "multi",
+   "options": [
+    {
+     "id": "07076",
+     "label": "Robert Friendly"
+    },
+    {
+     "id": "07077",
+     "label": "Zadok Allen"
+    },
+    {
+     "id": "07078",
+     "label": "Brian Burnham"
+    },
+    {
+     "id": "07079",
+     "label": "Barnabas Marsh"
+    },
+    {
+     "id": "07080",
+     "label": "Joyce Little"
+    },
+    {
+     "id": "07081",
+     "label": "Othera Gilman"
+    }
+   ]
+  },
+  {
+   "id": "tokens_out",
+   "text": "Jetons retirés du sac pour le reste de la campagne (scénario I) :",
+   "type": "multi",
+   "options": [
+    {
+     "id": "cultist",
+     "label": "Cultiste"
+    },
+    {
+     "id": "tablet",
+     "label": "Tablette"
+    },
+    {
+     "id": "elder_thing",
+     "label": "Ancien"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "tokens_out",
+      "has": "cultist"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "cultist"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "tokens_out",
+      "has": "tablet"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "tablet"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "tokens_out",
+      "has": "elder_thing"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "elder_thing"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "standalone"
+   },
+   "then": [
+    {
+     "op": "log",
+     "text": "Mode autonome : sac de base du guide (p. 16), aucun retrait ; personne n'est « out for blood » ; la cachette entourée est tirée au hasard."
+    }
+   ]
+  },
+  {
+   "op": "place",
+   "code": "07142",
+   "zone": "board",
+   "x": 365,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "07129",
+   "zone": "board",
+   "x": 551,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "07134",
+   "zone": "board",
+   "x": 737,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "07141",
+   "zone": "board",
+   "x": 923,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "07132",
+   "zone": "board",
+   "x": 1109,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "07135",
+   "zone": "board",
+   "x": 365,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "07137",
+   "zone": "board",
+   "x": 551,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "07139",
+   "zone": "board",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "07136",
+   "zone": "board",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "07138",
+   "zone": "board",
+   "x": 1109,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "07130",
+   "zone": "board",
+   "x": 365,
+   "y": 649
+  },
+  {
+   "op": "place",
+   "code": "07140",
+   "zone": "board",
+   "x": 551,
+   "y": 649
+  },
+  {
+   "op": "place",
+   "code": "07133",
+   "zone": "board",
+   "x": 737,
+   "y": 649
+  },
+  {
+   "op": "place",
+   "code": "07131",
+   "zone": "board",
+   "x": 923,
+   "y": 649
+  },
+  {
+   "op": "log",
+   "text": "Les quinze lieux d'Innsmouth sont en jeu selon le diagramme (p. 16) : nord en haut, ouest à gauche — Railroad Station, Esoteric Order of Dagon, New Church Green, Marsh Refinery, The House on Water Street ; The Little Bookshop, First National Grocery, Innsmouth Square, Fish Street Bridge, Innsmouth Harbour ; Sawbone Alley, Gilman House, Innsmouth Jail, Shoreward Slums, Desolate Coastline. Non révélés, sauf le point de départ. Adjacent = connecté (pas en diagonale)."
+  },
+  {
+   "op": "place",
+   "code": "07143",
+   "zone": "board",
+   "x": 1109,
+   "y": 649,
+   "reveal": true,
+   "log": "Desolate Coastline (coin sud-est) est révélé : chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "minis",
+   "code": "07143"
+  },
+  {
+   "op": "barriers",
+   "pairs": [
+    {
+     "a": "07142",
+     "b": "07129",
+     "n": 4
+    },
+    {
+     "a": "07129",
+     "b": "07134",
+     "n": 1
+    },
+    {
+     "a": "07134",
+     "b": "07141",
+     "n": 3
+    },
+    {
+     "a": "07141",
+     "b": "07132",
+     "n": 1
+    },
+    {
+     "a": "07142",
+     "b": "07135",
+     "n": 1
+    },
+    {
+     "a": "07135",
+     "b": "07137",
+     "n": 2
+    },
+    {
+     "a": "07137",
+     "b": "07139",
+     "n": 2
+    },
+    {
+     "a": "07139",
+     "b": "07136",
+     "n": 2
+    },
+    {
+     "a": "07136",
+     "b": "07138",
+     "n": 1
+    },
+    {
+     "a": "07130",
+     "b": "07140",
+     "n": 1
+    },
+    {
+     "a": "07140",
+     "b": "07133",
+     "n": 3
+    },
+    {
+     "a": "07133",
+     "b": "07131",
+     "n": 1
+    },
+    {
+     "a": "07131",
+     "b": "07143",
+     "n": 2
+    }
+   ]
+  },
+  {
+   "op": "addTokens",
+   "at": "07132",
+   "token": "flood",
+   "n": 1,
+   "log": "Inondation de The House on Water Street"
+  },
+  {
+   "op": "addTokens",
+   "at": "07138",
+   "token": "flood",
+   "n": 1,
+   "log": "Inondation d'Innsmouth Harbour"
+  },
+  {
+   "op": "addTokens",
+   "at": "07143",
+   "token": "flood",
+   "n": 1,
+   "log": "Inondation de Desolate Coastline"
+  },
+  {
+   "op": "keys",
+   "colors": [
+    "red",
+    "blue",
+    "green",
+    "yellow",
+    "purple",
+    "white"
+   ],
+   "faceUp": false,
+   "log": "Clés rouge, bleue, verte, jaune, violette et blanche mises de côté face cachée et mélangées : personne ne sait laquelle est laquelle."
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "campaign"
+   },
+   "then": [
+    {
+     "op": "branch",
+     "on": "hideout",
+     "cases": {
+      "07129": [
+       {
+        "op": "placeKey",
+        "color": "black",
+        "at": "07129"
+       }
+      ],
+      "07130": [
+       {
+        "op": "placeKey",
+        "color": "black",
+        "at": "07130"
+       }
+      ],
+      "07131": [
+       {
+        "op": "placeKey",
+        "color": "black",
+        "at": "07131"
+       }
+      ],
+      "07132": [
+       {
+        "op": "placeKey",
+        "color": "black",
+        "at": "07132"
+       }
+      ],
+      "07133": [
+       {
+        "op": "placeKey",
+        "color": "black",
+        "at": "07133"
+       }
+      ],
+      "07134": [
+       {
+        "op": "placeKey",
+        "color": "black",
+        "at": "07134"
+       }
+      ],
+      "none": [
+       {
+        "op": "log",
+        "text": "Aucune cachette entourée au journal : la clé noire ne sert pas dans ce scénario."
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "standalone"
+   },
+   "then": [
+    {
+     "op": "placeKey",
+     "color": "black",
+     "atRandom": [
+      "07129",
+      "07130",
+      "07131",
+      "07132",
+      "07133",
+      "07134"
+     ],
+     "log": "Mode autonome : la cachette « entourée » est tirée au hasard et reçoit la clé noire"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "blood",
+      "has": "07076"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "spawn",
+     "code": "07076",
+     "at": "07138",
+     "log": "Robert Friendly est « out for blood » : il entre en jeu par sa Révélation, sans indices, à Innsmouth Harbour."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "blood",
+      "has": "07077"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "spawn",
+     "code": "07077",
+     "at": "07136",
+     "log": "Zadok Allen est « out for blood » : il entre en jeu par sa Révélation, sans indices, à Fish Street Bridge."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "blood",
+      "has": "07078"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "spawn",
+     "code": "07078",
+     "at": "07137",
+     "log": "Brian Burnham est « out for blood » : il entre en jeu par sa Révélation, sans indices, à First National Grocery."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "blood",
+      "has": "07079"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "spawn",
+     "code": "07079",
+     "at": "07141",
+     "log": "Barnabas Marsh est « out for blood » : il entre en jeu par sa Révélation, sans indices, à Marsh Refinery."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "blood",
+      "has": "07080"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "spawn",
+     "code": "07080",
+     "at": "07135",
+     "log": "Joyce Little est « out for blood » : elle entre en jeu par sa Révélation, sans indices, à The Little Bookshop."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "blood",
+      "has": "07081"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "spawn",
+     "code": "07081",
+     "at": "07140",
+     "log": "Othera Gilman est « out for blood » : elle entre en jeu par sa Révélation, sans indices, à Gilman House."
+    }
+   ]
+  },
+  {
+   "op": "remove",
+   "codes": [
+    "07076",
+    "07077",
+    "07078",
+    "07079",
+    "07080",
+    "07081"
+   ],
+   "log": "Les suspects qui ne sont pas « out for blood » ne font pas partie de ce scénario."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "07145",
+    "07145",
+    "01181",
+    "01181",
+    "07150",
+    "07151",
+    "07144"
+   ],
+   "faceUp": true,
+   "log": "Ravager from the Deep ×2, Young Deep One ×2, Joe Sargent, Teachings of the Order et Innsmouth Shoggoth sont mis de côté, hors jeu, face visible."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "07062a"
+   ],
+   "faceUp": true,
+   "side": "b",
+   "log": "Angry Mob (le verso de la carte de référence Finding Agent Harper, #62b) est mis de côté, hors jeu."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Barrières (guide) : un jeton ressource entre deux lieux = une barrière ; tant qu'il en reste une, les enquêteurs ne passent pas de l'un à l'autre, même connectés. On les retire par l'acte 1 ou certaines capacités de lieu : clic sur le jeton = −1, « + » au survol, menu d'un lieu « +1 barrière vers… ». Un chasseur suit le plus court chemin sans barrière (s'il n'en existe aucun, il les ignore) ; les autres déplacements d'ennemis les ignorent."
+  },
+  {
+   "when": "setup",
+   "text": "Clés (guide) : la clé noire est sur la cachette entourée ; les six autres sont de côté face cachée. Une carte peut en faire poser une au hasard (menu → « Poser ici une clé cachée au hasard »). Un enquêteur qui prend le contrôle d'une clé la retourne (glissez-la sur son siège)."
+  },
+  {
+   "when": "setup",
+   "text": "Inondation (guide) : trois lieux partiellement inondés au départ ; les agendas montent le niveau de certains lieux (l'app l'applique et l'écrit au journal) ; corrigez à la main les exceptions (menu du lieu → Inondation, panneau Marée)."
+  },
+  {
+   "when": "setup",
+   "text": "Bénédictions et malédictions (guide) : clic droit sur le sac → Ajuster (10 au plus de chaque) ; révélé, un tel jeton retourne à la réserve : « ↺ Tout remettre » l'écarte tout seul."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Agenda 2 : inondation des lieux côtiers et mélange des cartes de côté avec la défausse appliqués (voir le journal)."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Agenda 3 : inondation des lieux du centre-ville, Angry Mob à Innsmouth Square avec une clé cachée : appliqués (voir le journal)."
+  },
+  {
+   "when": "agenda:4",
+   "text": "Agenda 4 : tous les lieux montent d'un niveau d'inondation (appliqué). Ensuite, dans l'ordre des joueurs, chaque enquêteur pioche une carte rencontre (à faire à la main)."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour. Pensez aux barrières avant de déplacer un pion."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord (plus court chemin sans barrière), puis chaque ennemi engagé attaque son enquêteur."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-08",
+ "encounterSetNames": {
+  "in_too_deep": "In Too Deep",
+  "creatures_of_the_deep": "Creatures of the Deep",
+  "rising_tide": "Rising Tide",
+  "syzygy": "Syzygy",
+  "the_locals": "The Locals",
+  "agents_of_cthulhu": "Agents of Cthulhu"
+ },
+ "cards": [
+  {
+   "code": "01181",
+   "name": "Young Deep One",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "agents_of_cthulhu",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 3
+  },
+  {
+   "code": "01182",
+   "name": "Dreams of R'lyeh",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "agents_of_cthulhu",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
+  },
+  {
+   "code": "07062a",
+   "name": "Finding Agent Harper",
+   "kind": "story",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "backCode": "07062b",
+   "backKind": "enemy",
+   "backName": "Angry Mob",
+   "backHealth": 4
+  },
+  {
+   "code": "07076",
+   "name": "Robert Friendly",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Disgruntled Dockworker",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 4
+  },
+  {
+   "code": "07077",
+   "name": "Zadok Allen",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Drunk and Disorderly",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 5
+  },
+  {
+   "code": "07078",
+   "name": "Brian Burnham",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Wants Out",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 3
+  },
+  {
+   "code": "07079",
+   "name": "Barnabas Marsh",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "The Change Is upon Him",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 4
+  },
+  {
+   "code": "07080",
+   "name": "Joyce Little",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Bookshop Owner",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 3
+  },
+  {
+   "code": "07081",
+   "name": "Othera Gilman",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Proprietress of the Hotel",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 5
+  },
+  {
+   "code": "07088",
+   "name": "Deep One Bull",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 5
+  },
+  {
+   "code": "07089",
+   "name": "Lurking Deep One",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 2
+  },
+  {
+   "code": "07090",
+   "name": "Deep One Assault",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "07091",
+   "name": "Undertow",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07092",
+   "name": "Rising Tides",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07093",
+   "name": "Riptide",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07100",
+   "name": "Tidal Alignment",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "syzygy",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
+  },
+  {
+   "code": "07101",
+   "name": "Syzygy",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "syzygy",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
+  },
+  {
+   "code": "07105",
+   "name": "Innsmouth Troublemaker",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "the_locals",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Hybrid",
+    "Criminal"
+   ],
+   "health": 3
+  },
+  {
+   "code": "07106",
+   "name": "Innsmouth Look",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_locals",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse",
+    "Terror"
+   ]
+  },
+  {
+   "code": "07107",
+   "name": "Furtive Locals",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_locals",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "07123",
+   "name": "In Too Deep",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "07124",
+   "name": "Barricaded Streets",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Chased by Deep Ones",
+   "doom": 6,
+   "stage": 1
+  },
+  {
+   "code": "07125",
+   "name": "Relentless Tide",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Pursued by Townsfolk",
+   "doom": 5,
+   "stage": 2
+  },
+  {
+   "code": "07126",
+   "name": "Flooded Streets",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Closing In",
+   "doom": 4,
+   "stage": 3
+  },
+  {
+   "code": "07127",
+   "name": "Rage of the Deep",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Swallowed by the Sea",
+   "doom": 3,
+   "stage": 4
+  },
+  {
+   "code": "07128",
+   "name": "Through the Labyrinth",
+   "kind": "act",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Out of Town",
+   "stage": 1
+  },
+  {
+   "code": "07129",
+   "name": "Esoteric Order of Dagon",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Midtown"
+   ]
+  },
+  {
+   "code": "07130",
+   "name": "Sawbone Alley",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07131",
+   "name": "Shoreward Slums",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Coastal",
+    "Midtown"
+   ]
+  },
+  {
+   "code": "07132",
+   "name": "The House on Water Street",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Coastal"
+   ]
+  },
+  {
+   "code": "07133",
+   "name": "Innsmouth Jail",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Midtown"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07134",
+   "name": "New Church Green",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Midtown"
+   ]
+  },
+  {
+   "code": "07135",
+   "name": "The Little Bookshop",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": false
+   },
+   "traits": [
+    "Innsmouth"
+   ]
+  },
+  {
+   "code": "07136",
+   "name": "Fish Street Bridge",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Coastal",
+    "Midtown"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07137",
+   "name": "First National Grocery",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Midtown"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07138",
+   "name": "Innsmouth Harbour",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Coastal"
+   ]
+  },
+  {
+   "code": "07139",
+   "name": "Innsmouth Square",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Midtown"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07140",
+   "name": "Gilman House",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Midtown"
+   ]
+  },
+  {
+   "code": "07141",
+   "name": "Marsh Refinery",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": false
+   },
+   "traits": [
+    "Innsmouth",
+    "Coastal",
+    "Midtown"
+   ]
+  },
+  {
+   "code": "07142",
+   "name": "Railroad Station",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth"
+   ]
+  },
+  {
+   "code": "07143",
+   "name": "Desolate Coastline",
+   "kind": "location",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": false
+   },
+   "traits": [
+    "Innsmouth",
+    "Coastal"
+   ]
+  },
+  {
+   "code": "07144",
+   "name": "Innsmouth Shoggoth",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Shoggoth",
+    "Elite"
+   ],
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "07145",
+   "name": "Ravager from the Deep",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "in_too_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 4
+  },
+  {
+   "code": "07146",
+   "name": "Emerging Deep One",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "in_too_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 2
+  },
+  {
+   "code": "07147",
+   "name": "Deep One Invasion",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "07148",
+   "name": "Pulled Back",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "in_too_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "07149",
+   "name": "Inundated",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "in_too_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07150",
+   "name": "Joe Sargent",
+   "kind": "asset",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Rattletrap Bus Driver",
+   "traits": [
+    "Ally",
+    "Hybrid"
+   ],
+   "health": 1,
+   "sanity": 2
+  },
+  {
+   "code": "07151",
+   "name": "Teachings of the Order",
+   "kind": "asset",
+   "qty": 1,
+   "set": "in_too_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Tome"
+   ]
+  }
+ ]
+}

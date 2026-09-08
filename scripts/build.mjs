@@ -193,7 +193,7 @@ async function buildScenario(fichierSrc) {
 
   // Contrôles de cohérence entre la source et ArkhamDB.
   const codes = new Set(cards.map((c) => c.code));
-  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), s.at, ...(s.pool ?? []),
+  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), s.at, ...(s.atRandom ?? []), ...(s.pool ?? []),
     ...(s.cases ? Object.values(s.cases).flatMap(citesDe) : []), ...citesDe(s.then ?? []), ...citesDe(s.else ?? [])]).filter((c) => c && !String(c).startsWith("slot:"));
   for (const s of src.setup.flatMap(function aplat(x) { return [x, ...(x.cases ? Object.values(x.cases).flat().flatMap(aplat) : []), ...(x.then ?? []).flatMap(aplat), ...(x.else ?? []).flatMap(aplat)]; })) {
     if (s.op === "pickRandomSet") for (const set of s.from) if (!src.encounterSets.includes(set)) throw new Error(`${src.id} : set ${set} absent de encounterSets`);
@@ -220,7 +220,9 @@ async function buildScenario(fichierSrc) {
   const citesLeads = src.leads ? [src.leads.reference, ...src.leads.suspects, ...src.leads.hideouts, src.leads.elina, src.leads.square, src.leads.act2, src.leads.agenda3] : [];
   const citesAgenda = Object.values(src.agendaEffects ?? {}).flatMap((e) => e.shuffleAside ?? []);
   const citesSetup = src.setup.flatMap((s) => s.op === "leadsDeck" ? [...s.suspects, ...s.hideouts] : []);
-  const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup), ...citesLeads, ...citesAgenda, ...citesSetup].filter(Boolean);
+  const citesBarrieres = src.setup.flatMap((s) => s.op === "barriers" ? s.pairs.flatMap((p) => [p.a, p.b]) : []);
+  const citesAgendaPlus = Object.values(src.agendaEffects ?? {}).flatMap((e) => [e.spawnAside?.code, e.spawnAside?.at, e.randomKeyOn].filter(Boolean));
+  const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup), ...citesLeads, ...citesAgenda, ...citesSetup, ...citesBarrieres, ...citesAgendaPlus].filter(Boolean);
   for (const code of cites) if (!codes.has(code)) throw new Error(`${src.id} : code ${code} absent des sets de rencontre`);
 
   const { _source, ...reste } = src;

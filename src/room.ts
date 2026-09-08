@@ -356,7 +356,7 @@ export class Room extends Server<Env> {
         host(); lobby();
         const def = getScenario(state.scenarioId) ?? refuser("scénario indisponible");
         if (!state.seats.some((s) => s.investigatorCode)) refuser("choisissez au moins un enquêteur");
-        const answers = (msg.answers && typeof msg.answers === "object" ? msg.answers : {}) as Record<string, string>;
+        const answers = (msg.answers && typeof msg.answers === "object" ? msg.answers : {}) as Record<string, string | string[]>;
         for (const q of def.questions) {
           if (!reponseValide(q, answers[q.id])) refuser(`répondez d'abord : ${q.text}`);
         }

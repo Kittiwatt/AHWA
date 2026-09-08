@@ -117,6 +117,7 @@ export type RoomState = {
   cards: Record<CardId, CardState>;
   piles: Record<PileId, CardId[]>;
   links: { a: CardId; b: CardId; color: number }[];   // chemins tracés entre lieux (couleur = index de palette)
+  barriers?: { a: CardId; b: CardId; n: number }[];    // barrières (jetons ressource) entre deux lieux adjacents (In Too Deep)
   extraDefs: Record<string, unknown>;                  // définitions des cartes générées (outil « Générer une carte »)
   chaos: ChaosState;
   counters: Record<string, number>;

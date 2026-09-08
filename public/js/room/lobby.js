@@ -66,6 +66,17 @@ export function rendreLobby(conteneur, ctx) {
               // Pas de nouveau rendu du lobby (la réponse existe toujours) : un rendu pendant le blur du champ provoquerait un rendu imbriqué.
               onchange: (e) => { const v = Math.min(q.max ?? 99, Math.max(q.min ?? 0, Math.round(Number(e.target.value) || 0))); ctx.reponses[q.id] = String(v); e.target.value = String(v); } })));
       }
+      if (q.type === "multi") {
+        // Cases à cocher : la réponse est la liste des options cochées (vide = aucune, toujours répondue).
+        if (!Array.isArray(ctx.reponses[q.id])) ctx.reponses[q.id] = [];
+        const coches = ctx.reponses[q.id];
+        return el("div", { class: "question" },
+          el("p", { class: "libelle", text: q.text }),
+          el("div", { class: "choix-ligne" }, ...q.options.map((o) => el("label", { class: `choix${coches.includes(o.id) ? " actif" : ""}` },
+            el("input", { type: "checkbox", name: `q-${q.id}`, value: o.id, checked: coches.includes(o.id), disabled: !moi.isHost,
+              onchange: (e) => { ctx.reponses[q.id] = e.target.checked ? [...coches.filter((x) => x !== o.id), o.id] : coches.filter((x) => x !== o.id); rendreLobby(conteneur, ctx); } }),
+            el("span", { class: "libelle", text: o.label })))));
+      }
       return el("div", { class: "question" },
         el("p", { class: "libelle", text: q.text }),
         el("div", { class: "choix-ligne" }, ...q.options.map((o) => el("label", { class: `choix${ctx.reponses[q.id] === o.id ? " actif" : ""}` },
@@ -74,7 +85,7 @@ export function rendreLobby(conteneur, ctx) {
           el("span", { class: "libelle", text: o.label })))));
     }),
   ) : null;
-  const toutesRepondues = questions.every((q) => ctx.reponses[q.id]);
+  const toutesRepondues = questions.every((q) => q.type === "multi" ? Array.isArray(ctx.reponses[q.id]) : ctx.reponses[q.id]);
 
   const lancement = el("div", { class: "lancement" });
   if (moi.isHost) {

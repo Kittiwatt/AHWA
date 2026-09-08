@@ -271,6 +271,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `bury` / `buryAt {id}` | J | scénarios déclarant `bury` (COB) : les `withAny` en jeu ou de côté + les `fromDeckTop` premières cartes de la pioche, mélangées et réparties face cachée sous les lieux du `trait` (« Lair »), aussi également que possible / cette carte (posée sur un lieu du trait) + 1 carte de la pioche sous ce lieu ; jetons et épuisement effacés, z sous celui du lieu (rendu glissé‑dessous), journal muet sur la répartition |
 | `setFlood {id, level}` / `floodAll {mode}` / `floodRule {onReveal}` | J | inondation d'un lieu (0‑2) / de tous les lieux révélés (increase, full, decrease, clear) / règle appliquée à chaque révélation (`state.flood`) — scénarios déclarant `flood` (TIC) |
 | `randomKey {id}` | J | une clé de côté face cachée, tirée au hasard, posée sur cette carte du tapis sans être regardée |
+| `setBarrier {a, b, delta}` | J | In Too Deep : barrières entre deux lieux du tapis (chip sur l'arête, menu du lieu) |
 | `leadsReveal {n}` / `leadsTake {id}` / `leadsReturn` / `leadsToggle {code}` / `accusation {suspect, hideout}` | J | The Vanishing of Elina Harper : Parley (révéler 1‑3 pistes pour tous, en prendre une, remise), pistes rayées à la main, accusation complète (interlude du guide) |
 | `formPile {pile}` / `placeAround {id, pile}` | J | forme une pile déclarée `gather` avec les lieux de côté au dos voulu, mélangés / pose ses premières cartes non révélées en dessous, à gauche, à droite d'un lieu (emplacements libres) |
 | `scenarioAction {id, args}` | J | bouton déclaré par le scénario (branches, transitions) |
@@ -489,6 +490,24 @@ dans la pioche de rencontre (verso de l'agenda 1). Les cartes de kind
 dans la colonne Agenda et acte, sous la carte de scénario, avec le
 panneau « Pistes » (douze noms, rayés, bouton « Faire l'accusation »
 → dialogue suspect + cachette, rayés et cartes en jeu grisés).
+
+**In Too Deep (2026-09-09).** Questions au lobby de type **`multi`**
+(cases à cocher : réponse = liste d'options, éventuellement vide ;
+cond `{ q, has: id }`) pour les suspects « out for blood » et les
+jetons retirés du sac. **Barrières** : `state.barriers = [{a, b, n}]`
+entre deux lieux du tapis, op de setup `barriers {pairs}` (les 24 du
+diagramme), action `setBarrier {a, b, delta}` (0 = l'entrée
+disparaît), rendues comme une chip « jeton ressource + nombre » au
+milieu de l'arête (clic = −1, « + » au survol ; exclues du pan du
+plateau), menu d'un lieu « +1 barrière vers <voisin orthogonal> »
+(définition `barriers: true`). `placeKey {color, at | atRandom}` pose
+une clé de couleur sur une carte en jeu (clé noire sur la cachette
+entourée, au hasard en mode autonome) ; `aside {side: "b"}` met une
+carte de côté sur son verso lié (Angry Mob) ; `addTokens` accepte le
+jeton `flood`. `agendaEffects[stage]` s'enrichit de `flood {trait?,
+mode, scope}` (lieux du trait, tous ou révélés), `spawnAside {code,
+at, side?}` et `randomKeyOn` (clé cachée au hasard posée dessus),
+appliqués dans l'ordre inondation, mélange, apparition, clé.
 
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue

@@ -250,6 +250,10 @@
 .pistes-revelees { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.3rem; border: 1px dashed var(--dorure); border-radius: 4px; }
 .piste-revelee { display: grid; gap: 0.25rem; justify-items: center; }
 .pile.secrete .dos-pile img { opacity: 0.85; }
+/* Barrières (In Too Deep) : jeton ressource au milieu d'une arête, nombre, − / + au survol */
+.plateau .chip.barriere { position: absolute; cursor: pointer; font-size: 1rem; padding: 2px 8px 2px 2px; background: rgba(20, 24, 32, 0.92); border: 1px solid var(--dorure); }
+.plateau .chip.barriere img { width: 30px; height: 30px; }
+.plateau .chip.barriere .chip-n { min-width: 1.2em; }
 .bloc.maree .ligne-boutons { flex-wrap: wrap; gap: 0.3rem; }
 .bloc.maree .bouton.actif { background: var(--dorure); color: var(--nuit); border-color: var(--dorure); }
 .mini.sans-image img { display: none; }
