@@ -194,6 +194,9 @@
 .sac { position: relative; display: flex; gap: 0.5rem; align-items: center; }
 .sac-popover { display: none; position: absolute; left: 0; bottom: calc(100% + 0.5rem); width: 24rem; padding: 0.6rem 0.8rem; background: var(--nuit); border: 1px solid var(--filet); border-radius: 4px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); z-index: 5; }
 .sac:hover .sac-popover, .sac-popover.epingle { display: block; }
+/* La composition qui s'ouvre au survol ne capte pas le pointeur : une carte glissée par-dessus le sac (board joueur :
+   le sac est sur la bande Commit) doit pouvoir être lâchée derrière elle (retour de test du 2026-09-09). */
+.sac-popover:not(.epingle) { pointer-events: none; }
 .sac-popover .compte { margin: 0 0 0.4rem; }
 .sac-popover .composition { position: static; width: auto; padding: 0; border: 0; box-shadow: none; background: none; }
 .sac-popover .sous { margin-top: 0.4rem; }

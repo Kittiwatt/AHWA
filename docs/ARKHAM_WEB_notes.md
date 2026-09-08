@@ -17,6 +17,19 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 : **sac du chaos en bas à gauche de Commit** (`.sac-joueur`
+  : `bottom: 0.5rem`, jetons tirés alignés en bas vers la droite) et
+  **« Auto-pay » dans la fenêtre de la défausse** du board : `p:play`
+  accepte désormais une carte de la défausse (payée, journal « depuis sa
+  défausse ») ; le client partage `autoPay()` / `titreAutoPay()`
+  (`interactions-joueur.js`) entre le bouton AP de la main et la
+  fenêtre. Au passage, correction d'un vrai piège : la **composition du
+  sac** (popover au survol) captait le pointeur — une carte glissée
+  au-dessus du sac l'ouvrait et le lâcher tombait dessus, hors de toute
+  zone de dépôt ; `.sac-popover:not(.epingle) { pointer-events: none }`
+  (room.css, tapis et board). Test : `p:play` depuis la défausse payé et
+  rangé selon le type ; captures relatives (l'auto-pay peut avoir mis un
+  soutien en jeu ou un skill dans Commit avant les pas suivants).
 - 2026-09-09 : **« Voir sur ArkhamDB »** dans le menu (clic droit) de
   toute carte, tapis et board joueur : ouvre `https://arkhamdb.com/card/
   <code>` dans un nouvel onglet (`urlArkhamDB()` de `cartes.js`). Rien

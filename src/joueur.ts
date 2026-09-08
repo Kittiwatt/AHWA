@@ -521,12 +521,14 @@ export function jouerJoueur(state: RoomState, msg: ActionJoueur, n: number, inde
     }
     // ---- Jouer (étape 3, cahier §10.6) ----
     case "p:play": {
-      // Depuis la main (payée) ou hors jeu (cartes liées : gratuite) : asset → en jeu, événement → « en cours ».
+      // Depuis la main (payée), la défausse (payée : « Auto-pay » de la fenêtre de recherche, retour de test du 2026-09-09)
+      // ou hors jeu (cartes liées : gratuite) : asset → en jeu, événement → Play, skill → Commit.
       const c = carteDuSiege(state, msg.id, n);
       const def = defDe(state, c.code) ?? refuser("carte sans définition");
       const depuisMain = "pile" in c.loc && c.loc.pile === piles.hand;
+      const depuisDefausse = "pile" in c.loc && c.loc.pile === piles.discard;
       const depuisCote = "zone" in c.loc && c.loc.zone === zones.aside;
-      if (!depuisMain && !depuisCote) refuser("jouez une carte de votre main (ou une carte mise de côté)");
+      if (!depuisMain && !depuisDefausse && !depuisCote) refuser("jouez une carte de votre main, de votre défausse ou mise de côté");
       const libre = Boolean(msg.free) || depuisCote;
       const imprime = def.cost as number | null | undefined;
       let cout = 0, detail = "sans payer";
@@ -554,7 +556,7 @@ export function jouerJoueur(state: RoomState, msg: ActionJoueur, n: number, inde
         c.loc = { zone: zones.commit, x: boutDeZone(state, zones.commit), y: 0, z: nextZ(state) };
         c.faceUp = true; c.exhausted = false; c.side = "a"; c.tokens = {}; delete c.revealed;
       } else mettreEnJeu(state, c, n);   // soutien (ou autre) : en jeu, avec ses Uses
-      addLog(state, "action", `${nom} joue ${nomJoueur(state, c)} (${detail})${type === "event" ? " — Play" : type === "skill" ? " — Commit" : ""}.`, n);
+      addLog(state, "action", `${nom} joue ${nomJoueur(state, c)}${depuisDefausse ? " depuis sa défausse" : ""} (${detail})${type === "event" ? " — Play" : type === "skill" ? " — Commit" : ""}.`, n);
       return {};
     }
     case "p:put": {

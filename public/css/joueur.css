@@ -65,10 +65,10 @@
    cartes engagées (retour de test du 2026-09-09). Le #chaos hors du bloc Commit (avant le premier rendu) reste invisible. */
 .corps-board > #chaos { display: none; }
 .bloc-cours { position: relative; }
-.sac-joueur { position: absolute; left: 0.3rem; top: 1.9rem; z-index: 6; pointer-events: none; }
+.sac-joueur { position: absolute; left: 0.5rem; bottom: 0.5rem; z-index: 6; pointer-events: none; }   /* coin bas gauche de Commit */
 .sac-joueur .chaos, .sac-joueur .sac { pointer-events: auto; }
-.sac-joueur .sac { align-items: flex-start; }
-.sac-joueur .tires { max-width: 40rem; margin-top: 0.3rem; }
+.sac-joueur .sac { align-items: flex-end; }
+.sac-joueur .tires { max-width: 40rem; margin: 0 0 0.3rem; }
 .bloc-cours .bande { padding-left: 4.6rem; }
 .board-joueur .sac-forme { width: 3.6rem; height: 4rem; font-size: 1.3rem; }
 .board-joueur .sac-popover { left: 0; right: auto; bottom: calc(100% + 0.4rem); top: auto; z-index: 30; }
@@ -92,6 +92,7 @@
 .piles-joueur { display: grid; align-content: start; gap: 0.9rem; padding: 0.7rem 0.9rem; background: var(--nuit); border-right: 1px solid var(--filet); overflow-y: auto; overflow-x: hidden; width: calc(var(--carte-l) + 3rem); box-sizing: border-box; }
 .piles-joueur .pile { justify-self: start; margin-bottom: 0.6rem; }
 .piles-joueur .badge { font-size: 0.95rem; width: 1.8rem; height: 1.8rem; }
+.dialogue .actions-peek .auto-pay { color: var(--dorure-2); font-weight: 700; }
 .piles-joueur .pile.hors-jeu .dos-bouton { width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
 /* Étiquette cliquable sous la défausse et la pile hors jeu : rechercher dedans */
 .piles-joueur .etiquette-pile.cliquable { pointer-events: auto; font: inherit; font-size: 0.75rem; padding: 0.05rem 0; border: 0; background: none; color: var(--papier-2); text-decoration: underline dotted; text-underline-offset: 0.15em; cursor: pointer; }

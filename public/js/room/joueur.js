@@ -10,7 +10,7 @@ import { nomSiege } from "./lobby.js";
 import { blocDeck } from "./deck.js";
 import { carteEl, PHASES, rendreChaos, initLoupe } from "./tapis.js";
 import { lireSiegeMemorise, memoriserSiege } from "./siege.js";
-import { initInteractionsJoueur, ouvrirDialogueBoard } from "./interactions-joueur.js";
+import { initInteractionsJoueur, ouvrirDialogueBoard, titreAutoPay } from "./interactions-joueur.js";
 
 const ICONE_ACTION = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5h9.5V3.5L21 12l-8.5 8.5v-5H3z" fill="currentColor"/></svg>';
 const ORDRE_PHASES = ["mythos", "investigation", "enemy", "upkeep"];
@@ -515,9 +515,7 @@ async function demarrer() {
           let ap = e.querySelector(".ap");
           if (peut && !mulligan) {
             if (!ap) { ap = el("button", { class: "ap", type: "button", "aria-label": "Auto-pay" }, "AP"); e.append(ap); }
-            const def = ctx.defs.get(c.code);
-            const cout = def?.cost;
-            ap.title = `Auto-pay : ${cout === -2 ? "payer X et jouer" : typeof cout === "number" && cout > 0 ? `payer ${cout} et jouer` : "jouer (sans coût)"} — ${def?.type === "event" ? "dans Play" : def?.type === "skill" ? "dans Commit" : "en jeu"}`;
+            ap.title = titreAutoPay(ctx.defs.get(c.code));
           } else if (ap) ap.remove();
           return e;
         }) : [el("p", { class: "vide", text: s.deck ? (s.deck.board.setup === "none" ? "Aucune carte en main : lancez la mise en place." : "Main vide.") : "Pas de deck." })])),

@@ -125,14 +125,7 @@ export function initInteractionsJoueur(ctx) {
 
   /** Auto-pay (« AP ») : coût imprimé déduit (X demandé), refusé faute de ressources ; le serveur range la carte
    *  selon son type — soutien en jeu, événement dans Play, skill dans Commit (les skills n'ont pas de coût). */
-  function jouer(carte) {
-    const def = ctx.defs.get(carte.code);
-    if (def?.cost === -2) {
-      const v = prompt("Cette carte coûte X : combien de ressources ?", "0");
-      if (v === null) return;
-      ctx.envoyer({ t: "p:play", id: carte.id, cost: Math.max(0, Number(v) || 0) });
-    } else ctx.envoyer({ t: "p:play", id: carte.id });
-  }
+  const jouer = (carte) => autoPay(ctx, carte);
 
   // ---- Clics : pioche = piocher ; main pendant le mulligan = sélection ; chips ±1 ; double-clic = épuiser ----
   document.addEventListener("click", (e) => {
@@ -312,6 +305,24 @@ export function initInteractionsJoueur(ctx) {
   }
 }
 
+/** Auto-pay : paie le coût (X demandé) et range la carte selon son type (en jeu / Play / Commit) — depuis la main, la
+ *  défausse ou hors jeu. Renvoie false si le joueur a annulé la saisie de X. */
+export function autoPay(ctx, carte) {
+  const def = ctx.defs.get(carte.code);
+  if (def?.cost === -2) {
+    const v = prompt("Cette carte coûte X : combien de ressources ?", "0");
+    if (v === null) return false;
+    ctx.envoyer({ t: "p:play", id: carte.id, cost: Math.max(0, Number(v) || 0) });
+  } else ctx.envoyer({ t: "p:play", id: carte.id });
+  return true;
+}
+
+/** Libellé de l'auto-pay d'une carte : coût et destination selon son type. */
+export function titreAutoPay(def) {
+  const cout = def?.cost;
+  return `Auto-pay : ${cout === -2 ? "payer X et jouer" : typeof cout === "number" && cout > 0 ? `payer ${cout} et jouer` : "jouer (sans coût)"} — ${def?.type === "event" ? "dans Play" : def?.type === "skill" ? "dans Commit" : "en jeu"}`;
+}
+
 /** Fenêtre de consultation d'une pile du board (recherche, premières cartes, défausse) : agir carte par carte. */
 export function ouvrirDialogueBoard(ctx, pile, cartes) {
   const n = ctx.vue;
@@ -322,15 +333,17 @@ export function ouvrirDialogueBoard(ctx, pile, cartes) {
   const rendre = (restantes) => liste.replaceChildren(...restantes.map((c) => {
     const def = ctx.defs.get(c.code);
     const agir = (msg) => { ctx.envoyer(msg); rendre(restantes.filter((x) => x.id !== c.id)); };
+    // Défausse : « Auto-pay » paie le coût et joue la carte selon son type (retour de test du 2026-09-09).
+    const auto = !pioche && !horsJeu ? [["Auto-pay", null, () => { const etat = ctx.etat.state.cards[c.id]; if (etat && autoPay(ctx, etat)) rendre(restantes.filter((x) => x.id !== c.id)); }, titreAutoPay(def)]] : [];
     const boutons = pioche
       ? [["En main", { t: "p:toHand", id: c.id }], ["Défausser", { t: "p:discard", id: c.id }], ["En jeu", { t: "moveCard", id: c.id, zone: `pplay${n}`, x: 9999, y: 0 }]]
       : horsJeu
         ? [["En jeu", { t: "moveCard", id: c.id, zone: `pplay${n}`, x: 9999, y: 0 }], ["En main", { t: "p:toHand", id: c.id }], ["Défausser", { t: "p:discard", id: c.id }], ["Sur la pioche", { t: "toPile", id: c.id, pile: `pdeck${n}`, top: true }]]
-        : [["En main", { t: "p:toHand", id: c.id }], ["Sur la pioche", { t: "toPile", id: c.id, pile: `pdeck${n}`, top: true }], ["Sous la pioche", { t: "toPile", id: c.id, pile: `pdeck${n}`, top: false }], ["Mélanger", { t: "toPile", id: c.id, pile: `pdeck${n}`, shuffle: true }]];
+        : [...auto, ["En main", { t: "p:toHand", id: c.id }], ["Sur la pioche", { t: "toPile", id: c.id, pile: `pdeck${n}`, top: true }], ["Sous la pioche", { t: "toPile", id: c.id, pile: `pdeck${n}`, top: false }], ["Mélanger", { t: "toPile", id: c.id, pile: `pdeck${n}`, shuffle: true }]];
     return el("figure", { class: "carte-peek" },
       el("img", { src: `${CDN}${c.code}.webp`, alt: def?.name ?? c.code, loading: "lazy" }),
       el("figcaption", {}, el("span", { text: def?.name ?? c.code }),
-        ctx.peutAgir() ? el("span", { class: "actions-peek" }, ...boutons.map(([lib, msg]) => el("button", { class: "lien-outil", type: "button", onclick: () => agir(msg) }, lib))) : null));
+        ctx.peutAgir() ? el("span", { class: "actions-peek" }, ...boutons.map(([lib, msg, action, titre]) => el("button", { class: `lien-outil${lib === "Auto-pay" ? " auto-pay" : ""}`, type: "button", title: titre ?? null, onclick: () => (action ? action() : agir(msg)) }, lib))) : null));
   }));
   rendre(cartes);
   const nb = `${cartes.length} carte${cartes.length > 1 ? "s" : ""}`;

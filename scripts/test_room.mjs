@@ -1753,6 +1753,20 @@ async function tablePit({ joueurs = 2, difficulty } = {}) {
   }
   d = await h.action({ t: "p:play", id: h.state.piles.pdeck0[0] });
   assert.equal(d.t, "nack", "une carte de la pioche ne se joue pas");
+  // Depuis la défausse (« Auto-pay » de la fenêtre de recherche, 2026-09-09) : payée, rangée selon son type.
+  {
+    const enMain3 = main().find((c) => typeof defDe(h, c.id).cost === "number" && defDe(h, c.id).cost >= 0 && defDe(h, c.id).cost !== -2) ?? main()[0];
+    d = await h.action({ t: "p:discard", id: enMain3.id });
+    assert.equal(h.state.cards[enMain3.id].loc.pile, "pdiscard0");
+    const cout3 = Math.max(0, defDe(h, enMain3.id).cost ?? 0);
+    d = await h.action({ t: "setSeatCounter", seat: 0, key: "resources", value: cout3 + 2 });
+    d = await h.action({ t: "p:play", id: enMain3.id });
+    assert.equal(d.t, "delta", "une carte de la défausse se joue (auto-pay)");
+    assert.equal(h.state.seats[0].counters.resources, 2, "son coût est payé");
+    const type3 = defDe(h, enMain3.id).type;
+    assert.equal(h.state.cards[enMain3.id].loc.zone, type3 === "event" ? "pevent0" : type3 === "skill" ? "pcommit0" : "pplay0", "rangée selon son type");
+    assert.ok(h.state.log.some((e) => e.text.includes("depuis sa défausse")), "journal : depuis la défausse");
+  }
   // Poser sans payer (glisser) : p:put dans la zone visée, Uses posés pour un soutien en jeu, ressources inchangées.
   {
     const enMain2 = main().find((c) => defDe(h, c.id).type === "asset" && defDe(h, c.id).cost > 0) ?? main()[0];

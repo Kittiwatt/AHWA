@@ -967,12 +967,19 @@ with sync_playwright() as p:
     assert "Défausse" in a13.locator(".menu-carte .titre-menu").inner_text(), "le clic droit sur la carte du dessus ouvre le menu de la pile"
     a13.locator(".menu-carte").get_by_role("button", name="Rechercher (sans mélanger)").click(); a13.wait_for_selector("dialog[open] .carte-peek", timeout=5000)
     assert "Défausse — 1 carte" in a13.locator("dialog[open] h2").inner_text(), "fenêtre de la défausse"
+    assert a13.locator("dialog[open] .actions-peek .auto-pay").count() == 1, "Auto-pay proposé sur la carte de la défausse"
     a13.screenshot(path=f"{OUT}/62b_board_recherche_defausse.png")
     a13.keyboard.press("Escape"); a13.wait_for_timeout(300)
     assert a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .badge").inner_text() == "1", "la défausse n'a pas été mélangée ni vidée"
-    # L'étiquette « Défausse » ouvre aussi la recherche.
+    # Auto-pay depuis la défausse : ressources d'abord (clic sur la chip), puis la carte est jouée et payée, rangée selon son type.
+    for _ in range(6): a13.locator("#entete .chip-resource .chip-n").click(); a13.wait_for_timeout(120)
+    res0 = int(a13.locator("#entete .chip-resource .chip-n").inner_text())
     a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .etiquette-pile").click(); a13.wait_for_selector("dialog[open] .carte-peek", timeout=5000)
+    a13.locator("dialog[open] .actions-peek .auto-pay").click(); a13.wait_for_timeout(600)
     a13.keyboard.press("Escape"); a13.wait_for_timeout(300)
+    assert a13.locator("#piles-joueur .pile[data-outil='pdiscard0'] .badge").inner_text() == "0", "auto-pay : la carte a quitté la défausse"
+    assert int(a13.locator("#entete .chip-resource .chip-n").inner_text()) <= res0, "auto-pay : coût payé (ou coût 0)"
+    assert a13.locator(".zone-jeu .carte, .case-play .carte, .bloc-cours .bande .carte").count() >= 1, "la carte est en jeu, dans Play ou dans Commit"
     a13.locator("#main .eventail .carte").first.dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
     assert a13.locator(".menu-carte").get_by_role("button", name="Voir sur ArkhamDB").count() == 1, "menu d'une carte de la main : Voir sur ArkhamDB"
     a13.screenshot(path=f"{OUT}/62_board_menu_main.png")
@@ -995,10 +1002,11 @@ with sync_playwright() as p:
         if a13.locator("#main .eventail .carte.kind-asset").count(): break
         a13.locator(".pioche-joueur .dos-bouton").click(); a13.wait_for_timeout(300)
     for _ in range(5): a13.locator("#entete .chip-resource .chip-n").click(); a13.wait_for_timeout(120)
+    en_jeu_avant = a13.locator(".zone-jeu .carte").count()   # le permanent, plus l'éventuel soutien joué par auto-pay depuis la défausse
     src = a13.locator("#main .eventail .carte.kind-asset").first.bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(zone["x"] + 300, zone["y"] + 60, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
-    assert a13.locator(".zone-jeu .carte").count() == 2, "soutien mis en jeu par glisser"
+    assert a13.locator(".zone-jeu .carte").count() == en_jeu_avant + 1, "soutien mis en jeu par glisser"
     # Entretien depuis la table : Alice pioche 1 et gagne 1 ressource.
     main_avant = a13.locator("#main .eventail .carte").count()
     res_avant = int(a13.locator("#entete .chip-resource .chip-n").inner_text())
@@ -1042,13 +1050,14 @@ with sync_playwright() as p:
         avant_uses = int(uses.first.locator(".chip-n").inner_text())
         uses.first.click(); a13.wait_for_timeout(400)
         assert int(a13.locator(f".zone-jeu .carte[title='{titre_soutien}'] .chip-uses .chip-n").inner_text()) == avant_uses - 1, "clic sur la jauge Uses = −1"
+    commit_avant = a13.locator(".bloc-cours .bande .carte").count()   # l'éventuel skill joué par auto-pay depuis la défausse
     src = a13.locator("#main .eventail .carte").first.bounding_box(); cours = a13.locator(".bloc-cours .bande").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(cours["x"] + 150, cours["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)   # à droite du sac du chaos
-    assert a13.locator(".bloc-cours .bande .carte").count() == 1, "carte engagée au test (Commit)"
+    assert a13.locator(".bloc-cours .bande .carte").count() == commit_avant + 1, "carte engagée au test (Commit)"
     h13.wait_for_timeout(400)
     assert not h13.locator("#commit-volant").is_hidden(), "le Commit volant apparaît sur le tapis dès qu'une carte est engagée"
-    assert h13.locator("#commit-volant .carte").count() == 1, "la carte engagée est visible dans le Commit volant"
+    assert h13.locator("#commit-volant .carte").count() == commit_avant + 1, "la carte engagée est visible dans le Commit volant"
     assert h13.locator("#sieges .lien-board").first.get_attribute("target").startswith("ahwa-board-"), "un seul onglet par board"
     h13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     h13.screenshot(path=f"{OUT}/69_tapis_commit_volant.png")
