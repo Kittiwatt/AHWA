@@ -784,6 +784,61 @@ with sync_playwright() as p:
     assert j14.locator("#sieges .mini.cle:not(.cachee)").count() >= 1, "vue par Bob aussi"
     h14.locator("#sieges .siege").nth(0).screenshot(path=f"{OUT}/75_pit_cle_siege.png")
 
+    # ---- The Vanishing of Elina Harper (TIC II) : questions du sac, carte de référence et pistes, Parley, accusation ----
+    code15, token15 = creer("tic_the_vanishing_of_elina_harper")
+    print("room Elina Harper", code15)
+    h15 = page_pour(browser, "Hôte", host=True, code=code15, token=token15)
+    h15.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h15.get_by_role("button", name="Choisir un enquêteur").click(); h15.wait_for_selector("dialog.dialogue-inv[open]")
+    h15.fill("dialog .recherche", "amanda"); h15.wait_for_timeout(300); h15.locator("dialog .inv").first.click()
+    h15.wait_for_selector(".siege-lobby.moi .fiche")
+    j15 = page_pour(browser, "Bob", code=code15, token=None)
+    j15.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j15.get_by_role("button", name="Choisir un enquêteur").click(); j15.wait_for_selector("dialog.dialogue-inv[open]")
+    j15.fill("dialog .recherche", "trish"); j15.wait_for_timeout(300); j15.locator("dialog .inv").first.click()
+    j15.wait_for_selector(".siege-lobby.moi .fiche")
+    h15.wait_for_timeout(400)
+    for q, v in (("mode", "campaign"), ("cultist_out", "yes"), ("tablet_out", "no"), ("elder_out", "no")):
+        h15.locator(f"input[name='q-{q}'][value='{v}']").check()
+    h15.wait_for_timeout(200)
+    h15.locator(".reglage.questions").screenshot(path=f"{OUT}/77_harper_lobby_questions.png")
+    h15.get_by_role("button", name="Lancer la mise en place").click()
+    h15.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h15.wait_for_load_state("networkidle"); h15.wait_for_timeout(1500)
+    assert h15.locator("#plateau .carte.kind-location").count() == 7, "sept lieux"
+    assert h15.locator("#histoire .bloc.reference .carte").count() == 1, "carte de référence dans la colonne"
+    assert h15.locator("#histoire .bloc.pistes .piste").count() == 12, "douze pistes"
+    assert h15.locator("#pioches .pile[data-outil='pile:leads'] .badge").inner_text() == "10", "Leads : 10"
+    assert h15.locator("#pioches .pile.secrete .badge").inner_text() == "2", "deux cartes cachées"
+    assert h15.locator("#chaos .sac-forme").inner_text().strip() == "19", "sac 20 − 1 cultiste"
+    h15.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h15.mouse.move(420, 520); h15.wait_for_timeout(300)
+    h15.screenshot(path=f"{OUT}/78_harper_tapis.png")
+    # Parley : révéler 3 pistes (menu de la pile Leads) → éventail avec « Prendre », pistes rayées dans le panneau.
+    h15.locator("#pioches .pile[data-outil='pile:leads']").dispatch_event("contextmenu"); h15.wait_for_selector(".menu-carte")
+    h15.locator(".menu-carte").get_by_role("button", name="Parley : révéler 3 pistes").click(); h15.wait_for_timeout(800)
+    assert h15.locator("#pioches .pistes-revelees .piste-revelee").count() == 3, "trois pistes révélées"
+    assert h15.locator("#histoire .bloc.pistes .piste.rayee").count() == 3, "trois pistes rayées"
+    h15.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h15.screenshot(path=f"{OUT}/79_harper_parley.png")
+    h15.locator("#pioches .pistes-revelees .piste-revelee").first.get_by_role("button", name="Prendre").click(); h15.wait_for_timeout(800)
+    assert h15.locator("#pioches .pistes-revelees").count() == 0, "Parley terminé"
+    assert h15.locator("#pioches .pile[data-outil='pile:leads'] .badge").inner_text() == "10", "7 + 2 + 1 carte de rencontre"
+    # Accusation : dialogue suspect + cachette (les rayés grisés), puis fin de scénario mise en place.
+    h15.locator("#histoire").get_by_role("button", name="Faire l'accusation").click(); h15.wait_for_selector("dialog[open] .accusation")
+    assert h15.locator("dialog[open] .choix-piste").count() == 12
+    h15.locator("dialog[open] .colonne-accusation").nth(0).locator("input").nth(0).check()
+    h15.locator("dialog[open] .colonne-accusation").nth(1).locator("input").nth(0).check()
+    h15.screenshot(path=f"{OUT}/80_harper_accusation.png")
+    h15.locator("dialog[open]").get_by_role("button", name="Accuser").click(); h15.wait_for_timeout(1000)
+    assert "Accusation faite" in h15.locator("#histoire .bloc.pistes").inner_text(), "accusation enregistrée"
+    assert h15.locator("#pioches .pile[data-outil='pile:leads'] .badge").inner_text() == "0", "Leads retirée"
+    assert h15.locator("#pioches .pile.secrete .badge").inner_text() == "0", "cartes cachées révélées"
+    assert h15.locator("#plateau .carte.kind-location").count() >= 8, "la cachette est en jeu"
+    h15.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h15.mouse.move(420, 520); h15.wait_for_timeout(300)
+    h15.screenshot(path=f"{OUT}/81_harper_apres_accusation.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

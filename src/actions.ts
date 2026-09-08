@@ -148,6 +148,18 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
   // Rappels déclarés par le scénario pour cette étape (« act:2 », « agenda:2 »…).
   const stage = def.cards.find((k) => k.code === c.code)?.stage;
   const reminders = stage ? rappels(state, def, `${agenda ? "agenda" : "act"}:${stage}`) : [];
+  // Effets déclarés par le scénario quand cet agenda devient courant (verso de l'agenda précédent) : des cartes de côté
+  // (et la défausse) rejoignent la pioche de rencontre, mélangée — The Vanishing of Elina Harper.
+  const effet = agenda && stage ? def.agendaEffects?.[String(stage)] : undefined;
+  if (effet?.shuffleAside?.length) {
+    const cartes = Object.values(state.cards).filter((k) => "zone" in k.loc && k.loc.zone === "aside" && effet.shuffleAside!.includes(k.code));
+    for (const k of cartes) { k.loc = { pile: "encounter" }; k.faceUp = false; k.tokens = {}; k.exhausted = false; state.piles.encounter.push(k.id); }
+    let defausse = 0;
+    if (effet.withDiscard) { defausse = state.piles.encounterDiscard.length; remelangerDefausse(state, Math.random); }
+    else shuffle(state.piles.encounter, Math.random);
+    for (const id of state.piles.encounter) state.cards[id].faceUp = false;
+    reminders.push(addLog(state, "reminder", `${effet.log ?? `Agenda ${stage}`} : ${cartes.length} carte${cartes.length > 1 ? "s" : ""} de côté (${[...new Set(cartes.map((k) => nomCarte(def, k)))].join(", ") || "aucune"})${effet.withDiscard ? ` et les ${defausse} de la défausse` : ""} mélangée${cartes.length + defausse > 1 ? "s" : ""} dans la pioche de rencontre.`));
+  }
   // Marée (TIC) : l'agenda qui devient courant inonde les lieux révélés et fixe la règle appliquée à chaque révélation.
   const maree = agenda && stage ? def.flood?.byAgenda?.[String(stage)] : undefined;
   if (maree) {
@@ -160,6 +172,30 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
 }
 
 const LIBELLE_REGLE = ["n'est pas inondé à sa révélation", "monte d'un niveau d'inondation à sa révélation", "est totalement inondé à sa révélation"];
+
+/** Pistes (The Vanishing of Elina Harper) : les codes vus dans la pile Leads ou entrés en jeu sont rayés ; renvoie les noms nouvellement rayés. */
+function rayerPistes(state: RoomState, def: ScenarioDef, codes: string[]): string[] {
+  if (!def.leads || !state.leads) return [];
+  const candidats = new Set([...def.leads.suspects, ...def.leads.hideouts]);
+  const nouveaux = [...new Set(codes)].filter((c) => candidats.has(c) && !state.leads!.eliminated.includes(c));
+  state.leads.eliminated.push(...nouveaux);
+  return nouveaux.map((c) => def.cards.find((k) => k.code === c)?.name ?? c);
+}
+
+/** Premier emplacement de cachette libre sur la grille (ordre de lecture), sinon null. */
+function emplacementLibre(state: RoomState, def: ScenarioDef): { x: number; y: number } | null {
+  for (const spot of def.leads?.spots ?? []) {
+    const pris = Object.values(state.cards).some((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board"
+      && Math.abs(k.loc.x - spot.x) < PAS_X / 2 && Math.abs(k.loc.y - spot.y) < PAS_Y / 2);
+    if (!pris) return spot;
+  }
+  return null;
+}
+
+/** Pile qui ne se pioche, ne se consulte ni ne se mélange : les cartes cachées sous la carte de référence. */
+function pileSecrete(def: ScenarioDef, pile: string): boolean {
+  return Boolean(def.leads && pile === def.leads.secret);
+}
 
 /** Inonde tous les lieux révélés du tapis : « increase » (+1 niveau, plafond 2), « full » (niveau 2), « decrease », « clear ». */
 function inonderTout(state: RoomState, mode: string): string {
@@ -442,6 +478,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       // {pile, n} : nomme n cartes distinctes tirées au hasard dans la pile, sans la modifier (« choisir un lieu au hasard »).
       const pile = String(msg.pile);
       if (!(pile in state.piles) || pile === "removed") refuser("pile inconnue");
+      if (pileSecrete(def, pile)) refuser("ces cartes ne se révèlent qu'à l'accusation");
       const n = Math.max(1, Math.min(Number(msg.n) || 1, state.piles[pile].length));
       if (!state.piles[pile].length) refuser("cette pile est vide");
       const tires = shuffle([...state.piles[pile]], rng).slice(0, n).map((id) => nomCarte(def, state.cards[id]));
@@ -451,6 +488,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
     case "shufflePile": {
       const pile = String(msg.pile);
       if (!(pile in state.piles)) refuser("pile inconnue");
+      if (pileSecrete(def, pile)) refuser("ces cartes ne se révèlent qu'à l'accusation");
       shuffle(state.piles[pile], rng);
       if (!estDefausse(def, pile)) for (const id of state.piles[pile]) { state.cards[id].faceUp = false; if (state.cards[id].kind === "location") state.cards[id].side = "a"; }
       addLog(state, "action", pile === "encounter" ? "Pioche de rencontre mélangée." : `${nomPile(def, pile)} : mélangée.`);
@@ -463,6 +501,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const s = msg.seat === undefined ? monSiege() : siege(state, msg.seat);
       const pile = String(msg.pile ?? "encounter");
       if (!(pile in state.piles) || ["removed", "agendaDeck", "actDeck"].includes(pile) || estDefausse(def, pile)) refuser("pile inconnue");
+      if (pileSecrete(def, pile)) refuser("ces cartes ne se révèlent qu'à l'accusation");
       const dessus = state.piles[pile].length ? state.cards[state.piles[pile][0]] : null;
       if (dessus?.faceUp) refuser(`${nomCarte(def, dessus)} est déjà révélé : glissez-le où il faut avant de piocher`);
       if (!state.piles[pile].length) {
@@ -476,6 +515,8 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       // Un lieu à double face tiré montre son côté non révélé (nom lisible, rien de dévoilé).
       if (c.kind === "location" && def.cards.find((d) => d.code === c.code)?.back === "b") c.side = "b";
       addLog(state, "action", `${nomSiege(state, s, def)} pioche ${nomCarte(def, c)}${pile === "encounter" ? "" : ` (${nomPile(def, pile)})`}.`, s);
+      // Une carte vue dans la pile Leads n'est pas la bonne : piste rayée.
+      if (def.leads && pile === def.leads.pile) { const r = rayerPistes(state, def, [c.code]); if (r.length) addLog(state, "action", `Piste rayée : ${r.join(", ")}.`); }
       return {};
     }
     case "reshuffleDiscard": {
@@ -505,8 +546,11 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       // {pile, n?} : consulte la pile (ou seulement ses n premières cartes : « regardez les X premières cartes du Cosmos »).
       const pile = String(msg.pile ?? "encounter");
       if (!(pile in state.piles) || pile === "removed") refuser("pile inconnue");
+      if (pileSecrete(def, pile)) refuser("ces cartes ne se révèlent qu'à l'accusation");
       const n = Number(msg.n) > 0 ? Math.min(Number(msg.n), state.piles[pile].length) : state.piles[pile].length;
       if (Number(msg.n) > 0) addLog(state, "action", `${moi !== null ? nomSiege(state, moi, def) : "Un joueur"} regarde les ${n} première${n > 1 ? "s" : ""} carte${n > 1 ? "s" : ""} de ${pile === "encounter" ? "la pioche" : nomPile(def, pile)}.`, moi ?? undefined);
+      // Regarder des cartes de la pile Leads les élimine (elles ne sont pas la bonne réponse) : pistes rayées pour tous.
+      if (def.leads && pile === def.leads.pile) { const r = rayerPistes(state, def, state.piles[pile].slice(0, n).map((id) => state.cards[id].code)); if (r.length) addLog(state, "action", `Piste${r.length > 1 ? "s" : ""} rayée${r.length > 1 ? "s" : ""} : ${r.join(", ")}.`); }
       return { peek: { pile, cards: state.piles[pile].slice(0, n).map((id) => ({ id, code: state.cards[id].code })) } };
     }
     case "advanceAgenda":
@@ -659,6 +703,135 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       if (!poses.length) refuser(pris.length === AUTOUR.length ? "les trois emplacements sont déjà occupés" : "rien à poser");
       addLog(state, "action", `${poses.length} lieu${poses.length > 1 ? "x" : ""} de ${nomPile(def, pile)} posé${poses.length > 1 ? "s" : ""} non révélé${poses.length > 1 ? "s" : ""} ${poses.join(", ")} de ${nomCarte(def, c)}${pris.length ? ` (déjà occupé : ${pris.join(", ")})` : ""}${state.piles[pile].length ? "" : " ; la pile est vide"}.`);
       return {};
+    }
+
+    // ---- Pistes, Parley et accusation (The Vanishing of Elina Harper) ------------------------
+    case "leadsReveal": {
+      // {n} : Parley de l'acte 1 — les n premières cartes de la pile Leads (1 à 3) sont révélées pour tous (pile « pistes
+      // révélées ») ; le demandeur en prend une (leadsTake), le reste retourne dans Leads avec la première carte de la pioche.
+      const L = def.leads ?? refuser("ce scénario n'a pas de pile Leads");
+      const s = msg.seat === undefined ? monSiege() : siege(state, msg.seat);
+      if (state.piles[L.shown]?.length) refuser("terminez d'abord le Parley en cours (prenez une piste ou remettez-les)");
+      const n = Math.max(1, Math.min(3, Math.round(Number(msg.n) || 1), state.piles[L.pile].length));
+      if (!state.piles[L.pile].length) refuser("la pile Leads est vide");
+      if (!(L.shown in state.piles)) state.piles[L.shown] = [];
+      const ids = state.piles[L.pile].splice(0, n);
+      for (const id of ids) { const c = state.cards[id]; c.loc = { pile: L.shown }; c.faceUp = true; state.piles[L.shown].push(id); }
+      const rayees = rayerPistes(state, def, ids.map((id) => state.cards[id].code));
+      const entry = addLog(state, "action", `Parley — ${nomSiege(state, s, def)} révèle ${n} piste${n > 1 ? "s" : ""} : ${ids.map((id) => nomCarte(def, state.cards[id])).join(", ")}${rayees.length ? ` (rayée${rayees.length > 1 ? "s" : ""} : ${rayees.join(", ")})` : ""}. Prenez-en une, le reste retournera dans Leads avec la première carte de la pioche.`, s);
+      return { reminders: [entry] };
+    }
+    case "leadsTake": {
+      // {id} : la piste choisie entre en jeu — un lieu sur le premier emplacement de cachette libre (révélé, ses indices),
+      // le reste va dans la zone de menace du demandeur ; les autres pistes révélées + la première carte de la pioche de
+      // rencontre sont remélangées dans Leads.
+      const L = def.leads ?? refuser("ce scénario n'a pas de pile Leads");
+      const s = msg.seat === undefined ? monSiege() : siege(state, msg.seat);
+      const c = carte(state, msg.id);
+      if (!("pile" in c.loc) || c.loc.pile !== L.shown) refuser("cette carte n'est pas une piste révélée");
+      retirerDesPiles(state, c.id);
+      let texte: string;
+      if (c.kind === "location") {
+        const spot = emplacementLibre(state, def) ?? { x: 737, y: 649 + PAS_Y };
+        c.loc = { zone: "board", x: spot.x, y: spot.y, z: nextZ(state) };
+        c.side = "a";
+        const n = revealLocation(state, def, c);
+        texte = `${nomCarte(def, c)} entre en jeu sur un emplacement de cachette${n ? ` : ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}`;
+      } else {
+        c.loc = { zone: SEAT_ZONES[s], x: boutDeMenace(state, SEAT_ZONES[s]), y: 0, z: nextZ(state) };
+        c.faceUp = true;
+        if (c.kind === "enemy" || c.kind === "treachery" || c.kind === "asset" || c.kind === "story") c.ownerSeat = s;
+        texte = `${nomCarte(def, c)} va dans la zone de menace de ${nomSiege(state, s, def)} (à résoudre comme une carte piochée)`;
+      }
+      const restes = state.piles[L.shown].splice(0);
+      for (const id of restes) { const k = state.cards[id]; k.loc = { pile: L.pile }; k.faceUp = false; state.piles[L.pile].push(id); }
+      let rencontre: string | null = null;
+      if (!state.piles.encounter.length && state.piles.encounterDiscard.length) remelangerDefausse(state, rng);
+      const dessus = state.piles.encounter.shift();
+      if (dessus) { const k = state.cards[dessus]; k.loc = { pile: L.pile }; k.faceUp = false; state.piles[L.pile].push(dessus); rencontre = "la première carte de la pioche de rencontre"; }
+      shuffle(state.piles[L.pile], rng);
+      addLog(state, "action", `${texte}. ${restes.length ? `${restes.length} piste${restes.length > 1 ? "s" : ""} non prise${restes.length > 1 ? "s" : ""}` : "Aucune autre piste"}${rencontre ? ` et ${rencontre}` : ""} : mélangée${restes.length + (rencontre ? 1 : 0) > 1 ? "s" : ""} dans Leads (${state.piles[L.pile].length}).`, s);
+      return {};
+    }
+    case "leadsReturn": {
+      // Les pistes révélées retournent dans Leads sans être prises (mélangées) — rien n'est bloqué.
+      const L = def.leads ?? refuser("ce scénario n'a pas de pile Leads");
+      const restes = state.piles[L.shown]?.splice(0) ?? [];
+      if (!restes.length) refuser("aucune piste révélée");
+      for (const id of restes) { const k = state.cards[id]; k.loc = { pile: L.pile }; k.faceUp = false; state.piles[L.pile].push(id); }
+      shuffle(state.piles[L.pile], rng);
+      addLog(state, "action", `${restes.length} piste${restes.length > 1 ? "s" : ""} révélée${restes.length > 1 ? "s" : ""} remélangée${restes.length > 1 ? "s" : ""} dans Leads sans être prise${restes.length > 1 ? "s" : ""}.`);
+      return {};
+    }
+    case "leadsToggle": {
+      // {code} : rayer / rétablir une piste à la main.
+      const L = def.leads ?? refuser("ce scénario n'a pas de pistes");
+      const code = String(msg.code);
+      if (![...L.suspects, ...L.hideouts].includes(code)) refuser("piste inconnue");
+      state.leads ??= { eliminated: [] };
+      const i = state.leads.eliminated.indexOf(code);
+      if (i >= 0) state.leads.eliminated.splice(i, 1); else state.leads.eliminated.push(code);
+      addLog(state, "action", `Piste ${i >= 0 ? "rétablie" : "rayée"} à la main : ${def.cards.find((k) => k.code === code)?.name ?? code}.`);
+      return {};
+    }
+    case "accusation": {
+      // {suspect, hideout} : l'interlude « The Accusation » du guide — révélation des deux cartes cachées, comparaison,
+      // mise en place de la fin du scénario (acte 2 et agenda 3 de côté, cachette en jeu avec ses indices + 1 par
+      // enquêteur, Elina Harper dessous, le ravisseur dessus, pile Leads retirée) ; journal et rappels.
+      const L = def.leads ?? refuser("ce scénario n'a pas d'accusation");
+      const suspect = String(msg.suspect), hideout = String(msg.hideout);
+      if (!L.suspects.includes(suspect)) refuser("choisissez un suspect");
+      if (!L.hideouts.includes(hideout)) refuser("choisissez une cachette");
+      if (state.leads?.accused) refuser("l'accusation a déjà été faite");
+      const secretIds = state.piles[L.secret] ?? [];
+      const verite = { suspect: secretIds.map((id) => state.cards[id]).find((k) => k.kind === "enemy") ?? refuser("cartes cachées introuvables"),
+        hideout: secretIds.map((id) => state.cards[id]).find((k) => k.kind === "location") ?? refuser("cartes cachées introuvables") };
+      const nom = (code: string) => def.cards.find((k) => k.code === code)?.name ?? code;
+      const bons = (suspect === verite.suspect.code ? 1 : 0) + (hideout === verite.hideout.code ? 1 : 0);
+      state.leads = { ...(state.leads ?? { eliminated: [] }), accused: { suspect, hideout }, truth: { suspect: verite.suspect.code, hideout: verite.hideout.code } };
+      const reminders: LogEntry[] = [];
+      addLog(state, "action", `Accusation : ${nom(suspect)} et ${nom(hideout)}. Les cartes cachées sont révélées — le ravisseur est ${verite.suspect.code === suspect ? "bien" : "en fait"} ${nom(verite.suspect.code)}, la cachette est ${verite.hideout.code === hideout ? "bien" : "en fait"} ${nom(verite.hideout.code)}.`);
+      // La cachette entre en jeu, révélée, avec ses indices + 1 par enquêteur ; Elina Harper dessous ; le ravisseur dessus.
+      const spot = emplacementLibre(state, def) ?? { x: 737, y: 649 + PAS_Y };
+      retirerDesPiles(state, verite.hideout.id);
+      verite.hideout.loc = { zone: "board", x: spot.x, y: spot.y, z: nextZ(state) };
+      verite.hideout.side = "a";
+      const nIndices = revealLocation(state, def, verite.hideout);
+      verite.hideout.tokens.clue = (verite.hideout.tokens.clue ?? 0) + state.playerCount;
+      const elina = Object.values(state.cards).find((k) => k.code === L.elina && "zone" in k.loc && k.loc.zone === "aside");
+      if (elina) { elina.loc = { zone: "board", x: spot.x + 24, y: spot.y + 60, z: nextZ(state) }; elina.faceUp = true; }
+      retirerDesPiles(state, verite.suspect.id);
+      verite.suspect.loc = { zone: "board", x: spot.x + 36, y: spot.y + 30, z: nextZ(state) };
+      verite.suspect.faceUp = true;
+      addLog(state, "action", `${nom(verite.hideout.code)} entre en jeu sur un emplacement de cachette : ${nIndices} indice${nIndices > 1 ? "s" : ""} + ${state.playerCount} (1 par enquêteur)${elina ? ` ; Elina Harper y est retenue (posée sur la cachette)` : ""} ; ${nom(verite.suspect.code)} — le ravisseur — y apparaît, sa capacité de Révélation ignorée.`);
+      // Verdict : 0 bonne réponse = démission ; 1 = la référence se retourne (ennemi) et apparaît à Innsmouth Square ; 2 = rien.
+      if (bons === 0) reminders.push(addLog(state, "reminder", "Aucune des deux réponses n'est la bonne : les enquêteurs font fausse route et doivent démissionner immédiatement (bouton « Clôturer »)."));
+      else if (bons === 1) {
+        const ref = Object.values(state.cards).find((k) => k.code === L.reference);
+        const square = Object.values(state.cards).find((k) => k.code === L.square && "zone" in k.loc && k.loc.zone === "board");
+        if (ref && square) {
+          const sq = square.loc as { x: number; y: number };
+          ref.loc = { zone: "board", x: sq.x + 36, y: sq.y + 46, z: nextZ(state) };
+          ref.faceUp = true; ref.side = "b"; ref.tokens = {};
+          reminders.push(addLog(state, "reminder", `Une réponse sur deux : les habitants sont en colère — ${nomCarte(def, ref)} (verso de la carte de référence) apparaît à ${nomCarte(def, square)}.`));
+        }
+      } else reminders.push(addLog(state, "reminder", "Les deux réponses sont les bonnes : la partie continue avec l'acte 2 et l'agenda 3."));
+      // Acte 2 et agenda 3 depuis la zone de côté ; l'acte et l'agenda courants partent de côté ; l'agenda 2 inutilisé est retiré.
+      const acte2 = Object.values(state.cards).find((k) => k.code === L.act2 && "zone" in k.loc && k.loc.zone === "aside");
+      const agenda3 = Object.values(state.cards).find((k) => k.code === L.agenda3 && "zone" in k.loc && k.loc.zone === "aside");
+      if (state.actId && state.cards[state.actId]) { const a = state.cards[state.actId]; a.loc = { zone: "aside", x: boutDeCote(state), y: 0, z: nextZ(state) }; a.tokens = {}; a.exhausted = false; }
+      if (acte2) { acte2.loc = { zone: "story", x: 0, y: 0, z: nextZ(state) }; acte2.faceUp = true; acte2.side = "a"; state.actId = acte2.id; }
+      state.piles.actDeck = [];
+      if (state.agendaId && state.cards[state.agendaId]) { const a = state.cards[state.agendaId]; a.loc = { zone: "aside", x: boutDeCote(state), y: 0, z: nextZ(state) }; a.tokens = {}; a.exhausted = false; }
+      for (const id of state.piles.agendaDeck.splice(0)) { state.cards[id].loc = { pile: "removed" }; state.piles.removed.push(id); }
+      for (const k of Object.values(state.cards)) delete k.tokens.doom;
+      if (agenda3) { agenda3.loc = { zone: "story", x: 0, y: 0, z: nextZ(state) }; agenda3.faceUp = true; agenda3.side = "a"; agenda3.tokens.doom = 0; state.agendaId = agenda3.id; }
+      // Pile Leads (et pistes révélées) retirée de la partie.
+      for (const pile of [L.pile, L.shown]) for (const id of state.piles[pile]?.splice(0) ?? []) { state.cards[id].loc = { pile: "removed" }; state.cards[id].faceUp = false; state.piles.removed.push(id); }
+      addLog(state, "action", `Acte 2 et agenda 3 entrent dans l'histoire (l'acte 1 et l'agenda courant partent de côté, l'agenda 2 inutilisé est retiré, tout le doom est retiré) ; la pile Leads est retirée de la partie.`);
+      reminders.push(addLog(state, "reminder", `Journal de campagne (papier) : entourez ${nom(verite.suspect.code)} et ${nom(verite.hideout.code)} sous « Possible Suspects / Possible Hideouts ».`));
+      reminders.push(...rappels(state, def, "act:2"), ...rappels(state, def, "agenda:3"));
+      return { reminders };
     }
 
     // ---- Chemins entre lieux --------------------------------------------------------

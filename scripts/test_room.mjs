@@ -1437,6 +1437,179 @@ async function tablePit({ joueurs = 2, difficulty } = {}) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ The Vanishing of Elina Harper (TIC II) : sac moins les retraits du I, Leads deck, cartes cachées protégées,
+// Parley (révéler / prendre / remettre), pistes rayées, effets d'agenda, accusation complète ============
+async function tableHarper({ joueurs = 2, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tic_the_vanishing_of_elina_harper" }) });
+  assert.equal(r.status, 200, "The Vanishing of Elina Harper est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "07001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["07001", "07002", "07003", "07004"][i] });
+    autres.push(c);
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h, autres };
+}
+{
+  const { h, autres: [j2] } = await tableHarper({ joueurs: 2, answers: { mode: "campaign", cultist_out: "yes", tablet_out: "no", elder_out: "yes" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const L = { suspects: ["07076", "07077", "07078", "07079", "07080", "07081"], hideouts: ["07070", "07071", "07072", "07073", "07074", "07075"] };
+  // Sac : 20 − cultiste − ancien = 18.
+  assert.equal(s.chaos.bag.length, 18, "sac : 20 moins un cultiste et un ancien");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 1);
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 2);
+  assert.equal(s.chaos.bag.filter((t) => t === "elder_thing").length, 1);
+  // Tapis : 7 lieux, le Square révélé avec ses indices et les pions, les autres non révélés.
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.deepEqual(lieux.map((c) => c.code).sort(), ["07063", "07064", "07065", "07066", "07067", "07068", "07069"], "sept lieux du diagramme");
+  const square = lieux.find((c) => c.code === "07065");
+  assert.ok(square.faceUp && square.loc.x === 737 && square.loc.y === 411 && square.tokens.clue === 2, "Innsmouth Square révélé, 1 indice par enquêteur");
+  assert.ok(lieux.filter((c) => c.code !== "07065").every((c) => !c.faceUp), "les six autres non révélés");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.y === 411 - 22), "pions sur le Square");
+  // Carte de référence dans l'histoire ; agenda 1 et acte 1 ; agenda 3 et acte 2 de côté ; cartes de côté.
+  const ref = cartes.find((c) => c.code === "07062a");
+  assert.ok(ref.loc.zone === "story" && ref.faceUp && ref.side === "a", "Finding Agent Harper dans l'histoire");
+  assert.equal(s.cards[s.agendaId].code, "07057"); assert.equal(s.cards[s.actId].code, "07060");
+  assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["07058"], "agenda 2 seul à venir");
+  assert.deepEqual(s.piles.actDeck, [], "aucun acte à venir : l'acte 2 est de côté");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["01172", "01172", "07059", "07061", "07082", "07083", "07094"], "de côté : agenda 3, acte 2, Dawson, Elina, Nightgaunt ×2, Winged One");
+  // Leads : 10 cartes (5 suspects + 5 cachettes) ; 2 cachées ; pioche 25 (dont False Lead ×2, Hunting Shadow ×3).
+  assert.equal(s.piles.leads.length, 10, "Leads : 10");
+  assert.equal(s.piles.secret.length, 2, "deux cartes cachées");
+  const secretes = s.piles.secret.map((id) => s.cards[id]);
+  assert.ok(secretes.some((c) => c.kind === "enemy") && secretes.some((c) => c.kind === "location") && secretes.every((c) => !c.faceUp), "un suspect et une cachette, face cachée");
+  const leadsCodes = s.piles.leads.map((id) => s.cards[id].code);
+  assert.equal(leadsCodes.filter((c) => L.suspects.includes(c)).length, 5); assert.equal(leadsCodes.filter((c) => L.hideouts.includes(c)).length, 5);
+  assert.equal(s.piles.encounter.length, 25, "pioche : 25 cartes");
+  assert.equal(s.piles.encounter.filter((id) => ["01135", "01136"].includes(s.cards[id].code)).length, 5, "False Lead ×2 + Hunting Shadow ×3 seulement de The Midnight Masks");
+  assert.ok(!s.log.some((e) => /(Robert Friendly|Zadok Allen|Brian Burnham|Barnabas Marsh|Joyce Little|Othera Gilman|Esoteric Order|Sawbone|Shoreward|Water Street|Innsmouth Jail|New Church)/.test(e.text)), "le journal du setup ne nomme aucun suspect ni cachette");
+  assert.deepEqual(s.leads, { eliminated: [] });
+  // Cartes cachées protégées.
+  let d = await h.action({ t: "drawEncounter", pile: "secret" }); assert.equal(d.t, "nack", "pas de pioche dans les cartes cachées");
+  d = await h.action({ t: "searchEncounter", pile: "secret" }); assert.equal(d.t, "nack");
+  d = await h.action({ t: "shufflePile", pile: "secret" }); assert.equal(d.t, "nack");
+  d = await h.action({ t: "randomPick", pile: "secret", n: 1 }); assert.equal(d.t, "nack");
+  // Regarder les 2 premières de Leads : pistes rayées ; le Parley révèle 3 pistes pour tous.
+  d = await h.action({ t: "searchEncounter", pile: "leads", n: 2 });
+  assert.equal(d.t, "delta"); assert.equal(h.state.leads.eliminated.length, 2, "regarder = rayer");
+  d = await h.action({ t: "leadsReveal", n: 3 });
+  assert.equal(d.t, "delta", "Parley : 3 pistes révélées");
+  assert.equal(h.state.piles.leadsShown.length, 3); assert.equal(h.state.piles.leads.length, 7);
+  assert.ok(h.state.piles.leadsShown.every((id) => h.state.cards[id].faceUp));
+  assert.ok(h.state.log.some((e) => e.text.startsWith("Parley")), "journal du Parley");
+  d = await h.action({ t: "leadsReveal", n: 1 }); assert.equal(d.t, "nack", "un seul Parley à la fois");
+  // Prendre une cachette : sur le premier emplacement libre, révélée, ses indices ; le reste + 1 carte de rencontre dans Leads.
+  const revelees = h.state.piles.leadsShown.map((id) => h.state.cards[id]);
+  const cachette = revelees.find((c) => c.kind === "location");
+  const suspectRev = revelees.find((c) => c.kind === "enemy");
+  const pioche0 = h.state.piles.encounter.length;
+  if (cachette) {
+    d = await h.action({ t: "leadsTake", id: cachette.id });
+    assert.equal(d.t, "delta");
+    const c = h.state.cards[cachette.id];
+    assert.ok(c.loc.zone === "board" && c.loc.x === 365 && c.loc.y === 173 && c.faceUp, "cachette sur le premier emplacement libre (haut gauche), révélée");
+    assert.ok((c.tokens.clue ?? 0) > 0, "indices posés");
+  } else {
+    d = await h.action({ t: "leadsTake", id: suspectRev.id });
+    assert.equal(d.t, "delta");
+    assert.equal(h.state.cards[suspectRev.id].loc.zone, "seat0", "suspect pris : zone de menace du demandeur");
+  }
+  assert.equal(h.state.piles.leadsShown.length, 0, "plus de piste révélée");
+  assert.equal(h.state.piles.leads.length, 10, "7 restantes + 2 non prises + 1 carte de rencontre = 10");
+  assert.equal(h.state.piles.encounter.length, pioche0 - 1, "une carte de rencontre a rejoint Leads");
+  assert.ok(h.state.leads.eliminated.length >= 3, "les trois pistes révélées sont rayées");
+  // Remettre : révéler 2, remettre sans prendre.
+  d = await h.action({ t: "leadsReveal", n: 2 }); assert.equal(h.state.piles.leadsShown.length, 2);
+  d = await h.action({ t: "leadsReturn" }); assert.equal(d.t, "delta"); assert.equal(h.state.piles.leads.length, 10, "remises sans carte de rencontre");
+  // Piste rayée à la main puis rétablie.
+  const libre = L.suspects.find((c) => !h.state.leads.eliminated.includes(c));
+  if (libre) {
+    d = await h.action({ t: "leadsToggle", code: libre }); assert.ok(h.state.leads.eliminated.includes(libre), "rayée à la main");
+    d = await h.action({ t: "leadsToggle", code: libre }); assert.ok(!h.state.leads.eliminated.includes(libre), "rétablie");
+  }
+  // Agenda 2 : Winged One et les deux Hunting Nightgaunt (de côté) + la défausse rejoignent la pioche.
+  const encounterAvant = h.state.piles.encounter.length;
+  d = await h.action({ t: "toPile", id: h.state.piles.encounter[0], pile: "encounterDiscard" });
+  d = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07058", "agenda 2 courant");
+  assert.equal(h.state.piles.encounter.length, encounterAvant + 3, "pioche : −1 défaussée +1 défausse remélangée +3 cartes de côté");
+  assert.equal(h.state.piles.encounterDiscard.length, 0);
+  assert.ok(!Object.values(h.state.cards).some((c) => ["07094", "01172"].includes(c.code) && c.loc.zone === "aside"), "plus de Winged One ni de Nightgaunt de côté");
+  assert.ok(h.state.log.some((e) => e.kind === "reminder" && e.text.startsWith("Verso de l'agenda 1")), "rappel de l'effet d'agenda");
+  // Accusation : vérité = les deux cartes cachées ; on accuse une bonne et une mauvaise réponse → ennemi de la référence au Square.
+  const vraiSuspect = h.state.piles.secret.map((id) => h.state.cards[id]).find((c) => c.kind === "enemy").code;
+  const vraieCachette = h.state.piles.secret.map((id) => h.state.cards[id]).find((c) => c.kind === "location").code;
+  const mauvaiseCachette = L.hideouts.find((c) => c !== vraieCachette && Object.values(h.state.cards).find((k) => k.code === c).loc.zone !== "board");
+  d = await h.action({ t: "accusation", suspect: "07099", hideout: vraieCachette }); assert.equal(d.t, "nack", "suspect inconnu refusé");
+  d = await h.action({ t: "accusation", suspect: vraiSuspect, hideout: mauvaiseCachette });
+  assert.equal(d.t, "delta", "accusation acceptée");
+  const S = h.state;
+  assert.deepEqual(S.leads.accused, { suspect: vraiSuspect, hideout: mauvaiseCachette });
+  assert.deepEqual(S.leads.truth, { suspect: vraiSuspect, hideout: vraieCachette });
+  assert.equal(S.piles.secret.length, 0, "cartes cachées révélées");
+  const cache = Object.values(S.cards).find((c) => c.code === vraieCachette);
+  assert.ok(cache.loc.zone === "board" && cache.faceUp, "la vraie cachette est en jeu, révélée");
+  const defCache = (await (await fetch(`${BASE}/scenarios/tic_the_vanishing_of_elina_harper.json`)).json()).cards.find((c) => c.code === vraieCachette);
+  assert.equal(cache.tokens.clue, defCache.clue.value * 2 + 2, "indices imprimés (par enquêteur) + 1 par enquêteur");
+  const ravisseur = Object.values(S.cards).find((c) => c.code === vraiSuspect);
+  assert.ok(ravisseur.loc.zone === "board" && ravisseur.faceUp && Math.abs(ravisseur.loc.x - cache.loc.x) < 60, "le ravisseur apparaît sur la cachette");
+  const elina = Object.values(S.cards).find((c) => c.code === "07083");
+  assert.ok(elina.loc.zone === "board" && Math.abs(elina.loc.x - cache.loc.x) < 60, "Elina Harper posée sur la cachette");
+  const refApres = S.cards[ref.id];
+  assert.ok(refApres.loc.zone === "board" && refApres.side === "b" && refApres.faceUp, "une réponse sur deux : la référence retournée (ennemi) sur le tapis");
+  assert.ok(Math.abs(refApres.loc.x - 737) < 60 && Math.abs(refApres.loc.y - 411) < 60, "à Innsmouth Square");
+  assert.equal(S.cards[S.actId].code, "07061", "acte 2 courant"); assert.equal(S.cards[S.agendaId].code, "07059", "agenda 3 courant");
+  assert.equal(S.cards[S.agendaId].tokens.doom, 0);
+  assert.deepEqual(S.piles.agendaDeck, []); assert.deepEqual(S.piles.actDeck, []);
+  assert.ok(Object.values(S.cards).some((c) => c.code === "07060" && c.loc.zone === "aside"), "acte 1 de côté");
+  assert.ok(Object.values(S.cards).some((c) => c.code === "07058" && c.loc.zone === "aside"), "agenda 2 (courant) de côté");
+  assert.equal(S.piles.leads.length, 0, "pile Leads retirée");
+  assert.ok(Object.values(S.cards).filter((c) => c.loc.pile === "removed").length >= 8, "pistes retirées de la partie");
+  assert.ok(S.log.some((e) => e.text.includes("Une réponse sur deux")), "verdict au journal");
+  d = await h.action({ t: "accusation", suspect: vraiSuspect, hideout: vraieCachette }); assert.equal(d.t, "nack", "une seule accusation");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.leads, h.state.leads, "les autres clients suivent");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // Mode autonome, solo : sac de base ; accusation entièrement fausse → démission ; entièrement juste → rien de plus.
+  const { h } = await tableHarper({ joueurs: 1, answers: { mode: "standalone", cultist_out: "yes", tablet_out: "yes", elder_out: "yes" } });
+  assert.equal(h.state.chaos.bag.length, 20, "autonome : aucun retrait");
+  const L = { suspects: ["07076", "07077", "07078", "07079", "07080", "07081"], hideouts: ["07070", "07071", "07072", "07073", "07074", "07075"] };
+  const vraiSuspect = h.state.piles.secret.map((id) => h.state.cards[id]).find((c) => c.kind === "enemy").code;
+  const vraieCachette = h.state.piles.secret.map((id) => h.state.cards[id]).find((c) => c.kind === "location").code;
+  let d = await h.action({ t: "accusation", suspect: L.suspects.find((c) => c !== vraiSuspect), hideout: L.hideouts.find((c) => c !== vraieCachette) });
+  assert.equal(d.t, "delta");
+  assert.ok(h.state.log.some((e) => e.kind === "reminder" && e.text.includes("démissionner")), "aucune bonne réponse : démission");
+  assert.equal(h.state.cards[Object.values(h.state.cards).find((c) => c.code === "07062a").id].loc.zone, "story", "la référence reste dans l'histoire");
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+  const { h: g } = await tableHarper({ joueurs: 1, answers: { mode: "campaign", cultist_out: "no", tablet_out: "yes", elder_out: "no" } });
+  assert.equal(g.state.chaos.bag.length, 19, "campagne : une tablette retirée");
+  const vs = g.state.piles.secret.map((id) => g.state.cards[id]).find((c) => c.kind === "enemy").code;
+  const vc = g.state.piles.secret.map((id) => g.state.cards[id]).find((c) => c.kind === "location").code;
+  d = await g.action({ t: "accusation", suspect: vs, hideout: vc });
+  assert.equal(d.t, "delta");
+  assert.ok(g.state.log.some((e) => e.kind === "reminder" && e.text.includes("Les deux réponses sont les bonnes")), "deux bonnes réponses");
+  assert.equal(Object.values(g.state.cards).find((c) => c.code === "07062a").loc.zone, "story", "référence intacte");
+  g.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 // ============ Board joueur, étape 1 (cahier §10) : import du deck au lobby, faiblesse aléatoire, code de siège et
 // connexions multiples, decks créés à la mise en place, actions p:* réservées au siège ============
 {

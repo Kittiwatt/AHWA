@@ -12,6 +12,7 @@ import s8 from "../public/scenarios/tcu_union_and_disillusion.json";
 import s9 from "../public/scenarios/tcu_wages_of_sin.json";
 import s10 from "../public/scenarios/tcu_witching_hour.json";
 import s11 from "../public/scenarios/tic_the_pit_of_despair.json";
+import s12 from "../public/scenarios/tic_the_vanishing_of_elina_harper.json";
 
 export const SCENARIOS = {
   "notz_the_devourer_below": s0,
@@ -26,6 +27,7 @@ export const SCENARIOS = {
   "tcu_wages_of_sin": s9,
   "tcu_witching_hour": s10,
   "tic_the_pit_of_despair": s11,
+  "tic_the_vanishing_of_elina_harper": s12,
 } as const;
 
 export type ScenarioId = keyof typeof SCENARIOS;

@@ -5,7 +5,7 @@
 import { el, pluriel } from "./dom.js";
 import { majCarte, majMini, majCle, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos, COULEURS_CHEMINS, totauxCompetences, elTotauxCompetences, chipJauge } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
-import { ouvrirDialogueCartes, ouvrirAjustementSac, ouvrirDepenseIndices, ouvrirGenerateur } from "./dialogues.js";
+import { ouvrirDialogueCartes, ouvrirAjustementSac, ouvrirDepenseIndices, ouvrirGenerateur, ouvrirAccusation } from "./dialogues.js";
 
 export const PHASES = {
   mythos: "Phase du mythe",
@@ -304,10 +304,34 @@ function rendreHistoire(ctx) {
           el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || (!acte && !state.piles.actDeck.length), title: "L'acte courant part de côté (hors jeu), l'acte suivant est révélé", onclick: () => ctx.envoyer({ t: "advanceAct" }) }, "Avancer l'acte"),
           el("span", { class: "sous", text: `${state.piles.actDeck.length} à venir` }))),
       scenario ? el("div", { class: "bloc scenario" }, scenario.loc.zone === "story" ? carteEl(scenario, ctx) : el("div", { class: "carte absente" }), el("p", { class: "sous", text: "Carte de scénario — clic droit : autre face. Retourner un agenda ou un acte (clic droit) pour lire son verso, puis « Hors jeu » : le suivant sort tout seul." })) : null,
+      // Cartes de référence du scénario posées « à côté de la carte de scénario » (kind story dans la zone histoire, ex. Finding Agent Harper).
+      ...cartes.filter((c) => c.kind === "story").map((c) => el("div", { class: "bloc reference" }, carteEl(c, ctx))),
+      ctx.scenario.leads ? blocPistes(ctx, peut) : null,
       ctx.scenario.flood ? blocMaree(ctx, peut) : null,
     ),
     el("p", { class: "aide-depot", text: "Déposez ici un agenda ou un acte pour le ramener dans l'histoire." }),
   );
+}
+
+/** Pistes (The Vanishing of Elina Harper) : les six suspects et les six cachettes, rayés dès qu'ils sont vus dans la pile
+ *  Leads ou entrés en jeu (ou à la main, clic) ; le bouton de l'accusation ouvre le choix suspect + cachette. */
+function blocPistes(ctx, peut) {
+  const { state } = ctx.etat;
+  const L = ctx.scenario.leads;
+  const rayes = new Set(state.leads?.eliminated ?? []);
+  const enJeu = new Set(Object.values(state.cards).filter((c) => "zone" in c.loc && (c.loc.zone === "board" || c.loc.zone === "victory" || /^seat[0-3]$/.test(c.loc.zone))).map((c) => c.code));
+  const nom = (code) => ctx.defs.get(code)?.name ?? code;
+  const ligne = (code) => el("button", { type: "button", class: `piste${rayes.has(code) ? " rayee" : ""}${enJeu.has(code) ? " en-jeu" : ""}`, disabled: !peut,
+    title: rayes.has(code) ? "Rayée — clic : rétablir" : "Clic : rayer à la main", onclick: () => ctx.envoyer({ t: "leadsToggle", code }) }, nom(code));
+  const faite = state.leads?.accused;
+  return el("div", { class: "bloc pistes" },
+    el("h3", { text: "Pistes" }),
+    el("div", { class: "listes-pistes" },
+      el("div", {}, el("span", { class: "sous", text: "Suspects" }), ...L.suspects.map(ligne)),
+      el("div", {}, el("span", { class: "sous", text: "Cachettes" }), ...L.hideouts.map(ligne))),
+    faite
+      ? el("p", { class: "sous", text: `Accusation faite : ${nom(faite.suspect)} / ${nom(faite.hideout)} — vérité : ${nom(state.leads.truth.suspect)} / ${nom(state.leads.truth.hideout)}.` })
+      : el("button", { class: "bouton petit", type: "button", disabled: !peut, title: "Quand l'acte 1 le permet : choisir un suspect et une cachette, l'app applique l'interlude du guide", onclick: () => ouvrirAccusation(ctx) }, "Faire l'accusation"));
 }
 
 /** Marée (The Innsmouth Conspiracy) : la règle appliquée à chaque révélation de lieu (posée par les agendas, modifiable
@@ -357,6 +381,22 @@ function rendrePioches(ctx) {
     ...(ctx.scenario.piles ?? []).map((p) => {
       const ids = state.piles[p.id] ?? [];
       const haut = ids.length ? state.cards[ids[0]] : null;
+      const L = ctx.scenario.leads;
+      if (L && p.id === L.shown) {
+        // Pistes révélées par le Parley : toutes visibles, « Prendre » sous chacune ; vide = rien d'affiché.
+        if (!ids.length) return null;
+        return el("div", { class: "pistes-revelees", title: "Pistes révélées : prenez-en une, le reste retournera dans Leads avec la première carte de la pioche" },
+          ...ids.map((id) => el("div", { class: "piste-revelee" }, carteEl(state.cards[id], ctx),
+            el("button", { class: "bouton petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "leadsTake", id }) }, "Prendre"))),
+          el("button", { class: "lien-outil", type: "button", disabled: !peut, title: "Remettre les pistes révélées dans Leads sans en prendre", onclick: () => ctx.envoyer({ t: "leadsReturn" }) }, "Remettre"));
+      }
+      if (L && p.id === L.secret) {
+        // Cartes cachées sous la carte de référence : dos, aucune consultation avant l'accusation.
+        return el("div", { class: "pile secrete", "data-drop": "none", "data-outil": `pile:${p.id}`, title: `${p.label} — un suspect et une cachette, face cachée : révélés par l'accusation seulement` },
+          el("div", { class: `dos-pile pile-scenario${ids.length ? "" : " vide"}` }, ids.length ? el("img", { src: "/img/dos-rencontre.svg", alt: p.label }) : el("span", { class: "sous", text: "révélées" })),
+          el("span", { class: "badge", text: String(ids.length) }),
+          el("span", { class: "etiquette-pile", text: p.label }));
+      }
       if (p.isDiscard) {
         return el("div", { class: "pile", "data-drop": `pile:${p.id}`, "data-outil": `pile:${p.id}`, title: `${p.label} — déposez ici pour défausser. Clic droit : consulter, remélanger.` },
           el("div", { class: `dos-pile defausse-rencontre${haut ? "" : " vide"}` }, haut ? carteEl(haut, ctx) : el("span", { class: "sous", text: "défausse" })),
@@ -375,7 +415,7 @@ function rendrePioches(ctx) {
             : el("span", { class: "sous", text: "vide" })),
         el("span", { class: "badge", text: String(ids.length) }),
         el("span", { class: "etiquette-pile", text: p.label }));
-    }),
+    }).filter(Boolean),
   );
 }
 

@@ -37,6 +37,27 @@ export function ouvrirDialogueCartes(ctx, pile, cartes) {
   if (pioche) d.addEventListener("close", () => ctx.envoyer({ t: "shufflePile", pile }), { once: true });
 }
 
+/** Accusation (The Vanishing of Elina Harper) : un suspect et une cachette parmi les douze ; les pistes rayées et les
+ *  cartes déjà en jeu ou en victoire sont grisées (le guide les exclut), mais rien n'est bloqué. */
+export function ouvrirAccusation(ctx) {
+  const { state } = ctx.etat;
+  const L = ctx.scenario.leads;
+  const rayes = new Set(state.leads?.eliminated ?? []);
+  const exclus = new Set(Object.values(state.cards).filter((c) => "zone" in c.loc && (c.loc.zone === "board" || c.loc.zone === "victory" || /^seat[0-3]$/.test(c.loc.zone))).map((c) => c.code));
+  const nom = (code) => ctx.defs.get(code)?.name ?? code;
+  const choix = { suspect: null, hideout: null };
+  const colonne = (titre, codes, cle) => el("div", { class: "colonne-accusation" }, el("h3", { text: titre }),
+    ...codes.map((code) => el("label", { class: `choix-piste${rayes.has(code) || exclus.has(code) ? " grise" : ""}` },
+      el("input", { type: "radio", name: `acc-${cle}`, value: code, onchange: () => { choix[cle] = code; valider.disabled = !(choix.suspect && choix.hideout); } }),
+      el("span", { text: nom(code) }),
+      rayes.has(code) ? el("span", { class: "sous", text: " (rayé)" }) : exclus.has(code) ? el("span", { class: "sous", text: " (en jeu)" }) : null)));
+  const valider = el("button", { class: "bouton", type: "button", disabled: true, onclick: () => { d.close(); ctx.envoyer({ t: "accusation", suspect: choix.suspect, hideout: choix.hideout }); } }, "Accuser");
+  const corps = el("div", { class: "accusation" },
+    el("p", { class: "sous", text: "Le guide exclut un suspect en jeu ou en victoire et une cachette en jeu. L'app révèle ensuite les cartes cachées et applique l'interlude : c'est définitif." }),
+    el("div", { class: "colonnes-accusation" }, colonne("Suspect", L.suspects, "suspect"), colonne("Cachette", L.hideouts, "hideout")));
+  const d = dialogue("Faire l'accusation", corps, [el("button", { class: "bouton secondaire", type: "button", onclick: () => d.close() }, "Annuler"), valider]);
+}
+
 export function ouvrirAjustementSac(ctx) {
   const comptes = () => {
     const m = new Map();

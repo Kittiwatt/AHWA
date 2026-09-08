@@ -122,6 +122,8 @@ export type RoomState = {
   agendaId: CardId | null;
   actId: CardId | null;
   flood?: { onReveal: 0 | 1 | 2 };   // marée (The Innsmouth Conspiracy) : ce qu'un lieu subit à sa révélation — rien, +1 niveau, totalement inondé
+  leads?: { eliminated: string[]; accused?: { suspect: string; hideout: string }; truth?: { suspect: string; hideout: string } };
+    // The Vanishing of Elina Harper : pistes rayées (codes vus dans la pile Leads ou en jeu), accusation faite, vérité révélée
   log: LogEntry[];
   pendingQuestion: Question | null;
   campaign: { log: null; nextScenarioId: null }; // réservé v2

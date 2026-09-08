@@ -268,6 +268,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `chaosAdjust {token, delta}` | J | panneau du sac ; bénédictions et malédictions plafonnées à 10 chacune (sac + scellées) |
 | `setFlood {id, level}` / `floodAll {mode}` / `floodRule {onReveal}` | J | inondation d'un lieu (0‑2) / de tous les lieux révélés (increase, full, decrease, clear) / règle appliquée à chaque révélation (`state.flood`) — scénarios déclarant `flood` (TIC) |
 | `randomKey {id}` | J | une clé de côté face cachée, tirée au hasard, posée sur cette carte du tapis sans être regardée |
+| `leadsReveal {n}` / `leadsTake {id}` / `leadsReturn` / `leadsToggle {code}` / `accusation {suspect, hideout}` | J | The Vanishing of Elina Harper : Parley (révéler 1‑3 pistes pour tous, en prendre une, remise), pistes rayées à la main, accusation complète (interlude du guide) |
 | `formPile {pile}` / `placeAround {id, pile}` | J | forme une pile déclarée `gather` avec les lieux de côté au dos voulu, mélangés / pose ses premières cartes non révélées en dessous, à gauche, à droite d'un lieu (emplacements libres) |
 | `scenarioAction {id, args}` | J | bouton déclaré par le scénario (branches, transitions) |
 | `ping` | tous | maintien (hibernation compatible : pas nécessaire côté DO, réservé au client) |
@@ -445,6 +446,41 @@ libres de la grille 186 × 238 (menu « <pile> autour de ce lieu ») ;
 <label> » (pile « Profondeurs » de The Amalgam). Sac : `chaosReturn`
 rend bénédictions et malédictions à la réserve au lieu du sac, et
 `chaosAdjust` en plafonne chacune à 10 (sac + scellées).
+
+**The Vanishing of Elina Harper (2026-09-09).** `chaosRemove {tokens}`
+retire un exemplaire de chaque jeton listé (retraits « pour le reste
+de la campagne » du scénario I, demandés au lobby par des oui/non
+jeton par jeton). `leadsDeck {suspects, hideouts, secret, pile}` tire
+au hasard un suspect et une cachette vers la pile `secret` (face
+cachée, ordre mélangé, journal muet) et mélange les dix autres dans la
+pile `pile` (Leads deck). La définition `leads` (piles `pile` /
+`secret` / `shown`, `reference`, `suspects`, `hideouts`, `spots`,
+`elina`, `square`, `act2`, `agenda3`) active : la pile secrète
+(aucune pioche, consultation ni mélange : `pileSecrete`), le
+**Parley** — `leadsReveal {n}` (1 à 3 premières cartes de Leads vers
+`shown`, face visible pour tous, pistes rayées), `leadsTake {id}`
+(un lieu sur le premier emplacement de cachette libre, révélé avec ses
+indices ; le reste dans la zone de menace du demandeur ; les pistes
+non prises et la première carte de la pioche de rencontre remélangées
+dans Leads), `leadsReturn` (remise sans prise) — les **pistes rayées**
+(`state.leads.eliminated` : cartes vues dans Leads par Parley,
+« regarder les premières » ou pioche, ou rayées à la main par
+`leadsToggle {code}`) et l'**accusation** `accusation {suspect,
+hideout}` : révélation des deux cartes cachées, verdict (0 bonne
+réponse → rappel de démission ; 1 → la carte de référence passe côté
+verso — ennemi lié — et va sur le tapis à `square` ; 2 → rien), cachette
+en jeu sur un emplacement libre avec ses indices + 1 par enquêteur,
+`elina` posée dessus, le suspect posé dessus, `act2` et `agenda3`
+depuis la zone de côté (acte et agenda courants de côté, agendas
+restants retirés, doom retiré), piles Leads et pistes révélées
+retirées ; `state.leads.accused` / `truth`. `agendaEffects[stage] =
+{shuffleAside, withDiscard, log}` : quand cet agenda devient courant,
+les cartes de côté portant ces codes (et la défausse) sont mélangées
+dans la pioche de rencontre (verso de l'agenda 1). Les cartes de kind
+`story` posées dans la zone `story` (carte de référence) sont rendues
+dans la colonne Agenda et acte, sous la carte de scénario, avec le
+panneau « Pistes » (douze noms, rayés, bouton « Faire l'accusation »
+→ dialogue suspect + cachette, rayés et cartes en jeu grisés).
 
 Questions du lobby : à choix (`options`) ou **numériques** (`type:
 "number"`, `min`, `max`, `default`) ; la réponse voyage en chaîne dans

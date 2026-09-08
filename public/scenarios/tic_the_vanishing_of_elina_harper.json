@@ -1,0 +1,1145 @@
+{
+ "id": "tic_the_vanishing_of_elina_harper",
+ "title": "The Vanishing of Elina Harper",
+ "campaign": "The Innsmouth Conspiracy",
+ "campaignId": "tic",
+ "order": 2,
+ "packs": [
+  "tic",
+  "core"
+ ],
+ "encounterSets": [
+  "the_vanishing_of_elina_harper",
+  "agents_of_dagon",
+  "fog_over_innsmouth",
+  "the_locals",
+  "chilling_cold",
+  "locked_doors",
+  "nightgaunts"
+ ],
+ "extraCards": [
+  "01135",
+  "01136"
+ ],
+ "scenarioCard": "07056",
+ "agendaDeck": [
+  "07057",
+  "07058"
+ ],
+ "actDeck": [
+  "07060"
+ ],
+ "startLocation": "07065",
+ "piles": [
+  {
+   "id": "leads",
+   "label": "Leads"
+  },
+  {
+   "id": "secret",
+   "label": "Sous la référence"
+  },
+  {
+   "id": "leadsShown",
+   "label": "Pistes révélées"
+  }
+ ],
+ "leads": {
+  "pile": "leads",
+  "secret": "secret",
+  "shown": "leadsShown",
+  "reference": "07062a",
+  "suspects": [
+   "07076",
+   "07077",
+   "07078",
+   "07079",
+   "07080",
+   "07081"
+  ],
+  "hideouts": [
+   "07070",
+   "07071",
+   "07072",
+   "07073",
+   "07074",
+   "07075"
+  ],
+  "spots": [
+   {
+    "x": 365,
+    "y": 173
+   },
+   {
+    "x": 737,
+    "y": 173
+   },
+   {
+    "x": 1109,
+    "y": 173
+   },
+   {
+    "x": 365,
+    "y": 649
+   },
+   {
+    "x": 737,
+    "y": 649
+   },
+   {
+    "x": 1109,
+    "y": 649
+   }
+  ],
+  "elina": "07083",
+  "square": "07065",
+  "act2": "07061",
+  "agenda3": "07059"
+ },
+ "agendaEffects": {
+  "2": {
+   "shuffleAside": [
+    "07094",
+    "01172"
+   ],
+   "withDiscard": true,
+   "log": "Verso de l'agenda 1"
+  }
+ },
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "layout": [
+  {
+   "code": "07065",
+   "x": 737,
+   "y": 411
+  }
+ ],
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Campagne ou scénario seul ?",
+   "options": [
+    {
+     "id": "campaign",
+     "label": "Campagne : sac du scénario I, moins les jetons retirés pour le reste de la campagne (questions suivantes)"
+    },
+    {
+     "id": "standalone",
+     "label": "Scénario seul (mode autonome) : sac de base, rien de retiré"
+    }
+   ]
+  },
+  {
+   "id": "cultist_out",
+   "text": "Au scénario I, un jeton Cultiste a-t-il été retiré du sac pour le reste de la campagne ?",
+   "options": [
+    {
+     "id": "no",
+     "label": "Non"
+    },
+    {
+     "id": "yes",
+     "label": "Oui"
+    }
+   ]
+  },
+  {
+   "id": "tablet_out",
+   "text": "Au scénario I, un jeton Tablette a-t-il été retiré du sac pour le reste de la campagne ?",
+   "options": [
+    {
+     "id": "no",
+     "label": "Non"
+    },
+    {
+     "id": "yes",
+     "label": "Oui"
+    }
+   ]
+  },
+  {
+   "id": "elder_out",
+   "text": "Au scénario I, un jeton Ancien a-t-il été retiré du sac pour le reste de la campagne ?",
+   "options": [
+    {
+     "id": "no",
+     "label": "Non"
+    },
+    {
+     "id": "yes",
+     "label": "Oui"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "cultist_out",
+      "is": "yes"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "cultist"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "tablet_out",
+      "is": "yes"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "tablet"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "elder_out",
+      "is": "yes"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "elder_thing"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "standalone"
+   },
+   "then": [
+    {
+     "op": "log",
+     "text": "Mode autonome : sac de base du guide (p. 11), aucun retrait."
+    }
+   ]
+  },
+  {
+   "op": "place",
+   "code": "07065",
+   "zone": "board",
+   "x": 737,
+   "y": 411,
+   "reveal": true,
+   "log": "Innsmouth Square est mis en jeu au centre, révélé : chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "minis",
+   "code": "07065"
+  },
+  {
+   "op": "place",
+   "code": "07069",
+   "zone": "board",
+   "x": 365,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "07067",
+   "zone": "board",
+   "x": 551,
+   "y": 292
+  },
+  {
+   "op": "place",
+   "code": "07064",
+   "zone": "board",
+   "x": 551,
+   "y": 530
+  },
+  {
+   "op": "place",
+   "code": "07063",
+   "zone": "board",
+   "x": 923,
+   "y": 292
+  },
+  {
+   "op": "place",
+   "code": "07068",
+   "zone": "board",
+   "x": 923,
+   "y": 530
+  },
+  {
+   "op": "place",
+   "code": "07066",
+   "zone": "board",
+   "x": 1109,
+   "y": 411
+  },
+  {
+   "op": "log",
+   "text": "Les six autres lieux du diagramme (p. 11) sont en jeu, non révélés : The Little Bookshop et Innsmouth Harbour aux extrémités, First National Grocery et Gilman House à gauche du Square, Marsh Refinery et Fish Street Bridge à sa droite. Les six emplacements de cachette (coins et milieux haut et bas) restent libres."
+  },
+  {
+   "op": "place",
+   "code": "07062a",
+   "zone": "story",
+   "x": 0,
+   "y": 0,
+   "faceUp": true,
+   "log": "La carte de référence Finding Agent Harper est en jeu, à côté de la carte de scénario (colonne Agenda et acte)."
+  },
+  {
+   "op": "leadsDeck",
+   "suspects": [
+    "07076",
+    "07077",
+    "07078",
+    "07079",
+    "07080",
+    "07081"
+   ],
+   "hideouts": [
+    "07070",
+    "07071",
+    "07072",
+    "07073",
+    "07074",
+    "07075"
+   ],
+   "secret": "secret",
+   "pile": "leads"
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "07059",
+    "07061"
+   ],
+   "faceUp": true,
+   "log": "Agenda 3 et acte 2 sont mis de côté, hors jeu : l'accusation les fera entrer."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "07082",
+    "07083",
+    "01172",
+    "01172",
+    "07094"
+   ],
+   "faceUp": true,
+   "log": "Thomas Dawson, Elina Harper, Hunting Nightgaunt ×2 et Winged One sont mis de côté, hors jeu, face visible."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application (Investigator Setup, guide p. 10) : chaque enquêteur peut dépenser l'expérience notée sous « Unspent Experience » avant de préparer son deck ; puis 5 ressources, main de départ, mulligan possible (ou import du deck sur son board)."
+  },
+  {
+   "when": "setup",
+   "text": "Leads (guide) : la pile « Leads » contient cinq suspects et cinq cachettes ; le vrai ravisseur et la vraie cachette sont face cachée dans la pile « Sous la référence », que rien ne révèle avant l'accusation. Chaque carte vue dans Leads (Parley, « Regarder les premières », pioche) ou entrée en jeu est rayée dans le panneau « Pistes », sous la carte de référence — reportez les ratures dans votre journal papier à la fin."
+  },
+  {
+   "when": "setup",
+   "text": "Parley de l'acte 1 : menu de la pile Leads → « Parley : révéler 1, 2 ou 3 pistes » (après avoir dépensé les indices, hors application). Les pistes s'affichent pour tous à côté de la pile ; « Prendre » sur celle que vous piochez : une cachette entre en jeu révélée sur le premier emplacement libre, un ennemi ou une carte de rencontre va dans votre zone de menace (à résoudre comme une carte piochée). Le reste retourne dans Leads avec la première carte de la pioche de rencontre, mélangés."
+  },
+  {
+   "when": "setup",
+   "text": "L'accusation (verso de l'acte 1 → interlude du guide) : bouton « Faire l'accusation » du panneau Pistes, choisissez un suspect et une cachette. L'app révèle les cartes cachées, applique l'interlude (démission si aucune bonne réponse, ennemi de la carte de référence à Innsmouth Square si une seule, rien si les deux), fait entrer l'acte 2 et l'agenda 3, pose la cachette avec ses indices + 1 par enquêteur, Elina Harper et le ravisseur dessus, et retire la pile Leads. Notez au journal papier ce que la carte de référence et les agendas vous demandent d'y écrire."
+  },
+  {
+   "when": "setup",
+   "text": "Bénédictions et malédictions (guide) : des cartes en ajoutent au sac (clic droit sur le sac → Ajuster, 10 au plus de chaque) ; révélé, un tel jeton retourne à la réserve : « ↺ Tout remettre » l'écarte tout seul."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Agenda 2 : les cartes de côté prévues ont rejoint la pioche avec la défausse (voir le journal). Si « a decision to stick together » figure sous « Memories Recovered » dans votre journal, un enquêteur prend le contrôle de Thomas Dawson (glissez-le de la zone de côté sur son board) ; il n'occupe pas d'emplacement d'allié pour ce scénario."
+  },
+  {
+   "when": "act:2",
+   "text": "Acte 2 : le ravisseur est en jeu sur la cachette d'Elina Harper ; l'objectif de l'acte se lit sur la carte."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-08",
+ "encounterSetNames": {
+  "the_vanishing_of_elina_harper": "The Vanishing of Elina Harper",
+  "agents_of_dagon": "Agents of Dagon",
+  "fog_over_innsmouth": "Fog over Innsmouth",
+  "the_locals": "The Locals",
+  "chilling_cold": "Chilling Cold",
+  "nightgaunts": "Nightgaunts",
+  "locked_doors": "Locked Doors"
+ },
+ "cards": [
+  {
+   "code": "01135",
+   "name": "Hunting Shadow",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "arkham",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "01136",
+   "name": "False Lead",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "arkham",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01167",
+   "name": "Crypt Chill",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "chilling_cold",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "01168",
+   "name": "Obscuring Fog",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "chilling_cold",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "01172",
+   "name": "Hunting Nightgaunt",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "nightgaunts",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Nightgaunt"
+   ],
+   "health": 4
+  },
+  {
+   "code": "01173",
+   "name": "On Wings of Darkness",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "nightgaunts",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "01174",
+   "name": "Locked Door",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "locked_doors",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Obstacle"
+   ]
+  },
+  {
+   "code": "07056",
+   "name": "The Vanishing of Elina Harper",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "07057",
+   "name": "Decrepit Decay",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Followed",
+   "doom": 6,
+   "stage": 1
+  },
+  {
+   "code": "07058",
+   "name": "Growing Suspicion",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Driven Out",
+   "doom": 7,
+   "stage": 2
+  },
+  {
+   "code": "07059",
+   "name": "Frantic Pursuit",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Driven Out",
+   "doom": 7,
+   "stage": 3
+  },
+  {
+   "code": "07060",
+   "name": "The Search for Agent Harper",
+   "kind": "act",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "The Accusation",
+   "stage": 1
+  },
+  {
+   "code": "07061",
+   "name": "The Rescue",
+   "kind": "act",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Found Her!",
+   "stage": 2
+  },
+  {
+   "code": "07062a",
+   "name": "Finding Agent Harper",
+   "kind": "story",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "backCode": "07062b",
+   "backKind": "enemy",
+   "backName": "Angry Mob",
+   "backHealth": 4
+  },
+  {
+   "code": "07063",
+   "name": "Marsh Refinery",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth"
+   ]
+  },
+  {
+   "code": "07064",
+   "name": "Gilman House",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth"
+   ]
+  },
+  {
+   "code": "07065",
+   "name": "Innsmouth Square",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Central"
+   ]
+  },
+  {
+   "code": "07066",
+   "name": "Innsmouth Harbour",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth"
+   ]
+  },
+  {
+   "code": "07067",
+   "name": "First National Grocery",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth"
+   ]
+  },
+  {
+   "code": "07068",
+   "name": "Fish Street Bridge",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth"
+   ]
+  },
+  {
+   "code": "07069",
+   "name": "The Little Bookshop",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth"
+   ]
+  },
+  {
+   "code": "07070",
+   "name": "Esoteric Order of Dagon",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Hideout"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07071",
+   "name": "Sawbone Alley",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Hideout"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07072",
+   "name": "Shoreward Slums",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Hideout"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07073",
+   "name": "The House on Water Street",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Hideout"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07074",
+   "name": "Innsmouth Jail",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Hideout"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07075",
+   "name": "New Church Green",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Innsmouth",
+    "Hideout"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07076",
+   "name": "Robert Friendly",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Disgruntled Dockworker",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 4
+  },
+  {
+   "code": "07077",
+   "name": "Zadok Allen",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Drunk and Disorderly",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 5
+  },
+  {
+   "code": "07078",
+   "name": "Brian Burnham",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Wants Out",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 3
+  },
+  {
+   "code": "07079",
+   "name": "Barnabas Marsh",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "The Change Is upon Him",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 4
+  },
+  {
+   "code": "07080",
+   "name": "Joyce Little",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Bookshop Owner",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 3
+  },
+  {
+   "code": "07081",
+   "name": "Othera Gilman",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Proprietress of the Hotel",
+   "traits": [
+    "Humanoid",
+    "Suspect",
+    "Elite"
+   ],
+   "health": 5
+  },
+  {
+   "code": "07082",
+   "name": "Thomas Dawson",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Soldier in a New War",
+   "traits": [
+    "Ally",
+    "Agency",
+    "Veteran"
+   ],
+   "health": 2,
+   "sanity": 3
+  },
+  {
+   "code": "07083",
+   "name": "Elina Harper",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Knows Too Much",
+   "traits": [
+    "Ally",
+    "Agency",
+    "Detective"
+   ],
+   "health": 3,
+   "sanity": 2
+  },
+  {
+   "code": "07084",
+   "name": "Priest of Dagon",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "agents_of_dagon",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
+   "health": 2
+  },
+  {
+   "code": "07085",
+   "name": "Initiate of Dagon",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "agents_of_dagon",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Hybrid",
+    "Cultist"
+   ],
+   "health": 1
+  },
+  {
+   "code": "07094",
+   "name": "Winged One",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fog_over_innsmouth",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Creature",
+    "Monster"
+   ],
+   "health": 5,
+   "victory": 1
+  },
+  {
+   "code": "07095",
+   "name": "Fog over Innsmouth",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "fog_over_innsmouth",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07105",
+   "name": "Innsmouth Troublemaker",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "the_locals",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Hybrid",
+    "Criminal"
+   ],
+   "health": 3
+  },
+  {
+   "code": "07106",
+   "name": "Innsmouth Look",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_locals",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse",
+    "Terror"
+   ]
+  },
+  {
+   "code": "07107",
+   "name": "Furtive Locals",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_locals",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  }
+ ]
+}

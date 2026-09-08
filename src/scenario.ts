@@ -45,6 +45,10 @@ export type SetupStep =
   | { op: "chaosAdd"; byDifficulty: Record<Difficulty, Token[]>; log?: string }   // jeton(s) selon la difficulté (Interlude IV de TCU)
   | { op: "when"; cond: Cond; then: SetupStep[]; else?: SetupStep[] }     // condition composée sur les réponses
   | { op: "chaosAdd"; tokens: Token[]; log?: string }
+  | { op: "chaosRemove"; tokens: Token[]; log?: string }   // retire un exemplaire de chaque jeton listé (jetons retirés « pour le reste de la campagne »)
+  | { op: "leadsDeck"; suspects: string[]; hideouts: string[]; secret: string; pile: string; log?: string }
+    // The Vanishing of Elina Harper : un suspect et une cachette tirés au hasard vont face cachée dans la pile `secret`
+    // (sous la carte de référence, sans être regardés) ; les autres forment la pile `pile` (Leads deck), mélangée
   | { op: "reminder"; text: string }                                    // encart éphémère + journal
   | { op: "branch"; on: string; cases: Record<string, SetupStep[]>; log?: string }   // on = id de question ou "players"
   | { op: "remove"; codes: string[]; log?: string }
@@ -136,6 +140,16 @@ export type ScenarioDef = {
   mythosDoom?: boolean;     // false : la phase du mythe n'ajoute pas de doom automatiquement (brèches d'In the Clutches of Chaos)
   emptySpace?: boolean;     // le scénario pose des « espaces vides » (dos de carte joueur) : action emptySpace, menu des lieux (Before the Black Throne)
   flood?: { byAgenda?: Record<string, { all?: "increase" | "full"; onReveal?: 0 | 1 | 2 }> };
+  agendaEffects?: Record<string, { shuffleAside?: string[]; withDiscard?: boolean; log?: string }>;
+    // quand l'agenda `stage` devient courant : les cartes de côté portant ces codes (et la défausse si withDiscard) sont
+    // mélangées dans la pioche de rencontre (verso de l'agenda 1 de The Vanishing of Elina Harper)
+  leads?: {
+    pile: string; secret: string; shown: string;   // piles : Leads deck, cartes cachées sous la référence, pistes révélées par le Parley
+    reference: string;                              // carte de référence (story) : Finding Agent Harper
+    suspects: string[]; hideouts: string[];         // codes des six suspects et des six cachettes
+    spots: { x: number; y: number }[];              // emplacements des cachettes sur la grille (ordre de lecture)
+    elina: string; square: string; act2: string; agenda3: string;   // cartes de l'accusation : Elina Harper, lieu de l'ennemi, acte et agenda de côté
+  };
     // jetons d'inondation (The Innsmouth Conspiracy) : menus des lieux, panneau « Marée » ; `byAgenda[stage]` = quand cet agenda devient
     // courant, tous les lieux révélés montent d'un niveau (`increase`) ou sont totalement inondés (`full`), et `onReveal` devient la règle
     // appliquée à chaque révélation de lieu (0 rien, 1 + un niveau, 2 totalement)

@@ -232,6 +232,24 @@
 .menu-carte .inondation-ligne .pm.niveau { width: auto; padding: 0 0.45rem; font-size: 0.8rem; border-radius: 0.7rem; margin-left: 0.2rem; }
 .menu-carte .inondation-ligne .pm.niveau.actif { background: var(--dorure); color: var(--nuit); }
 .bloc.maree h3 { margin: 0.4rem 0 0.2rem; font-size: 1rem; }
+/* Cartes de référence et pistes (The Vanishing of Elina Harper) dans la colonne Agenda et acte */
+.bloc.reference { margin-top: 0.4rem; }
+.bloc.pistes h3 { margin: 0.4rem 0 0.2rem; font-size: 1rem; }
+.listes-pistes { display: grid; grid-template-columns: 1fr 1fr; gap: 0.2rem 0.6rem; margin-bottom: 0.4rem; }
+.listes-pistes > div { display: grid; gap: 0.1rem; }
+.piste { font: inherit; font-size: 0.85rem; text-align: left; padding: 0.05rem 0.2rem; border: 0; background: none; color: var(--papier); cursor: pointer; border-radius: 3px; }
+.piste:hover:not(:disabled) { background: var(--nuit-2); }
+.piste.rayee { text-decoration: line-through; color: var(--papier-2); }
+.piste.en-jeu::after { content: " ●"; color: var(--dorure-2); font-size: 0.7em; }
+.piste:disabled { cursor: default; }
+.colonnes-accusation { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.colonne-accusation h3 { margin: 0 0 0.3rem; font-size: 1rem; }
+.choix-piste { display: flex; align-items: center; gap: 0.4rem; padding: 0.15rem 0; cursor: pointer; }
+.choix-piste.grise { color: var(--papier-2); }
+/* Pistes révélées par le Parley : à côté de la pile Leads, toutes visibles avec « Prendre » */
+.pistes-revelees { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.3rem; border: 1px dashed var(--dorure); border-radius: 4px; }
+.piste-revelee { display: grid; gap: 0.25rem; justify-items: center; }
+.pile.secrete .dos-pile img { opacity: 0.85; }
 .bloc.maree .ligne-boutons { flex-wrap: wrap; gap: 0.3rem; }
 .bloc.maree .bouton.actif { background: var(--dorure); color: var(--nuit); border-color: var(--dorure); }
 .mini.sans-image img { display: none; }

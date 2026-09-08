@@ -171,6 +171,8 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
   state.counters = Object.fromEntries(def.tableCounters.map((c) => [c.key, c.initial]));
   state.agendaId = null;
   state.actId = null;
+  delete state.leads;
+  delete state.flood;
   state.log = [];
   state.turn = { seat: null, done: [] };
   state.playerCount = seated.length;
@@ -366,6 +368,38 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         }
         state.chaos.bag.push(...step.tokens);
         addLog(state, "setup", step.log ?? `Jeton${step.tokens.length > 1 ? "s" : ""} ajouté${step.tokens.length > 1 ? "s" : ""} au sac du chaos : ${step.tokens.join(", ")}.`);
+        break;
+      }
+      case "chaosRemove": {
+        // Un exemplaire de chaque jeton listé quitte le sac (retraits « pour le reste de la campagne » des scénarios précédents).
+        const retires: string[] = [];
+        for (const t of step.tokens) {
+          const i = state.chaos.bag.indexOf(t);
+          if (i >= 0) { state.chaos.bag.splice(i, 1); retires.push(t); }
+        }
+        addLog(state, "setup", `${step.log ?? "Jeton(s) retiré(s) du sac"} : ${retires.join(", ") || "aucun"}.`);
+        break;
+      }
+      case "leadsDeck": {
+        // Leads deck (The Vanishing of Elina Harper) : un suspect et une cachette au hasard, face cachée dans la pile
+        // `secret` (personne ne regarde, ordre mélangé) ; les dix autres forment la pile `pile`, mélangée. Journal muet.
+        const [suspect] = shuffle([...step.suspects], rng);
+        const [hideout] = shuffle([...step.hideouts], rng);
+        for (const pile of [step.secret, step.pile]) if (!(pile in state.piles)) state.piles[pile] = [];
+        for (const code of shuffle([suspect, hideout], rng)) {
+          const id = pool.take(code);
+          state.cards[id] = newCard(pool, code, id, { pile: step.secret }, false);
+          state.piles[step.secret].push(id);
+        }
+        for (const code of [...step.suspects, ...step.hideouts]) {
+          if (code === suspect || code === hideout) continue;
+          const id = pool.take(code);
+          state.cards[id] = newCard(pool, code, id, { pile: step.pile }, false);
+          state.piles[step.pile].push(id);
+        }
+        shuffle(state.piles[step.pile], rng);
+        state.leads = { eliminated: [] };
+        addLog(state, "setup", step.log ?? `Un suspect et une cachette, tirés au hasard, sont posés face cachée sous la carte de référence sans être regardés ; les ${state.piles[step.pile].length} autres forment la pile Leads, mélangée.`);
         break;
       }
       case "reminder": {

@@ -246,8 +246,11 @@ export function initInteractions(ctx) {
       const def = ctx.scenario.piles?.find((p) => p.id === id);
       const ids = state.piles[id] ?? [];
       const haut = ids.length ? state.cards[ids[0]] : null;
+      const L = ctx.scenario.leads;
       items.push(el("p", { class: "titre-menu", text: `${def?.label ?? id} — ${ids.length}` }));
-      if (def?.isDiscard) {
+      if (L && id === L.secret) {
+        items.push(el("p", { class: "sous", text: "Un suspect et une cachette, face cachée : seule l'accusation (panneau Pistes) les révèle." }));
+      } else if (def?.isDiscard) {
         // Défausse d'une seconde pioche : consulter, remélanger dans sa pioche.
         const pioche = ctx.scenario.piles?.find((p) => p.discard === id);
         items.push(item("Consulter", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
@@ -259,6 +262,8 @@ export function initInteractions(ctx) {
           const dispo = Object.values(state.cards).filter((c) => c.kind === "location" && c.loc.zone === "aside" && ctx.defs.get(c.code)?.backName === def.gather.backName).length;
           items.push(item(`Former la pile (${dispo} « ${def.gather.backName} » de côté, mélangés)`, () => ctx.envoyer({ t: "formPile", pile: id }), { off: !dispo }));
         }
+        // Parley (The Vanishing of Elina Harper) : révéler 1 à 3 pistes pour tous, en prendre une, remélanger le reste.
+        if (L && id === L.pile) for (const n of [1, 2, 3]) if (ids.length >= n) items.push(item(`Parley : révéler ${n} piste${n > 1 ? "s" : ""}`, () => ctx.envoyer({ t: "leadsReveal", n }), { off: Boolean(state.piles[L.shown]?.length) }));
         items.push(item("Piocher (retourner la première carte)", () => ctx.envoyer({ t: "drawEncounter", pile: id }), { off: Boolean(haut?.faceUp) || (!ids.length && !defausse.length) }));
         items.push(item("Chercher (puis mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
         items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: id }), { off: !ids.length }));

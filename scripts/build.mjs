@@ -139,7 +139,11 @@ async function buildScenario(fichierSrc) {
   for (const q of src.questions ?? []) {
     if (q.type === "number" ? !(Number.isInteger(q.min) && Number.isInteger(q.max)) : !(Array.isArray(q.options) && q.options.length)) throw new Error(`${src.id} : question ${q.id} mal formée`);
   }
-  const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup)].filter(Boolean);
+  // Leads deck (TIC II) et effets d'agenda : les codes cités doivent exister dans les sets.
+  const citesLeads = src.leads ? [src.leads.reference, ...src.leads.suspects, ...src.leads.hideouts, src.leads.elina, src.leads.square, src.leads.act2, src.leads.agenda3] : [];
+  const citesAgenda = Object.values(src.agendaEffects ?? {}).flatMap((e) => e.shuffleAside ?? []);
+  const citesSetup = src.setup.flatMap((s) => s.op === "leadsDeck" ? [...s.suspects, ...s.hideouts] : []);
+  const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup), ...citesLeads, ...citesAgenda, ...citesSetup].filter(Boolean);
   for (const code of cites) if (!codes.has(code)) throw new Error(`${src.id} : code ${code} absent des sets de rencontre`);
 
   const { _source, ...reste } = src;

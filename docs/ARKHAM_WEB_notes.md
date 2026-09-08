@@ -17,6 +17,61 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 : **The Vanishing of Elina Harper (TIC II) livré** (choix
+  validés : lobby A, pile Leads A, référence et cartes cachées OK,
+  liste des pistes A, accusation A, verso de l'agenda 1 A, disposition
+  sans pointillés). Guide p. 9‑11 + flashbacks p. 6 lus (retraits :
+  Flashback II = cultiste, III = tablette, IV = ancien — jamais cités
+  au lobby : trois oui/non « jeton X retiré du sac au scénario I ? »,
+  plus « campagne / autonome », sac autonome = sac de base). Sets :
+  `the_vanishing_of_elina_harper` (07056‑83), `agents_of_dagon`
+  (07084‑85), `fog_over_innsmouth` (07094‑95), `the_locals` (07105‑07)
+  + Core `chilling_cold`, `locked_doors`, `nightgaunts` et **seulement
+  False Lead 01136 ×2 + Hunting Shadow 01135 ×3** du set Core `arkham`
+  (The Midnight Masks) via `extraCards` ; pioche 25. **Finding Agent
+  Harper 07062a** : story dont le verso lié 07062b (Angry Mob, ennemi)
+  n'existe pas comme carte API — le build lit `linked_card` (backCode
+  / backKind enemy / backName / backHealth) ; posée par `place` dans la
+  zone `story` et rendue dans la colonne Agenda et acte (cartes de kind
+  story de la zone histoire). **Leads deck** : op `leadsDeck` (un
+  suspect + une cachette au hasard → pile `secret` face cachée, ordre
+  mélangé ; dix autres → pile `leads`), pile secrète protégée
+  (`pileSecrete` : drawEncounter / searchEncounter / shufflePile /
+  randomPick refusés, `data-drop="none"`), **Parley** = `leadsReveal
+  {n}` (menu de la pile « Parley : révéler 1/2/3 pistes », cartes dans
+  la pile `leadsShown` rendue en éventail avec « Prendre » et
+  « Remettre ») → `leadsTake {id}` (cachette sur le premier
+  emplacement libre des six `spots`, révélée avec ses indices ; ennemi
+  ou carte de rencontre → zone de menace du demandeur ; reste + première
+  carte de la pioche de rencontre remélangés dans Leads — défausse
+  remélangée d'abord si la pioche est vide) / `leadsReturn`.
+  **Pistes** (`state.leads.eliminated`) : rayées à la pioche, au
+  « regarder les premières » (le regard est privé, la rature est
+  publique : c'est l'esprit du guide), au Parley ; `leadsToggle
+  {code}` à la main ; panneau « Pistes » (douze noms, rayés, ● = en
+  jeu). **Accusation** (`accusation {suspect, hideout}`, dialogue
+  `ouvrirAccusation` : rayés et cartes en jeu grisés, rien de bloqué,
+  une seule accusation) : cartes cachées révélées, verdict (0 →
+  rappel « démissionner », 1 → référence côté verso posée à Innsmouth
+  Square, 2 → rien), cachette en jeu sur un emplacement libre avec
+  indices imprimés + 1 par enquêteur, Elina dessus, ravisseur dessus,
+  acte 2 et agenda 3 depuis la zone de côté (acte 1 et agenda courant
+  de côté, agenda 2 restant retiré, doom retiré), piles Leads et
+  pistes révélées retirées, rappels act:2 / agenda:3, journal complet
+  nommant la vérité ; `state.leads.accused` / `truth` affichés dans le
+  panneau. **`agendaEffects`** : `{"2": {shuffleAside: [Winged One,
+  Hunting Nightgaunt], withDiscard: true}}` appliqué dans `avancer`
+  (comme la marée). **`chaosRemove`**. Layout : colonnes 365 / 551 /
+  737 / 923 / 1109, rangées 173 / 411 / 649, Grocery et Refinery à
+  292, Gilman et Bridge à 530 ; Square révélé au centre, six autres non
+  révélés (leur dos montre nom et illustration : normal). Tests : 499
+  messages (bloc Harper : sac 18/19/20 selon réponses, Leads 10 / secret
+  2, journal muet, pile secrète refusée, regarder = rayer, Parley
+  révéler / prendre / remettre et comptes, rayer à la main, agenda 2
+  = 3 cartes de côté + défausse dans la pioche, accusation 1/2 (référence
+  à Innsmouth Square, indices + 1 par enquêteur, ravisseur et Elina sur
+  la cachette, acte 2 / agenda 3, Leads retirée), 0/2 (démission), 2/2)
+  ; captures 77‑81.
 - 2026-09-09 : **sac du chaos en bas à gauche de Commit** (`.sac-joueur`
   : `bottom: 0.5rem`, jetons tirés alignés en bas vers la droite) et
   **« Auto-pay » dans la fenêtre de la défausse** du board : `p:play`
@@ -857,12 +912,11 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : retours de l'utilisateur sur The Pit of
-  Despair, puis **TIC II The Vanishing of Elina Harper** (guide p. 9‑13 :
-  relire les résolutions du I et l'Interlude I pour les reports —
-  « Memories Recovered », jetons retirés du sac par les flashbacks,
-  mode autonome p. 9 — questions au lobby), puis la suite de la
-  campagne ; visuels PNG des clés et du jeton d'inondation à générer
+- **Prochaine étape** : retours de l'utilisateur sur TIC I et II, puis
+  **TIC III In Too Deep** (guide p. 15 sq. : relire les résolutions du
+  II — « out for blood », ravisseur, Elina Harper — et les reports au
+  lobby ; jetons retirés par les flashbacks à reconduire par oui/non),
+  puis la suite de la campagne ; visuels PNG des clés et du jeton d'inondation à générer
   dans le style des jetons du projet (choix B). En parallèle : la suite
   des retours de test du board joueur et les points ouverts du cahier
   §10.10 (customisations, decks annexes, attaches).
@@ -1464,6 +1518,11 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   `tokens` comme les autres : `addToken` le borne (2), le dépôt dans une
   pile l'efface (`tokens = {}`) — pour un jeton qui doit survivre au
   passage en pile, il faudrait un champ à part.
+- `pkill -f "wrangler dev"` tue aussi la commande courante (son propre
+  motif) : utiliser `pkill -f "wrangler d[e]v"`.
+- `replaceChildren(...liste.map(...))` : un `null` dans la liste lève
+  une exception — filtrer (`.filter(Boolean)`) quand un élément peut ne
+  pas être rendu (pile des pistes révélées vide).
 - Une clé de couleur face cachée ne doit être nommée nulle part : passer
   par `nomVisible` / `nomCle` (journal, `alt`, infobulles, menus) ; le
   test vérifie que le journal du setup ne cite aucune couleur des clés
