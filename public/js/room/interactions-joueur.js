@@ -148,7 +148,12 @@ export function initInteractionsJoueur(ctx) {
     if (!carte) return;
     if (pmj) { e.preventDefault(); e.stopPropagation(); ctx.envoyer({ t: "addToken", id: carte.id, token: pmj.closest(".jeton").dataset.token, delta: pmj.classList.contains("moins") ? -1 : 1 }); return; }
     if (e.target.closest(".ap")) { e.preventDefault(); e.stopPropagation(); jouer(carte); return; }
-    if (chip) { e.preventDefault(); ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: e.target.closest(".chip-moins") ? -1 : 1 }); return; }
+    if (chip) {
+      e.preventDefault();
+      const bouton = e.target.closest(".chip-moins, .chip-plus");
+      ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: bouton ? Number(bouton.dataset.delta) : chip.dataset.inverse ? -1 : 1 });
+      return;
+    }
     const deck = ctx.etat.state.seats[n()].deck;
     if (elem.closest(".eventail") && deck?.board.setup === "mulligan") {
       if (ctx.selection.has(carte.id)) ctx.selection.delete(carte.id); else ctx.selection.add(carte.id);

@@ -139,22 +139,28 @@ export function majCarte(el, carte, ctx) {
     : face.kind === "enemy" ? ["damage"]
     : face.kind === "asset" ? [face.health !== undefined ? "damage" : null, face.sanity !== undefined ? "horror" : null].filter(Boolean)
     : [];
+  // Cartes joueur : la jauge d'utilisations (charges, munitions…) est une chip comme les dégâts et l'horreur,
+  // mais inversée : clic = −1 (on dépense), « + » à gauche pour en ajouter (retour de test du 2026-09-09).
+  const usesType = def?.player && def?.uses && enJeu && visible ? def.uses.type : null;
+  if (usesType) jauges.push("uses");
   if (jauges.length) {
-    const attendu = jauges.join(" ");
+    const attendu = jauges.join(" ") + (usesType ? `:${usesType}` : "");
     if (!chips || chips.dataset.jauges !== attendu) {
       chips?.remove();
       chips = document.createElement("div");
       chips.className = "chips";
       chips.dataset.jauges = attendu;
-      const lib = { damage: ["/img/tokens/tok_degats.png", "dégâts"], horror: ["/img/tokens/tok_horreur.png", "horreur"] };
-      chips.innerHTML = jauges.map((t) =>
-        `<span class="chip chip-${t}" data-token="${t}" title="${lib[t][1]} : clic +1"><button type="button" class="chip-moins" data-token="${t}" data-delta="-1" title="−1 ${lib[t][1]}">−</button>` +
-        `<img src="${lib[t][0]}" alt="${lib[t][1]}" draggable="false"><b class="chip-n"></b></span>`).join("");
+      const lib = { damage: ["/img/tokens/tok_degats.png", "dégâts"], horror: ["/img/tokens/tok_horreur.png", "horreur"], uses: usesType ? imageUses(usesType) : ["/img/tokens/uses/uses.png", "usages"] };
+      chips.innerHTML = jauges.map((t) => t === "uses"
+        ? `<span class="chip chip-uses" data-token="uses" data-inverse="1" title="${lib.uses[1]} : clic −1"><button type="button" class="chip-plus" data-token="uses" data-delta="1" title="+1 ${lib.uses[1]}">+</button>` +
+          `<img src="${lib.uses[0]}" alt="${lib.uses[1]}" draggable="false"><b class="chip-n"></b></span>`
+        : `<span class="chip chip-${t}" data-token="${t}" title="${lib[t][1]} : clic +1"><button type="button" class="chip-moins" data-token="${t}" data-delta="-1" title="−1 ${lib[t][1]}">−</button>` +
+          `<img src="${lib[t][0]}" alt="${lib[t][1]}" draggable="false"><b class="chip-n"></b></span>`).join("");
       el.append(chips);
     }
     for (const t of jauges) {
       const n = carte.tokens[t] ?? 0;
-      const max = t === "damage" ? face.health : face.sanity;
+      const max = t === "damage" ? face.health : t === "horror" ? face.sanity : 0;
       chips.querySelector(`.chip-${t} .chip-n`).textContent = max ? `${n}/${max}${face.healthPerInvestigator && t === "damage" ? "*" : ""}` : String(n);
     }
   } else if (chips) chips.remove();
@@ -169,7 +175,8 @@ export function majCarte(el, carte, ctx) {
   el.dataset.loupe = loupePermise(carte, def) ? "1" : "";
   const jetons = el.querySelector(".jetons");
   const tokens = jauges.length ? { ...carte.tokens, ...Object.fromEntries(jauges.map((t) => [t, 0])) } : carte.tokens;
-  jetons.replaceChildren(elJetons(tokens, def?.uses?.type ?? null, Boolean(def?.player)));
+  // Les utilisations d'une carte joueur en jeu sont dans sa chip : pas de pion « uses » en plus.
+  jetons.replaceChildren(elJetons(usesType ? { ...tokens, uses: 0 } : tokens, def?.uses?.type ?? null, Boolean(def?.player)));
   return el;
 }
 

@@ -486,7 +486,7 @@ async function demarrer() {
           // « AP » (auto-pay) au survol : paie le coût et range la carte selon son type (en jeu / Play / Commit).
           let ap = e.querySelector(".ap");
           if (peut && !mulligan) {
-            if (!ap) { ap = el("button", { class: "ap", type: "button" }, "AP"); e.append(ap); }
+            if (!ap) { ap = el("button", { class: "ap", type: "button", "aria-label": "Auto-pay" }, "AP"); e.append(ap); }
             const def = ctx.defs.get(c.code);
             const cout = def?.cost;
             ap.title = `Auto-pay : ${cout === -2 ? "payer X et jouer" : typeof cout === "number" && cout > 0 ? `payer ${cout} et jouer` : "jouer (sans coût)"} — ${def?.type === "event" ? "dans Play" : def?.type === "skill" ? "dans Commit" : "en jeu"}`;

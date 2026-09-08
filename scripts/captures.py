@@ -943,11 +943,12 @@ with sync_playwright() as p:
     ap_carte.locator(".ap").click(); a13.wait_for_timeout(600)
     assert a13.locator(f".zone-jeu .carte[title='{titre_ap}']").count() == 1, "AP : la carte est en jeu"
     assert "joue" in h13.locator("#journal").inner_text(), "le journal de la table consigne le jeu de la carte (AP)"
-    uses = a13.locator(f".zone-jeu .carte[title='{titre_soutien}'] .jeton-uses")
+    uses = a13.locator(f".zone-jeu .carte[title='{titre_soutien}'] .chip-uses")
     if uses.count():
-        assert "/img/tokens/" in (uses.first.get_attribute("style") or ""), "pion Uses du type de la carte (images fournies)"
-        pos = a13.evaluate("""(t) => { const e = document.querySelector(`.zone-jeu .carte[title="${t}"] .jetons`); const c = e.closest('.carte').getBoundingClientRect(); const r = e.getBoundingClientRect(); return (r.top + r.height / 2 - c.top) / c.height; }""", titre_soutien)
-        assert pos > 0.6, "la pile de pions est en bas de la carte, sur le texte"
+        assert "/img/tokens/" in (uses.first.locator("img").get_attribute("src") or ""), "jauge Uses du type de la carte (images fournies)"
+        avant_uses = int(uses.first.locator(".chip-n").inner_text())
+        uses.first.click(); a13.wait_for_timeout(400)
+        assert int(a13.locator(f".zone-jeu .carte[title='{titre_soutien}'] .chip-uses .chip-n").inner_text()) == avant_uses - 1, "clic sur la jauge Uses = −1"
     src = a13.locator("#main .eventail .carte").first.bounding_box(); cours = a13.locator(".bloc-cours .bande").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(cours["x"] + 60, cours["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
@@ -1003,12 +1004,12 @@ with sync_playwright() as p:
     assert not a13.locator("#loupe").is_hidden(), "la loupe s'ouvre sur une carte de la main"
     # Pions des cartes joueur : pastille du nombre et ± au survol ; sac et « Phase suivante » sous « Mon lieu ».
     assert a13.locator(".mon-lieu #chaos .sac-forme").count() == 1 and a13.locator("#entete #phase-suivante").count() == 1, "sac à droite, Phase suivante dans l'entête"
-    pion = a13.locator(".zone-jeu .carte.joueur .jeton").first
-    if pion.count():
-        avant = int(pion.locator(".n").inner_text())
-        pion.hover(); a13.wait_for_timeout(200)
-        pion.locator(".pmj.plus").click(); a13.wait_for_timeout(400)
-        assert int(a13.locator(".zone-jeu .carte.joueur .jeton").first.locator(".n").inner_text()) == avant + 1, "+1 pion au survol"
+    jauge = a13.locator(".zone-jeu .carte.joueur .chip-uses").first
+    if jauge.count():
+        avant = int(jauge.locator(".chip-n").inner_text())
+        jauge.hover(); a13.wait_for_timeout(200)
+        jauge.locator(".chip-plus").click(); a13.wait_for_timeout(400)
+        assert int(a13.locator(".zone-jeu .carte.joueur .chip-uses").first.locator(".chip-n").inner_text()) == avant + 1, "« + » de la jauge Uses au survol"
     browser.close()
 
 if erreurs:

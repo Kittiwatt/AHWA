@@ -154,7 +154,6 @@ export function initInteractions(ctx) {
       document.body.classList.remove("mode-lien");
       return;
     }
-    const chipMoins = e.target.closest(".chip-moins");
     const chip = e.target.closest(".chip");
     const pmj = e.target.closest(".jeton .pmj");
     const elem = e.target.closest(".carte");
@@ -168,7 +167,8 @@ export function initInteractions(ctx) {
     }
     if (chip) {
       e.preventDefault();
-      ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: chipMoins ? -1 : 1 });
+      const bouton = e.target.closest(".chip-moins, .chip-plus");
+      ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: bouton ? Number(bouton.dataset.delta) : chip.dataset.inverse ? -1 : 1 });
       return;
     }
     if (elem.closest(".dos-pile")) return; // carte révélée sur la pioche ou dessus de la défausse : glisser seulement

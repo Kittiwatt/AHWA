@@ -523,7 +523,7 @@ permanents p. 18, limbes p. 15, slots p. 21.
 | C1 | Au « Lancer » | Rien ne part tout seul côté joueur : bouton **« Mise en place »** sur la page joueur, puis attente du mulligan ; tout reste manualisable |
 | C2 | Mulligan | Sélection des cartes à rendre, bouton « Mulligan » : remplacement puis remélange, **une seule fois** (grisé ensuite) |
 | C3 | Zones | pioche (= « réserve »), main, **en jeu** (board des soutiens), **Play** (une carte : l'événement joué), **Commit** (cartes engagées au test), défausse, **hors jeu = mises de côté** (cartes liées…), zone de menace *(révisé le 2026-09-08 : Play et Commit remplacent la zone « en cours »)* |
-| D1 | Auto-pay | *Révisé le 2026-09-09* : glisser une carte de la main vers en jeu, Play ou Commit la **pose sans payer** (`p:put`, Uses posés pour un soutien en jeu) ; l'auto-pay se fait par le bouton **« AP »** qui apparaît au survol d'une carte en main : coût déduit (X demandé, les skills n'ont pas de coût), **refusé faute de ressources** (jamais négatif), carte rangée selon son type (soutien → en jeu, événement → Play, skill → Commit) |
+| D1 | Auto-pay | *Révisé le 2026-09-09* : glisser une carte de la main vers en jeu, Play ou Commit la **pose sans payer** (`p:put`, Uses posés pour un soutien en jeu) ; l'auto-pay se fait par le bouton **Auto-pay** (visuel fourni : pile de jetons et flèche, sur pastille dorée) qui apparaît au survol d'une carte en main : coût déduit (X demandé, les skills n'ont pas de coût), **refusé faute de ressources** (jamais négatif), carte rangée selon son type (soutien → en jeu, événement → Play, skill → Commit) |
 | D2 | Événements et skills | Un **événement** joué (payé) occupe la case **Play** (une carte) jusqu'à « Résolu » → défausse (jouer un second événement défausse le premier) ; un **skill** s'engage dans **Commit**, bouton « Test résolu » → défausse *(révisé le 2026-09-08)* |
 | D3 | Assets en jeu | Rangement libre ; **icônes de slot et compteur d'occupation dans la barre** (les badges sur les cartes ont été retirés le 2026-09-08) ; jetons Uses et jauges des alliés posés automatiquement |
 | E1 | Entretien | **Automatique** au passage en entretien sur la table : pioche 1, +1 ressource, redressement ; rappel si main > 8 |
@@ -707,9 +707,10 @@ Disposition validée sur captures :
   (dernière carte visible, compte ; menu : consulter → reprendre en
   main / sur la pioche / sous la pioche / mélanger dans la pioche),
   hors jeu (rangée de vignettes, glisser vers la main ou en jeu).
-- **Centre** : **en jeu** (zone libre des soutiens : pions Uses du bon
-  type et en bonne quantité posés au jeu de la carte — grands, le
-  nombre dans une pastille au coin, **± au survol du pion** —, jauges
+- **Centre** : **en jeu** (zone libre des soutiens : jauge d'Uses du bon
+  type et en bonne quantité posée au jeu de la carte — même chip que
+  les dégâts et l'horreur, mais **inversée : clic = −1, « + » à gauche au
+  survol** (révisé le 2026-09-09) —, jauges
   des alliés, épuisé = rotation, « Autre face » pour les cartes à verso
   lié comme Sophie, « Retourner » pour les autres) ; dessous, côte à
   côte : **Play** (case d'une carte : l'événement joué, bouton

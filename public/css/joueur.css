@@ -194,3 +194,11 @@
 .outils-joueur .tires .jeton-chaos-img { width: 1.7rem !important; height: 1.7rem !important; }
 /* Journal : lignes locales (refus, informations propres à ce client) */
 .journal .entree.locale { border-left: 3px solid var(--wip); padding-left: 0.4rem; }
+
+/* Jauge d'utilisations (chip) des cartes joueur : la taille du pion d'avant, le nombre lisible */
+.carte.joueur .chip-uses img { width: 30px; height: 30px; }
+.board-joueur .carte.joueur .chip-uses img { width: 44px; height: 44px; }
+.board-joueur .carte.joueur .chip-uses { font-size: 1.05rem; }
+.carte.joueur .chip-uses .chip-plus { font-weight: 700; }
+/* Bouton Auto Play : visuel fourni par l'utilisateur (pile de jetons et flèche) sur une pastille dorée */
+.eventail .carte .ap { width: 2.4rem; height: 2.4rem; background: var(--dorure) url("/img/autopay.png") center / 74% no-repeat; font-size: 0; }

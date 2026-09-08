@@ -383,8 +383,8 @@
 .plateau .chip img { width: 26px; height: 26px; }
 .plateau .chip { font-size: 0.95rem; }
 .chip .chip-n { min-width: 0.9em; text-align: center; }
-.chip-moins { display: none; font: inherit; line-height: 1; width: 1.1em; height: 1.1em; padding: 0; border: 0; border-radius: 50%; background: var(--papier); color: var(--nuit); cursor: pointer; }
-.chip:hover .chip-moins { display: inline-grid; place-items: center; }
+.chip-moins, .chip-plus { display: none; font: inherit; line-height: 1; width: 1.1em; height: 1.1em; padding: 0; border: 0; border-radius: 50%; background: var(--papier); color: var(--nuit); cursor: pointer; }
+.chip:hover .chip-moins, .chip:hover .chip-plus { display: inline-grid; place-items: center; }
 .carte.epuisee .chips { transform: rotate(-90deg); }
 
 /* Chemins entre lieux (calque SVG sous les cartes du tapis) */

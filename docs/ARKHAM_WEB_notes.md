@@ -17,6 +17,17 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 (nuit) : **jauge d'Uses en chip** sur les cartes joueur en
+  jeu : même mécanisme que les jauges dégâts / horreur (`majCarte`,
+  `jauges` + `uses` quand `def.player && def.uses`), inversée — clic sur
+  la chip = −1, bouton `.chip-plus` à gauche au survol = +1
+  (`data-inverse`, delta lu sur `data-delta` dans les deux gestionnaires
+  de clic) ; image 44 px sur le board (30 sur le tapis) ; le pion
+  `uses` n'est plus rendu dans `.jetons` pour ces cartes. **Bouton
+  Auto-pay** : visuel de l'utilisateur (`appile_256.png`, blanc rendu
+  transparent → `public/img/autopay.png`) sur la pastille dorée, sans
+  texte. Attention : Hallowed Mirror n'a pas d'Uses (il cherche ses
+  cartes liées) — ne pas s'en servir pour tester les jauges.
 - 2026-09-09 (soir) : **quatrième salve de retours**. **Auto-pay
   révisé** : glisser de la main (ou de hors jeu) vers en jeu, Play ou
   Commit = `p:put {id, zone, x, y}` sans coût (Uses posés pour un
