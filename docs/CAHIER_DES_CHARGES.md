@@ -265,7 +265,9 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `advanceAgenda` / `advanceAct` | J | la carte courante part de côté (hors jeu), la suivante de `agendaDeck`/`actDeck` entre dans l'histoire ; agenda : retire tout le doom en jeu. Même effet quand la carte courante est mise de côté, en victoire ou en pile (`sortieHistoire`) ; posée sur le tapis, elle reste courante. **Verso-lieu** (carte liée dont le dos est un lieu, ex. acte 3 de The Witching Hour) : au lieu de partir de côté, la carte devient un lieu (`kind`), face visible côté `b`, posée sur le tapis à `backPlacement` (défaut : centre) avec les indices de son verso (`backClue` × enquêteurs) |
 | `spendClues {n, from: {seat,n}[]}` | J | prélève sur les sièges ; le client demande la répartition si nécessaire |
 | `chaosDraw` / `chaosReturn` | J | tirage (le jeton sort du sac vers `drawn`, cumulable) / tout remettre — bénédictions et malédictions retournent à la réserve, pas au sac (TIC) ; `onChaosDraw` (v1.1) pourra sceller |
-| `chaosAdjust {token, delta}` | J | panneau du sac ; bénédictions et malédictions plafonnées à 10 chacune (sac + scellées) |
+| `chaosAdjust {token, delta}` | J | panneau du sac ; bénédictions et malédictions plafonnées à 10 chacune (sac + scellées) ; le jeton scellable déclaré par `seal` (sang COB) plafonné à `maxTotal` (sac + scellés) |
+| `chaosSeal {seat}` / `chaosRelease {seat}` | J | scénarios déclarant `seal` (COB) : scelle un jeton sur un enquêteur — pris des tirés d'abord, sinon du sac, compteur de siège `seal.counter` +1 borné à `maxPerSeat` — / le libère vers le sac ; menu du sac et chip du compteur (+ scelle, − libère) |
+| `bury` / `buryAt {id}` | J | scénarios déclarant `bury` (COB) : les `withAny` en jeu ou de côté + les `fromDeckTop` premières cartes de la pioche, mélangées et réparties face cachée sous les lieux du `trait` (« Lair »), aussi également que possible / cette carte (posée sur un lieu du trait) + 1 carte de la pioche sous ce lieu ; jetons et épuisement effacés, z sous celui du lieu (rendu glissé‑dessous), journal muet sur la répartition |
 | `setFlood {id, level}` / `floodAll {mode}` / `floodRule {onReveal}` | J | inondation d'un lieu (0‑2) / de tous les lieux révélés (increase, full, decrease, clear) / règle appliquée à chaque révélation (`state.flood`) — scénarios déclarant `flood` (TIC) |
 | `randomKey {id}` | J | une clé de côté face cachée, tirée au hasard, posée sur cette carte du tapis sans être regardée |
 | `leadsReveal {n}` / `leadsTake {id}` / `leadsReturn` / `leadsToggle {code}` / `accusation {suspect, hideout}` | J | The Vanishing of Elina Harper : Parley (révéler 1‑3 pistes pour tous, en prendre une, remise), pistes rayées à la main, accusation complète (interlude du guide) |
@@ -304,7 +306,9 @@ sur tout le site.
 ## 5. Contrat de scénario (données)
 
 Un scénario = `scenarios/<id>.json` (déclaratif, produit au build depuis
-ArkhamDB + `scenarios_data.json`) + `scenarios/<id>.hooks.js` optionnel.
+le dump arkham.build — source unique des métadonnées depuis le
+2026-09-08, images `cdn.arkham.build` comme avant — +
+`scenarios_data.json`) + `scenarios/<id>.hooks.js` optionnel.
 **Aucun texte de carte** ; les rappels paraphrasent le guide.
 
 ```ts
@@ -316,7 +320,10 @@ type ScenarioDef = {
   agendaDeck: string[]; actDeck: string[];                     // ordre
   chaosBag: Record<Difficulty, Token[]>;
   clueValues: Record<code, { value, perInvestigator }>;        // index ArkhamDB
-  seatCounters?: { key, label, icon, initial }[];
+  scenarioCardSide?: Record<Difficulty, "a"|"b">;              // face de la carte scénario par difficulté (défaut "b")
+  seal?: { token, label, counter, maxPerSeat, maxTotal? };     // scellage sur les enquêteurs (COB : sang)
+  bury?: { withAny, fromDeckTop, trait, dy?, menuPile, menuCard };  // enfouissement en cours de partie (COB)
+  seatCounters?: { key, label, icon, initial }[];              // rendus en chips (tapis + board joueur) depuis COB
   tableCounters?: { key, label, icon, initial }[];
   questions?: Question[];                                      // bloquantes, avant setup
   setup: SetupStep[];                                          // exécutées dans l'order
@@ -481,6 +488,23 @@ dans la pioche de rencontre (verso de l'agenda 1). Les cartes de kind
 dans la colonne Agenda et acte, sous la carte de scénario, avec le
 panneau « Pistes » (douze noms, rayés, bouton « Faire l'accusation »
 → dialogue suspect + cachette, rayés et cartes en jeu grisés).
+
+**River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
+(cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
+côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets
+assortis. `scenarioCardSide` choisit la face de la carte de scénario
+par difficulté (référence Easy/Standard au recto). Op de setup `bury
+{fromDeckTop, with, trait, dy?, log?}` : après `buildEncounter`, les
+instances des codes `with` mises de côté + les `fromDeckTop` premières
+cartes de la pioche, mélangées et réparties face cachée sous les lieux
+en jeu portant `trait` — même moteur (`enfouir()`) que les actions
+`bury` / `buryAt` du tableau §4.2. `seal` déclare le jeton scellable
+(sang) : compteur de siège dédié (chips `seatCounters` rendues depuis
+cette livraison, tapis et board joueur), bornes `maxPerSeat` (3) et
+`maxTotal` (12, appliquée aussi par `chaosAdjust`). Nouveau jeton du
+chaos `blood` (SVG généré par la recette ArkhamCards) ; il reste dans
+le sac de scénario en scénario (« Tout remettre » le rend au sac,
+contrairement aux bénédictions/malédictions).
 
 Questions du lobby : à choix (`options`) ou **numériques** (`type:
 "number"`, `min`, `max`, `default`) ; la réponse voyage en chaîne dans
@@ -961,3 +985,26 @@ nomenclature, puis mise en page.
   deck dont l'enquêteur manque à l'index est refusé — à revoir si le
   besoin apparaît.
 - Réimport entre scénarios et journal de campagne : v2 (campagne).
+
+## 11. Children of Blood (v1.2) — décisions du 2026-09-08
+
+- **Source de données** : arkham.build devient la source n° 1 pour tout
+  le build (métadonnées ; les images venaient déjà de
+  `cdn.arkham.build`). Diff complet validé contre l'existant ; ArkhamDB
+  reste utilisé à l'exécution pour l'import de decks par lien.
+- **Enfouissement** : cartes face cachée qui dépassent du bas des
+  repaires, suivent leur lieu, se révèlent par le menu « Retourner » ;
+  journal muet sur les identités. Menus : pioche de rencontre
+  (`bury.menuPile`) et carte de Julia posée sur un repaire
+  (`bury.menuCard`).
+- **Scellage** : option 2 retenue — une action du sac (ou le chip du
+  siège) retire un sang du sac (ou des tirés) et incrémente le compteur
+  en un geste ; l'inverse pour libérer.
+- **Difficulté** : `branch on:"difficulty"` + `scenarioCardSide` ;
+  sacs saisis depuis le tableau p. 5 du guide (pas de tablette ; sang
+  en Difficile/Expert uniquement).
+- **Disposition** : losange sur 5 rangées (colonnes 365/551/737/923,
+  rangées 55/293/531/769/1007), le plateau zoomable absorbe la hauteur.
+- Suite prévue : II New Horizons (report du sac et des sangs, choix
+  jour/nuit selon la résolution du I, encart autonome p. 15), III
+  Blood Money.
