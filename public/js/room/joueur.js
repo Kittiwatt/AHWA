@@ -8,7 +8,7 @@ import { el, pluriel, surveillerPleinEcran } from "./dom.js";
 import { CDN, FACTIONS, urlImage, totauxCompetences, elTotauxCompetences } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { blocDeck } from "./deck.js";
-import { carteEl, encart, PHASES, rendreChaos, initLoupe } from "./tapis.js";
+import { carteEl, PHASES, rendreChaos, initLoupe } from "./tapis.js";
 import { lireSiegeMemorise, memoriserSiege } from "./siege.js";
 import { initInteractionsJoueur, ouvrirDialogueBoard } from "./interactions-joueur.js";
 
@@ -56,7 +56,7 @@ async function demarrer() {
     ctx.listeInvestigateurs = data.investigators;
     for (const i of data.investigators) ctx.investigateurs.set(i.code, i);
   } catch {
-    encart("L'index des enquêteurs n'a pas pu être chargé ; rechargez la page.", "erreur");
+    console.error("L'index des enquêteurs n'a pas pu être chargé ; rechargez la page.");
   }
 
   let scenarioCharge = null;
@@ -101,9 +101,9 @@ async function demarrer() {
         if (genre === "you" || genre === "seats") memoriserSiege(code, ctx.etat);
       },
       hostToken(token) { localStorage.setItem(`ahwa:host:${code}`, token); },
-      rappel(entry) { encart(entry.text, "rappel"); },
+      rappel() {},   // les rappels vont au journal de la table (plus de notifications plein écran)
       peek(pile, cards) { ouvrirDialogueBoard(ctx, pile, cards); },
-      refus(raison) { encart(raison === "siege" ? "Seul le siège agit sur son board (lecture seule ici)." : raison, "erreur"); },
+      refus(raison) { statut(raison === "siege" ? "Seul le siège agit sur son board (lecture seule ici)." : raison); },
       ferme(codeFermeture) {
         if (codeFermeture === 4404) erreurFatale("Aucune table ne porte ce code.");
         else if (codeFermeture === 4410) erreurFatale("Cette table a été purgée après sept jours sans activité.");
@@ -116,7 +116,17 @@ async function demarrer() {
   ctx.envoyer = cnx.envoyer;
   initLoupe(ctx);
   initInteractionsJoueur(ctx);
-  document.addEventListener("ahwa:info", (e) => encart(e.detail, "info"));
+  document.addEventListener("ahwa:info", (e) => statut(e.detail));
+  // Refus et informations : une ligne discrète dans la barre de phase, effacée après quelques secondes.
+  let statutTimer = null;
+  function statut(texte) {
+    const zone = document.getElementById("statut");
+    if (!zone) return;
+    zone.textContent = texte;
+    zone.hidden = false;
+    clearTimeout(statutTimer);
+    statutTimer = setTimeout(() => { zone.hidden = true; }, 6000);
+  }
   document.addEventListener("ahwa:selection", () => rendre());
 
   function inscrireCustoms(state) {
@@ -145,7 +155,6 @@ async function demarrer() {
       $board.hidden = false;
       rendreBoard(state, moi);
     }
-    if (phasePrecedente !== null && phasePrecedente !== state.phase && state.phase !== "lobby") encart(PHASES[state.phase] ?? state.phase, "info");
     phasePrecedente = state.phase;
     document.dispatchEvent(new CustomEvent("ahwa:etat"));
   }
@@ -231,9 +240,7 @@ async function demarrer() {
         ? (restants.length ? `Tour libre — ${pluriel(restants.length, "enquêteur")} n'${restants.length > 1 ? "ont" : "a"} pas encore joué.` : "Tout le monde a joué : phase suivante.")
         : `Tour de ${nomSiege(state.seats[state.turn.seat], ctx)}.`;
     } else tour.textContent = "";
-    const suivante = document.getElementById("phase-suivante");
-    suivante.disabled = !peut || state.phase === "resolution";
-    suivante.onclick = () => ctx.envoyer({ t: "nextPhase" });
+
   }
 
   function rendreOnglets(state, moi) {
@@ -313,6 +320,7 @@ async function demarrer() {
         state.phase === "resolution" ? null : enTour
           ? el("button", { class: "bouton petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "endTurn", seat: n }) }, "Fin de mon tour")
           : el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "takeTurn", seat: n }) }, aJoue ? "Rejouer" : "Prendre mon tour"),
+        el("button", { class: "bouton secondaire petit", type: "button", id: "phase-suivante", disabled: moi.seat === null || state.phase === "resolution", title: "Passer à la phase suivante (automatisations de la table)", onclick: () => ctx.envoyer({ t: "nextPhase" }) }, "Phase suivante"),
         aJoue && !enTour ? el("span", { class: "sous", text: "a joué" }) : null),
       el("div", { class: "slots", title: "Main et occupation des slots d'après les cartes jouées (dépassement surligné, jamais bloqué)" },
         el("span", { class: "slot main", title: `Main : ${main} carte${main > 1 ? "s" : ""}` }, el("span", { class: "libelle", text: "Main" }), el("span", { text: String(main) })),
@@ -350,13 +358,13 @@ async function demarrer() {
     const nomLieu = ctx.defs.get(lieu.code)?.name ?? lieu.code;
     remplir(sect, ...[
       el("h2", { text: "Mon lieu" }),
-      el("div", { class: "lieu-carte" }, carteEl(lieu, ctx)),
+      el("div", { class: "lieu-carte" }, carteSansAP(lieu)),
       el("p", { class: "lieu-nom", text: lieu.faceUp ? nomLieu : "Lieu non révélé" }),
       el("div", { class: "pions" }, ...pions.map((p) => el("img", { class: "pion", src: urlImage(p, ctx.defs.get(p.code)), alt: "", title: nomSiege(state.seats[Number(p.id.replace("mini-", ""))] ?? {}, ctx) }))),
       el("div", { class: "ligne-boutons" },
         el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || indices <= 0, title: "Prendre 1 indice du lieu (+1 à votre réserve)", onclick: () => ctx.envoyer({ t: "takeClue", id: lieu.id }) }, "Prendre 1 indice"),
         lieu.faceUp || !peut ? null : el("button", { class: "bouton secondaire petit", type: "button", onclick: () => ctx.envoyer({ t: "revealLocation", id: lieu.id }) }, "Révéler")),
-      posees.length ? el("div", { class: "sur-le-lieu" }, el("span", { class: "sous", text: "Sur ce lieu" }), ...posees.map((c) => carteEl(c, ctx))) : null,
+      posees.length ? el("div", { class: "sur-le-lieu" }, el("span", { class: "sous", text: "Sur ce lieu" }), ...posees.map((c) => carteSansAP(c))) : null,
     ].filter(Boolean));
   }
 
@@ -405,12 +413,19 @@ async function demarrer() {
               : el("span", { class: "sous", text: "vide" })),
         el("span", { class: "badge", text: String(pioche.length) }), el("span", { class: "etiquette-pile", text: "Pioche" })),
       el("div", { class: "pile", "data-drop": `pile:pdiscard${n}`, "data-outil": `pdiscard${n}`, title: "Défausse — déposez ici pour défausser ; clic droit : consulter, reprendre" },
-        el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteEl(dessus, ctx) : el("span", { class: "sous", text: "défausse" })),
+        el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteSansAP(dessus) : el("span", { class: "sous", text: "défausse" })),
         el("span", { class: "badge", text: String(defausse.length) }), el("span", { class: "etiquette-pile", text: "Défausse" })),
       el("section", { class: "hors-jeu" },
         el("h2", { text: "Hors jeu" }),
-        el("div", { class: "bande", "data-drop": `paside${n}` }, ...(cote.length ? cote.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Cartes liées et mises de côté." })]))),
+        el("div", { class: "bande", "data-drop": `paside${n}` }, ...(cote.length ? cote.map((c) => carteSansAP(c)) : [el("p", { class: "vide", text: "Cartes liées et mises de côté." })]))),
     );
+  }
+
+  /** Élément de carte hors de la main : sans le bouton « AP » (l'élément est réutilisé d'un rendu à l'autre). */
+  function carteSansAP(c) {
+    const e = carteEl(c, ctx);
+    e.querySelector(".ap")?.remove();
+    return e;
   }
 
   function rendreJeu(state, s, peut) {
@@ -423,7 +438,7 @@ async function demarrer() {
     const sect = document.getElementById("jeu");
     const zone = el("div", { class: "zone-jeu", "data-drop": `pplay${n}` });
     for (const c of enJeu) {
-      const e = carteEl(c, ctx);
+      const e = carteSansAP(c);
       e.style.left = `${c.loc.x}px`; e.style.top = `${c.loc.y}px`; e.style.zIndex = String(c.loc.z);
       zone.append(e);
     }
@@ -433,16 +448,16 @@ async function demarrer() {
       el("section", { class: "bloc-play" },
         el("h2", {}, "Play ", el("span", { class: "sous", text: "(événement)" })),
         el("div", { class: "case-play", "data-drop": `pevent${n}`, title: "Glissez un événement de la main ici pour le jouer (coût déduit) ; « Résolu » l'envoie à la défausse" },
-          ...(enPlay.length ? enPlay.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Événement joué" })])),
+          ...(enPlay.length ? enPlay.map((c) => carteSansAP(c)) : [el("p", { class: "vide", text: "Événement joué" })])),
         enPlay.length ? el("button", { class: "bouton petit", type: "button", disabled: !peut, title: "L'événement va à la défausse", onclick: () => ctx.envoyer({ t: "p:resolve", zone: "play" }) }, "Résolu") : null),
       el("section", { class: "bloc-cours" },
         el("h2", {}, "Commit ", el("span", { class: "sous", text: "(cartes engagées au test de compétence)" })),
-        el("div", { class: "bande", "data-drop": `pcommit${n}` }, ...(engagees.length ? engagees.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Glissez ici les cartes engagées au test." })]),
+        el("div", { class: "bande", "data-drop": `pcommit${n}` }, ...(engagees.length ? engagees.map((c) => carteSansAP(c)) : [el("p", { class: "vide", text: "Glissez ici les cartes engagées au test." })]),
           elTotauxCompetences(totauxCompetences(engagees, ctx.defs)),
           engagees.length ? el("button", { class: "bouton petit", type: "button", disabled: !peut, title: "Les cartes engagées vont à la défausse", onclick: () => ctx.envoyer({ t: "p:resolve" }) }, "Test résolu") : null)),
       el("section", { class: "bloc-menace" },
         el("h2", { text: "Zone de menace" }),
-        el("div", { class: "menace", "data-drop": `seat${n}` }, ...(menace.length ? menace.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Ennemis engagés, traîtrises et soutiens histoire — les mêmes que sur le tapis." })]))),
+        el("div", { class: "menace", "data-drop": `seat${n}` }, ...(menace.length ? menace.map((c) => carteSansAP(c)) : [el("p", { class: "vide", text: "Ennemis engagés, traîtrises et soutiens histoire — les mêmes que sur le tapis." })]))),
     );
   }
 
@@ -459,7 +474,7 @@ async function demarrer() {
         el("h2", { text: `Main — ${pluriel(cartes.length, "carte")}` }),
         !mien && cartes.length ? el("button", { class: "bouton secondaire petit", type: "button", onclick: () => { ctx.regarder = !ctx.regarder; rendre(); } }, ctx.regarder ? "Masquer" : "Regarder") : null,
         !mien ? el("span", { class: "sous", text: "main masquée : dos et nombre" }) : null,
-        mien ? el("span", { class: "sous", text: mulligan ? "cliquez les cartes à rendre" : "glissez un soutien en jeu, un événement dans Play, une carte dans Commit, la défausse ou la pioche ; clic droit : révéler, défausser…" }) : null,
+        mien ? el("span", { class: "sous", text: mulligan ? "cliquez les cartes à rendre" : "AP au survol = payer et jouer ; glisser = poser sans payer (en jeu, Play, Commit, défausse, pioche) ; clic droit : révéler, défausser…" }) : null,
         mien ? el("span", { class: "espace" }) : null,
         mien ? el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || !s.deck, title: "Piocher 1 carte", onclick: () => ctx.envoyer({ t: "p:draw", n: 1 }) }, "Piocher") : null,
         mien ? el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || !cartes.length, title: "Défausser une carte de la main au hasard (nommée dans le journal)", onclick: () => ctx.envoyer({ t: "p:randomDiscard", n: 1 }) }, "Défausser au hasard") : null),
@@ -468,6 +483,14 @@ async function demarrer() {
           const e = carteEl({ ...c, faceUp: visible || c.revealed === true }, ctx);
           e.classList.toggle("choisie", mulligan && ctx.selection.has(c.id));
           e.classList.toggle("revelee", c.revealed === true);
+          // « AP » (auto-pay) au survol : paie le coût et range la carte selon son type (en jeu / Play / Commit).
+          let ap = e.querySelector(".ap");
+          if (peut && !mulligan) {
+            if (!ap) { ap = el("button", { class: "ap", type: "button" }, "AP"); e.append(ap); }
+            const def = ctx.defs.get(c.code);
+            const cout = def?.cost;
+            ap.title = `Auto-pay : ${cout === -2 ? "payer X et jouer" : typeof cout === "number" && cout > 0 ? `payer ${cout} et jouer` : "jouer (sans coût)"} — ${def?.type === "event" ? "dans Play" : def?.type === "skill" ? "dans Commit" : "en jeu"}`;
+          } else if (ap) ap.remove();
           return e;
         }) : [el("p", { class: "vide", text: s.deck ? (s.deck.board.setup === "none" ? "Aucune carte en main : lancez la mise en place." : "Main vide.") : "Pas de deck." })])),
     );

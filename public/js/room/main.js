@@ -2,7 +2,7 @@
 
 import { creerConnexion } from "./net.js";
 import { rendreLobby, copierLien } from "./lobby.js";
-import { rendreTapis, initPlateau, initLoupe, ajusterVue, oublierVue, encart, PHASES, ouvrirDialogueCartes } from "./tapis.js";
+import { rendreTapis, initPlateau, initLoupe, ajusterVue, oublierVue, ouvrirDialogueCartes, journalLocal } from "./tapis.js";
 import { initInteractions } from "./interactions.js";
 import { CDN } from "./cartes.js";
 import { lireSiegeMemorise, memoriserSiege } from "./siege.js";
@@ -51,7 +51,7 @@ async function demarrer() {
     ctx.listeInvestigateurs = data.investigators;
     for (const i of data.investigators) ctx.investigateurs.set(i.code, i);
   } catch {
-    encart("L'index des enquêteurs n'a pas pu être chargé ; rechargez la page.", "erreur");
+    console.error("L'index des enquêteurs n'a pas pu être chargé ; rechargez la page.");
   }
 
   let scenarioCharge = null;
@@ -99,10 +99,10 @@ async function demarrer() {
         if (genre === "welcome" || genre === "seats") tenterReprise();
         if (genre === "you" || genre === "seats") memoriserSiege(code, ctx.etat);
       },
-      hostToken(token) { localStorage.setItem(`ahwa:host:${code}`, token); encart("Vous êtes maintenant l'hôte de la table.", "info"); },
-      rappel(entry) { encart(entry.text, "rappel"); },
+      hostToken(token) { localStorage.setItem(`ahwa:host:${code}`, token); journalLocal(ctx, "Vous êtes maintenant l'hôte de la table.", "system"); },
+      rappel() {},   // les rappels sont dans le journal (state.log) : plus de notifications plein écran
       peek(pile, cards) { ouvrirDialogueCartes(ctx, pile, cards); },
-      refus(raison) { encart(raison, "erreur"); },
+      refus(raison) { journalLocal(ctx, `Refusé : ${raison}`); },
       ferme(codeFermeture) {
         if (codeFermeture === 4404) erreurFatale("Aucune table ne porte ce code. Vérifiez-le, ou créez une table depuis la bibliothèque.");
         else if (codeFermeture === 4410) erreurFatale("Cette table a été purgée après sept jours sans activité.");
@@ -118,7 +118,7 @@ async function demarrer() {
   initLoupe(ctx);
   initInteractions(ctx);
   document.addEventListener("ahwa:recentrer", () => ajusterVue(ctx));
-  document.addEventListener("ahwa:info", (e) => encart(e.detail, "info"));
+  document.addEventListener("ahwa:info", (e) => journalLocal(ctx, e.detail, "system"));
   document.getElementById("copier").addEventListener("click", copierLien);
   window.addEventListener("resize", () => { if (!$tapis.hidden) ajusterVue(ctx); });
 
@@ -155,10 +155,7 @@ async function demarrer() {
       $tapis.hidden = false;
       rendreTapis(ctx);
     }
-    if (phasePrecedente !== null && phasePrecedente !== state.phase && !auLobby) {
-      encart(PHASES[state.phase] ?? state.phase, "info");
-    }
-    phasePrecedente = state.phase;
+    phasePrecedente = state.phase;   // (le changement de phase est déjà consigné au journal par la table)
     document.dispatchEvent(new CustomEvent("ahwa:etat"));
   }
 

@@ -557,6 +557,29 @@ export function jouerJoueur(state: RoomState, msg: ActionJoueur, n: number, inde
       addLog(state, "action", `${nom} joue ${nomJoueur(state, c)} (${detail})${type === "event" ? " — Play" : type === "skill" ? " — Commit" : ""}.`, n);
       return {};
     }
+    case "p:put": {
+      // Sans payer, dans la zone choisie ({zone: play | event | commit, x?, y?}) : glisser de la main (ou de hors
+      // jeu) vers en jeu, Play ou Commit ; un soutien qui entre en jeu reçoit ses Uses.
+      const c = carteDuSiege(state, msg.id, n);
+      const depuisMain = "pile" in c.loc && c.loc.pile === piles.hand;
+      const depuisCote = "zone" in c.loc && c.loc.zone === zones.aside;
+      if (!depuisMain && !depuisCote) refuser("posez une carte de votre main (ou une carte mise de côté)");
+      const zone = String(msg.zone ?? zones.play);
+      if (![zones.play, zones.event, zones.commit].includes(zone as ZoneId)) refuser("zone inconnue");
+      if (zone === zones.event) {
+        const precedent = Object.values(state.cards).find((x) => "zone" in x.loc && x.loc.zone === zones.event);
+        if (precedent) { versPile(state, precedent, piles.discard); addLog(state, "action", `${nom} défausse ${nomJoueur(state, precedent)} (événement résolu).`, n); }
+      }
+      retirerDesPiles(state, c.id);
+      const x = zone === zones.play && Number(msg.x) < 9000 ? Math.max(0, Math.round(Number(msg.x) || 0)) : zone === zones.event ? 0 : boutDeZone(state, zone);
+      const y = zone === zones.play ? Math.max(0, Math.round(Number(msg.y) || 0)) : 0;
+      c.loc = { zone: zone as ZoneId, x, y, z: nextZ(state) };
+      c.faceUp = true; c.exhausted = false; c.side = "a"; delete c.revealed;
+      const uses = defDe(state, c.code)?.uses as { n: number; type: string } | undefined;
+      c.tokens = zone === zones.play && uses && uses.n > 0 ? { uses: uses.n } : {};
+      addLog(state, "action", `${nom} pose ${nomJoueur(state, c)} ${zone === zones.play ? "en jeu" : zone === zones.event ? "dans Play" : "dans Commit"} (sans payer).`, n);
+      return {};
+    }
     case "p:commit": {
       // Engager une carte de la main au test de compétence : zone Commit, sans coût.
       const c = carteDuSiege(state, msg.id, n);

@@ -408,9 +408,18 @@ function rendreBande(bande, zone, ctx, vide) {
 function rendreJournal(ctx) {
   const { state } = ctx.etat;
   const ol = document.querySelector("#journal ol");
-  ol.replaceChildren(...state.log.map((e) => el("li", { class: `entree ${e.kind}` },
+  // Les refus et informations propres à ce client (ctx.journalLocal) s'intercalent dans le journal — plus de
+  // notifications plein écran (retour de test du 2026-09-09).
+  const entrees = [...state.log, ...(ctx.journalLocal ?? [])].sort((a, b) => a.at - b.at);
+  ol.replaceChildren(...entrees.map((e) => el("li", { class: `entree ${e.kind}${e.local ? " locale" : ""}` },
     el("time", { text: heure(e.at) }), el("span", { text: e.text }))));
   ol.scrollTop = ol.scrollHeight;
+}
+
+/** Ligne de journal locale (refus, information) : visible de ce client seulement, rendue au prochain rendu. */
+export function journalLocal(ctx, texte, kind = "reminder") {
+  ctx.journalLocal = [...(ctx.journalLocal ?? []).slice(-30), { at: Date.now(), kind, text: texte, local: true }];
+  if (document.querySelector("#journal ol")) rendreJournal(ctx);
 }
 
 function heure(t) {
@@ -545,7 +554,7 @@ function ligneCompteur(libelle, valeur, icone, peut, moins, plus, unite) {
 
 // ---- Loupe ------------------------------------------------------------------------
 
-const LOUPE_DELAI = 1000;
+const LOUPE_DELAI = 500;
 
 export function initLoupe(ctx) {
   const loupe = document.getElementById("loupe");

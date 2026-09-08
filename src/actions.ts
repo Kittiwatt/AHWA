@@ -315,7 +315,10 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const venaitDunePile = "pile" in c.loc;
       const avant = "zone" in c.loc ? { ...c.loc } : null;
       retirerDesPiles(state, c.id);
-      const x = Math.round(Number(msg.x) || 0), y = Math.round(Number(msg.y) || 0);
+      let x = Math.round(Number(msg.x) || 0);
+      const y = Math.round(Number(msg.y) || 0);
+      // Board joueur : « en fin de rangée » (x ≥ 9000, menus et fenêtres de recherche) se calcule ici.
+      if (/^pplay[0-3]$/.test(zone) && x >= 9000) x = Object.values(state.cards).reduce((m, o) => ("zone" in o.loc && o.loc.zone === zone && o.id !== c.id ? Math.max(m, o.loc.x + CARD_W + 10) : m), 0);
       c.loc = { zone, x, y, z: nextZ(state) };
       if (venaitDunePile) {
         // Une carte sortie d'une pile entre en jeu face visible ; un lieu à double face entre non révélé (clic =

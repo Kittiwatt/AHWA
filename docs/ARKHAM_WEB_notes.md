@@ -17,6 +17,26 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 (soir) : **quatrième salve de retours**. **Auto-pay
+  révisé** : glisser de la main (ou de hors jeu) vers en jeu, Play ou
+  Commit = `p:put {id, zone, x, y}` sans coût (Uses posés pour un
+  soutien en jeu ; menu « En jeu / Dans Play / Dans Commit (sans
+  payer) ») ; bouton **« AP »** au survol d'une carte en main → `p:play`
+  (coût, X, refus faute de ressources, rangée selon le type) ; l'élément
+  de carte est réutilisé d'une zone à l'autre → `carteSansAP()` retire
+  le bouton hors de la main. **Recherche → « En jeu »** corrigée : les
+  menus posaient à x = 9999, hors de la zone visible ; `moveCard` vers
+  `pplay<n>` avec x ≥ 9000 calcule maintenant la fin de rangée côté
+  serveur. **« Phase suivante »** à côté de « Prendre mon tour » dans
+  l'entête ; le sac reste à droite, ses jetons tirés en grille 1,7 rem,
+  bornée (`max-height` 8 rem, défilement) — douze tirages ne cassent
+  plus la page. **Loupe à 500 ms**. **Plus de notifications plein
+  écran** : les rappels ne sont plus affichés en encart (ils sont dans
+  le journal) ; sur le tapis, refus et informations deviennent des
+  lignes **locales** du journal (`journalLocal(ctx, texte)`,
+  `ctx.journalLocal` fusionné à `state.log` par date) ; sur la page
+  joueur, ligne de statut `#statut` dans la barre de phase (6 s). Tests
+  417 messages, captures relues.
 - 2026-09-09 (suite) : **troisième salve de retours**. Page joueur :
   sac du chaos et « Phase suivante » déplacés dans la colonne de droite
   sous « Mon lieu » (`.outils-joueur`, popover du sac vers le haut ;

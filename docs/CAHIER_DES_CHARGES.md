@@ -523,7 +523,7 @@ permanents p. 18, limbes p. 15, slots p. 21.
 | C1 | Au « Lancer » | Rien ne part tout seul côté joueur : bouton **« Mise en place »** sur la page joueur, puis attente du mulligan ; tout reste manualisable |
 | C2 | Mulligan | Sélection des cartes à rendre, bouton « Mulligan » : remplacement puis remélange, **une seule fois** (grisé ensuite) |
 | C3 | Zones | pioche (= « réserve »), main, **en jeu** (board des soutiens), **Play** (une carte : l'événement joué), **Commit** (cartes engagées au test), défausse, **hors jeu = mises de côté** (cartes liées…), zone de menace *(révisé le 2026-09-08 : Play et Commit remplacent la zone « en cours »)* |
-| D1 | Auto-pay | Dépôt main → en jeu ou Play = jouer : coût déduit (X demandé) ; **refusé faute de ressources** (alerte ; les ressources ne passent jamais en négatif — *révisé le 2026-09-08*) ; menu « Mettre en jeu sans payer » |
+| D1 | Auto-pay | *Révisé le 2026-09-09* : glisser une carte de la main vers en jeu, Play ou Commit la **pose sans payer** (`p:put`, Uses posés pour un soutien en jeu) ; l'auto-pay se fait par le bouton **« AP »** qui apparaît au survol d'une carte en main : coût déduit (X demandé, les skills n'ont pas de coût), **refusé faute de ressources** (jamais négatif), carte rangée selon son type (soutien → en jeu, événement → Play, skill → Commit) |
 | D2 | Événements et skills | Un **événement** joué (payé) occupe la case **Play** (une carte) jusqu'à « Résolu » → défausse (jouer un second événement défausse le premier) ; un **skill** s'engage dans **Commit**, bouton « Test résolu » → défausse *(révisé le 2026-09-08)* |
 | D3 | Assets en jeu | Rangement libre ; **icônes de slot et compteur d'occupation dans la barre** (les badges sur les cartes ont été retirés le 2026-09-08) ; jetons Uses et jauges des alliés posés automatiquement |
 | E1 | Entretien | **Automatique** au passage en entretien sur la table : pioche 1, +1 ressource, redressement ; rappel si main > 8 |
@@ -687,9 +687,11 @@ Disposition validée sur captures :
   indices, vie et santé mentale avec dégâts et horreur ; actions et
   « Prendre mon tour » / « Fin de mon tour » ; main et **occupation des
   slots** en icônes Arkham Cards (dépassement surligné, jamais bloqué) ;
-  mise en place / mulligan. La barre de phase porte la phase courante ;
-  le **sac du chaos et « Phase suivante »** sont dans la colonne de
-  droite sous « Mon lieu » (révisé le 2026-09-09) ; la barre d'onglets
+  mise en place / mulligan ; « Phase suivante » est à côté de « Prendre
+  mon tour » (même style). La barre de phase porte la phase courante et
+  la ligne de statut (refus, informations : plus de notifications
+  plein écran) ; le **sac du chaos** est dans la colonne de droite sous
+  « Mon lieu », ses jetons tirés en grille bornée ; la barre d'onglets
   porte le formulaire « Rejoindre ce siège » et l'étiquette « lecture
   seule ».
 - **Mon lieu** (colonne de droite, ajout du 2026-09-08) : le lieu où
@@ -700,7 +702,8 @@ Disposition validée sur captures :
 - **Gauche** : pioche (dos, compte ; clic = piocher 1 en main ;
   **glisser = poser la première carte face cachée** dans une zone du
   board, `p:drawTo` ; menu : piocher N, chercher, regarder les n
-  premières, poser face cachée, mélanger), défausse
+  premières, poser face cachée, mélanger ; depuis la fenêtre de
+  recherche, « En jeu » pose la carte en fin de rangée), défausse
   (dernière carte visible, compte ; menu : consulter → reprendre en
   main / sur la pioche / sous la pioche / mélanger dans la pioche),
   hors jeu (rangée de vignettes, glisser vers la main ou en jeu).
@@ -740,6 +743,7 @@ Disposition validée sur captures :
 | `p:draw {n = 1}` | pioche n (≤ 10) en main ; pioche vide → `pdiscard` remélangée dans `pdeck` puis pioche, **rappel « prends 1 horreur »** (encart + journal) ; pioche et défausse vides → rappel « enquêteur vaincu » (rien de plus) |
 | `p:aside {id}` | → hors jeu (`paside`), en fin de rangée, face visible |
 | `p:play {id, cost?, free?}` | main → selon le type : soutien → **en jeu** (`pplay`, avec `tokens.uses = def.uses.n`, jauges des alliés), événement → **Play** (`pevent`, l'événement précédent y est défaussé), skill → **Commit** ; `resources −= coût imprimé`, ou `cost` fourni quand le coût est X (`-2`), ou 0 si `free` ; une carte **hors jeu** (liée) se joue gratuitement ; **refusé** (nack, alerte) si les ressources manquent ; journal « X joue Y (2 ressources / X = 3 / sans payer) » |
+| `p:put {id, zone, x?, y?}` | glisser : main (ou hors jeu) → en jeu (position lâchée, Uses posés), Play (l'événement précédent y est défaussé) ou Commit, **sans coût** ; journal « X pose Y … (sans payer) » |
 | `p:commit {id}` | carte de la main → **Commit** (`pcommit`) sans coût (engagée au test) |
 | `p:resolve {zone?}` | `commit` (défaut) : test résolu, tout `pcommit` → `pdiscard` ; `play` : l'événement de `pevent` → `pdiscard` (une carte de rencontre égarée là → défausse de rencontre), face visible |
 | `p:discard {id}` / `p:randomDiscard {n = 1}` | → `pdiscard` ; le tirage au hasard nomme la carte au journal |
@@ -785,10 +789,14 @@ sert à montrer une carte à tous sans la sortir de la main.
   n'y figure pas.
 - **Plein écran** (F11, `display-mode: fullscreen`) : la barre du haut
   s'efface sur les deux pages.
-- **Loupe** (toutes les pages) : au survol après **une seconde**, et
-  déportée à droite quand sa place habituelle recouvrirait la carte
-  survolée. Le Commit volant porte un bouton **« Test résolu »** actif
-  pour le siège concerné.
+- **Loupe** (toutes les pages) : au survol après **500 ms**, et déportée
+  à droite quand sa place habituelle recouvrirait la carte survolée. Le
+  Commit volant porte un bouton **« Test résolu »** actif pour le siège
+  concerné.
+- **Notifications** : plus d'encarts plein écran. Sur le tapis, les
+  refus et informations propres au client s'intercalent dans le journal
+  de bord (lignes locales) ; sur la page joueur, une ligne de statut
+  dans la barre de phase.
 - `nextPhase` → entretien : automatisations joueur (§10.6).
 - Cartes joueur posées sur le tapis par « Poser sur mon lieu » : rendues
   comme les autres (dos joueur, menu « Reprendre sur mon board ») ; une

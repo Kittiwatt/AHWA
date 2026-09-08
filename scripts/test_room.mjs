@@ -1558,6 +1558,28 @@ async function tableClutches({ joueurs, answers }) {
   }
   d = await h.action({ t: "p:play", id: h.state.piles.pdeck0[0] });
   assert.equal(d.t, "nack", "une carte de la pioche ne se joue pas");
+  // Poser sans payer (glisser) : p:put dans la zone visée, Uses posés pour un soutien en jeu, ressources inchangées.
+  {
+    const enMain2 = main().find((c) => defDe(h, c.id).type === "asset" && defDe(h, c.id).cost > 0) ?? main()[0];
+    const res2 = h.state.seats[0].counters.resources;
+    d = await h.action({ t: "p:put", id: enMain2.id, zone: "pplay0", x: 12, y: 8 });
+    assert.equal(d.t, "delta", `p:put (${d.reason ?? ""})`);
+    assert.equal(h.state.cards[enMain2.id].loc.zone, "pplay0"); assert.equal(h.state.cards[enMain2.id].loc.x, 12);
+    assert.equal(h.state.seats[0].counters.resources, res2, "poser sans payer : ressources inchangées");
+    if (defDe(h, enMain2.id).uses) assert.equal(h.state.cards[enMain2.id].tokens.uses, defDe(h, enMain2.id).uses.n, "Uses posés même sans payer");
+    assert.match(h.state.log.at(-1).text, /sans payer/);
+    d = await h.action({ t: "p:put", id: h.state.piles.phand0[0], zone: "pcommit0" });
+    assert.equal(h.state.cards[Object.values(h.state.cards).find((c) => c.loc.zone === "pcommit0").id].loc.zone, "pcommit0");
+    d = await h.action({ t: "p:resolve" });
+    d = await h.action({ t: "p:put", id: h.state.piles.pdeck0[0], zone: "pplay0" });
+    assert.equal(d.t, "nack", "p:put : depuis la main ou hors jeu seulement");
+    // moveCard « en fin de rangée » (x ≥ 9000) : la fenêtre de recherche pose la carte visible, pas à x = 9999.
+    const dePioche = h.state.piles.pdeck0[0];
+    d = await h.action({ t: "moveCard", id: dePioche, zone: "pplay0", x: 9999, y: 0 });
+    assert.equal(d.t, "delta");
+    assert.ok(h.state.cards[dePioche].loc.x < 9000 && h.state.cards[dePioche].loc.x > 0, "fin de rangée calculée par le serveur");
+    d = await h.action({ t: "p:discard", id: dePioche });
+  }
   // Poser la première carte de la pioche face cachée (en jeu, Commit…).
   const premiere = h.state.piles.pdeck0[0];
   d = await h.action({ t: "p:drawTo", zone: "pplay0", x: 40, y: 30 });

@@ -102,13 +102,17 @@ export function initInteractionsJoueur(ctx) {
     if (drop.startsWith("pile:")) return;
     if (drop === z.play || drop === z.event || drop === z.commit || drop === z.aside) { if (!mienne) return; }
     else if (drop !== z.seat) return;
-    // Depuis la main : en jeu ou Play = jouer (coût déduit, X demandé, refusé faute de ressources ; le serveur range
-    // un soutien en jeu et un événement dans Play), Commit = engager au test (sans coût) ; depuis hors jeu = gratuit.
-    if (carte.loc.pile === p.hand) {
-      if (drop === z.play || drop === z.event) { jouer(carte); return; }
-      if (drop === z.commit) { ctx.envoyer({ t: "p:commit", id: carte.id }); return; }
+    // Depuis la main ou hors jeu : glisser = poser **sans payer** dans la zone visée (en jeu, Play ou Commit) ;
+    // l'auto-pay se fait par le bouton « AP » de la carte en main (retour de test du 2026-09-09).
+    if (carte.loc.pile === p.hand || carte.loc.zone === z.aside) {
+      if (drop === z.play || drop === z.event || drop === z.commit) {
+        const r0 = cible.getBoundingClientRect();
+        const px = drop === z.play ? Math.max(0, Math.round(e.clientX - d.dx - r0.left + cible.scrollLeft)) : 9999;
+        const py = drop === z.play ? Math.max(0, Math.round(e.clientY - d.dy - r0.top + cible.scrollTop)) : 0;
+        ctx.envoyer({ t: "p:put", id: carte.id, zone: drop, x: px, y: py });
+        return;
+      }
     }
-    if (carte.loc.zone === z.aside && (drop === z.play || drop === z.event)) { ctx.envoyer({ t: "p:play", id: carte.id }); return; }
     if (drop === z.event) { ctx.envoyer({ t: "moveCard", id: carte.id, zone: drop, x: 0, y: 0 }); return; }
     const r = cible.getBoundingClientRect();
     let x, y = 0;
@@ -119,7 +123,8 @@ export function initInteractionsJoueur(ctx) {
     ctx.envoyer({ t: "moveCard", id: carte.id, zone: drop, x, y });
   }
 
-  /** Jouer une carte de la main : coût imprimé déduit ; X est demandé au joueur (jamais bloqué, cahier D1). */
+  /** Auto-pay (« AP ») : coût imprimé déduit (X demandé), refusé faute de ressources ; le serveur range la carte
+   *  selon son type — soutien en jeu, événement dans Play, skill dans Commit (les skills n'ont pas de coût). */
   function jouer(carte) {
     const def = ctx.defs.get(carte.code);
     if (def?.cost === -2) {
@@ -142,6 +147,7 @@ export function initInteractionsJoueur(ctx) {
     const carte = carteDe(elem);
     if (!carte) return;
     if (pmj) { e.preventDefault(); e.stopPropagation(); ctx.envoyer({ t: "addToken", id: carte.id, token: pmj.closest(".jeton").dataset.token, delta: pmj.classList.contains("moins") ? -1 : 1 }); return; }
+    if (e.target.closest(".ap")) { e.preventDefault(); e.stopPropagation(); jouer(carte); return; }
     if (chip) { e.preventDefault(); ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: e.target.closest(".chip-moins") ? -1 : 1 }); return; }
     const deck = ctx.etat.state.seats[n()].deck;
     if (elem.closest(".eventail") && deck?.board.setup === "mulligan") {
@@ -242,10 +248,10 @@ export function initInteractionsJoueur(ctx) {
     if (elem.dataset.loupe === "1" || (enMain && mienne)) items.push(item("Agrandir", () => document.dispatchEvent(new CustomEvent("ahwa:loupe", { detail: elem })), { libre: true }));
     if (mienne && enMain) {
       const cout = def?.cost;
-      const libelleJouer = cout === -2 ? "Jouer (X…)" : typeof cout === "number" && cout > 0 ? `Jouer (payer ${cout})` : "Jouer";
+      const libelleJouer = cout === -2 ? "Auto-pay : jouer (X…)" : typeof cout === "number" && cout > 0 ? `Auto-pay : jouer (payer ${cout})` : "Auto-pay : jouer";
       items.push(item(libelleJouer, () => jouer(carte)));
-      items.push(item("Engager au test (Commit)", () => ctx.envoyer({ t: "p:commit", id: carte.id })));
-      items.push(item("Mettre en jeu sans payer", () => ctx.envoyer({ t: "p:play", id: carte.id, free: true })));
+      const typeCarte = def?.type;
+      items.push(item(typeCarte === "event" ? "Dans Play (sans payer)" : typeCarte === "skill" ? "Dans Commit" : "En jeu (sans payer)", () => ctx.envoyer({ t: "p:put", id: carte.id, zone: typeCarte === "event" ? z.event : typeCarte === "skill" ? z.commit : z.play, x: 9999, y: 0 })));
       items.push(item(carte.revealed ? "Masquer aux autres" : "Révéler à tous", () => ctx.envoyer({ t: "p:reveal", id: carte.id })));
       items.push(item("Défausser", () => ctx.envoyer({ t: "p:discard", id: carte.id })));
       items.push(item("Sur la pioche", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: p.deck, top: true })));

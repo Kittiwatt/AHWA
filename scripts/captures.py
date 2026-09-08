@@ -73,7 +73,7 @@ with sync_playwright() as p:
     alice.screenshot(path=f"{OUT}/04_tapis_hote.png")
     # Loupe sur le Study.
     alice.hover("#plateau .carte")
-    alice.wait_for_timeout(1400)   # la loupe arrive après une seconde
+    alice.wait_for_timeout(900)   # la loupe arrive après 500 ms
     assert not alice.locator("#loupe").is_hidden(), "loupe au survol après le délai"
     alice.screenshot(path=f"{OUT}/05_tapis_loupe.png")
     bob.wait_for_load_state("networkidle")
@@ -349,7 +349,7 @@ with sync_playwright() as p:
     hote.locator(".menu-carte").get_by_role("button", name="Retourner (lire le verso)").click(); hote.wait_for_timeout(500)
     assert hote.locator("#histoire .carte.kind-agenda .chip-damage").count() == 1, "verso ennemi : compteur de dégâts"
     assert "/4" in hote.locator("#histoire .carte.kind-agenda .chip-damage .chip-n").inner_text()
-    hote.locator("#histoire .carte.kind-agenda").hover(); hote.wait_for_timeout(1400)
+    hote.locator("#histoire .carte.kind-agenda").hover(); hote.wait_for_timeout(900)
     hote.screenshot(path=f"{OUT}/18_masks_agenda_verso.png")
     # Cultist deck : clic = retourner la première carte.
     hote.locator("#pioches .pile[data-outil='pile:cultist'] .dos-bouton").click()
@@ -667,8 +667,8 @@ with sync_playwright() as p:
     assert h10.locator(".menu-carte").get_by_role("button", name="Tirer 2 au hasard (sans sortir)").count() == 1, "menu : tirage au hasard"
     h10.locator(".menu-carte").get_by_role("button", name="Tirer 2 au hasard (sans sortir)").click()
     h10.wait_for_timeout(600)
-    assert "Tirage au hasard dans Lieux au hasard" in h10.locator("#rappels").inner_text(), "encart du tirage"
-    assert "Tirage au hasard dans Lieux au hasard" in j10.locator("#rappels").inner_text(), "les autres le voient"
+    assert "Tirage au hasard dans Lieux au hasard" in h10.locator("#journal").inner_text(), "le tirage est consigné au journal (plus d'encart)"
+    assert "Tirage au hasard dans Lieux au hasard" in j10.locator("#journal").inner_text(), "les autres le voient (journal)"
     h10.screenshot(path=f"{OUT}/44_clutches_tirage.png")
 
     # ---- Before the Black Throne (TCU VIII) : grille avec espaces vides, deux cartes Cosmos, pile Cosmos, Azathoth ----
@@ -931,8 +931,18 @@ with sync_playwright() as p:
     src = soutien.bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(zone["x"] + 420, zone["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
-    assert a13.locator(".zone-jeu .carte").count() == nb_jeu + 1, "soutien joué par glisser (coût déduit)"
-    assert "joue" in h13.locator("#journal").inner_text(), "le journal de la table consigne le jeu de la carte"
+    assert a13.locator(".zone-jeu .carte").count() == nb_jeu + 1, "soutien posé par glisser (sans payer)"
+    assert "sans payer" in h13.locator("#journal").inner_text(), "le journal de la table consigne la pose sans paiement"
+    # Auto-pay : le bouton « AP » d'une carte de la main paie et range la carte selon son type.
+    for _ in range(12):
+        if a13.locator("#main .eventail .carte.kind-asset").count(): break
+        a13.locator(".pioche-joueur .dos-bouton").click(); a13.wait_for_timeout(300)
+    ap_carte = a13.locator("#main .eventail .carte.kind-asset").first
+    titre_ap = ap_carte.get_attribute("title")
+    ap_carte.hover(); a13.wait_for_timeout(150)
+    ap_carte.locator(".ap").click(); a13.wait_for_timeout(600)
+    assert a13.locator(f".zone-jeu .carte[title='{titre_ap}']").count() == 1, "AP : la carte est en jeu"
+    assert "joue" in h13.locator("#journal").inner_text(), "le journal de la table consigne le jeu de la carte (AP)"
     uses = a13.locator(f".zone-jeu .carte[title='{titre_soutien}'] .jeton-uses")
     if uses.count():
         assert "/img/tokens/" in (uses.first.get_attribute("style") or ""), "pion Uses du type de la carte (images fournies)"
@@ -956,7 +966,7 @@ with sync_playwright() as p:
     src = a13.locator("#main .eventail .carte.kind-event").first.bounding_box(); case = a13.locator(".case-play").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(case["x"] + 50, case["y"] + 60, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
-    assert a13.locator(".case-play .carte").count() == 1, "événement joué dans Play"
+    assert a13.locator(".case-play .carte").count() == 1, "événement posé dans Play (sans payer)"
     assert a13.locator("#mon-lieu .lieu-carte .carte").count() == 1, "mon lieu, à droite"
     h13.wait_for_timeout(400)
     assert h13.locator("#sieges .play-siege .case-play .carte").count() == 1, "la case Play du siège, à côté de la menace, montre l'événement"
@@ -987,12 +997,12 @@ with sync_playwright() as p:
     h13.locator(".menu-carte").get_by_role("button", name="Reprendre sur le board de Alice").click(); h13.wait_for_timeout(600)
     assert a13.locator(".zone-jeu .carte").count() == nb_avant_pose, "retour sur le board depuis le tapis"
     # Loupe sur une carte de la main (retour de test du 2026-09-08).
-    a13.locator("#main .eventail .carte").first.hover(); a13.wait_for_timeout(400)
-    assert a13.locator("#loupe").is_hidden(), "la loupe attend une seconde"
-    a13.wait_for_timeout(1000)
+    a13.locator("#main .eventail .carte").first.hover(); a13.wait_for_timeout(200)
+    assert a13.locator("#loupe").is_hidden(), "la loupe attend 500 ms"
+    a13.wait_for_timeout(700)
     assert not a13.locator("#loupe").is_hidden(), "la loupe s'ouvre sur une carte de la main"
     # Pions des cartes joueur : pastille du nombre et ± au survol ; sac et « Phase suivante » sous « Mon lieu ».
-    assert a13.locator(".mon-lieu #chaos .sac-forme").count() == 1 and a13.locator(".mon-lieu #phase-suivante").count() == 1
+    assert a13.locator(".mon-lieu #chaos .sac-forme").count() == 1 and a13.locator("#entete #phase-suivante").count() == 1, "sac à droite, Phase suivante dans l'entête"
     pion = a13.locator(".zone-jeu .carte.joueur .jeton").first
     if pion.count():
         avant = int(pion.locator(".n").inner_text())

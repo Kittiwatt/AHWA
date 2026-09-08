@@ -2,7 +2,7 @@
 
 import { el } from "./dom.js";
 import { faceVisible } from "./cartes.js";
-import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, encart } from "./tapis.js";
+import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, journalLocal } from "./tapis.js";
 import { nomSiege } from "./lobby.js";
 import { libelleUses } from "./uses.js";
 import { ouvrirAjustementSac } from "./dialogues.js";
@@ -337,7 +337,7 @@ export function initInteractions(ctx) {
       if (carte.kind === "location" && !carte.faceUp && carte.loc.zone === "board") items.push(item("Révéler (indices automatiques)", () => ctx.envoyer({ t: "revealLocation", id: carte.id })));
       if (carte.kind === "location" && (carte.tokens.clue ?? 0) > 0) items.push(item("Prendre 1 indice", () => ctx.envoyer({ t: "takeClue", id: carte.id })));
       if (carte.kind === "location" && carte.loc.zone === "board") {
-        items.push(item("Relier à un autre lieu…", () => { modeLien = carte.id; document.body.classList.add("mode-lien"); encart("Cliquez sur le lieu de destination (Échap pour annuler).", "info"); }));
+        items.push(item("Relier à un autre lieu…", () => { modeLien = carte.id; document.body.classList.add("mode-lien"); journalLocal(ctx, "Relier : cliquez sur le lieu de destination (Échap pour annuler).", "system"); }));
         if ((ctx.etat.state.links ?? []).some((l) => l.a === carte.id || l.b === carte.id)) items.push(item("Effacer ses chemins", () => ctx.envoyer({ t: "unlink", id: carte.id })));
         // Lieux qui se remplacent (TCU « Replacing Locations ») : ce lieu, ou tous ceux du tapis.
         const paire = (ctx.scenario.swaps ?? []).find((p) => p.pair.includes(carte.code));
