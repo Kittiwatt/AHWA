@@ -1,0 +1,68 @@
+{
+  "_source": "Guide de campagne The Innsmouth Conspiracy (FFG, 2020) : Scenario I, section « Scenario Setup » p. 4 (sets, clés, Unfamiliar Chamber, trois lieux mis de côté, trois Tidal Tunnel au hasard, reste de côté, cartes mises de côté, jetons d'inondation), encadrés « Tidal Tunnels », « The Depths » et « Location Adjacency in the Pit » p. 4, encadré « Keys » et diagramme « Location Placement » p. 5 ; règles de campagne « Keys », « Flood Tokens », « Bless and Curse Tokens » p. 2‑3 ; sac de campagne p. 3. Aucun texte de carte ; les rappels paraphrasent le guide ou décrivent les gestes de l'application.",
+  "id": "tic_the_pit_of_despair",
+  "title": "The Pit of Despair",
+  "campaign": "The Innsmouth Conspiracy",
+  "campaignId": "tic",
+  "order": 1,
+  "packs": ["tic", "core"],
+  "encounterSets": ["the_pit_of_despair", "creatures_of_the_deep", "flooded_caverns", "rising_tide", "shattered_memories", "agents_of_cthulhu", "rats"],
+  "scenarioCard": "07041",
+  "agendaDeck": ["07042", "07043", "07044"],
+  "actDeck": ["07045", "07046"],
+  "startLocation": "07047",
+  "piles": [
+    { "id": "tidal", "label": "Tidal Tunnel", "gather": { "backName": "Tidal Tunnel" }, "around": true },
+    { "id": "depths", "label": "Profondeurs", "menuFor": ["enemy"] }
+  ],
+  "flood": { "byAgenda": { "2": { "all": "increase", "onReveal": 1 }, "3": { "all": "full", "onReveal": 2 } } },
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-5", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "-8", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"]
+  },
+  "layout": [
+    { "code": "07047", "x": 737, "y": 173 }
+  ],
+  "questions": [],
+  "setup": [
+    { "op": "keys", "colors": ["blue", "green"], "faceUp": true,
+      "log": "Clés bleue et verte mises de côté, face visible." },
+    { "op": "keys", "colors": ["red", "yellow", "purple"], "faceUp": false,
+      "log": "Clés rouge, jaune et violette mises de côté face cachée et mélangées : personne ne sait laquelle est laquelle. Les clés noire et blanche ne servent pas dans ce scénario." },
+    { "op": "place", "code": "07047", "zone": "board", "x": 737, "y": 173, "reveal": true,
+      "log": "Unfamiliar Chamber est mis en jeu au centre, révélé : chaque enquêteur y commence la partie." },
+    { "op": "minis", "code": "07047" },
+    { "op": "randomKey", "at": "07047",
+      "log": "Sa révélation appelle une clé cachée : une des trois clés face cachée, tirée au hasard, est posée sur Unfamiliar Chamber sans être regardée." },
+    { "op": "aside", "codes": ["07051", "07050", "07052"], "faceUp": false,
+      "log": "Idol Chamber, Altar to Dagon et Sealed Exit sont mis de côté, hors jeu, côté « Tidal Tunnel » (non révélés)." },
+    { "op": "pickRandom", "from": ["07048", "07049", "07102", "07102", "07103", "07103", "07104", "07104"], "n": 3, "zone": "board",
+      "positions": [{ "x": 551, "y": 173 }, { "x": 923, "y": 173 }, { "x": 737, "y": 411 }], "rest": "aside",
+      "log": "Trois « Tidal Tunnel » tirés au hasard parmi les huit restants sont posés à gauche, à droite et en dessous d'Unfamiliar Chamber, côté non révélé ; les cinq autres sont mis de côté, hors jeu, non révélés." },
+    { "op": "aside", "codes": ["07053", "07054", "07054", "07055", "07055", "07055"], "faceUp": true,
+      "log": "The Amalgam, Blindsense ×2 et From the Depths ×3 sont mis de côté, hors jeu, face visible." },
+    { "op": "log", "text": "Jetons d'inondation disponibles : menu d'un lieu → Inondation (sec, partiellement, totalement) ; panneau « Marée » dans la colonne Agenda et acte." },
+    { "op": "story" },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)." },
+    { "when": "setup", "text": "Clés (guide) : sept clés de couleur à deux faces ; face cachée, toutes ont le même dos. Une carte les fait entrer en jeu (menu d'un lieu ou d'un ennemi → « Poser ici une clé cachée au hasard » : l'app tire sans regarder). Un lieu sans indice qui porte une clé : la prendre est une action ; un ennemi qui quitte le jeu par un enquêteur lui laisse ses clés. Prendre le contrôle d'une clé = la glisser sur son siège (elle se retourne) ; on peut donner ses clés à un enquêteur au même lieu ; un enquêteur éliminé laisse ses clés sur son lieu." },
+    { "when": "setup", "text": "Inondation (guide) : un lieu est sec, partiellement ou totalement inondé (jeton à deux faces, menu du lieu → Inondation). Les deux niveaux comptent comme « inondé ». Quand un agenda l'exige, l'app inonde les lieux révélés et applique la règle « à la révélation » (panneau Marée) ; corrigez à la main les lieux qui font exception." },
+    { "when": "setup", "text": "Les profondeurs (guide) : zone hors jeu à côté de l'agenda et de l'acte — ici la pile « Profondeurs ». Une carte y envoie l'ennemi de côté (menu → « Placer dans Profondeurs », ou glisser sur la pile) : ses jetons sont retirés sauf ses clés, qui restent à côté de la pile ; s'il est vaincu par un enquêteur, celui-ci prend ses clés. Clic sur la pile pour le faire ressortir." },
+    { "when": "setup", "text": "Disposition (guide) : les lieux forment une grille ; deux lieux côte à côte (gauche, droite, dessus, dessous) sont adjacents, donc connectés — pas en diagonale, pas de chemin à tracer. Un lieu n'entre pas en jeu sur un emplacement déjà occupé. La pile « Tidal Tunnel » n'existe pas encore : une carte dira quand la former (menu de la pile → « Former »), puis « Tidal Tunnel autour de ce lieu » pose ses premières cartes en dessous, à gauche et à droite d'un lieu." },
+    { "when": "setup", "text": "Flashbacks (guide) : le livret contient des flashbacks numérotés, à lire uniquement quand une carte l'indique — lien « Guide » dans la barre. Ce que vous y notez au journal de campagne reste hors application." },
+    { "when": "setup", "text": "Bénédictions et malédictions (guide) : le sac n'en contient aucune au départ ; des cartes en ajoutent (clic droit sur le sac → Ajuster, 10 au plus de chaque). Révélé, un tel jeton retourne à la réserve, pas dans le sac : « ↺ Tout remettre » l'écarte tout seul." },
+    { "when": "act:2", "text": "Acte 2 : le verso de l'acte 1 fait entrer l'ennemi de côté engagé avec l'enquêteur principal (glisser sur sa zone de menace), remélange dans la pioche les cartes de côté prévues avec la défausse (menu de chaque carte → « Mélanger dans la pioche », défausse → « Remélanger »), forme la pile Tidal Tunnel avec tous les lieux de côté au dos « Tidal Tunnel » (menu de la pile → « Former »), puis pose des tunnels autour de chaque lieu révélé (menu du lieu → « Tidal Tunnel autour de ce lieu »). Le guide indique un flashback à lire à ce moment. Ensuite, chaque lieu révélé appelle des tunnels autour de lui (même menu)." },
+    { "when": "agenda:2", "text": "Agenda 2 : la marée est appliquée automatiquement (voir le journal et le panneau Marée) ; certains lieux imposent une exception imprimée — corrigez leur niveau à la main." },
+    { "when": "agenda:3", "text": "Agenda 3 : la marée est appliquée automatiquement (voir le journal et le panneau Marée) ; certains lieux imposent une exception imprimée — corrigez leur niveau à la main." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

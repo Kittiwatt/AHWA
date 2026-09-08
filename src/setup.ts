@@ -42,12 +42,36 @@ function nomDe(def: ScenarioDef, code: string): string {
   return def.cards.find((c) => c.code === code)?.name ?? code;
 }
 
-export const LIBELLES_CLES: Record<string, string> = { skull: "Crâne", cultist: "Cultiste", tablet: "Tablette", elder_thing: "Ancien" };
+export const LIBELLES_CLES: Record<string, string> = {
+  skull: "Crâne", cultist: "Cultiste", tablet: "Tablette", elder_thing: "Ancien",
+  // Clés de couleur à deux faces (The Innsmouth Conspiracy).
+  red: "rouge", blue: "bleue", green: "verte", yellow: "jaune", purple: "violette", black: "noire", white: "blanche",
+};
+export const COULEURS_CLES = ["red", "blue", "green", "yellow", "purple", "black", "white"];
+
+/** Une clé de couleur (retournable) ou un jeton du chaos utilisé comme clé (jamais retourné) ? */
+export function cleDeCouleur(card: CardState): boolean {
+  return card.kind === "key" && COULEURS_CLES.includes(card.code.replace(/^key:/, ""));
+}
+
+/** Niveaux d'inondation d'un lieu (The Innsmouth Conspiracy) : 0 sec, 1 partiellement, 2 totalement inondé. */
+export const LIBELLES_INONDATION = ["sec", "partiellement inondé", "totalement inondé"];
+
+/** Applique la règle de marée en cours (state.flood.onReveal) à un lieu qui vient d'être révélé ; renvoie son nouveau niveau ou null. */
+export function inonderALaRevelation(state: RoomState, card: CardState): number | null {
+  const regle = state.flood?.onReveal ?? 0;
+  if (!regle) return null;
+  const niveau = regle === 2 ? 2 : Math.min(2, (card.tokens.flood ?? 0) + 1);
+  if (niveau === (card.tokens.flood ?? 0)) return null;
+  card.tokens.flood = niveau;
+  return niveau;
+}
 
 /** Nom de la face actuellement visible : le verso (backName) quand il est montré, sinon le recto.
  *  `extraDefs` (cartes générées, cartes des decks joueur) complète les cartes du scénario. */
 export function nomVisible(def: ScenarioDef, card: CardState, extraDefs?: Record<string, unknown>): string {
-  if (card.kind === "key") return `clé ${LIBELLES_CLES[card.code.replace(/^key:/, "")] ?? card.code}`;
+  // Une clé de couleur face cachée garde son secret (toutes ont le même dos).
+  if (card.kind === "key") return !card.faceUp && cleDeCouleur(card) ? "clé face cachée" : `clé ${LIBELLES_CLES[card.code.replace(/^key:/, "")] ?? card.code}`;
   if (card.kind === "proxy" && card.code === "empty:space") return "espace vide";
   const d = def.cards.find((c) => c.code === card.code) ?? (extraDefs?.[card.code] as ScenarioCard | undefined);
   if (!d) return card.code;
@@ -64,12 +88,26 @@ export function clueValue(card: ScenarioCard | undefined, playerCount: number): 
   return card.clue.perInvestigator ? card.clue.value * playerCount : card.clue.value;
 }
 
-/** Révèle un lieu (face visible) et y pose ses indices selon le nombre d'enquêteurs. */
+/** Révèle un lieu (face visible) et y pose ses indices selon le nombre d'enquêteurs ; la marée en cours (TIC) s'applique. */
 export function revealLocation(state: RoomState, def: ScenarioDef, card: CardState): number {
   card.faceUp = true;
   const n = clueValue(def.cards.find((c) => c.code === card.code), state.playerCount);
   if (n > 0) card.tokens.clue = (card.tokens.clue ?? 0) + n;
+  inonderALaRevelation(state, card);
   return n;
+}
+
+/** Suffixe de journal quand la marée vient d'inonder un lieu révélé (« , partiellement inondé (marée) »). */
+export function texteMaree(state: RoomState, card: CardState): string {
+  return state.flood?.onReveal && card.tokens.flood ? `, ${LIBELLES_INONDATION[card.tokens.flood]} (marée)` : "";
+}
+
+/** Pose une clé sur une carte du tapis : à cheval sur son bord gauche, la i-ème sous les précédentes. */
+export function poserCleSur(state: RoomState, key: CardState, cible: CardState, z: number) {
+  const loc = cible.loc as { x: number; y: number };
+  const deja = Object.values(state.cards).filter((k) => k.kind === "key" && k.id !== key.id && "zone" in k.loc && k.loc.zone === "board"
+    && Math.abs(k.loc.x - (loc.x - MINI / 2 + 6)) < 4 && k.loc.y >= loc.y && k.loc.y < loc.y + CARD_H).length;
+  key.loc = { zone: "board", x: loc.x - MINI / 2 + 6, y: loc.y + 40 + deja * (MINI + 2), z };
 }
 
 class Pool {
@@ -98,6 +136,10 @@ class Pool {
     const ids = this.byCode.get(code) ?? [];
     this.byCode.set(code, []);
     return ids;
+  }
+  /** Rend des exemplaires pris (dans l'ordre), en tête de leur code : le prochain take les reprend. */
+  giveBack(cards: { code: string; id: CardId }[]) {
+    for (const { code, id } of [...cards].reverse()) this.byCode.get(code)!.unshift(id);
   }
   remaining(): { code: string; ids: CardId[] }[] {
     return [...this.byCode.entries()].filter(([, ids]) => ids.length).map(([code, ids]) => ({ code, ids }));
@@ -229,7 +271,10 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         const candidats = step.from.map(codeDe);
         const choix = shuffle([...candidats], rng).slice(0, n);
         const noms = choix.map((c) => pool.def(c).name);
-        const restes = candidats.filter((code) => !choix.includes(code));
+        // Les cartes tirées sont prises dans le pool d'abord (un code en plusieurs exemplaires peut sortir plusieurs fois) ;
+        // tout ce qui reste des codes candidats — non tirés, ou copies restantes d'un code tiré — suit le sort `rest`.
+        const tires = choix.map((code) => ({ code, id: pool.take(code) }));
+        const restes = [...new Set(candidats)];
         if (step.rest === "pile") {
           // Les cartes non tirées forment (ou rejoignent) une pile, ex. lieux pour « choisir un lieu au hasard ».
           const pile = step.restPile ?? "rest";
@@ -237,11 +282,11 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
           for (const code of restes) for (const id of pool.takeAll(code)) { state.cards[id] = newCard(pool, code, id, { pile }, false); state.piles[pile].push(id); }
         } else if (step.rest === "aside") {
           // Les cartes non tirées sont mises de côté, hors jeu (face cachée), au lieu d'être retirées.
-          const deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
-          restes.forEach((code, i) => {
-            for (const id of pool.takeAll(code)) state.cards[id] = newCard(pool, code, id, { zone: "aside", x: (deja + i) * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, false);
-          });
+          let deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
+          for (const code of restes) for (const id of pool.takeAll(code)) state.cards[id] = newCard(pool, code, id, { zone: "aside", x: deja++ * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, false);
         } else for (const code of restes) retirer(code);
+        // Les cartes tirées reprennent leur place dans le pool pour être posées par `poser` (ou rester tirables par un slot).
+        pool.giveBack(tires);
         if (step.zone !== undefined && (step.positions || (step.x !== undefined && step.y !== undefined))) {
           // Avec un `log` du scénario : une seule ligne pour le tirage, sinon une ligne par carte (nom de la face visible).
           if (step.log) addLog(state, "setup", step.log);
@@ -395,14 +440,31 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         break;
       }
       case "keys": {
-        // Clés : jetons du chaos pris dans la collection (jamais dans le sac), mis de côté ; ils se posent sur
-        // un lieu, un ennemi ou un enquêteur par glisser (cartes de kind « key », code « key:<jeton> »).
+        // Clés mises de côté (cartes de kind « key », code « key:<x> ») : jetons du chaos pris dans la collection (jamais dans
+        // le sac, TCU), ou clés de couleur à deux faces (TIC) — face cachée, leur ordre est mélangé : personne ne sait laquelle
+        // est laquelle. Elles se posent sur un lieu, un ennemi ou un enquêteur par glisser.
         const deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
-        step.tokens.forEach((t, i) => {
+        const faceUp = step.faceUp ?? true;
+        const noms = [...(step.tokens ?? []), ...(step.colors ?? [])];
+        for (const c of step.colors ?? []) if (!COULEURS_CLES.includes(c)) throw new Error(`setup : couleur de clé inconnue ${c}`);
+        const ordre = faceUp ? noms : shuffle([...noms], rng);
+        ordre.forEach((t, i) => {
           const id = `key-${t}`;
-          state.cards[id] = { id, code: `key:${t}`, kind: "key", storyBack: false, loc: { zone: "aside", x: (deja + i) * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, faceUp: true, exhausted: false, side: "a", tokens: {} };
+          state.cards[id] = { id, code: `key:${t}`, kind: "key", storyBack: false, loc: { zone: "aside", x: (deja + i) * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, faceUp, exhausted: false, side: "a", tokens: {} };
         });
-        addLog(state, "setup", step.log ?? `Clés mises de côté : ${step.tokens.map((t) => LIBELLES_CLES[t] ?? t).join(", ")} (jetons pris dans la collection, pas dans le sac).`);
+        addLog(state, "setup", step.log ?? (step.colors
+          ? `Clés mises de côté ${faceUp ? "face visible" : "face cachée, mélangées"} : ${noms.map((t) => LIBELLES_CLES[t] ?? t).join(", ")}.`
+          : `Clés mises de côté : ${noms.map((t) => LIBELLES_CLES[t] ?? t).join(", ")} (jetons pris dans la collection, pas dans le sac).`));
+        break;
+      }
+      case "randomKey": {
+        // Une clé de côté face cachée, tirée au hasard, posée sur une carte en jeu sans être regardée (journal muet sur sa couleur).
+        const cible = enJeu(step.at);
+        const cachees = Object.values(state.cards).filter((k) => k.kind === "key" && !k.faceUp && "zone" in k.loc && k.loc.zone === "aside");
+        if (!cachees.length) throw new Error("setup : aucune clé face cachée de côté");
+        const cle = cachees[Math.floor(rng() * cachees.length)];
+        poserCleSur(state, cle, cible, z++);
+        addLog(state, "setup", step.log ?? `Une clé face cachée, tirée au hasard parmi celles de côté, est posée sur ${nomVisible(def, cible)} sans être regardée.`);
         break;
       }
       case "addClues": {

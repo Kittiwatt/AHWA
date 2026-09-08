@@ -126,7 +126,8 @@ type CardState = {
   exhausted: boolean;
   side: "a"|"b";                     // lieux double face (WOS)
   tokens: { doom?: number; clue?: number; damage?: number;
-            horror?: number; resource?: number; generic?: number };
+            horror?: number; resource?: number; generic?: number;
+            uses?: number; flood?: number };   // flood : 1 partiellement, 2 totalement inondé (TIC)
   ownerSeat?: number;                // mini, investigateur, engagement
 };
 ```
@@ -263,8 +264,11 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `takeTurn {seat?}` / `endTurn {seat?}` | J | tour en cours (`turn.seat`) / a joué (`turn.done`) ; indications, jamais des verrous |
 | `advanceAgenda` / `advanceAct` | J | la carte courante part de côté (hors jeu), la suivante de `agendaDeck`/`actDeck` entre dans l'histoire ; agenda : retire tout le doom en jeu. Même effet quand la carte courante est mise de côté, en victoire ou en pile (`sortieHistoire`) ; posée sur le tapis, elle reste courante. **Verso-lieu** (carte liée dont le dos est un lieu, ex. acte 3 de The Witching Hour) : au lieu de partir de côté, la carte devient un lieu (`kind`), face visible côté `b`, posée sur le tapis à `backPlacement` (défaut : centre) avec les indices de son verso (`backClue` × enquêteurs) |
 | `spendClues {n, from: {seat,n}[]}` | J | prélève sur les sièges ; le client demande la répartition si nécessaire |
-| `chaosDraw` / `chaosReturn` | J | tirage (le jeton sort du sac vers `drawn`, cumulable) / tout remettre ; `onChaosDraw` (v1.1) pourra sceller |
-| `chaosAdjust {token, delta}` | J | panneau du sac |
+| `chaosDraw` / `chaosReturn` | J | tirage (le jeton sort du sac vers `drawn`, cumulable) / tout remettre — bénédictions et malédictions retournent à la réserve, pas au sac (TIC) ; `onChaosDraw` (v1.1) pourra sceller |
+| `chaosAdjust {token, delta}` | J | panneau du sac ; bénédictions et malédictions plafonnées à 10 chacune (sac + scellées) |
+| `setFlood {id, level}` / `floodAll {mode}` / `floodRule {onReveal}` | J | inondation d'un lieu (0‑2) / de tous les lieux révélés (increase, full, decrease, clear) / règle appliquée à chaque révélation (`state.flood`) — scénarios déclarant `flood` (TIC) |
+| `randomKey {id}` | J | une clé de côté face cachée, tirée au hasard, posée sur cette carte du tapis sans être regardée |
+| `formPile {pile}` / `placeAround {id, pile}` | J | forme une pile déclarée `gather` avec les lieux de côté au dos voulu, mélangés / pose ses premières cartes non révélées en dessous, à gauche, à droite d'un lieu (emplacements libres) |
 | `scenarioAction {id, args}` | J | bouton déclaré par le scénario (branches, transitions) |
 | `ping` | tous | maintien (hibernation compatible : pas nécessaire côté DO, réservé au client) |
 
@@ -408,6 +412,39 @@ premières cartes (menu « Regarder les n premières » ; le journal en
 garde la trace et le serveur diffuse ce delta même pour un aperçu). Le build synthétise le recto d'une carte dont
 ArkhamDB ne connaît que le verso (`<code>b` avec `linked_card`, ex.
 Josef Meiger 05085).
+
+**The Innsmouth Conspiracy (The Pit of Despair, 2026-09-08).** `keys
+{colors, faceUp}` crée des **clés de couleur** à deux faces (code
+`key:<couleur>`, red / blue / green / yellow / purple / black / white,
+images `public/img/keys/*.svg`, dos commun `back.svg`) : face cachée,
+leur ordre est mélangé et leur nom masqué (« clé face cachée ») ; elles
+se retournent (`flipCard`), et une clé lâchée sur un siège est retournée
+d'elle-même (l'enquêteur en prend le contrôle). `randomKey {at}` (op de
+setup) et l'action `randomKey {id}` posent sur une carte du tapis une
+clé de côté face cachée tirée au hasard, sans la regarder (journal
+muet). **Inondation** : jeton `tokens.flood` (1 partiellement, 2
+totalement inondé) sur les lieux, rendu en haut à gauche (jeton à deux
+faces `flood_partial.svg` / `flood_full.svg`) ; actions `setFlood {id,
+level}`, `floodAll {mode: increase|full|decrease|clear}` (lieux révélés
+du tapis) et `floodRule {onReveal: 0|1|2}` (`state.flood.onReveal`, ce
+que subit chaque lieu à sa révélation, appliqué par `revealLocation`),
+refusées si le scénario ne déclare pas `flood`. `flood.byAgenda[stage]
+= {all, onReveal}` : quand cet agenda devient courant, `avancer` inonde
+les lieux révélés et fixe la règle (rappel dans le journal) ; panneau
+« Marée » dans la colonne Agenda et acte (règle et gestes de masse).
+`pickRandom` accepte des codes en plusieurs exemplaires dans `from`
+(les copies restantes d'un code tiré suivent le sort `rest`, via
+`pool.giveBack`). Piles déclarées : `gather {backName}` = pile formée
+en cours de partie par l'action `formPile {pile}` avec les lieux de
+côté dont le côté non révélé porte ce nom, mélangés (« Tidal Tunnel »,
+bouton « former » sur la pile vide) ; `around: true` = action
+`placeAround {id, pile}` qui pose ses premières cartes non révélées en
+dessous, à gauche et à droite d'un lieu du tapis, aux emplacements
+libres de la grille 186 × 238 (menu « <pile> autour de ce lieu ») ;
+`menuFor: [kinds]` = le menu de ces cartes propose « Placer dans
+<label> » (pile « Profondeurs » de The Amalgam). Sac : `chaosReturn`
+rend bénédictions et malédictions à la réserve au lieu du sac, et
+`chaosAdjust` en plafonne chacune à 10 (sac + scellées).
 
 Questions du lobby : à choix (`options`) ou **numériques** (`type:
 "number"`, `min`, `max`, `default`) ; la réponse voyage en chaîne dans

@@ -35,7 +35,7 @@ export function urlImage(carte, def) {
 /** Face actuellement visible : la carte elle-même, ou la carte liée quand le verso en est une autre. */
 export function faceVisible(carte, def) {
   const versoVisible = def?.backCode && (carte.faceUp ? carte.side === "b" : !carte.storyBack);
-  if (carte.kind === "key") return { kind: "key", name: `Clé ${LIBELLES_CLES[carte.code.replace(/^key:/, "")] ?? carte.code}`, liee: false };
+  if (carte.kind === "key") return { kind: "key", name: nomCle(carte), liee: false };
   if (carte.kind === "proxy" && carte.code === "empty:space") return { kind: "proxy", name: "Espace vide", liee: false };
   if (versoVisible) return { kind: def.backKind ?? carte.kind, name: def.backName ?? def?.name, health: def.backHealth, sanity: undefined, healthPerInvestigator: def.backHealthPerInvestigator, liee: true };
   // Verso montré (lieu non révélé, agenda retourné…) : son propre nom s'il en a un (« Decrepit Door »), sans dévoiler le recto.
@@ -173,6 +173,14 @@ export function majCarte(el, carte, ctx) {
   el.title = nom;
 
   el.dataset.loupe = loupePermise(carte, def) ? "1" : "";
+  // Lieu inondé (TIC) : le jeton d'inondation, à deux faces, en haut à gauche — indépendant des autres pions.
+  const inondation = carte.kind === "location" && INONDATION[carte.tokens.flood ?? 0];
+  let jetonInondation = el.querySelector(".inondation");
+  if (inondation) {
+    if (!jetonInondation) { jetonInondation = document.createElement("img"); jetonInondation.className = "inondation"; jetonInondation.draggable = false; el.append(jetonInondation); }
+    if (jetonInondation.getAttribute("src") !== inondation[0]) jetonInondation.src = inondation[0];
+    jetonInondation.alt = inondation[1]; jetonInondation.title = `Lieu ${inondation[1]}`;
+  } else jetonInondation?.remove();
   const jetons = el.querySelector(".jetons");
   const tokens = jauges.length ? { ...carte.tokens, ...Object.fromEntries(jauges.map((t) => [t, 0])) } : carte.tokens;
   // Les utilisations d'une carte joueur en jeu sont dans sa chip : pas de pion « uses » en plus.
@@ -197,10 +205,27 @@ export function imgJetonChaos(t, taille = 28) {
   return img;
 }
 
-/** Pion d'enquêteur : portrait recadré dans un disque cerclé de la couleur de classe ; initiales si l'image manque. */
-const LIBELLES_CLES = { skull: "Crâne", cultist: "Cultiste", tablet: "Tablette", elder_thing: "Ancien" };
+const LIBELLES_CLES = {
+  skull: "Crâne", cultist: "Cultiste", tablet: "Tablette", elder_thing: "Ancien",
+  // Clés de couleur à deux faces (The Innsmouth Conspiracy) : face cachée, toutes ont le même dos.
+  red: "rouge", blue: "bleue", green: "verte", yellow: "jaune", purple: "violette", black: "noire", white: "blanche",
+};
+export const COULEURS_CLES = ["red", "blue", "green", "yellow", "purple", "black", "white"];
 
-/** Clé (jeton du chaos pris dans la collection) : petit jeton rond, déplaçable comme un pion, sans face cachée. */
+/** Clé de couleur (retournable, TIC) plutôt qu'un jeton du chaos utilisé comme clé (TCU) ? */
+export function cleDeCouleur(carte) {
+  return carte.kind === "key" && COULEURS_CLES.includes(carte.code.replace(/^key:/, ""));
+}
+
+/** Nom d'une clé tel qu'on le voit : « Clé bleue », ou « Clé face cachée » (une clé de couleur non retournée garde son secret). */
+export function nomCle(carte) {
+  const jeton = carte.code.replace(/^key:/, "");
+  if (cleDeCouleur(carte) && !carte.faceUp) return "Clé face cachée";
+  return `Clé ${LIBELLES_CLES[jeton] ?? jeton}`;
+}
+
+/** Clé : petit jeton rond déplaçable comme un pion — jeton du chaos pris dans la collection (TCU, sans face cachée)
+ *  ou clé de couleur à deux faces (TIC : dos commun tant qu'elle n'est pas retournée). */
 export function majCle(el, carte) {
   const jeton = carte.code.replace(/^key:/, "");
   if (!el) {
@@ -210,13 +235,20 @@ export function majCle(el, carte) {
     img.draggable = false;
     el.append(img);
   }
-  el.className = "mini cle";
-  const src = `/img/chaos/${jeton}.svg`;
+  const couleur = cleDeCouleur(carte);
+  el.className = `mini cle${couleur ? " couleur" : ""}${couleur && !carte.faceUp ? " cachee" : ""}`;
+  const src = couleur ? `/img/keys/${carte.faceUp ? jeton : "back"}.svg` : `/img/chaos/${jeton}.svg`;
   if (el.firstChild.getAttribute("src") !== src) el.firstChild.src = src;
-  el.firstChild.alt = `Clé ${LIBELLES_CLES[jeton] ?? jeton}`;
-  el.title = `Clé ${LIBELLES_CLES[jeton] ?? jeton} — glissez-la sur un lieu, un ennemi ou un enquêteur`;
+  const nom = nomCle(carte);
+  el.firstChild.alt = nom;
+  el.title = couleur && !carte.faceUp
+    ? "Clé face cachée — glissez-la sur un lieu, un ennemi ou un enquêteur ; posée sur un siège, elle se retourne (clic droit : retourner)"
+    : `${nom} — glissez-la sur un lieu, un ennemi ou un enquêteur`;
   return el;
 }
+
+/** Niveaux d'inondation d'un lieu (TIC) : image du jeton à deux faces et libellé. */
+export const INONDATION = [null, ["/img/tokens/flood_partial.svg", "partiellement inondé"], ["/img/tokens/flood_full.svg", "totalement inondé"]];
 
 export function majMini(el, carte, ctx) {
   const inv = ctx.investigateurs.get(carte.code);

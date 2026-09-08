@@ -26,7 +26,8 @@ export type ZoneId = "board" | "seat0" | "seat1" | "seat2" | "seat3" | "story" |
 export type CardKind =
   | "location" | "enemy" | "treachery" | "asset" | "story" | "agenda" | "act"
   | "scenario" | "investigator" | "mini" | "proxy"
-  | "key"    // clé (jeton du chaos utilisé comme clé, TCU For the Greater Good) : petit jeton déplaçable
+  | "key"    // clé : jeton du chaos pris dans la collection (TCU For the Greater Good, code « key:<jeton> »), ou clé de couleur
+             // à deux faces (The Innsmouth Conspiracy, code « key:<couleur> », face cachée = symbole universel) — petit jeton déplaçable
   | "event" | "skill";   // cartes joueur (board joueur)
 
 export type Token =
@@ -79,7 +80,8 @@ export type CardState = {
   faceUp: boolean;
   exhausted: boolean;
   side: "a" | "b";
-  tokens: Partial<Record<"doom" | "clue" | "damage" | "horror" | "resource" | "generic" | "uses", number>>;
+  tokens: Partial<Record<"doom" | "clue" | "damage" | "horror" | "resource" | "generic" | "uses" | "flood", number>>;
+    // flood : niveau d'inondation d'un lieu (The Innsmouth Conspiracy) — 1 = partiellement, 2 = totalement inondé
   ownerSeat?: number;
   player?: true;                     // carte d'un deck joueur (dos joueur, menus du board)
   revealed?: boolean;                // carte de la main montrée à tous (board joueur)
@@ -119,6 +121,7 @@ export type RoomState = {
   counters: Record<string, number>;
   agendaId: CardId | null;
   actId: CardId | null;
+  flood?: { onReveal: 0 | 1 | 2 };   // marée (The Innsmouth Conspiracy) : ce qu'un lieu subit à sa révélation — rien, +1 niveau, totalement inondé
   log: LogEntry[];
   pendingQuestion: Question | null;
   campaign: { log: null; nextScenarioId: null }; // réservé v2

@@ -62,7 +62,10 @@ export type SetupStep =
   | { op: "layeredPile"; pile: string; pool: string[]; layers: { n?: number; with?: string[] }[]; log?: string }
     // pile construite par couches, du dessus vers le dessous : chaque couche prend les codes `with` (imposés) plus
     // `n` cartes tirées au hasard dans ce qui reste de `pool`, puis est mélangée ; tout le pool doit être consommé
-  | { op: "keys"; tokens: string[]; log?: string }   // clés (jetons du chaos pris dans la collection), mises de côté : cartes `key-<jeton>` déplaçables
+  | { op: "keys"; tokens?: string[]; colors?: string[]; faceUp?: boolean; log?: string }
+    // clés mises de côté, cartes `key-<x>` déplaçables : `tokens` = jetons du chaos pris dans la collection (TCU), `colors` = clés de
+    // couleur à deux faces (TIC : red, blue, green, yellow, purple, black, white) ; faceUp false = face cachée, ordre mélangé (on ne sait pas laquelle est laquelle)
+  | { op: "randomKey"; at: string; log?: string }   // une clé de côté face cachée, tirée au hasard, posée sur une carte en jeu sans être regardée (journal muet sur sa couleur)
   | { op: "addClues"; code: string; n: number; log?: string }                  // indices fixes sur un lieu en jeu (révélé ou non)
   | { op: "removeClues"; from: string[]; n?: number; nFrom?: string; log?: string }   // retire n indices (ou la réponse numérique nFrom) aussi également que possible
   | { op: "log"; text: string }
@@ -117,10 +120,13 @@ export type ScenarioDef = {
   actDeck: string[];
   startLocation?: string;
   extraCards?: string[];
-  piles?: { id: string; label: string; discard?: string; isDiscard?: boolean; trait?: string }[];
+  piles?: { id: string; label: string; discard?: string; isDiscard?: boolean; trait?: string; gather?: { backName: string }; around?: boolean; menuFor?: CardKind[] }[];
     // piles supplémentaires : pioche déclarée (ex. « Cultist deck »), ou seconde pioche de rencontre avec sa défausse
     // (`discard` = id de la défausse, `isDiscard` sur celle-ci) ; `trait` : les cartes portant ce trait vont dans
-    // cette pioche/défausse par défaut (The Wages of Sin : pioche et défausse spectrales)
+    // cette pioche/défausse par défaut (The Wages of Sin : pioche et défausse spectrales) ;
+    // `gather` : la pile se forme en cours de partie (action formPile) avec les lieux de côté dont le côté non révélé porte ce nom
+    // (« Tidal Tunnel ») ; `around` : ses lieux se posent autour d'un lieu du tapis (action placeAround : dessous, gauche, droite) ;
+    // `menuFor` : le menu de ces cartes propose « Placer dans <label> » (« Profondeurs » de The Pit of Despair)
   backPlacement?: Record<string, { x: number; y: number }>;   // où un verso-lieu entre en jeu quand l'acte/agenda avance (défaut : centre)
   chaosBag: Record<Difficulty, Token[]>;
   layout: { code: string; x: number; y: number }[];
@@ -129,6 +135,10 @@ export type ScenarioDef = {
   swaps?: { pair: [string, string]; labels: [string, string] }[];   // lieux qui se remplacent (normal ↔ Spectral), avec le libellé de chaque version
   mythosDoom?: boolean;     // false : la phase du mythe n'ajoute pas de doom automatiquement (brèches d'In the Clutches of Chaos)
   emptySpace?: boolean;     // le scénario pose des « espaces vides » (dos de carte joueur) : action emptySpace, menu des lieux (Before the Black Throne)
+  flood?: { byAgenda?: Record<string, { all?: "increase" | "full"; onReveal?: 0 | 1 | 2 }> };
+    // jetons d'inondation (The Innsmouth Conspiracy) : menus des lieux, panneau « Marée » ; `byAgenda[stage]` = quand cet agenda devient
+    // courant, tous les lieux révélés montent d'un niveau (`increase`) ou sont totalement inondés (`full`), et `onReveal` devient la règle
+    // appliquée à chaque révélation de lieu (0 rien, 1 + un niveau, 2 totalement)
   seatCounters: { key: string; label: string; icon?: string; initial: number }[];
   tableCounters: { key: string; label: string; icon?: string; initial: number }[];
   reminders: Reminder[];

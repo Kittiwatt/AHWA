@@ -304,9 +304,31 @@ function rendreHistoire(ctx) {
           el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || (!acte && !state.piles.actDeck.length), title: "L'acte courant part de côté (hors jeu), l'acte suivant est révélé", onclick: () => ctx.envoyer({ t: "advanceAct" }) }, "Avancer l'acte"),
           el("span", { class: "sous", text: `${state.piles.actDeck.length} à venir` }))),
       scenario ? el("div", { class: "bloc scenario" }, scenario.loc.zone === "story" ? carteEl(scenario, ctx) : el("div", { class: "carte absente" }), el("p", { class: "sous", text: "Carte de scénario — clic droit : autre face. Retourner un agenda ou un acte (clic droit) pour lire son verso, puis « Hors jeu » : le suivant sort tout seul." })) : null,
+      ctx.scenario.flood ? blocMaree(ctx, peut) : null,
     ),
     el("p", { class: "aide-depot", text: "Déposez ici un agenda ou un acte pour le ramener dans l'histoire." }),
   );
+}
+
+/** Marée (The Innsmouth Conspiracy) : la règle appliquée à chaque révélation de lieu (posée par les agendas, modifiable
+ *  à la main) et les gestes de masse sur les lieux révélés — rien n'est bloqué, tout se corrige lieu par lieu (menu). */
+function blocMaree(ctx, peut) {
+  const { state } = ctx.etat;
+  const regle = state.flood?.onReveal ?? 0;
+  const inondes = Object.values(state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board" && c.tokens.flood).length;
+  const bouton = (lib, titre, onclick, actif = false) => el("button", { class: `bouton secondaire petit${actif ? " actif" : ""}`, type: "button", disabled: !peut, title: titre, onclick }, lib);
+  return el("div", { class: "bloc maree" },
+    el("h3", { text: "Marée" }),
+    el("p", { class: "sous", text: `À la révélation d'un lieu : ${["rien", "+1 niveau d'inondation", "totalement inondé"][regle]} — ${inondes} lieu${inondes > 1 ? "x" : ""} inondé${inondes > 1 ? "s" : ""}.` }),
+    el("div", { class: "ligne-boutons regle-maree" },
+      bouton("rien", "Un lieu révélé n'est pas inondé", () => ctx.envoyer({ t: "floodRule", onReveal: 0 }), regle === 0),
+      bouton("+1", "Un lieu révélé monte d'un niveau d'inondation", () => ctx.envoyer({ t: "floodRule", onReveal: 1 }), regle === 1),
+      bouton("plein", "Un lieu révélé est totalement inondé", () => ctx.envoyer({ t: "floodRule", onReveal: 2 }), regle === 2)),
+    el("div", { class: "ligne-boutons" },
+      bouton("+1 partout", "Tous les lieux révélés montent d'un niveau", () => ctx.envoyer({ t: "floodAll", mode: "increase" })),
+      bouton("tout inonder", "Tous les lieux révélés totalement inondés", () => ctx.envoyer({ t: "floodAll", mode: "full" })),
+      bouton("−1 partout", "Tous les lieux révélés baissent d'un niveau", () => ctx.envoyer({ t: "floodAll", mode: "decrease" })),
+      bouton("assécher", "Retirer tous les jetons d'inondation", () => { if (confirm("Assécher tous les lieux révélés ?")) ctx.envoyer({ t: "floodAll", mode: "clear" }); })));
 }
 
 // ---- Outils de table : pioches, sac ------------------------------------------------
@@ -347,6 +369,9 @@ function rendrePioches(ctx) {
           haut?.faceUp ? carteEl(haut, ctx)
             : ids.length ? el("button", { class: "dos-bouton", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "drawEncounter", pile: p.id }) }, el("img", { src: "/img/dos-rencontre.svg", alt: p.label }))
             : defausse.length ? el("button", { class: "dos-bouton vide", type: "button", disabled: !peut, title: "Pioche vide : clic pour remélanger sa défausse et piocher", onclick: () => ctx.envoyer({ t: "drawEncounter", pile: p.id }) }, el("span", { class: "sous", text: "vide" }))
+            // Pile qui se forme en cours de partie avec les lieux de côté (TIC « Tidal Tunnel deck ») : un bouton tant qu'elle est vide.
+            : p.gather ? el("button", { class: "dos-bouton vide", type: "button", disabled: !peut || !Object.values(state.cards).some((c) => c.kind === "location" && c.loc.zone === "aside" && ctx.defs.get(c.code)?.backName === p.gather.backName),
+                title: `Former ${p.label} avec les lieux de côté « ${p.gather.backName} », mélangés`, onclick: () => ctx.envoyer({ t: "formPile", pile: p.id }) }, el("span", { class: "sous", text: "former" }))
             : el("span", { class: "sous", text: "vide" })),
         el("span", { class: "badge", text: String(ids.length) }),
         el("span", { class: "etiquette-pile", text: p.label }));

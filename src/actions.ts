@@ -4,7 +4,7 @@
 
 import type { CardState, LogEntry, Phase, RoomState, Token, ZoneId } from "./state";
 import type { ScenarioDef } from "./scenario";
-import { addLog, nextZ, nomVisible, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI } from "./setup";
+import { addLog, nextZ, nomVisible, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI, cleDeCouleur, LIBELLES_INONDATION, poserCleSur, texteMaree } from "./setup";
 import { Refus, refuser } from "./refus";
 import { entretienJoueur, PILE_JOUEUR_RE } from "./joueur";
 
@@ -18,7 +18,11 @@ const NOMS_PHASES: Record<string, string> = {
 };
 const ZONES = new Set<string>(["board", "seat0", "seat1", "seat2", "seat3", "story", "aside", "victory",
   ...[0, 1, 2, 3].flatMap((n) => [`pplay${n}`, `pevent${n}`, `pcommit${n}`, `paside${n}`])]);   // zones du board joueur (cahier §10.4)
-const TOKENS = new Set(["doom", "clue", "damage", "horror", "resource", "generic", "uses"]);
+const TOKENS = new Set(["doom", "clue", "damage", "horror", "resource", "generic", "uses", "flood"]);
+const JETONS_RESERVE = new Set<Token>(["bless", "curse"]);   // révélés, ils retournent à la réserve, pas dans le sac (TIC) ; 10 au plus chacun
+// Grille des diagrammes de placement (cartes 126 × 178 avec leurs marges) : « en dessous, à gauche, à droite » d'un lieu.
+const PAS_X = 186, PAS_Y = 238;
+const AUTOUR: [string, number, number][] = [["en dessous", 0, PAS_Y], ["à gauche", -PAS_X, 0], ["à droite", PAS_X, 0]];
 const CHAOS_TOKENS = new Set<string>(["+1", "0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign", "bless", "curse", "frost"]);
 
 function carte(state: RoomState, id: unknown): CardState {
@@ -143,7 +147,33 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
   }
   // Rappels déclarés par le scénario pour cette étape (« act:2 », « agenda:2 »…).
   const stage = def.cards.find((k) => k.code === c.code)?.stage;
-  return stage ? rappels(state, def, `${agenda ? "agenda" : "act"}:${stage}`) : [];
+  const reminders = stage ? rappels(state, def, `${agenda ? "agenda" : "act"}:${stage}`) : [];
+  // Marée (TIC) : l'agenda qui devient courant inonde les lieux révélés et fixe la règle appliquée à chaque révélation.
+  const maree = agenda && stage ? def.flood?.byAgenda?.[String(stage)] : undefined;
+  if (maree) {
+    const parties: string[] = [];
+    if (maree.all) parties.push(inonderTout(state, maree.all));
+    if (maree.onReveal !== undefined) { state.flood = { onReveal: maree.onReveal }; parties.push(`désormais chaque lieu révélé ${LIBELLE_REGLE[maree.onReveal]}`); }
+    reminders.push(addLog(state, "reminder", `Marée (agenda ${stage}) : ${parties.join(" ; ")}. Corrigez à la main les lieux qui font exception (menu → Inondation).`));
+  }
+  return reminders;
+}
+
+const LIBELLE_REGLE = ["n'est pas inondé à sa révélation", "monte d'un niveau d'inondation à sa révélation", "est totalement inondé à sa révélation"];
+
+/** Inonde tous les lieux révélés du tapis : « increase » (+1 niveau, plafond 2), « full » (niveau 2), « decrease », « clear ». */
+function inonderTout(state: RoomState, mode: string): string {
+  const lieux = Object.values(state.cards).filter((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board" && k.faceUp);
+  let n = 0;
+  for (const l of lieux) {
+    const avant = l.tokens.flood ?? 0;
+    const apres = mode === "full" ? 2 : mode === "increase" ? Math.min(2, avant + 1) : mode === "decrease" ? Math.max(0, avant - 1) : 0;
+    if (apres === avant) continue;
+    if (apres) l.tokens.flood = apres; else delete l.tokens.flood;
+    n++;
+  }
+  const quoi = mode === "full" ? "totalement inondés" : mode === "increase" ? "montent d'un niveau d'inondation" : mode === "decrease" ? "baissent d'un niveau d'inondation" : "asséchés";
+  return `${n} lieu${n > 1 ? "x" : ""} révélé${n > 1 ? "s" : ""} ${quoi} (sur ${lieux.length})`;
 }
 
 /** Si la carte quitte l'histoire pour sortir du jeu (de côté, victoire, pile), l'agenda/acte suivant est révélé. */
@@ -290,7 +320,8 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const c = carte(state, msg.id);
       const token = String(msg.token) as keyof CardState["tokens"];
       if (!TOKENS.has(token)) refuser("jeton inconnu");
-      const v = Math.max(0, (c.tokens[token] ?? 0) + Number(msg.delta ?? 0));
+      if (token === "flood" && !def.flood) refuser("ce scénario n'utilise pas de jeton d'inondation");
+      const v = Math.min(token === "flood" ? 2 : Infinity, Math.max(0, (c.tokens[token] ?? 0) + Number(msg.delta ?? 0)));
       if (v === 0) delete c.tokens[token]; else c.tokens[token] = v;
       return {};
     }
@@ -348,6 +379,8 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
         }
       }
       const idx = SEAT_ZONES.indexOf(zone);
+      // Une clé de couleur dont un enquêteur prend le contrôle (lâchée sur son siège) est retournée face visible (guide TIC).
+      if (idx >= 0 && cleDeCouleur(c) && !c.faceUp) { c.faceUp = true; addLog(state, "action", `${nomSiege(state, idx, def)} prend le contrôle d'une clé : ${nomCarte(def, c)}.`, idx); }
       // Une carte d'un deck joueur garde son propriétaire où qu'elle aille ; une carte de rencontre est engagée
       // (ownerSeat) quand elle est lâchée dans une zone de menace.
       if (!c.player && (c.kind === "enemy" || c.kind === "treachery" || c.kind === "asset" || c.kind === "story")) {
@@ -379,7 +412,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
     }
     case "flipCard": {
       const c = carte(state, msg.id);
-      if (c.kind === "key" || c.kind === "mini") refuser("ce jeton ne se retourne pas");
+      if ((c.kind === "key" && !cleDeCouleur(c)) || c.kind === "mini") refuser("ce jeton ne se retourne pas");
       // Un dos « histoire » ne se révèle pas par un simple retournement : seulement par une demande explicite
       // (menu « Révéler quand une carte l'indique », {reveal: true}).
       if (c.storyBack && !c.faceUp && msg.reveal !== true) refuser("cette carte a un dos « histoire » : révélez-la seulement quand une carte l'indique");
@@ -392,7 +425,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       if (c.kind !== "location") refuser("ce n'est pas un lieu");
       if (c.faceUp) return {};
       const n = revealLocation(state, def, c);
-      addLog(state, "action", `${nomCarte(def, c)} révélé${n ? ` : ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}.`);
+      addLog(state, "action", `${nomCarte(def, c)} révélé${n ? ` : ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}${texteMaree(state, c)}.`);
       return {};
     }
     case "toggleSide": {
@@ -539,6 +572,95 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       return {};
     }
 
+    // ---- Inondation et marée (The Innsmouth Conspiracy) ---------------------------------
+    case "setFlood": {
+      // {id, level} : niveau d'inondation d'un lieu (0 sec, 1 partiellement, 2 totalement).
+      if (!def.flood) refuser("ce scénario n'utilise pas de jeton d'inondation");
+      const c = carte(state, msg.id);
+      if (c.kind !== "location") refuser("ce n'est pas un lieu");
+      const niveau = Math.max(0, Math.min(2, Math.round(Number(msg.level) || 0)));
+      if ((c.tokens.flood ?? 0) === niveau) return {};
+      if (niveau) c.tokens.flood = niveau; else delete c.tokens.flood;
+      addLog(state, "action", `${nomCarte(def, c)} : ${LIBELLES_INONDATION[niveau]}.`);
+      return {};
+    }
+    case "floodAll": {
+      // {mode} : tous les lieux révélés du tapis — increase, full, decrease, clear (boutons de masse du panneau Marée).
+      if (!def.flood) refuser("ce scénario n'utilise pas de jeton d'inondation");
+      const mode = String(msg.mode);
+      if (!["increase", "full", "decrease", "clear"].includes(mode)) refuser("mode inconnu");
+      addLog(state, "action", `Marée : ${inonderTout(state, mode)}.`);
+      return {};
+    }
+    case "floodRule": {
+      // {onReveal} : 0 rien, 1 + un niveau, 2 totalement — ce que subit chaque lieu à sa révélation.
+      if (!def.flood) refuser("ce scénario n'utilise pas de jeton d'inondation");
+      const r = Math.round(Number(msg.onReveal));
+      if (![0, 1, 2].includes(r)) refuser("règle inconnue");
+      state.flood = { onReveal: r as 0 | 1 | 2 };
+      addLog(state, "action", `Marée : désormais chaque lieu révélé ${LIBELLE_REGLE[r]}.`);
+      return {};
+    }
+
+    // ---- Clés cachées, piles formées en cours de partie, lieux autour d'un lieu (TIC) --------
+    case "randomKey": {
+      // {id} : une clé de côté face cachée, tirée au hasard, est posée sur cette carte du tapis sans être regardée.
+      const c = carte(state, msg.id);
+      if (!("zone" in c.loc) || c.loc.zone !== "board" || c.kind === "mini" || c.kind === "key") refuser("visez une carte du tapis");
+      const cachees = Object.values(state.cards).filter((k) => k.kind === "key" && !k.faceUp && "zone" in k.loc && k.loc.zone === "aside");
+      if (!cachees.length) refuser("aucune clé face cachée de côté");
+      const cle = cachees[Math.floor(rng() * cachees.length)];
+      poserCleSur(state, cle, c, nextZ(state));
+      addLog(state, "action", `Une clé face cachée, tirée au hasard parmi les ${cachees.length} de côté, est posée sur ${nomCarte(def, c)} sans être regardée.`);
+      return {};
+    }
+    case "formPile": {
+      // {pile} : la pile déclarée `gather` se forme avec les lieux de côté dont le côté non révélé porte le nom voulu, mélangés.
+      const pile = String(msg.pile);
+      const decl = def.piles?.find((p) => p.id === pile && p.gather) ?? refuser("cette pile ne se forme pas ainsi");
+      const cartes = Object.values(state.cards).filter((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "aside"
+        && def.cards.find((d) => d.code === k.code)?.backName === decl.gather!.backName);
+      if (!cartes.length) refuser(`aucun lieu « ${decl.gather!.backName} » de côté`);
+      if (!(pile in state.piles)) state.piles[pile] = [];
+      for (const k of cartes) {
+        k.loc = { pile };
+        k.faceUp = false;
+        k.side = "a";
+        k.exhausted = false;
+        k.tokens = {};
+        state.piles[pile].push(k.id);
+      }
+      shuffle(state.piles[pile], rng);
+      addLog(state, "action", `${nomPile(def, pile)} : ${cartes.length} lieux de côté forment la pile, mélangée (${state.piles[pile].length} au total).`);
+      return {};
+    }
+    case "placeAround": {
+      // {id, pile} : les premières cartes de la pile déclarée `around` entrent en jeu, non révélées, en dessous, à gauche et à
+      // droite de ce lieu — seulement aux emplacements libres de la grille ; le journal ne dit pas quel lieu va où (dos identiques).
+      const c = carte(state, msg.id);
+      if (c.kind !== "location" || !("zone" in c.loc) || c.loc.zone !== "board") refuser("ce n'est pas un lieu du tapis");
+      const pile = String(msg.pile);
+      if (!def.piles?.some((p) => p.id === pile && p.around)) refuser("cette pile ne se pose pas ainsi");
+      if (!state.piles[pile]?.length) refuser(`${nomPile(def, pile)} est vide`);
+      const { x: lx, y: ly } = c.loc as { x: number; y: number };
+      const occupe = (x: number, y: number) => Object.values(state.cards).some((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board"
+        && Math.abs(k.loc.x - x) < PAS_X / 2 && Math.abs(k.loc.y - y) < PAS_Y / 2);
+      const poses: string[] = [], pris: string[] = [];
+      for (const [lib, dx, dy] of AUTOUR) {
+        if (occupe(lx + dx, ly + dy)) { pris.push(lib); continue; }
+        const id = state.piles[pile].shift();
+        if (!id) break;
+        const k = state.cards[id];
+        k.loc = { zone: "board", x: lx + dx, y: ly + dy, z: nextZ(state) };
+        k.faceUp = false;
+        k.side = "a";
+        poses.push(lib);
+      }
+      if (!poses.length) refuser(pris.length === AUTOUR.length ? "les trois emplacements sont déjà occupés" : "rien à poser");
+      addLog(state, "action", `${poses.length} lieu${poses.length > 1 ? "x" : ""} de ${nomPile(def, pile)} posé${poses.length > 1 ? "s" : ""} non révélé${poses.length > 1 ? "s" : ""} ${poses.join(", ")} de ${nomCarte(def, c)}${pris.length ? ` (déjà occupé : ${pris.join(", ")})` : ""}${state.piles[pile].length ? "" : " ; la pile est vide"}.`);
+      return {};
+    }
+
     // ---- Chemins entre lieux --------------------------------------------------------
     case "linkLocations": {
       const a = carte(state, msg.a), b = carte(state, msg.b);
@@ -574,13 +696,19 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       return {};
     }
     case "chaosReturn": {
-      state.chaos.bag.push(...state.chaos.drawn.splice(0));
+      // Bénédiction et malédiction révélées retournent à la réserve, pas dans le sac (règle TIC).
+      const tires = state.chaos.drawn.splice(0);
+      const reserve = tires.filter((t) => JETONS_RESERVE.has(t));
+      state.chaos.bag.push(...tires.filter((t) => !JETONS_RESERVE.has(t)));
+      if (reserve.length) addLog(state, "action", `${reserve.length > 1 ? "Jetons" : "Jeton"} ${reserve.join(", ")} rendu${reserve.length > 1 ? "s" : ""} à la réserve (pas au sac).`);
       return {};
     }
     case "chaosAdjust": {
       const t = String(msg.token) as Token;
       if (!CHAOS_TOKENS.has(t)) refuser("jeton inconnu");
-      const delta = Math.round(Number(msg.delta) || 0);
+      let delta = Math.round(Number(msg.delta) || 0);
+      // Au plus 10 bénédictions et 10 malédictions entre le sac et les cartes qui en scellent.
+      if (delta > 0 && JETONS_RESERVE.has(t)) delta = Math.min(delta, 10 - state.chaos.bag.filter((k) => k === t).length - state.chaos.sealed.filter((k) => k === t).length);
       if (delta > 0) for (let k = 0; k < delta; k++) state.chaos.bag.push(t);
       else for (let k = 0; k < -delta; k++) { const i = state.chaos.bag.indexOf(t); if (i < 0) break; state.chaos.bag.splice(i, 1); }
       return {};

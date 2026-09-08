@@ -105,8 +105,9 @@
       "title": "The Innsmouth Conspiracy",
       "box": "Cycle 6 (2020‑2021)",
       "kind": "campaign",
+      "guide": "https://images-cdn.fantasyflightgames.com/filer_public/9d/71/9d71f59e-6ca6-469c-b00a-0a7c6d27b148/ahc82_campaign_guide-web_1.pdf",
       "scenarios": [
-        { "id": "tic_the_pit_of_despair", "num": "I", "title": "The Pit of Despair", "status": "planned" },
+        { "id": "tic_the_pit_of_despair", "num": "I", "title": "The Pit of Despair", "status": "available" },
         { "id": "tic_the_vanishing_of_elina_harper", "num": "II", "title": "The Vanishing of Elina Harper", "status": "planned" },
         { "id": "tic_in_too_deep", "num": "III", "title": "In Too Deep", "status": "planned" },
         { "id": "tic_devil_reef", "num": "IV", "title": "Devil Reef", "status": "planned" },

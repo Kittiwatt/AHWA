@@ -1,7 +1,7 @@
 // Interactions sur les cartes : glisser-déposer (message au lâcher), clic, double-clic, menu contextuel.
 
 import { el } from "./dom.js";
-import { faceVisible } from "./cartes.js";
+import { faceVisible, cleDeCouleur, INONDATION } from "./cartes.js";
 import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, journalLocal } from "./tapis.js";
 import { nomSiege } from "./lobby.js";
 import { libelleUses } from "./uses.js";
@@ -254,6 +254,11 @@ export function initInteractions(ctx) {
         if (pioche) items.push(item(`Remélanger dans ${pioche.label}`, () => { if (confirm(`Remélanger les ${ids.length} cartes de ${def.label} dans ${pioche.label} ?`)) ctx.envoyer({ t: "reshuffleDiscard", deck: pioche.id }); }, { off: !ids.length }));
       } else {
         const defausse = def?.discard ? (state.piles[def.discard] ?? []) : [];
+        // Pile qui se forme en cours de partie (TIC « Tidal Tunnel deck ») avec les lieux de côté au dos voulu, mélangés.
+        if (def?.gather) {
+          const dispo = Object.values(state.cards).filter((c) => c.kind === "location" && c.loc.zone === "aside" && ctx.defs.get(c.code)?.backName === def.gather.backName).length;
+          items.push(item(`Former la pile (${dispo} « ${def.gather.backName} » de côté, mélangés)`, () => ctx.envoyer({ t: "formPile", pile: id }), { off: !dispo }));
+        }
         items.push(item("Piocher (retourner la première carte)", () => ctx.envoyer({ t: "drawEncounter", pile: id }), { off: Boolean(haut?.faceUp) || (!ids.length && !defausse.length) }));
         items.push(item("Chercher (puis mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
         items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: id }), { off: !ids.length }));
@@ -330,6 +335,12 @@ export function initInteractions(ctx) {
     } else if (carte.kind === "proxy") {
       items.push(item("Retirer (un lieu prend sa place)", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "removed" }), { danger: true }));
     } else if (carte.kind === "key") {
+      // Clé de couleur (TIC) : deux faces ; un enquêteur qui en prend le contrôle la retourne (le dépôt sur un siège le fait aussi).
+      if (cleDeCouleur(carte)) items.push(item(carte.faceUp ? "Retourner (face cachée)" : "Retourner (regarder la couleur)", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
+      for (const s of ctx.etat.state.seats) {
+        if (!s.investigatorCode || carte.loc.zone === `seat${s.index}`) continue;
+        items.push(item(`Contrôlée par ${nomSiege(s, ctx)}`, () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: `seat${s.index}`, x: 9999, y: 0 })));
+      }
       if (carte.loc.zone !== "aside") items.push(item("Mettre de côté", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "aside", x: 9999, y: 0 })));
       if (carte.loc.zone !== "board") items.push(item("Sur le tapis", () => ctx.envoiSurTapis(carte)));
     } else if (carte.kind !== "mini") {
@@ -354,6 +365,27 @@ export function initInteractions(ctx) {
             items.push(item(`Espace vide ${lib}`, () => ctx.envoyer({ t: "emptySpace", x: carte.loc.x + dx, y: carte.loc.y + dy })));
           }
         }
+        // Lieux d'une pile posés autour de ce lieu (TIC « Tidal Tunnel deck ») : en dessous, à gauche, à droite, aux emplacements libres.
+        for (const p of (ctx.scenario.piles ?? []).filter((p) => p.around)) {
+          const n = (ctx.etat.state.piles[p.id] ?? []).length;
+          items.push(item(`${p.label} autour de ce lieu (dessous, gauche, droite)`, () => ctx.envoyer({ t: "placeAround", id: carte.id, pile: p.id }), { off: !n }));
+        }
+      }
+      if (carte.kind === "location" && ctx.scenario.flood) {
+        // Jeton d'inondation à deux faces (TIC) : sec, partiellement, totalement inondé.
+        const niveau = carte.tokens.flood ?? 0;
+        items.push(el("div", { class: "item jetons-ligne inondation-ligne" }, el("span", { text: "Inondation" }),
+          ...[0, 1, 2].map((lv) => el("button", { class: `pm niveau${lv === niveau ? " actif" : ""}`, type: "button", disabled: !peut, title: lv ? `Lieu ${INONDATION[lv][1]}` : "Lieu sec (retirer le jeton)",
+            onclick: () => ctx.envoyer({ t: "setFlood", id: carte.id, level: lv }) }, lv === 0 ? "sec" : lv === 1 ? "½" : "plein"))));
+      }
+      // Clé de côté face cachée (TIC) : une au hasard posée sur cette carte du tapis, sans être regardée.
+      const cachees = Object.values(ctx.etat.state.cards).filter((k) => k.kind === "key" && !k.faceUp && k.loc.zone === "aside").length;
+      if (cachees && carte.loc.zone === "board" && ["location", "enemy", "asset", "story"].includes(carte.kind)) {
+        items.push(item(`Poser ici une clé cachée au hasard (${cachees} de côté, sans la regarder)`, () => ctx.envoyer({ t: "randomKey", id: carte.id })));
+      }
+      // Piles déclarées qui accueillent ce type de carte par leur menu (« Profondeurs » de The Pit of Despair).
+      for (const p of (ctx.scenario.piles ?? []).filter((p) => p.menuFor?.includes(carte.kind))) {
+        if (carte.loc.pile !== p.id) items.push(item(`Placer dans ${p.label}`, () => ctx.envoyer({ t: "toPile", id: carte.id, pile: p.id })));
       }
       // Carte dont les deux faces sont des faces de jeu (verso = lieu lié, ex. face Spectral ; ennemi à deux faces,
       // ex. Nathan Wick) : on bascule, on ne retourne pas.

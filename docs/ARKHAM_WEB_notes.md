@@ -17,6 +17,62 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-08 : **The Pit of Despair (TIC I) livré** — première table de
+  The Innsmouth Conspiracy (choix validés par l'utilisateur : clés OK,
+  inondation A avec B en secours, pile Tidal Tunnel OK, profondeurs A,
+  chambre de départ A, visuels A puis B plus tard). Guide TIC lu en
+  entier (Setup p. 4‑5, règles clés / inondation / bénédiction p. 2‑3,
+  sac p. 3 lu sur l'image de la page). **Clés de couleur à deux faces** :
+  `keys {colors, faceUp}` (bleue et verte face visible ; rouge, jaune,
+  violette face cachée, ordre mélangé, nom masqué « clé face cachée »
+  côté serveur `nomVisible` et client `nomCle`), `cleDeCouleur()`,
+  retournables (`flipCard`), retournées d'elles-mêmes quand un siège en
+  prend le contrôle (`moveCard` vers `seat<n>`), menus « Retourner » et
+  « Contrôlée par… » ; op de setup et action **`randomKey`** (une clé
+  cachée de côté tirée au hasard, posée sur une carte sans être regardée,
+  `poserCleSur` à cheval sur le bord gauche) ; images SVG originales
+  `public/img/keys/<couleur>.svg` + `back.svg` (dos commun, anneau
+  pointillé), classe `.mini.cle.couleur` / `.cachee`. **Inondation** :
+  `tokens.flood` 1/2 sur les lieux (image `.inondation` en haut à
+  gauche, `flood_partial.svg` / `flood_full.svg`), menu du lieu
+  « Inondation sec / ½ / plein » (`setFlood`), `addToken flood` borné
+  à 2 ; **marée automatique** : `flood.byAgenda[stage] = {all,
+  onReveal}` du `*.src.json` — `avancer` inonde les lieux révélés
+  (`inonderTout`) et pose `state.flood.onReveal`, appliqué par
+  `revealLocation` (`inonderALaRevelation`, suffixe de journal
+  `texteMaree`) ; panneau **« Marée »** dans la colonne Agenda et acte
+  (règle rien / +1 / plein, boutons +1 partout, tout inonder, −1
+  partout, assécher → `floodRule` / `floodAll`). **Pile « Tidal
+  Tunnel »** (`gather {backName}`, vide au départ, bouton « former » et
+  menu → `formPile` : tous les lieux de côté au dos « Tidal Tunnel »,
+  mélangés) et **`placeAround`** (`around: true` : menu « Tidal Tunnel
+  autour de ce lieu » → dessous / gauche / droite aux cases libres de
+  la grille 186 × 238, journal muet sur l'identité). **Pile
+  « Profondeurs »** (`menuFor: ["enemy"]` → « Placer dans
+  Profondeurs », clic = ressortir). **Sac TIC** (20 jetons en standard,
+  crâne / cultiste / tablette / ancien ×2) ; `chaosReturn` rend
+  bénédictions et malédictions à la réserve (jamais au sac),
+  `chaosAdjust` les plafonne à 10. **`pickRandom` multi-exemplaires** :
+  `from` accepte des codes répétés (Underwater Cavern ×2…) — les tirés
+  sont pris dans le pool puis rendus (`pool.giveBack`), et les copies
+  restantes de tous les codes candidats suivent `rest` (aside / pile /
+  retrait) ; Before the Black Throne inchangé au test (les copies du
+  lieu tiré vont dans le Cosmos dès le tirage, le `toPile` suivant les
+  mélange). Setup : chambre révélée avec pions et indices + clé cachée
+  au hasard posée dessus (journal muet) ; Idol Chamber, Altar to Dagon,
+  Sealed Exit de côté non révélés ; 3 tunnels au hasard parmi 8 à
+  gauche / droite / dessous, 5 de côté ; The Amalgam, Blindsense ×2,
+  From the Depths ×3 de côté face visible ; pioche 25. Sets :
+  `the_pit_of_despair`, `creatures_of_the_deep`, `flooded_caverns`,
+  `rising_tide`, `shattered_memories` (pack **`tic`**) +
+  `agents_of_cthulhu`, `rats` (Core) → `packs: ["tic", "core"]`. Lien
+  du guide TIC (ahc82) au catalogue. Tests : 468 messages, douze
+  scénarios (bloc Pit : clés, retournements, contrôle, clé au hasard et
+  refus, inondation bornée, marée par agenda 2 puis 3, règle et masse,
+  pile formée, tunnels autour avec cases occupées, profondeurs, sac
+  bénédiction/malédiction, solo expert 22 jetons, refus hors TIC) ;
+  captures 70‑75. Visuels : SVG à remplacer plus tard par des PNG
+  générés dans le style des jetons du projet (choix B différé).
 - 2026-09-09 (nuit) : **jauge d'Uses en chip** sur les cartes joueur en
   jeu : même mécanisme que les jauges dégâts / horreur (`majCarte`,
   `jauges` + `uses` quand `def.player && def.uses`), inversée — clic sur
@@ -733,9 +789,15 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : la suite des retours de test de l'utilisateur
-  (première série traitée en deux pushes le 2026-09-08), puis les points
-  ouverts du cahier §10.10 (customisations, decks annexes, attaches).
+- **Prochaine étape** : retours de l'utilisateur sur The Pit of
+  Despair, puis **TIC II The Vanishing of Elina Harper** (guide p. 9‑13 :
+  relire les résolutions du I et l'Interlude I pour les reports —
+  « Memories Recovered », jetons retirés du sac par les flashbacks,
+  mode autonome p. 9 — questions au lobby), puis la suite de la
+  campagne ; visuels PNG des clés et du jeton d'inondation à générer
+  dans le style des jetons du projet (choix B). En parallèle : la suite
+  des retours de test du board joueur et les points ouverts du cahier
+  §10.10 (customisations, decks annexes, attaches).
   Ensuite le prologue
   Disappearance at the Twilight Estate (pack `tcu`, set
   `disappearance_at_the_twilight_estate` : choix des enquêteurs neutres
@@ -1145,6 +1207,21 @@ Commandes : `npm run dev`, `npm run check` (tsc + dry-run),
   `agents_of_shub` (01179‑80), Arkham Woods 01150‑55 (set `tentacles`).
   L'acte 05055 a une `linked_card` 05055b de type location (verso-lieu) ;
   05085b (Josef's Plan) est listé comme carte à part.
+- The Innsmouth Conspiracy (vérifié le 2026-09-08) : pack **`tic`**
+  (107 cartes de rencontre, `?encounter=1`) ; packs Mythos `itd`, `def`,
+  `hhg`, `lif`, `lod`, `itm` ; `ticp` / `ticc` = rééditions
+  Investigator / Campaign Expansion. Sets du pack `tic` :
+  `the_pit_of_despair` (07041‑55), `the_vanishing_of_elina_harper`
+  (07056‑83), `agents_of_dagon`, `agents_of_hydra`,
+  `creatures_of_the_deep` (07088‑90), `rising_tide` (07091‑93),
+  `fog_over_innsmouth`, `shattered_memories` (07096‑98), `malfunction`,
+  `syzygy`, `flooded_caverns` (07102‑04, lieux ×2), `the_locals` ; Agents
+  of Cthulhu = `agents_of_cthulhu` (Core, 01181‑82), Rats = `rats`. Les
+  lieux « Tidal Tunnel » sont `double_sided` avec `back_name: "Tidal
+  Tunnel"` (donc `backName`, nom masqué tant qu'ils ne sont pas
+  révélés). Enquêteurs TIC 07001‑07005 présents dans
+  `investigators.json`. Images recto/verso de tout le scénario I
+  vérifiées sur la CDN (200).
 
 ## 4. Savoir métier déjà encodé (voir `scenarios_data.json`)
 
@@ -1303,6 +1380,20 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   ne devient un lieu pour le moteur (couche, pions emportés, chemins)
   que par le changement de `kind` fait dans `avancer` — retourner l'acte
   à la main le laisse « acte » (lisible, sans indices automatiques).
+- `test_room.mjs` : en solo, le delta 1 est consommé par l'action de
+  l'hôte — un `attendre(delta rev === joueurs)` ne résout jamais (ne
+  l'attendre qu'à partir de deux joueurs).
+- `ss` n'existe pas dans le bac à sable : vérifier `wrangler dev` par
+  `curl http://127.0.0.1:8788/` ; deux `wrangler dev` sur le même port
+  → le second meurt sans bruit.
+- Un jeton posé par une règle du scénario (inondation) est un champ de
+  `tokens` comme les autres : `addToken` le borne (2), le dépôt dans une
+  pile l'efface (`tokens = {}`) — pour un jeton qui doit survivre au
+  passage en pile, il faudrait un champ à part.
+- Une clé de couleur face cachée ne doit être nommée nulle part : passer
+  par `nomVisible` / `nomCle` (journal, `alt`, infobulles, menus) ; le
+  test vérifie que le journal du setup ne cite aucune couleur des clés
+  cachées.
 
 ## 6. Questionnaire des fonctionnalités — thèmes couverts
 
@@ -1349,8 +1440,13 @@ par phase (`reminders[]` du `*.src.json`).
   TDE Nasht/Kaman-Thah, Josef dans ADD/UAD) → recensement manuel →
   champ `storyBack: [codes]` du `*.src.json` (déjà pris en charge par
   le build).
-- **Composition du sac par difficulté** : TCU saisi (2026-09-04) ; reste
-  TDC, TDE‑A et Film Fatale (section Setup / encart du guide).
+- **Composition du sac par difficulté** : TCU saisi (2026-09-04), TIC
+  saisi (2026-09-08, p. 3 du guide lue sur l'image) ; reste TDC, TDE‑A
+  et Film Fatale (section Setup / encart du guide).
+- **Jetons de campagne TIC** : les flashbacks retirent des jetons du sac
+  « pour le reste de la campagne » (icônes p. 6, à lire sur l'image) et
+  la résolution du I remplit « Memories Recovered » → questions au lobby
+  de TIC II à concevoir (report des jetons retirés, mode autonome p. 9).
 - **Jetons de campagne** (TCU III et suivants) : les jetons ajoutés au
   sac par les résolutions précédentes ne sont pas connus d'une table
   isolée → TCU II les reporte par la question d'introduction (+ option

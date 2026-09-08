@@ -1,0 +1,758 @@
+{
+ "id": "tic_the_pit_of_despair",
+ "title": "The Pit of Despair",
+ "campaign": "The Innsmouth Conspiracy",
+ "campaignId": "tic",
+ "order": 1,
+ "packs": [
+  "tic",
+  "core"
+ ],
+ "encounterSets": [
+  "the_pit_of_despair",
+  "creatures_of_the_deep",
+  "flooded_caverns",
+  "rising_tide",
+  "shattered_memories",
+  "agents_of_cthulhu",
+  "rats"
+ ],
+ "scenarioCard": "07041",
+ "agendaDeck": [
+  "07042",
+  "07043",
+  "07044"
+ ],
+ "actDeck": [
+  "07045",
+  "07046"
+ ],
+ "startLocation": "07047",
+ "piles": [
+  {
+   "id": "tidal",
+   "label": "Tidal Tunnel",
+   "gather": {
+    "backName": "Tidal Tunnel"
+   },
+   "around": true
+  },
+  {
+   "id": "depths",
+   "label": "Profondeurs",
+   "menuFor": [
+    "enemy"
+   ]
+  }
+ ],
+ "flood": {
+  "byAgenda": {
+   "2": {
+    "all": "increase",
+    "onReveal": 1
+   },
+   "3": {
+    "all": "full",
+    "onReveal": 2
+   }
+  }
+ },
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "layout": [
+  {
+   "code": "07047",
+   "x": 737,
+   "y": 173
+  }
+ ],
+ "questions": [],
+ "setup": [
+  {
+   "op": "keys",
+   "colors": [
+    "blue",
+    "green"
+   ],
+   "faceUp": true,
+   "log": "Clés bleue et verte mises de côté, face visible."
+  },
+  {
+   "op": "keys",
+   "colors": [
+    "red",
+    "yellow",
+    "purple"
+   ],
+   "faceUp": false,
+   "log": "Clés rouge, jaune et violette mises de côté face cachée et mélangées : personne ne sait laquelle est laquelle. Les clés noire et blanche ne servent pas dans ce scénario."
+  },
+  {
+   "op": "place",
+   "code": "07047",
+   "zone": "board",
+   "x": 737,
+   "y": 173,
+   "reveal": true,
+   "log": "Unfamiliar Chamber est mis en jeu au centre, révélé : chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "minis",
+   "code": "07047"
+  },
+  {
+   "op": "randomKey",
+   "at": "07047",
+   "log": "Sa révélation appelle une clé cachée : une des trois clés face cachée, tirée au hasard, est posée sur Unfamiliar Chamber sans être regardée."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "07051",
+    "07050",
+    "07052"
+   ],
+   "faceUp": false,
+   "log": "Idol Chamber, Altar to Dagon et Sealed Exit sont mis de côté, hors jeu, côté « Tidal Tunnel » (non révélés)."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "07048",
+    "07049",
+    "07102",
+    "07102",
+    "07103",
+    "07103",
+    "07104",
+    "07104"
+   ],
+   "n": 3,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 551,
+     "y": 173
+    },
+    {
+     "x": 923,
+     "y": 173
+    },
+    {
+     "x": 737,
+     "y": 411
+    }
+   ],
+   "rest": "aside",
+   "log": "Trois « Tidal Tunnel » tirés au hasard parmi les huit restants sont posés à gauche, à droite et en dessous d'Unfamiliar Chamber, côté non révélé ; les cinq autres sont mis de côté, hors jeu, non révélés."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "07053",
+    "07054",
+    "07054",
+    "07055",
+    "07055",
+    "07055"
+   ],
+   "faceUp": true,
+   "log": "The Amalgam, Blindsense ×2 et From the Depths ×3 sont mis de côté, hors jeu, face visible."
+  },
+  {
+   "op": "log",
+   "text": "Jetons d'inondation disponibles : menu d'un lieu → Inondation (sec, partiellement, totalement) ; panneau « Marée » dans la colonne Agenda et acte."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Clés (guide) : sept clés de couleur à deux faces ; face cachée, toutes ont le même dos. Une carte les fait entrer en jeu (menu d'un lieu ou d'un ennemi → « Poser ici une clé cachée au hasard » : l'app tire sans regarder). Un lieu sans indice qui porte une clé : la prendre est une action ; un ennemi qui quitte le jeu par un enquêteur lui laisse ses clés. Prendre le contrôle d'une clé = la glisser sur son siège (elle se retourne) ; on peut donner ses clés à un enquêteur au même lieu ; un enquêteur éliminé laisse ses clés sur son lieu."
+  },
+  {
+   "when": "setup",
+   "text": "Inondation (guide) : un lieu est sec, partiellement ou totalement inondé (jeton à deux faces, menu du lieu → Inondation). Les deux niveaux comptent comme « inondé ». Quand un agenda l'exige, l'app inonde les lieux révélés et applique la règle « à la révélation » (panneau Marée) ; corrigez à la main les lieux qui font exception."
+  },
+  {
+   "when": "setup",
+   "text": "Les profondeurs (guide) : zone hors jeu à côté de l'agenda et de l'acte — ici la pile « Profondeurs ». Une carte y envoie l'ennemi de côté (menu → « Placer dans Profondeurs », ou glisser sur la pile) : ses jetons sont retirés sauf ses clés, qui restent à côté de la pile ; s'il est vaincu par un enquêteur, celui-ci prend ses clés. Clic sur la pile pour le faire ressortir."
+  },
+  {
+   "when": "setup",
+   "text": "Disposition (guide) : les lieux forment une grille ; deux lieux côte à côte (gauche, droite, dessus, dessous) sont adjacents, donc connectés — pas en diagonale, pas de chemin à tracer. Un lieu n'entre pas en jeu sur un emplacement déjà occupé. La pile « Tidal Tunnel » n'existe pas encore : une carte dira quand la former (menu de la pile → « Former »), puis « Tidal Tunnel autour de ce lieu » pose ses premières cartes en dessous, à gauche et à droite d'un lieu."
+  },
+  {
+   "when": "setup",
+   "text": "Flashbacks (guide) : le livret contient des flashbacks numérotés, à lire uniquement quand une carte l'indique — lien « Guide » dans la barre. Ce que vous y notez au journal de campagne reste hors application."
+  },
+  {
+   "when": "setup",
+   "text": "Bénédictions et malédictions (guide) : le sac n'en contient aucune au départ ; des cartes en ajoutent (clic droit sur le sac → Ajuster, 10 au plus de chaque). Révélé, un tel jeton retourne à la réserve, pas dans le sac : « ↺ Tout remettre » l'écarte tout seul."
+  },
+  {
+   "when": "act:2",
+   "text": "Acte 2 : le verso de l'acte 1 fait entrer l'ennemi de côté engagé avec l'enquêteur principal (glisser sur sa zone de menace), remélange dans la pioche les cartes de côté prévues avec la défausse (menu de chaque carte → « Mélanger dans la pioche », défausse → « Remélanger »), forme la pile Tidal Tunnel avec tous les lieux de côté au dos « Tidal Tunnel » (menu de la pile → « Former »), puis pose des tunnels autour de chaque lieu révélé (menu du lieu → « Tidal Tunnel autour de ce lieu »). Le guide indique un flashback à lire à ce moment. Ensuite, chaque lieu révélé appelle des tunnels autour de lui (même menu)."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Agenda 2 : la marée est appliquée automatiquement (voir le journal et le panneau Marée) ; certains lieux imposent une exception imprimée — corrigez leur niveau à la main."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Agenda 3 : la marée est appliquée automatiquement (voir le journal et le panneau Marée) ; certains lieux imposent une exception imprimée — corrigez leur niveau à la main."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-08",
+ "encounterSetNames": {
+  "the_pit_of_despair": "The Pit of Despair",
+  "creatures_of_the_deep": "Creatures of the Deep",
+  "rising_tide": "Rising Tide",
+  "shattered_memories": "Shattered Memories",
+  "flooded_caverns": "Flooded Caverns",
+  "rats": "Rats",
+  "agents_of_cthulhu": "Agents of Cthulhu"
+ },
+ "cards": [
+  {
+   "code": "01159",
+   "name": "Swarm of Rats",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "rats",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Creature"
+   ],
+   "health": 1
+  },
+  {
+   "code": "01181",
+   "name": "Young Deep One",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "agents_of_cthulhu",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 3
+  },
+  {
+   "code": "01182",
+   "name": "Dreams of R'lyeh",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "agents_of_cthulhu",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
+  },
+  {
+   "code": "07041",
+   "name": "The Pit of Despair",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "07042",
+   "name": "Awakening",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "backName": "The Flood Begins",
+   "doom": 7,
+   "stage": 1
+  },
+  {
+   "code": "07043",
+   "name": "The Water Rises",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "backName": "High Tide",
+   "doom": 8,
+   "stage": 2
+  },
+  {
+   "code": "07044",
+   "name": "Sacrifice for the Deep",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Out of Air",
+   "doom": 4,
+   "stage": 3
+  },
+  {
+   "code": "07045",
+   "name": "The Pit",
+   "kind": "act",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "backName": "Recognition",
+   "stage": 1
+  },
+  {
+   "code": "07046",
+   "name": "The Escape",
+   "kind": "act",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "To the Coast",
+   "stage": 2
+  },
+  {
+   "code": "07047",
+   "name": "Unfamiliar Chamber",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ]
+  },
+  {
+   "code": "07048",
+   "name": "Bone-Ridden Pit",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07049",
+   "name": "Fish Graveyard",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07050",
+   "name": "Altar to Dagon",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07051",
+   "name": "Idol Chamber",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07052",
+   "name": "Sealed Exit",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07053",
+   "name": "The Amalgam",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_pit_of_despair",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Abomination",
+    "Deep One",
+    "Elite"
+   ],
+   "health": 3
+  },
+  {
+   "code": "07054",
+   "name": "Blindsense",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_pit_of_despair",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "07055",
+   "name": "From the Depths",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "the_pit_of_despair",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "07088",
+   "name": "Deep One Bull",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 5
+  },
+  {
+   "code": "07089",
+   "name": "Lurking Deep One",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 2
+  },
+  {
+   "code": "07090",
+   "name": "Deep One Assault",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "07091",
+   "name": "Undertow",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07092",
+   "name": "Rising Tides",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07093",
+   "name": "Riptide",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07096",
+   "name": "Macabre Memento",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "shattered_memories",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "07097",
+   "name": "Fractured Consciousness",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "shattered_memories",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "07098",
+   "name": "Memory of Oblivion",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "shattered_memories",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "07102",
+   "name": "Underwater Cavern",
+   "kind": "location",
+   "qty": 2,
+   "set": "flooded_caverns",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07103",
+   "name": "Tidal Pool",
+   "kind": "location",
+   "qty": 2,
+   "set": "flooded_caverns",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07104",
+   "name": "Underground River",
+   "kind": "location",
+   "qty": 2,
+   "set": "flooded_caverns",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel",
+   "victory": 1
+  }
+ ]
+}

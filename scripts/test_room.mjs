@@ -1242,6 +1242,201 @@ async function tableClutches({ joueurs, answers }) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ The Pit of Despair (TIC I) : clés de couleur à deux faces, clé cachée au hasard, Tidal Tunnel au hasard puis en pile,
+// tunnels autour d'un lieu, inondation et marée automatique, profondeurs, bénédictions rendues à la réserve ============
+async function tablePit({ joueurs = 2, difficulty } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tic_the_pit_of_despair" }) });
+  assert.equal(r.status, 200, "The Pit of Despair est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "07001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["07001", "07002", "07003", "07004"][i] });
+    autres.push(c);
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);   // en solo, le delta 1 est déjà consommé par l'action de l'hôte
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers: {} });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h, autres };
+}
+{
+  const { h, autres: [j2] } = await tablePit({ joueurs: 2 });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  // Unfamiliar Chamber révélé au centre avec ses indices et les pions ; trois tunnels non révélés à gauche, à droite, en dessous.
+  const chambre = lieux.find((c) => c.code === "07047");
+  assert.ok(chambre.faceUp && chambre.loc.x === 737 && chambre.loc.y === 173 && chambre.tokens.clue === 2, "Unfamiliar Chamber révélé, 1 indice par enquêteur");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.y === 173 - 22), "pions sur la chambre");
+  const tunnels = lieux.filter((c) => c.code !== "07047");
+  assert.equal(tunnels.length, 3, "trois Tidal Tunnel en jeu");
+  assert.deepEqual(tunnels.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["551,173", "737,411", "923,173"], "à gauche, à droite, en dessous");
+  assert.ok(tunnels.every((c) => !c.faceUp && c.side === "a" && ["07048", "07049", "07102", "07103", "07104"].includes(c.code)), "tunnels non révélés, pris parmi les huit");
+  // De côté : les 5 autres tunnels + les 3 nommés (non révélés), The Amalgam, Blindsense ×2, From the Depths ×3 (face visible).
+  const cote = cartes.filter((c) => c.loc.zone === "aside" && c.kind !== "key");
+  assert.equal(cote.filter((c) => c.kind === "location").length, 8, "8 tunnels de côté (5 au hasard + Idol Chamber, Altar to Dagon, Sealed Exit)");
+  assert.ok(cote.filter((c) => c.kind === "location").every((c) => !c.faceUp), "tunnels de côté non révélés");
+  assert.deepEqual(cote.filter((c) => c.kind !== "location").map((c) => c.code).sort(), ["07053", "07054", "07054", "07055", "07055", "07055"], "Amalgam, Blindsense ×2, From the Depths ×3 de côté");
+  assert.ok(cote.filter((c) => c.kind !== "location").every((c) => c.faceUp));
+  // Les 8 tunnels comptent 2 Underwater Cavern, 2 Tidal Pool, 2 Underground River, Bone-Ridden Pit, Fish Graveyard + 3 nommés (11 en tout avec ceux en jeu).
+  const tousTunnels = cartes.filter((c) => c.kind === "location" && c.code !== "07047");
+  assert.equal(tousTunnels.length, 11, "onze Tidal Tunnel en tout, aucun retiré");
+  assert.ok(!cartes.some((c) => c.kind === "location" && c.loc.pile === "removed"), "aucun lieu retiré de la partie");
+  assert.equal(s.piles.encounter.length, 25, "pioche : 25 cartes");
+  assert.deepEqual(s.piles.tidal, [], "pile Tidal Tunnel vide au départ");
+  assert.deepEqual(s.piles.depths, [], "pile Profondeurs vide");
+  assert.equal(s.chaos.bag.length, 20, "sac TIC standard : 20 jetons");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 2);
+  // Clés : bleue et verte face visible de côté ; une des trois cachées est sur la chambre, les deux autres de côté face cachée.
+  const cles = cartes.filter((c) => c.kind === "key");
+  assert.deepEqual(cles.map((c) => c.code).sort(), ["key:blue", "key:green", "key:purple", "key:red", "key:yellow"], "cinq clés, noire et blanche absentes");
+  const visibles = cles.filter((c) => c.faceUp);
+  assert.deepEqual(visibles.map((c) => c.code).sort(), ["key:blue", "key:green"], "bleue et verte face visible");
+  assert.ok(visibles.every((c) => c.loc.zone === "aside"));
+  const cachees = cles.filter((c) => !c.faceUp);
+  assert.equal(cachees.filter((c) => c.loc.zone === "aside").length, 2, "deux clés cachées de côté");
+  const surChambre = cachees.find((c) => c.loc.zone === "board");
+  assert.ok(surChambre && Math.abs(surChambre.loc.x - (737 - 22 + 6)) < 1 && surChambre.loc.y > 173 && surChambre.loc.y < 173 + 178, "une clé cachée posée sur la chambre");
+  assert.ok(!s.log.some((e) => /clé (rouge|jaune|violette)[^,]*(posée|tirée)/.test(e.text)), "le journal ne dit pas quelle clé est sur la chambre");
+  assert.ok(s.log.some((e) => e.text.includes("sans être regardée")), "journal : clé cachée au hasard");
+  // Clé cachée : nom masqué, retournable, retournée d'elle-même quand un siège en prend le contrôle.
+  let d = await h.action({ t: "flipCard", id: surChambre.id });
+  assert.equal(d.t, "delta", "une clé de couleur se retourne");
+  assert.ok(h.state.cards[surChambre.id].faceUp);
+  d = await h.action({ t: "flipCard", id: surChambre.id });
+  assert.ok(!h.state.cards[surChambre.id].faceUp, "et se cache à nouveau");
+  const autreCachee = cachees.find((c) => c.loc.zone === "aside");
+  d = await h.action({ t: "moveCard", id: autreCachee.id, zone: "seat1", x: 0, y: 0 });
+  assert.ok(h.state.cards[autreCachee.id].faceUp && h.state.cards[autreCachee.id].loc.zone === "seat1", "clé contrôlée par un siège : retournée face visible");
+  assert.ok(h.state.log.some((e) => e.text.includes("prend le contrôle d'une clé")), "journal : contrôle");
+  d = await h.action({ t: "toPile", id: autreCachee.id, pile: "encounter" });
+  assert.equal(d.t, "nack", "une clé ne va pas dans une pile");
+  // Clé cachée au hasard en jeu : sur un tunnel du tapis ; refus quand il n'en reste plus.
+  const tunnel = tunnels[0];
+  d = await h.action({ t: "randomKey", id: tunnel.id });
+  assert.equal(d.t, "delta", "clé cachée au hasard posée sur un lieu");
+  const derniere = cles.filter((c) => !c.faceUp && c.loc.zone === "aside").map((c) => h.state.cards[c.id]);
+  assert.equal(derniere.filter((c) => c.loc.zone === "aside").length, 0, "plus de clé cachée de côté");
+  d = await h.action({ t: "randomKey", id: tunnel.id });
+  assert.equal(d.t, "nack", "refus : aucune clé cachée de côté");
+  // Inondation : niveau d'un lieu (0-2), marée nulle au départ, révélation sans inondation.
+  d = await h.action({ t: "setFlood", id: chambre.id, level: 1 });
+  assert.equal(h.state.cards[chambre.id].tokens.flood, 1, "chambre partiellement inondée");
+  d = await h.action({ t: "addToken", id: chambre.id, token: "flood", delta: 5 });
+  assert.equal(h.state.cards[chambre.id].tokens.flood, 2, "le niveau plafonne à 2");
+  d = await h.action({ t: "setFlood", id: chambre.id, level: 0 });
+  assert.equal(h.state.cards[chambre.id].tokens.flood, undefined, "asséchée : jeton retiré");
+  d = await h.action({ t: "revealLocation", id: tunnel.id });
+  const tunnelRevele = h.state.cards[tunnel.id];
+  assert.ok(tunnelRevele.faceUp && !tunnelRevele.tokens.flood, "révélé sans inondation tant que la marée est nulle");
+  // Marée : l'agenda 2 monte tous les lieux révélés d'un niveau et fixe la règle « +1 à la révélation ».
+  d = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07043", "agenda 2 courant");
+  assert.deepEqual(h.state.flood, { onReveal: 1 }, "règle : +1 à la révélation");
+  assert.equal(h.state.cards[chambre.id].tokens.flood, 1, "chambre montée d'un niveau");
+  assert.equal(h.state.cards[tunnel.id].tokens.flood, 1, "tunnel révélé monté d'un niveau");
+  assert.ok(h.state.cards[tunnels[1].id].tokens.flood === undefined, "un lieu non révélé n'est pas inondé");
+  assert.ok(h.state.log.some((e) => e.kind === "reminder" && e.text.startsWith("Marée (agenda 2)")), "rappel de marée");
+  d = await h.action({ t: "revealLocation", id: tunnels[1].id });
+  assert.equal(h.state.cards[tunnels[1].id].tokens.flood, 1, "révélé pendant la marée : partiellement inondé");
+  assert.ok(h.state.log.some((e) => e.text.includes("partiellement inondé (marée)")), "journal : marée à la révélation");
+  d = await h.action({ t: "advanceAgenda" });
+  assert.deepEqual(h.state.flood, { onReveal: 2 }, "agenda 3 : totalement à la révélation");
+  assert.ok([chambre, tunnel, tunnels[1]].every((c) => h.state.cards[c.id].tokens.flood === 2), "tous les lieux révélés totalement inondés");
+  d = await h.action({ t: "floodRule", onReveal: 0 });
+  assert.deepEqual(h.state.flood, { onReveal: 0 }, "règle modifiable à la main");
+  d = await h.action({ t: "floodAll", mode: "decrease" });
+  assert.ok([chambre, tunnel, tunnels[1]].every((c) => h.state.cards[c.id].tokens.flood === 1), "−1 partout");
+  d = await h.action({ t: "floodAll", mode: "clear" });
+  assert.ok([chambre, tunnel, tunnels[1]].every((c) => !h.state.cards[c.id].tokens.flood), "asséchés");
+  // Pile Tidal Tunnel formée avec les huit tunnels de côté, mélangée ; tunnels autour d'un lieu aux emplacements libres.
+  d = await h.action({ t: "placeAround", id: chambre.id, pile: "tidal" });
+  assert.equal(d.t, "nack", "pile vide : rien à poser");
+  d = await h.action({ t: "formPile", pile: "tidal" });
+  assert.equal(d.t, "delta");
+  assert.equal(h.state.piles.tidal.length, 8, "pile Tidal Tunnel : 8 lieux");
+  assert.ok(h.state.piles.tidal.every((id) => !h.state.cards[id].faceUp && h.state.cards[id].side === "a"));
+  assert.equal(Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "aside").length, 0, "plus de tunnel de côté");
+  d = await h.action({ t: "formPile", pile: "tidal" });
+  assert.equal(d.t, "nack", "plus rien à former");
+  d = await h.action({ t: "placeAround", id: chambre.id, pile: "tidal" });
+  assert.equal(d.t, "nack", "autour de la chambre : les trois emplacements sont occupés");
+  const bas = tunnels.find((c) => c.loc.y === 411);
+  d = await h.action({ t: "placeAround", id: bas.id, pile: "tidal" });
+  assert.equal(d.t, "delta", "autour du tunnel du bas : trois emplacements libres");
+  assert.equal(h.state.piles.tidal.length, 5, "trois cartes sorties de la pile");
+  const nouveaux = Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board" && !lieux.some((l) => l.id === c.id));
+  assert.deepEqual(nouveaux.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["551,411", "737,649", "923,411"], "en dessous, à gauche, à droite du tunnel du bas");
+  assert.ok(nouveaux.every((c) => !c.faceUp && c.side === "a"), "posés non révélés");
+  const gauche = tunnels.find((c) => c.loc.x === 551);
+  d = await h.action({ t: "placeAround", id: gauche.id, pile: "tidal" });
+  assert.equal(d.t, "delta", "autour du tunnel de gauche : en dessous déjà pris, gauche libre");
+  assert.equal(h.state.piles.tidal.length, 4, "une seule carte posée (à gauche)");
+  assert.ok(h.state.log.some((e) => e.text.includes("déjà occupé")), "journal : emplacement occupé");
+  // Profondeurs : l'ennemi de côté y va par toPile (menu / glisser), ses jetons retirés ; clic = ressortir.
+  const amalgam = cote.find((c) => c.code === "07053");
+  d = await h.action({ t: "moveCard", id: amalgam.id, zone: "board", x: 737, y: 220 });
+  d = await h.action({ t: "addToken", id: amalgam.id, token: "damage", delta: 2 });
+  d = await h.action({ t: "toPile", id: amalgam.id, pile: "depths" });
+  assert.deepEqual(h.state.piles.depths, [amalgam.id], "The Amalgam dans les profondeurs");
+  assert.deepEqual(h.state.cards[amalgam.id].tokens, {}, "jetons retirés");
+  d = await h.action({ t: "drawEncounter", pile: "depths" });
+  assert.ok(h.state.cards[amalgam.id].faceUp && h.state.piles.depths[0] === amalgam.id, "clic sur la pile : l'ennemi ressort face visible");
+  // Sac : bénédictions et malédictions plafonnées à 10, rendues à la réserve après tirage.
+  d = await h.action({ t: "chaosAdjust", token: "bless", delta: 12 });
+  assert.equal(h.state.chaos.bag.filter((t) => t === "bless").length, 10, "10 bénédictions au plus");
+  d = await h.action({ t: "chaosAdjust", token: "bless", delta: -10 });
+  d = await h.action({ t: "chaosAdjust", token: "curse", delta: 1 });
+  assert.equal(h.state.chaos.bag.length, 21);
+  // On tire jusqu'à sortir la malédiction (au plus 21 tirages), puis on remet tout : elle n'est plus dans le sac.
+  let tiree = false;
+  for (let k = 0; k < 21 && !tiree; k++) { await h.action({ t: "chaosDraw" }); tiree = h.state.chaos.drawn.includes("curse"); }
+  assert.ok(tiree, "malédiction tirée");
+  d = await h.action({ t: "chaosReturn" });
+  assert.equal(h.state.chaos.drawn.length, 0);
+  assert.equal(h.state.chaos.bag.length, 20, "le sac retrouve ses 20 jetons, sans la malédiction");
+  assert.ok(!h.state.chaos.bag.includes("curse"), "la malédiction est rendue à la réserve");
+  assert.ok(h.state.log.some((e) => e.text.includes("réserve")), "journal : réserve");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.cards[chambre.id], h.state.cards[chambre.id], "les autres clients suivent");
+  assert.deepEqual(j2.state.flood, h.state.flood);
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // Solo, difficulté expert : sac à 22 jetons ; un scénario sans inondation refuse les gestes de marée.
+  const { h } = await tablePit({ joueurs: 1, difficulty: "expert" });
+  assert.equal(h.state.chaos.bag.length, 22, "sac expert : 22 jetons");
+  assert.equal(h.state.cards[Object.values(h.state.cards).find((c) => c.code === "07047").id].tokens.clue, 1, "1 indice en solo");
+  assert.equal(h.state.piles.encounter.length, 25);
+  h.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "notz_the_gathering" }) });
+  const { code, hostToken } = await r.json();
+  const g = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await g.attendre((m) => m.t === "welcome");
+  await g.action({ t: "chooseInvestigator", code: "01001" });
+  g.envoyer({ t: "startSetup", answers: {} });
+  await g.attendre((m) => m.t === "delta" && m.rev === 2);
+  const lieu = Object.values(g.state.cards).find((c) => c.kind === "location" && c.loc.zone === "board");
+  let d = await g.action({ t: "setFlood", id: lieu.id, level: 1 });
+  assert.equal(d.t, "nack", "pas d'inondation hors TIC");
+  d = await g.action({ t: "floodRule", onReveal: 1 });
+  assert.equal(d.t, "nack");
+  d = await g.action({ t: "formPile", pile: "encounter" });
+  assert.equal(d.t, "nack", "formPile réservé aux piles déclarées gather");
+  g.envoyer({ t: "deleteRoom" });
+  await new Promise((r) => setTimeout(r, 300));
+}
+
 // ============ Board joueur, étape 1 (cahier §10) : import du deck au lobby, faiblesse aléatoire, code de siège et
 // connexions multiples, decks créés à la mise en place, actions p:* réservées au siège ============
 {

@@ -709,6 +709,80 @@ with sync_playwright() as p:
     h11.screenshot(path=f"{OUT}/47_throne_apercu_cosmos.png")
     h11.keyboard.press("Escape")
 
+    # ---- The Pit of Despair (TIC I) : clés de couleur (dont cachées), tunnels au hasard, jeton d'inondation, panneau Marée, pile Tidal Tunnel ----
+    code14, token14 = creer("tic_the_pit_of_despair")
+    print("room Pit of Despair", code14)
+    h14 = page_pour(browser, "Hôte", host=True, code=code14, token=token14)
+    h14.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h14.get_by_role("button", name="Choisir un enquêteur").click(); h14.wait_for_selector("dialog.dialogue-inv[open]")
+    h14.fill("dialog .recherche", "sister mary"); h14.wait_for_timeout(300); h14.locator("dialog .inv").first.click()
+    h14.wait_for_selector(".siege-lobby.moi .fiche")
+    j14 = page_pour(browser, "Bob", code=code14, token=None)
+    j14.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j14.get_by_role("button", name="Choisir un enquêteur").click(); j14.wait_for_selector("dialog.dialogue-inv[open]")
+    j14.fill("dialog .recherche", "silas"); j14.wait_for_timeout(300); j14.locator("dialog .inv").first.click()
+    j14.wait_for_selector(".siege-lobby.moi .fiche")
+    h14.wait_for_timeout(400)
+    assert h14.locator(".reglage.questions").count() == 0 or h14.locator(".reglage.questions input").count() == 0, "pas de question au lobby"
+    h14.screenshot(path=f"{OUT}/70_pit_lobby.png")
+    h14.get_by_role("button", name="Lancer la mise en place").click()
+    h14.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h14.wait_for_load_state("networkidle"); h14.wait_for_timeout(1500)
+    assert h14.locator("#plateau .carte.kind-location").count() == 4, "chambre + 3 tunnels"
+    assert h14.locator("#plateau .carte.kind-location img[alt='Tidal Tunnel']").count() == 3, "trois tunnels non révélés nommés Tidal Tunnel"
+    assert h14.locator("#plateau .mini.cle.cachee").count() == 1, "une clé cachée sur la chambre"
+    assert h14.locator("#aside .mini.cle").count() == 4, "quatre clés de côté"
+    assert h14.locator("#aside .mini.cle.cachee").count() == 2, "dont deux cachées"
+    assert h14.locator("#pioches .pile[data-outil='pile:tidal'] .badge").inner_text() == "0", "pile Tidal Tunnel vide"
+    assert h14.locator("#pioches .pile[data-outil='pile:tidal'] .dos-bouton.vide").inner_text().strip() == "former", "bouton former"
+    assert h14.locator("#chaos .sac-forme").inner_text().strip() == "20", "sac TIC standard : 20"
+    assert h14.locator("#histoire .bloc.maree").count() == 1, "panneau Marée"
+    h14.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h14.mouse.move(420, 520); h14.wait_for_timeout(300)   # la souris quitte le portrait du siège (sinon la loupe couvre le tapis)
+    h14.screenshot(path=f"{OUT}/71_pit_tapis.png")
+    # Menu de la chambre : inondation, tunnels autour (grisé : pile vide), clé cachée au hasard.
+    chambre = h14.locator("#plateau .carte.kind-location[title='Unfamiliar Chamber']")
+    chambre.dispatch_event("contextmenu"); h14.wait_for_selector(".menu-carte")
+    assert h14.locator(".menu-carte .inondation-ligne").count() == 1, "ligne Inondation"
+    assert h14.locator(".menu-carte").get_by_role("button", name="Tidal Tunnel autour de ce lieu (dessous, gauche, droite)").is_disabled(), "tunnels autour grisé : pile vide"
+    assert h14.locator(".menu-carte").get_by_role("button", name="Poser ici une clé cachée au hasard (2 de côté, sans la regarder)").count() == 1, "clé cachée au hasard"
+    h14.screenshot(path=f"{OUT}/72_pit_menu_lieu.png")
+    h14.locator(".menu-carte .inondation-ligne .pm.niveau").nth(1).click(); h14.wait_for_timeout(500)
+    h14.keyboard.press("Escape")
+    assert h14.locator("#plateau .carte.kind-location[title='Unfamiliar Chamber'] img.inondation[alt='partiellement inondé']").count() == 1, "jeton partiellement inondé"
+    # Agenda 2 : marée automatique (tous les lieux révélés +1, règle +1), panneau mis à jour.
+    h14.locator("#histoire").get_by_role("button", name="Avancer l'agenda").click(); h14.wait_for_timeout(800)
+    assert h14.locator("#plateau .carte.kind-location[title='Unfamiliar Chamber'] img.inondation[alt='totalement inondé']").count() == 1, "chambre montée d'un niveau par la marée"
+    assert h14.locator("#histoire .bloc.maree .regle-maree .bouton.actif").inner_text().strip() == "+1", "règle +1 active"
+    # Un tunnel révélé d'un clic pendant la marée : partiellement inondé.
+    h14.locator("#plateau .carte.kind-location img[alt='Tidal Tunnel']").first.click(); h14.wait_for_timeout(700)
+    assert h14.locator("#plateau .carte.kind-location img.inondation[alt='partiellement inondé']").count() == 1, "tunnel révélé inondé par la marée"
+    h14.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h14.mouse.move(420, 520); h14.wait_for_timeout(300)
+    h14.screenshot(path=f"{OUT}/73_pit_maree.png")
+    h14.locator("#histoire").evaluate("(e) => e.scrollTo(0, e.scrollHeight)"); h14.wait_for_timeout(200)
+    h14.locator("#histoire .bloc.maree").screenshot(path=f"{OUT}/76_pit_panneau_maree.png")
+    h14.locator("#histoire").evaluate("(e) => e.scrollTo(0, 0)")
+    # Pile Tidal Tunnel formée (bouton « former »), puis tunnels autour du tunnel du bas.
+    h14.locator("#pioches .pile[data-outil='pile:tidal'] .dos-bouton.vide").click(); h14.wait_for_timeout(600)
+    assert h14.locator("#pioches .pile[data-outil='pile:tidal'] .badge").inner_text() == "8", "pile formée : 8"
+    assert h14.locator("#aside .carte.kind-location").count() == 0, "plus de tunnel de côté"
+    bas = h14.locator("#plateau .carte.kind-location").filter(has=h14.locator("img[alt='Tidal Tunnel']")).first
+    bas.dispatch_event("contextmenu"); h14.wait_for_selector(".menu-carte")
+    h14.locator(".menu-carte").get_by_role("button", name="Tidal Tunnel autour de ce lieu (dessous, gauche, droite)").click(); h14.wait_for_timeout(800)
+    assert h14.locator("#plateau .carte.kind-location").count() >= 6, "des tunnels posés autour"
+    h14.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h14.mouse.move(420, 520); h14.wait_for_timeout(300)
+    h14.screenshot(path=f"{OUT}/74_pit_tunnels_autour.png")
+    # Clé cachée glissée sur un siège : retournée face visible chez tous les clients.
+    cle = h14.locator("#aside .mini.cle.cachee").first
+    cle.dispatch_event("contextmenu"); h14.wait_for_selector(".menu-carte")
+    h14.locator(".menu-carte .item").filter(has_text="Contrôlée par").first.click(); h14.wait_for_timeout(700)
+    assert h14.locator("#sieges .mini.cle:not(.cachee)").count() >= 1, "clé contrôlée, face visible"
+    j14.wait_for_timeout(300)
+    assert j14.locator("#sieges .mini.cle:not(.cachee)").count() >= 1, "vue par Bob aussi"
+    h14.locator("#sieges .siege").nth(0).screenshot(path=f"{OUT}/75_pit_cle_siege.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)
