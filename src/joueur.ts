@@ -17,7 +17,7 @@ type Resultat = { reminders?: LogEntry[]; peek?: { cards: { id: string; code: st
 export type FicheJoueur = {
   c: string; n: string; s?: string; t: string; st?: string; f: string; f2?: string;
   k?: number | null; x?: number; sl?: string; p?: 1; h?: number; m?: number;
-  u?: { n: number; type: string }; b?: string; bc?: number; q: number; un?: 1; d?: 1; pk: string; tr?: string;
+  u?: { n: number; type: string }; b?: string; bc?: number; q: number; un?: 1; d?: 1; lk?: string; ln?: string; pk: string; tr?: string;
 };
 export type IndexJoueur = Map<string, FicheJoueur>;
 
@@ -179,9 +179,11 @@ export function resoudreFaiblesse(deck: SeatDeck, index: IndexJoueur, choix: str
 /** Définition (state.extraDefs) d'une carte joueur : ce que le client et les actions lisent, sans texte. */
 export function defJoueur(f: FicheJoueur): Record<string, unknown> {
   const def: Record<string, unknown> = {
-    code: f.c, name: f.n, kind: KIND_JOUEUR[f.t] ?? "asset", qty: f.q, set: "player", back: f.d ? "b" : "player", storyBack: false,
+    code: f.c, name: f.n, kind: KIND_JOUEUR[f.t] ?? "asset", qty: f.q, set: "player", back: f.d || f.lk ? "b" : "player", storyBack: false,
     player: true, type: f.t, faction: f.f,
   };
+  // Verso qui est une autre carte (Sophie ↔ In Loving Memory, Dream-Gate…) : « Autre face » bascule les deux côtés.
+  if (f.lk) { def.backCode = f.lk; if (f.ln) def.backName = f.ln; def.backKind = KIND_JOUEUR[f.t] ?? "asset"; }
   if (f.s) def.subname = f.s;
   if (f.st) def.subtype = f.st;
   if (f.f2) def.faction2 = f.f2;
@@ -198,9 +200,9 @@ export function defJoueur(f: FicheJoueur): Record<string, unknown> {
 }
 
 export const PILES_JOUEUR = (n: number) => ({ deck: `pdeck${n}`, hand: `phand${n}`, discard: `pdiscard${n}`, weak: `pweak${n}` });
-export const ZONES_JOUEUR = (n: number) => ({ play: `pplay${n}` as ZoneId, limbo: `plimbo${n}` as ZoneId, aside: `paside${n}` as ZoneId });
+export const ZONES_JOUEUR = (n: number) => ({ play: `pplay${n}` as ZoneId, commit: `pcommit${n}` as ZoneId, aside: `paside${n}` as ZoneId });
 /** Piles et zones d'un board joueur : le chiffre final est le siège. */
-export const PILE_JOUEUR_RE = /^p(?:deck|hand|discard|weak|play|limbo|aside)([0-3])$/;
+export const PILE_JOUEUR_RE = /^p(?:deck|hand|discard|weak|play|commit|aside)([0-3])$/;
 
 function nomSiege(seat: Seat, invName?: string): string {
   return seat.name ?? seat.custom?.name ?? invName ?? `Siège ${seat.index + 1}`;
@@ -516,34 +518,33 @@ export function jouerJoueur(state: RoomState, msg: ActionJoueur, n: number, inde
         else if (typeof imprime === "number" && imprime > 0) { cout = imprime; detail = `${cout} ressource${cout > 1 ? "s" : ""}`; }
         else detail = "coût 0";
       }
-      seat.counters.resources = (seat.counters.resources ?? 0) - cout;
-      const type = String(def.type ?? c.kind);
-      if (type === "asset") mettreEnJeu(state, c, n);
-      else {
-        retirerDesPiles(state, c.id);
-        c.loc = { zone: zones.limbo, x: boutDeZone(state, zones.limbo), y: 0, z: nextZ(state) };
-        c.faceUp = true; c.exhausted = false; c.side = "a"; c.tokens = {}; delete c.revealed;
-      }
-      addLog(state, "action", `${nom} joue ${nomJoueur(state, c)} (${detail})${type === "asset" ? "" : " — en cours"}.`, n);
+      // Les ressources ne passent jamais en négatif (retour de test du 2026-09-08) : refus explicite, le joueur
+      // peut encore « Mettre en jeu sans payer » si un effet le permet.
+      const dispo = seat.counters.resources ?? 0;
+      if (cout > dispo) refuser(`pas assez de ressources pour jouer ${nomJoueur(state, c)} : ${cout} nécessaire${cout > 1 ? "s" : ""}, ${dispo} disponible${dispo > 1 ? "s" : ""}`);
+      seat.counters.resources = dispo - cout;
+      // Tout ce qui est joué va dans la zone Play (soutiens avec leurs Uses ; événements, à défausser une fois résolus).
+      mettreEnJeu(state, c, n);
+      addLog(state, "action", `${nom} joue ${nomJoueur(state, c)} (${detail}).`, n);
       return {};
     }
     case "p:commit": {
-      // Engager une carte de la main (test de compétence) : « en cours », sans coût.
+      // Engager une carte de la main au test de compétence : zone Commit, sans coût.
       const c = carteDuSiege(state, msg.id, n);
       if (!("pile" in c.loc) || c.loc.pile !== piles.hand) refuser("engagez une carte de votre main");
       retirerDesPiles(state, c.id);
-      c.loc = { zone: zones.limbo, x: boutDeZone(state, zones.limbo), y: 0, z: nextZ(state) };
+      c.loc = { zone: zones.commit, x: boutDeZone(state, zones.commit), y: 0, z: nextZ(state) };
       c.faceUp = true; c.exhausted = false; c.side = "a"; c.tokens = {}; delete c.revealed;
       addLog(state, "action", `${nom} engage ${nomJoueur(state, c)} au test.`, n);
       return {};
     }
     case "p:resolve": {
-      // Tout ce qui est « en cours » va à la défausse (limbes → défausse, Grimoire p. 15).
-      const enCours = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === zones.limbo).sort((a, b) => ("zone" in a.loc ? a.loc.z : 0) - ("zone" in b.loc ? b.loc.z : 0));
-      if (!enCours.length) refuser("rien en cours");
+      // Test résolu : tout ce qui est engagé (Commit) va à la défausse (limbes → défausse, Grimoire p. 15).
+      const engagees = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === zones.commit).sort((a, b) => ("zone" in a.loc ? a.loc.z : 0) - ("zone" in b.loc ? b.loc.z : 0));
+      if (!engagees.length) refuser("aucune carte engagée");
       const noms: string[] = [];
-      for (const c of enCours) { noms.push(nomJoueur(state, c)); if (c.player && c.ownerSeat === n) versPile(state, c, piles.discard); else versPile(state, c, "encounterDiscard"); }
-      addLog(state, "action", `${nom} résout : ${noms.join(", ")} → défausse.`, n);
+      for (const c of engagees) { noms.push(nomJoueur(state, c)); if (c.player && c.ownerSeat === n) versPile(state, c, piles.discard); else versPile(state, c, "encounterDiscard"); }
+      addLog(state, "action", `${nom} — test résolu : ${noms.join(", ")} → défausse.`, n);
       return {};
     }
     case "p:toLocation": {

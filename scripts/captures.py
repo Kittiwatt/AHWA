@@ -895,10 +895,11 @@ with sync_playwright() as p:
     a13.locator("dialog[open] .carte-peek").first.get_by_role("button", name="En main").click(); a13.wait_for_timeout(400)
     a13.keyboard.press("Escape"); a13.wait_for_timeout(300)
     assert a13.locator("#main .eventail .carte").count() == 6
-    # Glisser un soutien de la main en jeu = le jouer (un événement irait « en cours ») ; piocher jusqu'à en avoir un.
+    # Glisser un soutien de la main dans Play = le jouer (coût déduit) ; piocher jusqu'à en avoir un ; il faut assez de ressources.
     for _ in range(12):
         if a13.locator("#main .eventail .carte.kind-asset").count(): break
         a13.locator(".pioche-joueur .dos-bouton").click(); a13.wait_for_timeout(300)
+    for _ in range(5): a13.locator("#entete .compteur").first.locator(".pm").nth(1).click(); a13.wait_for_timeout(120)
     src = a13.locator("#main .eventail .carte.kind-asset").first.bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(zone["x"] + 300, zone["y"] + 60, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
@@ -915,7 +916,7 @@ with sync_playwright() as p:
     a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     a13.screenshot(path=f"{OUT}/65_board_apres_entretien.png")
 
-    # ---- Board joueur, étape 3 : jouer par glisser (coût déduit, badge de slot), engager au test, « Résolu »,
+    # ---- Board joueur, étape 3 : jouer par glisser (coût déduit), engager au test (Commit), « Test résolu »,
     #      « Poser sur mon lieu » et retour depuis le tapis ----
     a13.on("dialog", lambda d: d.accept("1") if d.type == "prompt" else d.accept())
     for _ in range(12):
@@ -924,6 +925,7 @@ with sync_playwright() as p:
     soutien = a13.locator("#main .eventail .carte.kind-asset").first
     titre_soutien = soutien.get_attribute("title")
     nb_jeu = a13.locator(".zone-jeu .carte").count()
+    for _ in range(5): a13.locator("#entete .compteur").first.locator(".pm").nth(1).click(); a13.wait_for_timeout(120)
     src = soutien.bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(zone["x"] + 420, zone["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
@@ -932,12 +934,15 @@ with sync_playwright() as p:
     src = a13.locator("#main .eventail .carte").first.bounding_box(); cours = a13.locator(".bloc-cours .bande").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(cours["x"] + 60, cours["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
-    assert a13.locator(".bloc-cours .carte").count() == 1, "carte engagée au test (en cours)"
+    assert a13.locator(".bloc-cours .carte").count() == 1, "carte engagée au test (Commit)"
     a13.mouse.move(8, 8); a13.wait_for_timeout(200)
     a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     a13.screenshot(path=f"{OUT}/66_board_jouer_engager.png")
-    a13.get_by_role("button", name="Résolu").click(); a13.wait_for_timeout(500)
-    assert a13.locator(".bloc-cours .carte").count() == 0, "résolu : en cours → défausse"
+    a13.get_by_role("button", name="Test résolu").click(); a13.wait_for_timeout(500)
+    assert a13.locator(".bloc-cours .carte").count() == 0, "test résolu : Commit → défausse"
+    assert h13.locator("#sieges .siege").nth(0).locator(".bande-board").count() == 2, "bandes Play / Commit du siège sur le tapis"
+    assert h13.locator("#sieges .siege").nth(0).locator(".bande-board").nth(0).locator(".carte").count() >= 1, "la carte jouée est visible sur le tapis (Play)"
+    assert h13.locator("#sieges .lien-board").first.get_attribute("target").startswith("ahwa-board-"), "un seul onglet par board"
     a13.locator(f".zone-jeu .carte[title='{titre_soutien}']").dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
     a13.locator(".menu-carte").get_by_role("button", name="Poser sur mon lieu (tapis)").click(); a13.wait_for_timeout(600)
     assert a13.locator(".zone-jeu .carte").count() == nb_jeu, "la carte a quitté le board"

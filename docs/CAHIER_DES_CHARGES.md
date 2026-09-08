@@ -522,14 +522,14 @@ permanents p. 18, limbes p. 15, slots p. 21.
 | B3 | Faiblesse aléatoire | Celle du deck si elle y figure ; pour un placeholder 01000 : tirage au hasard ou choix dans une liste |
 | C1 | Au « Lancer » | Rien ne part tout seul côté joueur : bouton **« Mise en place »** sur la page joueur, puis attente du mulligan ; tout reste manualisable |
 | C2 | Mulligan | Sélection des cartes à rendre, bouton « Mulligan » : remplacement puis remélange, **une seule fois** (grisé ensuite) |
-| C3 | Zones | pioche (= « réserve »), main, en jeu, en cours (limbes), défausse, **hors jeu = mises de côté** (cartes liées…), zone de menace |
-| D1 | Auto-pay | Dépôt main → en jeu = jouer : coût déduit (X demandé), **jamais bloqué** (négatif surligné) ; menu « Mettre en jeu sans payer » |
-| D2 | Événements et skills | Zone **« en cours »** (limbes) visible de tous ; bouton « Résolu » → défausse ; menu « Garder en jeu » (attaches) |
-| D3 | Assets en jeu | Rangement libre + **badge de slot** sur la carte et **compteur d'occupation** dans la barre ; jetons Uses et jauges des alliés posés automatiquement |
+| C3 | Zones | pioche (= « réserve »), main, **Play**, **Commit**, défausse, **hors jeu = mises de côté** (cartes liées…), zone de menace *(nomenclature révisée le 2026-09-08 : « en jeu » → Play, « en cours » → Commit)* |
+| D1 | Auto-pay | Dépôt main → Play = jouer : coût déduit (X demandé) ; **refusé faute de ressources** (alerte ; les ressources ne passent jamais en négatif — *révisé le 2026-09-08*) ; menu « Mettre en jeu sans payer » |
+| D2 | Événements et skills | **Play** reçoit tout ce qui est joué et payé (soutiens, événements — à défausser une fois résolus) ; **Commit** reçoit les cartes engagées au test, bouton « Test résolu » → défausse *(révisé le 2026-09-08)* |
+| D3 | Assets en jeu | Rangement libre ; **icônes de slot et compteur d'occupation dans la barre** (les badges sur les cartes ont été retirés le 2026-09-08) ; jetons Uses et jauges des alliés posés automatiquement |
 | E1 | Entretien | **Automatique** au passage en entretien sur la table : pioche 1, +1 ressource, redressement ; rappel si main > 8 |
 | E2 | Pioche vide | Remélange automatique de la défausse ; l'horreur est **rappelée**, le joueur l'ajoute |
 | E3 | Boutons | Piocher 1 / N, mélanger, sur / sous la pioche, chercher, regarder les n premières, défausser au hasard, révéler une carte à tous, défausse consultable (reprendre, sur la pioche, mélanger dans la pioche) ; **clic sur la pioche = piocher en main** |
-| F1 | Sur le tapis | Bouton « Voir le board » sur le siège + compteur de ressources ; rien d'autre |
+| F1 | Sur le tapis | Bouton « Voir le board » sur le siège (un seul onglet par board) + compteur de ressources + **bandes Play et Commit** du siège (partagées, en lecture — *ajout du 2026-09-08*) |
 | F2 | Faiblesse piochée | Reste dans la main, le joueur fait tout (glisser vers la menace, la défausse…) |
 | F3 | La page joueur reprend | Sac du chaos, barre de phase / « Phase suivante » / tour / actions, « Poser sur mon lieu », zone de menace. Pas le journal |
 | G1 | Téléphone | Non : PC et tablette seulement |
@@ -643,9 +643,9 @@ type Seat = {
 
 `Seat.connections` (nombre de connexions du siège) est tenu à jour à
 chaque connexion et fermeture, hors `rev`, comme `occupied`.
-`resources` est un compteur de siège ordinaire (±, initial 0, seul
-compteur autorisé à passer en négatif), affiché aussi sur le siège du
-tapis. `deck.bonded`, `deck.weaknessAdded` (faiblesses tirées ou
+`resources` est un compteur de siège ordinaire (±, initial 0, jamais
+négatif comme les autres — révisé le 2026-09-08), affiché aussi sur le
+siège du tapis. `deck.bonded`, `deck.weaknessAdded` (faiblesses tirées ou
 choisies) et `deck.unknown` (codes ignorés) complètent le modèle livré.
 
 Cartes : les cartes du deck sont des `CardState` ordinaires (`ownerSeat`
@@ -666,8 +666,8 @@ Piles et zones par siège `n` :
 | `phand<n>` | pile ordonnée (ordre de pioche) | la main |
 | `pdiscard<n>` | pile, face visible | la défausse, consultable |
 | `pweak<n>` | pile, face cachée | faiblesses mises de côté pendant la mise en place (remélangées après le mulligan) |
-| `pplay<n>` | zone, coordonnées libres | en jeu (assets, attaches gardées) |
-| `plimbo<n>` | zone, rangée | « en cours » : événements payés, skills engagés |
+| `pplay<n>` | zone, coordonnées libres | **Play** : cartes jouées et payées (soutiens avec leurs Uses, événements à défausser une fois résolus) |
+| `pcommit<n>` | zone, rangée | **Commit** : cartes engagées au test de compétence |
 | `paside<n>` | zone, rangée | hors jeu : cartes liées, mises de côté |
 | `seat<n>` | zone existante | enquêteur + zone de menace (partagée avec le tapis) |
 | `removed` | pile existante | exil / retiré de la partie, jamais affiché |
@@ -680,9 +680,10 @@ loupe). Disposition à trancher sur maquette (captures) ; proposition :
 
 - **Barre du haut** : portrait de l'enquêteur, compteurs ressources /
   indices / actions, vie et santé mentale avec dégâts et horreur (±),
-  taille de main, **occupation des slots** (mains n/2, arcanes n/2,
-  allié n/1, corps, accessoire, tarot — dépassement surligné, jamais
-  bloqué), phase courante + « Phase suivante », « Prendre mon tour » /
+  taille de main, **occupation des slots** (icônes Arkham Cards : mains
+  n/2, arcanes n/2, allié, corps, accessoire, tarot, tête — dépassement
+  surligné, jamais bloqué), loupe sur le portrait et bouton « verso »
+  (dos de la carte d'enquêteur), phase courante + « Phase suivante », « Prendre mon tour » /
   « Fin de mon tour », sac du chaos (tirer, tirer un autre, tout
   remettre, jetons tirés), code de siège, lien « Table ».
 - **Gauche** : pioche (dos, compte ; clic = piocher 1 en main ; menu :
@@ -690,11 +691,11 @@ loupe). Disposition à trancher sur maquette (captures) ; proposition :
   (dernière carte visible, compte ; menu : consulter → reprendre en
   main / sur la pioche / sous la pioche / mélanger dans la pioche),
   hors jeu (rangée de vignettes, glisser vers la main ou en jeu).
-- **Centre** : « en jeu » (zone libre, cartes 126 × 178, badge de slot,
-  chips Uses, jauges des alliés, épuisé = rotation) ; « en cours »
-  (rangée, bouton « Résolu ») ; **zone de menace** = le contenu de
-  `seat<n>` (ennemis engagés, traîtrises, assets histoire), cible de
-  dépôt.
+- **Centre** : **Play** (zone libre, chips Uses, jauges des alliés,
+  épuisé = rotation, « Autre face » pour les cartes à verso lié comme
+  Sophie, « Retourner » pour les autres) ; **Commit** (rangée, bouton
+  « Test résolu ») ; **zone de menace** = le contenu de `seat<n>`
+  (ennemis engagés, traîtrises, assets histoire), cible de dépôt.
 - **Bas** : la main en éventail dans l'ordre de pioche ; cases de
   sélection pendant le mulligan ; menu par carte : jouer (payer), mettre
   en jeu sans payer, engager au test, défausser, sur / sous la pioche,
@@ -719,9 +720,9 @@ loupe). Disposition à trancher sur maquette (captures) ; proposition :
 | `p:keep` | `pweak` remélangé dans `pdeck` ; `setup = "done"` |
 | `p:draw {n = 1}` | pioche n (≤ 10) en main ; pioche vide → `pdiscard` remélangée dans `pdeck` puis pioche, **rappel « prends 1 horreur »** (encart + journal) ; pioche et défausse vides → rappel « enquêteur vaincu » (rien de plus) |
 | `p:aside {id}` | → hors jeu (`paside`), en fin de rangée, face visible |
-| `p:play {id, cost?, free?}` | main → `pplay` (asset) ou `plimbo` (événement, skill) ; `resources −= coût imprimé`, ou `cost` fourni quand le coût est X (`-2`), ou 0 si `free` ; une carte **hors jeu** (liée) se met en jeu gratuitement ; jamais refusé, un total négatif est surligné ; à l'entrée en jeu `tokens.uses = def.uses.n`, jauges des alliés ; journal « X joue Y (2 ressources / X = 3 / sans payer) » |
-| `p:commit {id}` | carte de la main → `plimbo` sans coût (engagée au test) |
-| `p:resolve` | tout `plimbo` → `pdiscard` (une carte de rencontre égarée là → défausse de rencontre), face visible. « Garder en jeu » = menu « En jeu » (`moveCard` vers `pplay`) |
+| `p:play {id, cost?, free?}` | main → **Play** (`pplay`) ; `resources −= coût imprimé`, ou `cost` fourni quand le coût est X (`-2`), ou 0 si `free` ; une carte **hors jeu** (liée) se met en jeu gratuitement ; **refusé** (nack, alerte) si les ressources manquent ; à l'entrée en jeu `tokens.uses = def.uses.n`, jauges des alliés ; journal « X joue Y (2 ressources / X = 3 / sans payer) » |
+| `p:commit {id}` | carte de la main → **Commit** (`pcommit`) sans coût (engagée au test) |
+| `p:resolve` | test résolu : tout `pcommit` → `pdiscard` (une carte de rencontre égarée là → défausse de rencontre), face visible |
 | `p:discard {id}` / `p:randomDiscard {n = 1}` | → `pdiscard` ; le tirage au hasard nomme la carte au journal |
 | `p:toHand {id}` | défausse, pioche (après recherche), en jeu ou hors jeu → fin de main |
 | `p:reveal {id, v}` | bascule `revealed` sur une carte de la main |
@@ -736,7 +737,7 @@ menace), `toPile {top, shuffle}` (sur / sous / mélanger dans la pioche),
 `takeTurn` / `endTurn`. Un refus de siège renvoie `{ t: "nack", reason:
 "siege" }` — aussi pour un geste générique (`toPile`, `moveCard`,
 `shufflePile`) visant une pile ou une zone d'un autre board
-(`/^p(deck|hand|discard|weak|play|limbo|aside)[0-3]$/`) ; les gestes de
+(`/^p(deck|hand|discard|weak|play|commit|aside)[0-3]$/`) ; les gestes de
 rencontre (`drawEncounter`, `randomPick`, `searchEncounter`,
 `reshuffleDiscard`) ne s'appliquent jamais à une pile de board. Les
 journaux nomment les cartes joueur d'après `state.extraDefs`
@@ -755,8 +756,9 @@ sert à montrer une carte à tous sans la sortir de la main.
 ### 10.7 Ce qui change sur le tapis
 
 - Siège : compteur **ressources** (±) ; bouton **« Voir le board »**
-  (ouvre `/r/<code>/j/<n>` en lecture seule) ; code de siège ; indicateur
-  de connexions.
+  (ouvre `/r/<code>/j/<n>` dans une fenêtre nommée : un seul onglet par
+  board) ; code de siège ; indicateur de connexions ; **bandes Play et
+  Commit** du siège (cartes en petit, loupe et menu, main comptée).
 - `nextPhase` → entretien : automatisations joueur (§10.6).
 - Cartes joueur posées sur le tapis par « Poser sur mon lieu » : rendues
   comme les autres (dos joueur, menu « Reprendre sur mon board ») ; une
@@ -793,11 +795,21 @@ sert à montrer une carte à tous sans la sortir de la main.
    d'E3, main masquée chez les autres, `revealed`, hors jeu, entretien
    automatique, pioche vide. Tests (mulligan une seule fois, faiblesse
    en main de départ, deck vide) et captures 61‑65.
-3. **Jeu** — *livrée le 2026-09-08* : `p:play` (coût, X, sans payer,
-   négatif), limbes et « Résolu », Uses et jauges, badges de slot
-   (icônes d'Arkham Cards, `scripts/build_slot_icons.py`) et
-   occupation, exil, « Poser sur mon lieu » et retour, journal.
-   Régression sur les tables existantes ; captures 66‑68.
+3. **Jeu** — *livrée le 2026-09-08* : `p:play` (coût, X, sans payer),
+   Commit et « Test résolu », Uses et jauges, icônes de slot (Arkham
+   Cards, `scripts/build_slot_icons.py`) et occupation, exil, « Poser
+   sur mon lieu » et retour, journal. Régression sur les tables
+   existantes ; captures 66‑68.
+
+**Retours de test du 2026-09-08 (première série)** : tout plus grand
+(main, cartes, pioche, menace, sac, jauges, icônes) ; nomenclature
+Play / Commit ; zone « mon lieu » à gauche de la page joueur (le lieu du
+pion, dans l'état du tapis) ; loupe sur l'enquêteur et son verso ; barre
+d'enquêteur plus compacte (pire en lecture seule) ; cartes en jeu
+retournables (versos non basiques) ; « Voir le board » ne rouvre pas un
+second onglet ; badges de slot déplacés dans la barre ; ressources
+jamais négatives avec alerte. Traités en deux pushes : règles et
+nomenclature, puis mise en page.
 
 ### 10.10 Points ouverts et v2
 

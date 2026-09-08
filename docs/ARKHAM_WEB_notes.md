@@ -17,6 +17,29 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-08 (soir) : **retours de test, push 1 — règles et
+  nomenclature**. Zones renommées **Play** (`pplay<n>` : tout ce qui est
+  joué et payé, événements compris, à défausser une fois résolus) et
+  **Commit** (`pcommit<n>`, ex-`plimbo` : cartes engagées au test,
+  bouton « Test résolu ») ; migration `plimbo` → `pcommit` dans
+  `onStart`. **Ressources jamais négatives** : `p:play` refuse faute de
+  ressources (nack lisible → encart), `setSeatCounter` borne tout à 0
+  (décision D1 révisée). Cartes en jeu retournables : « Autre face »
+  (`toggleSide`) pour les versos liés (`linked_to_code` d'ArkhamDB : Sophie
+  ↔ 03009b, Dream-Gate 06015a ↔ 06015b, Disciplines, Ravenous, Flux
+  Stabilizer, The Great Work → `lk`/`ln` dans l'index, `backCode` /
+  `backName` dans la définition ; ArkhamDB ne renseigne pas
+  `double_sided` pour les cartes joueur), « Retourner » (`flipCard`, dos
+  joueur) pour les autres. Badges de slot **retirés des cartes**,
+  **icônes de slot dans la barre** à la place des noms. Loupe sur le
+  portrait de l'enquêteur (`[data-loupe-id]`) et bouton « verso »
+  (`ahwa:loupe-image`, loupe épinglée). « Voir le board » cible une
+  fenêtre nommée (`ahwa-board-<code>-<n>`) : un seul onglet par board.
+  Sur le tapis, **bandes Play / Commit** sous chaque siège avec deck
+  (cartes à 70 %, loupe, menu, main comptée) — décision F1 révisée par
+  l'utilisateur (« visibles et partagées avec la page scénario »). Tests
+  404 messages, captures relues. Reste le push 2 (mise en page : tout
+  plus grand, barre compacte, zone « mon lieu »).
 - 2026-09-08 : **board joueur, étape 3 livrée** (cahier §10.9) — jouer.
   Serveur (`src/joueur.ts`) : `p:play {id, cost?, free?}` (main → en
   jeu pour un soutien avec ses Uses, → « en cours » pour un événement ou
@@ -602,9 +625,10 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : retours de test de l'utilisateur sur le board
-  joueur (les trois étapes sont déployées), puis les points ouverts du
-  cahier §10.10 (customisations, decks annexes, attaches). Ensuite le prologue
+- **Prochaine étape** : push 2 des retours de test (tout plus grand,
+  barre d'enquêteur compacte, zone « mon lieu » à gauche de la page
+  joueur), puis la suite des retours et les points ouverts du cahier
+  §10.10 (customisations, decks annexes, attaches). Ensuite le prologue
   Disappearance at the Twilight Estate (pack `tcu`, set
   `disappearance_at_the_twilight_estate` : choix des enquêteurs neutres
   05046‑49, lieux 05071‑77 / Spectral 05078‑84 à réutiliser), puis le

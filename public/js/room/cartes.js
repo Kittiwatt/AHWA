@@ -154,17 +154,7 @@ export function majCarte(el, carte, ctx) {
   const nom = inv?.name ?? face.name ?? carte.code;
   img.alt = carte.faceUp || loupePermise(carte, def) ? nom : "carte face cachée";
   el.title = nom;
-  // Badge de slot (board joueur, cahier D3) : icônes Arkham Cards, sur les soutiens joueur face visible.
-  let badge = el.querySelector(".badge-slot");
-  const slots = def?.player && def.slot && carte.faceUp ? String(def.slot).split(".").map((t) => t.trim()).filter(Boolean) : [];
-  if (slots.length) {
-    if (!badge) { badge = document.createElement("span"); badge.className = "badge-slot"; el.append(badge); }
-    const cle = slots.map((sl) => sl.toLowerCase().replace(/ x2$/, "_x2")).join(",");
-    if (badge.dataset.slots !== cle) {
-      badge.dataset.slots = cle;
-      badge.replaceChildren(...cle.split(",").map((k) => { const i = document.createElement("img"); i.src = `/img/slots/${k}.svg`; i.alt = k; i.title = `Slot : ${k.replace("_x2", " ×2")}`; return i; }));
-    }
-  } else if (badge) badge.remove();
+
   el.dataset.loupe = loupePermise(carte, def) ? "1" : "";
   const jetons = el.querySelector(".jetons");
   const tokens = jauges.length ? { ...carte.tokens, ...Object.fromEntries(jauges.map((t) => [t, 0])) } : carte.tokens;

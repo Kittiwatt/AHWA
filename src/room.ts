@@ -59,6 +59,9 @@ export class Room extends Server<Env> {
     }
     if (this.state && !this.state.links) this.state.links = []; // tables créées avant le champ
     if (this.state && !this.state.extraDefs) this.state.extraDefs = {};
+    if (this.state) for (const c of Object.values(this.state.cards)) { // zone « en cours » renommée Commit (2026-09-08)
+      if ("zone" in c.loc && /^plimbo[0-3]$/.test(c.loc.zone)) c.loc.zone = c.loc.zone.replace("plimbo", "pcommit") as typeof c.loc.zone;
+    }
     if (this.state) for (const seat of this.state.seats) { // tables créées avant le board joueur
       if (seat.pin === undefined) seat.pin = null;
       if (seat.connections === undefined) seat.connections = 0;

@@ -280,14 +280,17 @@ async function demarrer() {
     const occ = occupationSlots(state, n);
     const main = (state.piles[`phand${n}`] ?? []).length;
     const deck = s.deck;
+    // Portrait : loupe au survol (recto), bouton « verso » pour lire le dos de la carte d'enquêteur.
     const portrait = inv?.custom ? (inv.image ? el("img", { class: "portrait", src: inv.image, alt: "" }) : el("div", { class: "portrait sans-image", text: inv.name }))
-      : el("img", { class: "portrait", src: `${CDN}${s.investigatorCode}.webp`, alt: "" });
+      : el("img", { class: "portrait", src: `${CDN}${s.investigatorCode}.webp`, alt: "", "data-loupe-id": `inv-${n}`, "data-loupe": "1", title: "Survoler : agrandir la carte" });
+    const verso = inv?.custom ? null : el("button", { class: "lien-outil verso", type: "button", title: "Lire le dos de la carte d'enquêteur",
+      onclick: () => document.dispatchEvent(new CustomEvent("ahwa:loupe-image", { detail: { src: `${CDN}${s.investigatorCode}b.webp`, paysage: true } })) }, "verso");
     const entete = document.getElementById("entete");
     entete.style.setProperty("--faction", faction.couleur);
     entete.classList.toggle("lecture", !peut);
     entete.replaceChildren(
       el("div", { class: "identite" },
-        portrait,
+        el("div", { class: "portrait-bloc" }, portrait, verso),
         el("div", { class: "fiche" },
           el("strong", { text: nomSiege(s, ctx) }),
           inv && s.name ? el("span", { class: "sous", text: inv.name }) : null,
@@ -313,9 +316,10 @@ async function demarrer() {
           ? el("button", { class: "bouton petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "endTurn", seat: n }) }, "Fin de mon tour")
           : el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "takeTurn", seat: n }) }, aJoue ? "Rejouer" : "Prendre mon tour"),
         aJoue && !enTour ? el("span", { class: "sous", text: "a joué" }) : null),
-      el("div", { class: "slots", title: "Occupation des slots d'après les cartes en jeu (dépassement surligné, jamais bloqué)" },
+      el("div", { class: "slots", title: "Occupation des slots d'après les cartes jouées (dépassement surligné, jamais bloqué)" },
         el("span", { class: "libelle", text: `Main ${main}` }),
-        ...SLOTS.map(([k, lib, max]) => el("span", { class: `slot${occ[k] > max ? " depasse" : ""}${occ[k] ? " occupe" : ""}`, text: `${lib} ${occ[k]}/${max}` }))),
+        ...SLOTS.map(([k, lib, max]) => el("span", { class: `slot${occ[k] > max ? " depasse" : ""}${occ[k] ? " occupe" : ""}`, title: `${lib} : ${occ[k]} / ${max}` },
+          el("img", { src: `/img/slots/${k}.svg`, alt: lib }), el("span", { text: `${occ[k]}/${max}` })))),
       blocMiseEnPlace(state, s, peut),
     );
     rendreChaos(ctx);
@@ -377,7 +381,7 @@ async function demarrer() {
   function rendreJeu(state, s, peut) {
     const n = s.index;
     const enJeu = Object.values(state.cards).filter((c) => c.loc.zone === `pplay${n}`).sort((a, b) => a.loc.z - b.loc.z);
-    const enCours = Object.values(state.cards).filter((c) => c.loc.zone === `plimbo${n}`).sort((a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z);
+    const engagees = Object.values(state.cards).filter((c) => c.loc.zone === `pcommit${n}`).sort((a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z);
     const menace = Object.values(state.cards).filter((c) => c.loc.zone === `seat${n}` && c.kind !== "investigator").sort((a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z);
     const sect = document.getElementById("jeu");
     const zone = el("div", { class: "zone-jeu", "data-drop": `pplay${n}` });
@@ -386,13 +390,13 @@ async function demarrer() {
       e.style.left = `${c.loc.x}px`; e.style.top = `${c.loc.y}px`; e.style.zIndex = String(c.loc.z);
       zone.append(e);
     }
-    if (!enJeu.length) zone.append(el("p", { class: "vide", text: "En jeu — glissez une carte de la main ici pour la jouer (coût déduit) ; clic droit : sans payer." }));
+    if (!enJeu.length) zone.append(el("p", { class: "vide", text: "Play — glissez une carte de la main ici pour la jouer (coût déduit) ; clic droit : sans payer." }));
     sect.replaceChildren(
-      el("section", { class: "bloc-jeu" }, el("h2", { text: "En jeu" }), zone),
+      el("section", { class: "bloc-jeu" }, el("h2", {}, "Play ", el("span", { class: "sous", text: "(cartes jouées et payées : soutiens, événements à défausser une fois résolus)" })), zone),
       el("section", { class: "bloc-cours" },
-        el("h2", {}, "En cours ", el("span", { class: "sous", text: "(événements joués, cartes engagées au test)" })),
-        el("div", { class: "bande", "data-drop": `plimbo${n}` }, ...(enCours.length ? enCours.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Rien en cours." })]),
-          enCours.length ? el("button", { class: "bouton petit", type: "button", disabled: !peut, title: "Tout ce qui est en cours va à la défausse (clic droit sur une carte : « En jeu » pour la garder)", onclick: () => ctx.envoyer({ t: "p:resolve" }) }, "Résolu") : null)),
+        el("h2", {}, "Commit ", el("span", { class: "sous", text: "(cartes engagées au test de compétence)" })),
+        el("div", { class: "bande", "data-drop": `pcommit${n}` }, ...(engagees.length ? engagees.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Glissez ici les cartes engagées au test." })]),
+          engagees.length ? el("button", { class: "bouton petit", type: "button", disabled: !peut, title: "Les cartes engagées vont à la défausse", onclick: () => ctx.envoyer({ t: "p:resolve" }) }, "Test résolu") : null)),
       el("section", { class: "bloc-menace" },
         el("h2", { text: "Zone de menace" }),
         el("div", { class: "menace", "data-drop": `seat${n}` }, ...(menace.length ? menace.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Ennemis engagés, traîtrises et soutiens histoire — les mêmes que sur le tapis." })]))),

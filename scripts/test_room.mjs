@@ -1516,27 +1516,34 @@ async function tableClutches({ joueurs, answers }) {
   if (evenement) {
     res = h.state.seats[0].counters.resources;
     d = await h.action({ t: "p:play", id: evenement.id, free: true });
-    assert.equal(h.state.cards[evenement.id].loc.zone, "plimbo0", "un événement joué va en cours");
+    assert.equal(h.state.cards[evenement.id].loc.zone, "pplay0", "un événement joué va dans Play (à défausser une fois résolu)");
     assert.equal(h.state.seats[0].counters.resources, res, "sans payer");
     assert.match(h.state.log.at(-1).text, /sans payer/);
+    d = await h.action({ t: "p:discard", id: evenement.id });
   }
   const skill = main().find((c) => defDe(h, c.id).type === "skill") ?? main()[0];
   d = await h.action({ t: "p:commit", id: skill.id });
-  assert.equal(h.state.cards[skill.id].loc.zone, "plimbo0", "carte engagée au test en cours");
+  assert.equal(h.state.cards[skill.id].loc.zone, "pcommit0", "carte engagée au test : zone Commit");
   assert.match(h.state.log.at(-1).text, /engage/);
-  const enCours = Object.values(h.state.cards).filter((c) => c.loc.zone === "plimbo0");
+  const engagees = Object.values(h.state.cards).filter((c) => c.loc.zone === "pcommit0");
   d = await h.action({ t: "p:resolve" });
   assert.equal(d.t, "delta");
-  assert.ok(enCours.every((c) => h.state.cards[c.id].loc.pile === "pdiscard0" && h.state.cards[c.id].faceUp), "résolu : tout en cours → défausse");
+  assert.ok(engagees.every((c) => h.state.cards[c.id].loc.pile === "pdiscard0" && h.state.cards[c.id].faceUp), "test résolu : Commit → défausse");
+  assert.match(h.state.log.at(-1).text, /test résolu/);
   d = await h.action({ t: "p:resolve" });
-  assert.equal(d.t, "nack", "rien en cours");
-  // Coût X : la valeur vient du joueur ; ressources négatives admises ; jouer depuis la main seulement.
+  assert.equal(d.t, "nack", "aucune carte engagée");
+  // Coût X : la valeur vient du joueur ; pas assez de ressources = refus explicite (jamais négatif) ; « sans payer » reste possible.
   d = await h.action({ t: "setSeatCounter", seat: 0, key: "resources", value: 1 });
   const autre = main().find((c) => typeof defDe(h, c.id).cost === "number" && defDe(h, c.id).cost > 1);
   if (autre) {
     d = await h.action({ t: "p:play", id: autre.id });
-    assert.equal(d.t, "delta", "jamais bloqué");
-    assert.ok(h.state.seats[0].counters.resources < 0, "ressources négatives après un jeu trop cher");
+    assert.equal(d.t, "nack", "refus faute de ressources");
+    assert.match(d.reason, /pas assez de ressources/);
+    assert.equal(h.state.seats[0].counters.resources, 1);
+    assert.equal(h.state.cards[autre.id].loc.pile, "phand0", "la carte reste en main");
+    d = await h.action({ t: "p:play", id: autre.id, free: true });
+    assert.equal(d.t, "delta", "mise en jeu sans payer");
+    assert.equal(h.state.cards[autre.id].loc.zone, "pplay0");
   }
   d = await h.action({ t: "p:play", id: h.state.piles.pdeck0[0] });
   assert.equal(d.t, "nack", "une carte de la pioche ne se joue pas");
@@ -1548,8 +1555,15 @@ async function tableClutches({ joueurs, answers }) {
   d = await h.action({ t: "p:play", id: liee.id });
   assert.equal(d.t, "delta");
   assert.equal(h.state.seats[0].counters.resources, res, "carte liée : gratuite");
-  assert.equal(h.state.cards[liee.id].loc.zone, "plimbo0", "Soothing Melody est un événement : en cours");
-  d = await h.action({ t: "p:resolve" });
+  assert.equal(h.state.cards[liee.id].loc.zone, "pplay0", "carte liée jouée : Play");
+  d = await h.action({ t: "p:discard", id: liee.id });
+  // Verso lié : Sophie bascule sur « In Loving Memory » (toggleSide), une autre carte se retourne (flipCard).
+  const sophieEnJeu = Object.values(h.state.cards).find((c) => c.code === "03009");
+  assert.equal(h.state.extraDefs["03009"].backCode, "03009b", "verso lié de Sophie");
+  d = await h.action({ t: "toggleSide", id: sophieEnJeu.id });
+  assert.equal(d.t, "delta"); assert.equal(h.state.cards[sophieEnJeu.id].side, "b");
+  d = await h.action({ t: "toggleSide", id: sophieEnJeu.id });
+  assert.equal(h.state.cards[sophieEnJeu.id].side, "a");
   // Poser sur mon lieu : le pion d'Alice est sur un lieu du tapis ; la carte se pose à côté.
   const mini = h.state.cards["mini-0"];
   assert.equal(mini.loc.zone, "board");
@@ -1578,7 +1592,7 @@ async function tableClutches({ joueurs, answers }) {
   assert.equal(h.state.piles.pdiscard0.length, nbDefausse0 + 1); assert.equal(h.state.cards[liees[0].id].ownerSeat, 0);
   assert.equal(h.state.cards[liees[0].id].faceUp, true, "défausse joueur : face visible");
   d = await h.action({ t: "setSeatCounter", seat: 0, key: "resources", value: -2 });
-  assert.equal(h.state.seats[0].counters.resources, -2, "ressources négatives admises (auto-pay jamais bloqué)");
+  assert.equal(h.state.seats[0].counters.resources, 0, "les ressources ne passent jamais en négatif");
   d = await h.action({ t: "setSeatCounter", seat: 0, key: "clues", delta: -2 });
   assert.equal(h.state.seats[0].counters.clues, 0);
   // Fermer la seconde connexion : le siège reste occupé ; réinitialisation : decks conservés, board remis à zéro.

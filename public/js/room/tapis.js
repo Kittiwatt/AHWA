@@ -450,7 +450,7 @@ function rendreSieges(ctx) {
           aJoue ? "Rejouer" : (moi.seat === s.index ? "Prendre mon tour" : "Prend son tour"));
     // Board joueur (cahier §10.7) : lien vers la page du siège (lecture seule pour les autres), code de siège pour
     // rejoindre le siège depuis un second appareil, nombre de connexions.
-    const lienBoard = el("a", { class: "bouton secondaire petit lien-board", href: `/r/${state.code}/j/${s.index}`, target: "_blank", rel: "noopener",
+    const lienBoard = el("a", { class: "bouton secondaire petit lien-board", href: `/r/${state.code}/j/${s.index}`, target: `ahwa-board-${state.code}-${s.index}`, rel: "noopener",
       title: s.deck ? "Ouvrir le board de ce siège (deck, main, cartes en jeu) dans un nouvel onglet" : "Ouvrir la page de ce siège dans un nouvel onglet (pas de deck importé)" }, "Voir le board");
     return el("article", { class: `siege${moi.seat === s.index ? " moi" : ""}${enTour ? " actif" : ""}${aJoue && !enTour ? " joue" : ""}`, "data-seat": s.index, style: { "--faction": faction.couleur } },
       el("header", {},
@@ -488,9 +488,25 @@ function rendreSieges(ctx) {
               el("button", { class: "pm", type: "button", disabled: !peut, title: "Action supplémentaire", onclick: () => compteur("actions", 1) }, "+"))),
         ),
         el("div", { class: "menace", "data-drop": `seat${s.index}` }, ...(menace.length ? menace.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Zone de menace — déposez ici les ennemis engagés et les traîtrises" })])),
+        // Board joueur partagé : ce que le siège a joué (Play) et engagé au test (Commit), en lecture (menu et loupe).
+        s.deck ? bandeBoard(state, s, ctx) : null,
       ),
     );
   }));
+}
+
+function bandeBoard(state, s, ctx) {
+  const n = s.index;
+  const tri = (a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z;
+  const play = Object.values(state.cards).filter((c) => c.loc.zone === `pplay${n}`).sort(tri);
+  const commit = Object.values(state.cards).filter((c) => c.loc.zone === `pcommit${n}`).sort(tri);
+  const main = (state.piles[`phand${n}`] ?? []).length;
+  return el("div", { class: "bandes-board" },
+    el("div", { class: "bande-board", title: "Cartes jouées par ce siège (son board, zone Play)" },
+      el("span", { class: "etiquette", text: `Play${play.length ? "" : " —"}` }), ...play.map((c) => carteEl(c, ctx))),
+    el("div", { class: "bande-board", title: "Cartes engagées au test par ce siège (zone Commit)" },
+      el("span", { class: "etiquette", text: `Commit${commit.length ? "" : " —"}` }), ...commit.map((c) => carteEl(c, ctx))),
+    el("span", { class: "sous", text: `Main : ${main}` }));
 }
 
 function ligneCompteur(libelle, valeur, icone, peut, moins, plus, unite) {
@@ -510,7 +526,7 @@ export function initLoupe(ctx) {
   const img = loupe.querySelector("img");
   let courant = null, fixe = false;
   const montrerCarte = (cible) => {
-    const enEtat = ctx.etat.state?.cards[cible.dataset.id];
+    const enEtat = ctx.etat.state?.cards[cible.dataset.loupeId ?? cible.dataset.id];
     if (!enEtat) return false;
     // L'élément fait foi pour la face montrée : une carte de la main (face cachée dans l'état) est rendue
     // face visible pour son joueur et pour une carte révélée (page joueur).
@@ -524,9 +540,17 @@ export function initLoupe(ctx) {
   };
   document.addEventListener("pointerover", (e) => {
     if (fixe || e.pointerType === "touch") return;
-    const cible = e.target.closest?.(".carte");
+    const cible = e.target.closest?.(".carte, [data-loupe-id]");
     if (!cible || cible.dataset.loupe !== "1" || cible.closest(".fantome, .bande.floue")) return;
     montrerCarte(cible);
+  });
+  // Image directe (verso de l'enquêteur…) : loupe épinglée jusqu'au prochain toucher.
+  document.addEventListener("ahwa:loupe-image", (e) => {
+    img.src = e.detail.src;
+    loupe.classList.toggle("paysage", Boolean(e.detail.paysage));
+    loupe.hidden = false;
+    fixe = true; courant = null;
+    setTimeout(() => document.addEventListener("pointerdown", () => { fixe = false; loupe.hidden = true; }, { once: true }), 50);
   });
   document.addEventListener("pointerout", (e) => {
     if (fixe) return;

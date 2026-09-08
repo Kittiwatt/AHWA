@@ -210,7 +210,8 @@ async function buildCardsIndex() {
  * ses cartes — coût, slot, permanent, jauges des alliés, « Uses (n type) », cartes liées, faiblesses — sans texte.
  * Clés courtes : c code, n nom, s sous-titre, t type, st sous-type (weakness / basicweakness), f faction,
  * f2 seconde faction, k coût (null = —, -2 = X), x xp, sl slot, p permanent, h vie, m santé mentale,
- * u {n, type} uses, b bonded_to (nom), bc bonded_count, q quantité, un unique, d double face, pk pack, tr traits.
+ * u {n, type} uses, b bonded_to (nom), bc bonded_count, q quantité, un unique, d double face, lk/ln carte liée au verso
+ * (code / nom), pk pack, tr traits.
  */
 async function buildPlayerCards() {
   const cartes = await json(`${ARKHAMDB}/cards/?encounter=0`, "player.json");
@@ -233,6 +234,8 @@ async function buildPlayerCards() {
       if (c.bonded_to) { o.b = c.bonded_to; o.bc = c.bonded_count ?? 1; }
       if (c.is_unique) o.un = 1;
       if (c.double_sided || c.backimagesrc) o.d = 1;
+      // Verso qui est une autre carte (ArkhamDB : linked_to_code) : Sophie ↔ 03009b, Dream-Gate 06015a ↔ 06015b…
+      if (c.linked_to_code) { o.lk = c.linked_to_code; if (c.linked_to_name) o.ln = c.linked_to_name; }
       if (c.real_traits) o.tr = c.real_traits;
       return o;
     })
