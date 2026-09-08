@@ -245,7 +245,7 @@
 .siege.actif { box-shadow: 0 0 0 2px var(--ok) inset; }
 .siege header { display: flex; align-items: baseline; gap: 0.5rem; }
 .siege header .sous { font-size: 0.85rem; }
-.siege-corps { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 0.8rem; align-items: start; }
+.siege-corps { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 0.8rem; align-items: start; }
 .siege .carte.kind-investigator { width: 156px; height: 110px; }
 .siege .carte.kind-investigator.epuisee { transform: none; }
 .compteurs { display: grid; gap: 0.25rem; margin: 0; font-size: 0.9rem; align-content: start; }
@@ -420,3 +420,12 @@ body.mode-lien #plateau .carte.kind-location { outline: 2px dashed var(--dorure-
 .generateur .recherche.large { width: 100%; max-width: none; font-size: 1.05rem; padding: 0.5rem 0.8rem; background: var(--nuit-2); color: var(--papier); border: 1px solid var(--filet); border-radius: 2px; font: inherit; }
 .generateur .carte-peek figcaption { flex-direction: column; align-items: stretch; gap: 0.2rem; }
 .generateur .carte-peek .meta { display: block; color: var(--papier-2); font-size: 0.78rem; }
+
+/* Plein écran (F11) : la barre du haut s'efface pour gagner de la place (retour de test du 2026-09-09).
+   Media query display-mode (Chrome, Firefox) doublée d'une classe posée par le script quand la fenêtre remplit l'écran. */
+@media (display-mode: fullscreen) {
+  .barre { display: none; }
+  .tapis, .lobby, .board-joueur, .attente-joueur { height: 100vh; }
+}
+html.plein-ecran .barre { display: none; }
+html.plein-ecran .tapis, html.plein-ecran .lobby, html.plein-ecran .board-joueur, html.plein-ecran .attente-joueur { height: 100vh; }

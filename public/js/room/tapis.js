@@ -3,7 +3,7 @@
 // les états (tour en cours, a joué, seuil atteint) sont des indications visuelles.
 
 import { el, pluriel } from "./dom.js";
-import { majCarte, majMini, majCle, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos, COULEURS_CHEMINS } from "./cartes.js";
+import { majCarte, majMini, majCle, urlImage, loupePermise, CARTE_L, CARTE_H, MINI, JETONS_CHAOS, FACTIONS, imgJetonChaos, COULEURS_CHEMINS, totauxCompetences, elTotauxCompetences } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { ouvrirDialogueCartes, ouvrirAjustementSac, ouvrirDepenseIndices, ouvrirGenerateur } from "./dialogues.js";
 
@@ -54,6 +54,7 @@ export function rendreTapis(ctx) {
   document.querySelector("#aside .bande").classList.toggle("floue", !asideActif);
   rendreBande(document.querySelector("#victory .bande"), "victory", ctx, "Aucune carte en zone de victoire.");
   rendreSieges(ctx);
+  rendreCommitVolant(ctx);
   rendreJournal(ctx);
   if (!vue.ajustee && state.phase !== "lobby") { ajusterVue(ctx); vue.ajustee = true; }
   // Un lieu qui entre en jeu hors du cadre (verso-lieu d'un acte posé par le serveur, lieu sorti d'une pile…)
@@ -488,25 +489,45 @@ function rendreSieges(ctx) {
               el("button", { class: "pm", type: "button", disabled: !peut, title: "Action supplémentaire", onclick: () => compteur("actions", 1) }, "+"))),
         ),
         el("div", { class: "menace", "data-drop": `seat${s.index}` }, ...(menace.length ? menace.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Zone de menace — déposez ici les ennemis engagés et les traîtrises" })])),
-        // Board joueur partagé : ce que le siège a joué (Play) et engagé au test (Commit), en lecture (menu et loupe).
-        s.deck ? bandeBoard(state, s, ctx) : null,
+        // Board joueur partagé : la case Play (l'événement joué) à côté de la menace ; Commit est volant (rendreCommitVolant).
+        s.deck ? casePlay(state, s, ctx) : null,
       ),
     );
   }));
 }
 
-function bandeBoard(state, s, ctx) {
+function casePlay(state, s, ctx) {
   const n = s.index;
-  const tri = (a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z;
-  const play = Object.values(state.cards).filter((c) => c.loc.zone === `pevent${n}`).sort(tri);
-  const commit = Object.values(state.cards).filter((c) => c.loc.zone === `pcommit${n}`).sort(tri);
+  const play = Object.values(state.cards).filter((c) => c.loc.zone === `pevent${n}`).sort((a, b) => a.loc.z - b.loc.z);
   const main = (state.piles[`phand${n}`] ?? []).length;
-  return el("div", { class: "bandes-board" },
-    el("div", { class: "bande-board", title: "Événement joué par ce siège (zone Play de son board)" },
-      el("span", { class: "etiquette", text: `Play${play.length ? "" : " —"}` }), ...play.map((c) => carteEl(c, ctx))),
-    el("div", { class: "bande-board", title: "Cartes engagées au test par ce siège (zone Commit)" },
-      el("span", { class: "etiquette", text: `Commit${commit.length ? "" : " —"}` }), ...commit.map((c) => carteEl(c, ctx))),
-    el("span", { class: "sous", text: `Main : ${main}` }));
+  return el("div", { class: "play-siege" },
+    el("div", { class: `case-play${play.length ? "" : " vide"}`, title: "Play : l'événement joué par ce siège (zone Play de son board)" },
+      ...(play.length ? play.map((c) => carteEl(c, ctx)) : [el("span", { class: "sous", text: "Play" })])),
+    el("span", { class: "sous", text: `Main ${main}` }));
+}
+
+/** Commit volant (retour de test du 2026-09-09) : au-dessus des pioches de rencontre dès qu'un siège a engagé des
+ *  cartes au test ; les icônes de compétence engagées sont totalisées sur son côté. */
+function rendreCommitVolant(ctx) {
+  const { state } = ctx.etat;
+  const zone = document.getElementById("commit-volant");
+  if (!zone) return;
+  const tri = (a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z;
+  const parSiege = state.seats.filter((s) => s.investigatorCode).map((s) => ({ s, cartes: Object.values(state.cards).filter((c) => c.loc.zone === `pcommit${s.index}`).sort(tri) })).filter((x) => x.cartes.length);
+  if (!parSiege.length) { zone.hidden = true; zone.replaceChildren(); return; }
+  zone.hidden = false;
+  const toutes = parSiege.flatMap((x) => x.cartes);
+  zone.replaceChildren(
+    el("h2", { text: "Commit — cartes engagées au test" }),
+    el("div", { class: "commit-corps" },
+      el("div", { class: "commit-groupes" }, ...parSiege.map(({ s, cartes }) => el("div", { class: "commit-groupe" },
+        el("span", { class: "etiquette", text: nomSiege(s, ctx) }),
+        el("div", { class: "commit-cartes" }, ...cartes.map((c) => carteEl(c, ctx)))))),
+      elTotauxCompetences(totauxCompetences(toutes, ctx.defs))),
+  );
+  // Posé juste au-dessus des outils de table (pioches, sac).
+  const outils = zone.parentElement?.querySelector(".table-outils");
+  if (outils) zone.style.bottom = `${outils.offsetHeight + 20}px`;
 }
 
 function ligneCompteur(libelle, valeur, icone, peut, moins, plus, unite) {

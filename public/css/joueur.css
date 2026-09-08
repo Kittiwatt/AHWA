@@ -133,12 +133,24 @@
 .slots .slot img { width: 1.35rem; height: 1.35rem; }
 .portrait-bloc { position: relative; }
 .portrait-bloc .verso { position: absolute; right: 2px; bottom: 2px; font-size: 0.7rem; padding: 0 0.3rem; background: rgba(15, 26, 34, 0.85); border-radius: 2px; }
-/* Bandes Play / Commit du siège sur le tapis */
-.bandes-board { grid-column: 1 / -1; display: grid; gap: 0.3rem; margin-top: 0.4rem; }
-.bande-board { display: flex; align-items: center; gap: 0.3rem; min-height: 2rem; padding: 0.2rem 0.4rem; border: 1px dashed var(--zone-filet); border-radius: 4px; background: var(--zone); overflow-x: auto; }
-.bande-board .etiquette { font-size: 0.8rem; color: var(--papier-2); min-width: 3.6rem; }
-.bande-board .carte { width: calc(var(--carte-l) * 0.7); height: calc(var(--carte-h) * 0.7); }
-.bande-board .carte.paysage { width: calc(var(--carte-h) * 0.7); height: calc(var(--carte-l) * 0.7); }
+/* Tapis : case Play (une carte) à côté de la zone de menace du siège ; Commit volant au-dessus des pioches */
+.play-siege { display: grid; gap: 0.2rem; justify-items: center; }
+.play-siege .case-play { width: calc(var(--carte-l) + 0.6rem); height: calc(var(--carte-h) + 0.6rem); padding: 0.3rem; display: grid; place-items: center; border: 1px dashed var(--dorure); border-radius: 4px; background: var(--zone); }
+.play-siege .case-play.vide { border-color: var(--zone-filet); }
+.commit-volant { position: absolute; left: 0.75rem; bottom: 10rem; z-index: 5; max-width: min(60vw, 52rem); padding: 0.45rem 0.6rem 0.5rem; background: rgba(30, 45, 51, 0.94); border: 1px solid var(--dorure); border-radius: 4px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
+.commit-volant h2 { font-size: 0.95rem; margin: 0 0 0.35rem; color: var(--dorure-2); }
+.commit-corps { display: flex; align-items: flex-start; gap: 0.8rem; }
+.commit-groupes { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.commit-groupe { display: grid; gap: 0.2rem; }
+.commit-groupe .etiquette { font-size: 0.8rem; color: var(--papier-2); }
+.commit-cartes { display: flex; gap: 0.35rem; }
+/* Totaux d'icônes de compétence (Commit, tapis et board) */
+.totaux-competences { display: grid; gap: 0.25rem; align-content: start; padding-left: 0.6rem; border-left: 1px solid var(--filet); }
+.total-competence { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 1.05rem; }
+.total-competence img { width: 1.9rem; height: 1.9rem; }
+.total-competence strong { min-width: 1.2rem; text-align: center; }
+.bloc-cours .bande .totaux-competences { margin-left: auto; align-self: stretch; }
+.bloc-cours .bande .bouton { margin-left: 0.6rem; }
 
 /* Jauges et jetons plus lisibles sur le board */
 .board-joueur .carte .chip { font-size: 0.9rem; gap: 3px; padding: 2px 6px 2px 2px; }

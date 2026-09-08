@@ -937,9 +937,11 @@ with sync_playwright() as p:
     a13.mouse.move(cours["x"] + 60, cours["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
     assert a13.locator(".bloc-cours .carte").count() == 1, "carte engagée au test (Commit)"
     h13.wait_for_timeout(400)
-    assert h13.locator("#sieges .siege").nth(0).locator(".bande-board").count() == 2, "bandes Play / Commit du siège sur le tapis"
-    assert h13.locator("#sieges .siege").nth(0).locator(".bande-board").nth(1).locator(".carte").count() == 1, "la carte engagée est visible sur le tapis (Commit)"
+    assert not h13.locator("#commit-volant").is_hidden(), "le Commit volant apparaît sur le tapis dès qu'une carte est engagée"
+    assert h13.locator("#commit-volant .carte").count() == 1, "la carte engagée est visible dans le Commit volant"
     assert h13.locator("#sieges .lien-board").first.get_attribute("target").startswith("ahwa-board-"), "un seul onglet par board"
+    h13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h13.screenshot(path=f"{OUT}/69_tapis_commit_volant.png")
     # Un événement de la main dans la case Play (une carte), puis « Résolu » → défausse.
     for _ in range(12):
         if a13.locator("#main .eventail .carte.kind-event").count(): break
@@ -950,6 +952,13 @@ with sync_playwright() as p:
     a13.mouse.move(case["x"] + 50, case["y"] + 60, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)
     assert a13.locator(".case-play .carte").count() == 1, "événement joué dans Play"
     assert a13.locator("#mon-lieu .lieu-carte .carte").count() == 1, "mon lieu, à droite"
+    h13.wait_for_timeout(400)
+    assert h13.locator("#sieges .play-siege .case-play .carte").count() == 1, "la case Play du siège, à côté de la menace, montre l'événement"
+    # Depuis la pioche : la première carte, face cachée, en jeu.
+    src = a13.locator(".pioche-joueur .dos-bouton").bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
+    a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
+    a13.mouse.move(zone["x"] + 600, zone["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
+    assert a13.locator(".zone-jeu .carte.retournee").count() == 1, "carte de la pioche posée face cachée en jeu"
     a13.mouse.move(8, 8); a13.wait_for_timeout(200)
     a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     a13.screenshot(path=f"{OUT}/66_board_jouer_engager.png")
@@ -957,9 +966,12 @@ with sync_playwright() as p:
     assert a13.locator(".case-play .carte").count() == 0, "événement résolu → défausse"
     a13.get_by_role("button", name="Test résolu").click(); a13.wait_for_timeout(500)
     assert a13.locator(".bloc-cours .carte").count() == 0, "test résolu : Commit → défausse"
+    h13.wait_for_timeout(400)
+    assert h13.locator("#commit-volant").is_hidden(), "le Commit volant disparaît une fois le test résolu"
+    nb_avant_pose = a13.locator(".zone-jeu .carte").count()
     a13.locator(f".zone-jeu .carte[title='{titre_soutien}']").dispatch_event("contextmenu"); a13.wait_for_selector(".menu-carte")
     a13.locator(".menu-carte").get_by_role("button", name="Poser sur mon lieu (tapis)").click(); a13.wait_for_timeout(600)
-    assert a13.locator(".zone-jeu .carte").count() == nb_jeu, "la carte a quitté le board"
+    assert a13.locator(".zone-jeu .carte").count() == nb_avant_pose - 1, "la carte a quitté le board"
     h13.wait_for_timeout(400)
     assert h13.locator(f"#plateau .carte[title='{titre_soutien}']").count() == 1, "la carte est sur le tapis"
     h13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
@@ -967,7 +979,7 @@ with sync_playwright() as p:
     h13.locator(f"#plateau .carte[title='{titre_soutien}']").dispatch_event("contextmenu"); h13.wait_for_selector(".menu-carte")
     h13.screenshot(path=f"{OUT}/68_tapis_menu_carte_joueur.png")
     h13.locator(".menu-carte").get_by_role("button", name="Reprendre sur le board de Alice").click(); h13.wait_for_timeout(600)
-    assert a13.locator(".zone-jeu .carte").count() == nb_jeu + 1, "retour sur le board depuis le tapis"
+    assert a13.locator(".zone-jeu .carte").count() == nb_avant_pose, "retour sur le board depuis le tapis"
     # Loupe sur une carte de la main (retour de test du 2026-09-08).
     a13.locator("#main .eventail .carte").first.hover(); a13.wait_for_timeout(300)
     assert not a13.locator("#loupe").is_hidden(), "la loupe s'ouvre sur une carte de la main"

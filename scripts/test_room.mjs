@@ -1558,6 +1558,22 @@ async function tableClutches({ joueurs, answers }) {
   }
   d = await h.action({ t: "p:play", id: h.state.piles.pdeck0[0] });
   assert.equal(d.t, "nack", "une carte de la pioche ne se joue pas");
+  // Poser la première carte de la pioche face cachée (en jeu, Commit…).
+  const premiere = h.state.piles.pdeck0[0];
+  d = await h.action({ t: "p:drawTo", zone: "pplay0", x: 40, y: 30 });
+  assert.equal(d.t, "delta", `p:drawTo (${d.reason ?? ""})`);
+  assert.equal(h.state.cards[premiere].loc.zone, "pplay0"); assert.equal(h.state.cards[premiere].faceUp, false, "posée face cachée");
+  assert.equal(h.state.cards[premiere].loc.x, 40);
+  assert.match(h.state.log.at(-1).text, /face cachée en jeu/);
+  d = await h.action({ t: "flipCard", id: premiere });
+  assert.equal(h.state.cards[premiere].faceUp, true, "retournée face visible");
+  d = await h.action({ t: "p:drawTo", zone: "pcommit0" });
+  assert.equal(h.state.cards[h.state.cards[premiere].id === premiere ? Object.values(h.state.cards).find((c) => c.loc.zone === "pcommit0" && !c.faceUp).id : premiere].faceUp, false);
+  d = await h.action({ t: "p:drawTo", zone: "board" });
+  assert.equal(d.t, "nack", "zone hors du board refusée");
+  d = await bob.action({ t: "p:drawTo", zone: "pplay0", seat: 0 });
+  assert.equal(d.reason, "siege");
+  assert.ok(h.state.extraDefs["01025"] === undefined || h.state.extraDefs["01025"].skills?.combat === 1, "icônes de compétence dans les définitions");
   d = await bob.action({ t: "p:play", id: h.state.piles.phand0[0] });
   assert.equal(d.t, "nack");
   // Cartes liées : mise en jeu gratuite depuis hors jeu.

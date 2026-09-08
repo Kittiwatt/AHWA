@@ -4,8 +4,8 @@
 // est en lecture seule, sa main masquée (dos + nombre, bouton « Regarder »).
 
 import { creerConnexion } from "./net.js";
-import { el, pluriel } from "./dom.js";
-import { CDN, FACTIONS, urlImage } from "./cartes.js";
+import { el, pluriel, surveillerPleinEcran } from "./dom.js";
+import { CDN, FACTIONS, urlImage, totauxCompetences, elTotauxCompetences } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { blocDeck } from "./deck.js";
 import { carteEl, encart, PHASES, rendreChaos, initLoupe } from "./tapis.js";
@@ -20,6 +20,7 @@ const SLOTS = [["hand", "Mains", 2], ["arcane", "Arcanes", 2], ["ally", "Allié"
 /** replaceChildren qui ignore les enfants nuls (un null y deviendrait le texte « null »). */
 function remplir(parent, ...enfants) { parent.replaceChildren(...enfants.flat().filter((e) => e !== null && e !== undefined && e !== false)); }
 
+surveillerPleinEcran();
 const parties = location.pathname.split("/").filter(Boolean);
 const code = parties[1]?.toUpperCase() ?? "";
 const siegeUrl = Number(parties[3]);
@@ -395,7 +396,7 @@ async function demarrer() {
     const cote = Object.values(state.cards).filter((c) => c.loc.zone === `paside${n}`).sort((a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z);
     const sect = document.getElementById("piles-joueur");
     remplir(sect, 
-      el("div", { class: "pile", "data-drop": `pile:pdeck${n}`, "data-outil": `pdeck${n}`, title: s.deck ? "Pioche (réserve) — clic : piocher en main ; clic droit : piocher plusieurs, chercher, regarder les premières, mélanger ; déposez ici pour mettre une carte dessus" : "Pas de deck" },
+      el("div", { class: "pile", "data-drop": `pile:pdeck${n}`, "data-outil": `pdeck${n}`, title: s.deck ? "Pioche (réserve) — clic : piocher en main ; glisser : poser la première carte face cachée ; clic droit : piocher plusieurs, chercher, regarder les premières, mélanger ; déposez ici pour mettre une carte dessus" : "Pas de deck" },
         el("div", { class: `dos-pile pioche-joueur${pioche.length ? "" : " vide"}` },
           pioche.length
             ? el("button", { class: "dos-bouton", type: "button", disabled: !peut, title: "Piocher 1 carte" }, el("img", { src: "/img/dos-joueur.svg", alt: "pioche" }))
@@ -437,6 +438,7 @@ async function demarrer() {
       el("section", { class: "bloc-cours" },
         el("h2", {}, "Commit ", el("span", { class: "sous", text: "(cartes engagées au test de compétence)" })),
         el("div", { class: "bande", "data-drop": `pcommit${n}` }, ...(engagees.length ? engagees.map((c) => carteEl(c, ctx)) : [el("p", { class: "vide", text: "Glissez ici les cartes engagées au test." })]),
+          elTotauxCompetences(totauxCompetences(engagees, ctx.defs)),
           engagees.length ? el("button", { class: "bouton petit", type: "button", disabled: !peut, title: "Les cartes engagées vont à la défausse", onclick: () => ctx.envoyer({ t: "p:resolve" }) }, "Test résolu") : null)),
       el("section", { class: "bloc-menace" },
         el("h2", { text: "Zone de menace" }),

@@ -222,3 +222,37 @@ export function majMini(el, carte, ctx) {
   el.title = inv ? `${inv.name} — siège ${carte.ownerSeat + 1}` : carte.code;
   return el;
 }
+
+
+// ---- Icônes de compétence des cartes engagées (Commit) ----------------------------------------
+
+export const COMPETENCES = [["willpower", "Volonté"], ["intellect", "Intellect"], ["combat", "Combat"], ["agility", "Agilité"], ["wild", "Joker"]];
+
+/** Somme des icônes de compétence d'un ensemble de cartes (définitions joueur : def.skills). */
+export function totauxCompetences(cartes, defs) {
+  const t = { willpower: 0, intellect: 0, combat: 0, agility: 0, wild: 0 };
+  for (const c of cartes) {
+    const sk = defs.get(c.code)?.skills;
+    if (!sk || !c.faceUp) continue;
+    for (const k of Object.keys(t)) t[k] += sk[k] ?? 0;
+  }
+  return t;
+}
+
+/** Colonne « icône + total » des compétences présentes (aucune → null). */
+export function elTotauxCompetences(totaux) {
+  const lignes = COMPETENCES.filter(([k]) => totaux[k] > 0);
+  if (!lignes.length) return null;
+  const col = document.createElement("div");
+  col.className = "totaux-competences";
+  col.title = "Icônes de compétence engagées au test";
+  for (const [k, lib] of lignes) {
+    const l = document.createElement("span");
+    l.className = `total-competence ${k}`;
+    const img = document.createElement("img"); img.src = `/img/skills/${k}.svg`; img.alt = lib; img.title = lib;
+    const n = document.createElement("strong"); n.textContent = String(totaux[k]);
+    l.append(img, n);
+    col.append(l);
+  }
+  return col;
+}

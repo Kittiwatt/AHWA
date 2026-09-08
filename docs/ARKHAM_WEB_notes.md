@@ -17,6 +17,27 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 : **deuxième salve de retours**. Tapis : la **case Play**
+  du siège passe à côté de la zone de menace (grille `.siege-corps` à
+  quatre colonnes, `casePlay`), les bandes sous le siège disparaissent ;
+  **Commit volant** (`#commit-volant`, dans `.plateau-zone`, posé au
+  dessus de `.table-outils` par `offsetHeight`) : visible dès qu'un
+  siège a des cartes dans `pcommit<n>`, groupées par siège, **total des
+  icônes de compétence** sur le côté. Données : `skill_*` d'ArkhamDB →
+  `sk {w,i,c,a,x}` dans l'index → `def.skills` ; icônes
+  `public/img/skills/*.svg` (glyphes `skill_*` d'arkhamicons,
+  `build_slot_icons.py`) ; helpers `totauxCompetences` /
+  `elTotauxCompetences` dans `cartes.js` (cartes face cachée non
+  comptées). Board : mêmes totaux sur le côté de Commit ; **glisser
+  depuis la pioche** = `p:drawTo {zone, x, y}` (première carte, face
+  cachée, en jeu / Play / Commit / hors jeu / menace ; menu « Poser la
+  première carte face cachée ») — piège : `preventDefault()` au
+  pointerdown sur le dos, sinon le glisser natif de l'image déclenche
+  `pointercancel`. **Plein écran** : `@media (display-mode:
+  fullscreen)` + classe `plein-ecran` posée par `surveillerPleinEcran()`
+  (matchMedia, pas d'heuristique de taille : elle se déclenchait à tort
+  en headless) → `.barre` cachée, hauteurs à 100vh. Tests 411 messages,
+  captures 69 ajoutée.
 - 2026-09-09 : retour de test — colonnes latérales de la page joueur
   (pioche / défausse / hors jeu à gauche, « Mon lieu » à droite) élargies
   à `carte + 3rem` avec `overflow-x: hidden` et `box-sizing:

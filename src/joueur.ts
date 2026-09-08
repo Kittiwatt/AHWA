@@ -18,6 +18,7 @@ export type FicheJoueur = {
   c: string; n: string; s?: string; t: string; st?: string; f: string; f2?: string;
   k?: number | null; x?: number; sl?: string; p?: 1; h?: number; m?: number;
   u?: { n: number; type: string }; b?: string; bc?: number; q: number; un?: 1; d?: 1; lk?: string; ln?: string; pk: string; tr?: string;
+  sk?: { w?: number; i?: number; c?: number; a?: number; x?: number };
 };
 export type IndexJoueur = Map<string, FicheJoueur>;
 
@@ -196,6 +197,7 @@ export function defJoueur(f: FicheJoueur): Record<string, unknown> {
   if (f.u) def.uses = f.u;
   if (f.un) def.unique = true;
   if (f.tr) def.traits = f.tr.split(".").map((t) => t.trim()).filter(Boolean);
+  if (f.sk) def.skills = { willpower: f.sk.w ?? 0, intellect: f.sk.i ?? 0, combat: f.sk.c ?? 0, agility: f.sk.a ?? 0, wild: f.sk.x ?? 0 };
   return def;
 }
 
@@ -485,6 +487,21 @@ export function jouerJoueur(state: RoomState, msg: ActionJoueur, n: number, inde
       const nb = Number(msg.n) > 0 ? Math.min(Number(msg.n), total) : total;
       if (pile === piles.deck) addLog(state, "action", Number(msg.n) > 0 ? `${nom} regarde les ${pl(nb, "première carte", "premières cartes")} de sa pioche.` : `${nom} cherche dans sa pioche.`, n);
       return { peek: { pile, cards: state.piles[pile].slice(0, nb).map((id) => ({ id, code: state.cards[id].code })) } };
+    }
+    case "p:drawTo": {
+      // Pose la première carte de la pioche face cachée dans une zone du board ({zone, x?, y?}) : en jeu, Play,
+      // Commit, hors jeu ou zone de menace (cartes placées face cachée par un effet).
+      const zone = String(msg.zone ?? zones.play);
+      if (![zones.play, zones.event, zones.commit, zones.aside, `seat${n}`].includes(zone as ZoneId)) refuser("zone inconnue");
+      const id = state.piles[piles.deck][0] ?? refuser("la pioche est vide");
+      const c = state.cards[id];
+      retirerDesPiles(state, id);
+      const x = zone === zones.play ? Math.max(0, Math.round(Number(msg.x) || 0)) : zone === zones.event ? 0 : boutDeZone(state, zone);
+      const y = zone === zones.play ? Math.max(0, Math.round(Number(msg.y) || 0)) : 0;
+      c.loc = { zone: zone as ZoneId, x, y, z: nextZ(state) };
+      c.faceUp = false; c.exhausted = false; c.side = "a"; c.tokens = {}; delete c.revealed;
+      addLog(state, "action", `${nom} pose la première carte de sa pioche face cachée${zone === zones.play ? " en jeu" : zone === zones.event ? " dans Play" : zone === zones.commit ? " dans Commit" : zone === zones.aside ? " hors jeu" : " dans sa zone de menace"}.`, n);
+      return {};
     }
     case "p:exile": {
       const c = carteDuSiege(state, msg.id, n);

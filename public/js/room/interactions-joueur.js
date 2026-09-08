@@ -22,6 +22,14 @@ export function initInteractionsJoueur(ctx) {
   // ---- Glisser-déposer ----
   document.addEventListener("pointerdown", (e) => {
     if (menu?.contains(e.target)) return;
+    // Depuis la pioche : glisser la première carte, face cachée, vers une zone du board (p:drawTo).
+    const dos = e.target.closest(".pioche-joueur .dos-bouton");
+    if (dos && e.button === 0 && ctx.peutAgir() && !dos.disabled) {
+      e.preventDefault();   // sinon le navigateur entame le glisser natif de l'image du dos (pointercancel)
+      const r = dos.getBoundingClientRect();
+      drag = { elem: dos, id: null, pioche: true, x0: e.clientX, y0: e.clientY, dx: e.clientX - r.left, dy: e.clientY - r.top, w: r.width, h: r.height, fantome: null };
+      return;
+    }
     const elem = e.target.closest(".carte");
     if (!elem || e.button !== 0 || elem.closest("dialog, .loupe") || e.target.closest("button, .chips")) return;
     if (!ctx.peutAgir() || !carteDe(elem)) return;
@@ -37,6 +45,7 @@ export function initInteractionsJoueur(ctx) {
       if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 6) return;
       clearTimeout(pressionLongue);
       const f = drag.elem.cloneNode(true);
+      if (drag.pioche) { f.classList.add("carte", "retournee"); f.removeAttribute("disabled"); }
       f.classList.add("fantome");
       f.style.width = `${drag.w}px`; f.style.height = `${drag.h}px`;
       document.body.append(f);
@@ -60,8 +69,19 @@ export function initInteractionsJoueur(ctx) {
     dernierLacher = Date.now();
     if (e.type === "pointercancel") return;
     const cible = cibleSous(e.clientX, e.clientY);
-    if (cible) deposer(d, cible, e);
+    if (cible && d.pioche) deposerDepuisPioche(d, cible, e);
+    else if (cible) deposer(d, cible, e);
   };
+
+  /** La première carte de la pioche, face cachée, dans une zone du board (en jeu à la position lâchée). */
+  function deposerDepuisPioche(d, cible, e) {
+    const drop = cible.dataset.drop;
+    const z = zones();
+    if (![z.play, z.event, z.commit, z.aside, z.seat].includes(drop)) return;
+    const r = cible.getBoundingClientRect();
+    const x = Math.max(0, Math.round(e.clientX - d.dx - r.left + cible.scrollLeft)), y = Math.max(0, Math.round(e.clientY - d.dy - r.top + cible.scrollTop));
+    ctx.envoyer({ t: "p:drawTo", zone: drop, x, y });
+  }
   document.addEventListener("pointerup", finDrag);
   document.addEventListener("pointercancel", finDrag);
 
@@ -187,6 +207,7 @@ export function initInteractionsJoueur(ctx) {
       for (const k of [1, 2, 3]) items.push(item(`Piocher ${k}`, () => ctx.envoyer({ t: "p:draw", n: k }), { off: !nb && !(state.piles[p.discard]?.length) }));
       items.push(item("Chercher (puis mélanger)", () => { ctx.derniereRecherche = { pile: p.deck, complete: true }; ctx.envoyer({ t: "p:search", pile: p.deck }); }, { off: !nb }));
       for (const k of [1, 2, 3, 5]) if (nb >= k) items.push(item(`Regarder les ${k} première${k > 1 ? "s" : ""}`, () => { ctx.derniereRecherche = { pile: p.deck, complete: false }; ctx.envoyer({ t: "p:search", pile: p.deck, n: k }); }));
+      items.push(item("Poser la première carte face cachée (en jeu)", () => ctx.envoyer({ t: "p:drawTo", zone: zones().play, x: 9999, y: 0 }), { off: !nb }));
       items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: p.deck }), { off: !nb }));
     } else if (outil === p.discard) {
       const ids = state.piles[p.discard] ?? [];

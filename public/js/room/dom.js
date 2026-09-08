@@ -18,3 +18,15 @@ export function el(tag, attrs = {}, ...enfants) {
 export function pluriel(n, sing, plur = sing + "s") {
   return `${n} ${n > 1 ? plur : sing}`;
 }
+
+
+/** Plein écran (F11) : la fenêtre remplit l'écran → classe `plein-ecran` sur <html> (la barre du haut s'efface). */
+export function surveillerPleinEcran() {
+  // Le mode plein écran du navigateur (F11) et l'API Fullscreen font correspondre `display-mode: fullscreen` ;
+  // pas d'heuristique sur la taille de la fenêtre (elle se déclenche à tort en mode kiosque ou sans tests).
+  const mq = window.matchMedia("(display-mode: fullscreen)");
+  const maj = () => document.documentElement.classList.toggle("plein-ecran", mq.matches || Boolean(document.fullscreenElement));
+  mq.addEventListener("change", maj);
+  document.addEventListener("fullscreenchange", maj);
+  maj();
+}

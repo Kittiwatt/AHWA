@@ -61,3 +61,11 @@ OUT.mkdir(parents=True, exist_ok=True)
 for nom, glyphe in ICONES.items():
     (OUT / f"{nom}.svg").write_text(svg(glyphe), encoding="utf-8")
 print(f"{len(ICONES)} icônes dans {OUT.relative_to(RACINE)}")
+
+# Icônes de compétence (comptage des cartes engagées, cahier §10.5) : public/img/skills/<compétence>.svg.
+COMPETENCES = {"willpower": "skill_willpower", "intellect": "skill_intellect", "combat": "skill_combat", "agility": "skill_agility", "wild": "skill_wild"}
+OUT2 = RACINE / "public" / "img" / "skills"
+OUT2.mkdir(parents=True, exist_ok=True)
+for nom, glyphe in COMPETENCES.items():
+    (OUT2 / f"{nom}.svg").write_text(svg(glyphe), encoding="utf-8")
+print(f"{len(COMPETENCES)} icônes dans {OUT2.relative_to(RACINE)}")

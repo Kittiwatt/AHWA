@@ -529,7 +529,7 @@ permanents p. 18, limbes p. 15, slots p. 21.
 | E1 | Entretien | **Automatique** au passage en entretien sur la table : pioche 1, +1 ressource, redressement ; rappel si main > 8 |
 | E2 | Pioche vide | Remélange automatique de la défausse ; l'horreur est **rappelée**, le joueur l'ajoute |
 | E3 | Boutons | Piocher 1 / N, mélanger, sur / sous la pioche, chercher, regarder les n premières, défausser au hasard, révéler une carte à tous, défausse consultable (reprendre, sur la pioche, mélanger dans la pioche) ; **clic sur la pioche = piocher en main** |
-| F1 | Sur le tapis | Bouton « Voir le board » sur le siège (un seul onglet par board) + compteur de ressources + **bandes Play (événement) et Commit (skills)** du siège — seules zones du board visibles sur le tapis (*ajout du 2026-09-08*) |
+| F1 | Sur le tapis | Bouton « Voir le board » sur le siège (un seul onglet par board) + compteur de ressources + **case Play** (l'événement joué) à côté de la zone de menace du siège ; **Commit volant** au-dessus des pioches de rencontre dès qu'un siège a engagé des cartes, avec le **total des icônes de compétence** (*révisé le 2026-09-09*) |
 | F2 | Faiblesse piochée | Reste dans la main, le joueur fait tout (glisser vers la menace, la défausse…) |
 | F3 | La page joueur reprend | Sac du chaos, barre de phase / « Phase suivante » / tour / actions, « Poser sur mon lieu », zone de menace. Pas le journal |
 | G1 | Téléphone | Non : PC et tablette seulement |
@@ -695,8 +695,10 @@ Disposition validée sur captures :
   mon lieu »), dans l'état du tapis (indices, jetons, révélé ou non), les
   pions présents, « Prendre 1 indice », « Révéler », et les cartes
   posées sur ce lieu.
-- **Gauche** : pioche (dos, compte ; clic = piocher 1 en main ; menu :
-  piocher N, chercher, regarder les n premières, mélanger), défausse
+- **Gauche** : pioche (dos, compte ; clic = piocher 1 en main ;
+  **glisser = poser la première carte face cachée** dans une zone du
+  board, `p:drawTo` ; menu : piocher N, chercher, regarder les n
+  premières, poser face cachée, mélanger), défausse
   (dernière carte visible, compte ; menu : consulter → reprendre en
   main / sur la pioche / sous la pioche / mélanger dans la pioche),
   hors jeu (rangée de vignettes, glisser vers la main ou en jeu).
@@ -704,9 +706,11 @@ Disposition validée sur captures :
   des alliés, épuisé = rotation, « Autre face » pour les cartes à verso
   lié comme Sophie, « Retourner » pour les autres) ; dessous, côte à
   côte : **Play** (case d'une carte : l'événement joué, bouton
-  « Résolu »), **Commit** (rangée, bouton « Test résolu ») et la **zone
-  de menace** = le contenu de `seat<n>` (ennemis engagés, traîtrises,
-  assets histoire), cible de dépôt.
+  « Résolu »), **Commit** (rangée, **total des icônes de compétence**
+  des cartes engagées sur son côté — icône + nombre, données ArkhamDB
+  `skill_*`, icônes Arkham Cards — bouton « Test résolu ») et la
+  **zone de menace** = le contenu de `seat<n>` (ennemis engagés,
+  traîtrises, assets histoire), cible de dépôt.
 - **Bas** : la main en éventail dans l'ordre de pioche ; cases de
   sélection pendant le mulligan ; menu par carte : jouer (payer), mettre
   en jeu sans payer, engager au test, défausser, sur / sous la pioche,
@@ -738,6 +742,7 @@ Disposition validée sur captures :
 | `p:toHand {id}` | défausse, pioche (après recherche), en jeu ou hors jeu → fin de main |
 | `p:reveal {id, v}` | bascule `revealed` sur une carte de la main |
 | `p:search {pile, n?}` | `peek` au demandeur : les n premières dans l'ordre (regarder) ou toute la pile (chercher) ; à la fermeture d'une recherche complète le client envoie `shufflePile` ; journal « X regarde les n premières cartes » |
+| `p:drawTo {zone, x?, y?}` | la première carte de la pioche, **face cachée**, dans une zone du board (en jeu à la position lâchée, Play, Commit, hors jeu, menace) ; se retourne ensuite par le menu |
 | `p:exile {id}` | → `removed`, journal (exil, retrait de la partie) |
 | `p:toLocation {id}` | → `board`, posée sur le lieu où se trouve le pion du siège (lieu le plus proche du pion, à moins d'une carte et demie ; décalée vers le bas), sinon au centre ; depuis le tapis, menu « Reprendre sur le board de X » = `moveCard` vers `pplay` (réservé au siège), « Défausse de X » = `p:discard` |
 
@@ -768,9 +773,14 @@ sert à montrer une carte à tous sans la sortir de la main.
 
 - Siège : compteur **ressources** (±) ; bouton **« Voir le board »**
   (ouvre `/r/<code>/j/<n>` dans une fenêtre nommée : un seul onglet par
-  board) ; code de siège ; indicateur de connexions ; **bandes Play
-  (événement) et Commit (skills)** du siège (cartes en petit, loupe et
-  menu, main comptée) — la zone en jeu des soutiens n'y figure pas.
+  board) ; code de siège ; indicateur de connexions ; **case Play**
+  (l'événement joué) à côté de la zone de menace, main comptée ;
+  **Commit volant** au-dessus des pioches de rencontre dès qu'un siège
+  a engagé des cartes (groupées par siège, loupe et menu), avec le total
+  des icônes de compétence sur son côté — la zone en jeu des soutiens
+  n'y figure pas.
+- **Plein écran** (F11, `display-mode: fullscreen`) : la barre du haut
+  s'efface sur les deux pages.
 - `nextPhase` → entretien : automatisations joueur (§10.6).
 - Cartes joueur posées sur le tapis par « Poser sur mon lieu » : rendues
   comme les autres (dos joueur, menu « Reprendre sur mon board ») ; une
