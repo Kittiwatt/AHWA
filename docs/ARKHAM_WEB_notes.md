@@ -17,6 +17,11 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-09 : retour de test — colonnes latérales de la page joueur
+  (pioche / défausse / hors jeu à gauche, « Mon lieu » à droite) élargies
+  à `carte + 3rem` avec `overflow-x: hidden` et `box-sizing:
+  border-box` : plus de barre de défilement horizontale sous ces
+  colonnes à 1920 × 1080 (mesuré : `scrollWidth` = `clientWidth`).
 - 2026-09-08 (nuit) : **correctif de nomenclature** (l'utilisateur
   s'était mal expliqué) : la zone board des soutiens **reste « en
   jeu »** (`pplay<n>`) ; **Play** est une **nouvelle case d'une carte**
