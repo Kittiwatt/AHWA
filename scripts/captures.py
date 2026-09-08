@@ -828,7 +828,8 @@ with sync_playwright() as p:
     assert a13.locator("#piles-joueur .pile").first.locator(".badge").inner_text() == "33", "pioche de 33 cartes"
     assert a13.locator("#piles-joueur .hors-jeu .carte").count() == 3, "3 Soothing Melody hors jeu"
     assert a13.locator(".entete-joueur:not(.lecture)").count() == 1, "board actif pour son siège"
-    assert "Ressources" in a13.locator("#entete").inner_text()
+    assert a13.locator("#entete .chip-compteur").count() == 4, "quatre compteurs compacts (ressources, indices, vie, santé)"
+    assert a13.locator("#mon-lieu .lieu-carte .carte").count() == 1, "mon lieu : le lieu du pion"
     a13.screenshot(path=f"{OUT}/58_board_joueur.png")
     # Le même board vu par Bob : lecture seule, main masquée.
     lb13 = page_board(j13, code13, 0, attendre="#board-joueur:not([hidden])")
@@ -862,7 +863,7 @@ with sync_playwright() as p:
     a13.wait_for_selector(".mise-en-place.mulligan", timeout=8000); a13.wait_for_load_state("networkidle"); a13.wait_for_timeout(800)
     assert a13.locator("#main .eventail .carte").count() == 5, "main de 5"
     assert a13.locator(".zone-jeu .carte").count() == 1, "Sophie commence en jeu"
-    assert "5" in a13.locator("#entete .compteur").first.inner_text(), "5 ressources"
+    assert a13.locator("#entete .chip-compteur").first.locator(".valeur").inner_text() == "5", "5 ressources"
     a13.locator("#main .eventail .carte").nth(0).click(); a13.locator("#main .eventail .carte").nth(2).click()
     a13.wait_for_timeout(300)
     assert a13.locator("#main .eventail .carte.choisie").count() == 2, "2 cartes choisies pour le mulligan"
@@ -899,20 +900,20 @@ with sync_playwright() as p:
     for _ in range(12):
         if a13.locator("#main .eventail .carte.kind-asset").count(): break
         a13.locator(".pioche-joueur .dos-bouton").click(); a13.wait_for_timeout(300)
-    for _ in range(5): a13.locator("#entete .compteur").first.locator(".pm").nth(1).click(); a13.wait_for_timeout(120)
+    for _ in range(5): a13.locator("#entete .chip-compteur").first.locator(".pm").nth(1).click(); a13.wait_for_timeout(120)
     src = a13.locator("#main .eventail .carte.kind-asset").first.bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(zone["x"] + 300, zone["y"] + 60, steps=12); a13.mouse.up(); a13.wait_for_timeout(500)
     assert a13.locator(".zone-jeu .carte").count() == 2, "soutien mis en jeu par glisser"
     # Entretien depuis la table : Alice pioche 1 et gagne 1 ressource.
     main_avant = a13.locator("#main .eventail .carte").count()
-    res_avant = int(a13.locator("#entete .compteur").first.locator(".valeur").inner_text())
+    res_avant = int(a13.locator("#entete .chip-compteur").first.locator(".valeur").inner_text())
     for _ in range(4):
         if "Entretien" in h13.locator("#phases .phase.courante").inner_text(): break
         h13.get_by_role("button", name="Phase suivante").click(); h13.wait_for_timeout(400)
     a13.wait_for_timeout(600)
     assert a13.locator("#main .eventail .carte").count() == main_avant + 1, "entretien : +1 carte"
-    assert int(a13.locator("#entete .compteur").first.locator(".valeur").inner_text()) == res_avant + 1, "entretien : +1 ressource"
+    assert int(a13.locator("#entete .chip-compteur").first.locator(".valeur").inner_text()) == res_avant + 1, "entretien : +1 ressource"
     a13.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     a13.screenshot(path=f"{OUT}/65_board_apres_entretien.png")
 
@@ -925,7 +926,7 @@ with sync_playwright() as p:
     soutien = a13.locator("#main .eventail .carte.kind-asset").first
     titre_soutien = soutien.get_attribute("title")
     nb_jeu = a13.locator(".zone-jeu .carte").count()
-    for _ in range(5): a13.locator("#entete .compteur").first.locator(".pm").nth(1).click(); a13.wait_for_timeout(120)
+    for _ in range(5): a13.locator("#entete .chip-compteur").first.locator(".pm").nth(1).click(); a13.wait_for_timeout(120)
     src = soutien.bounding_box(); zone = a13.locator(".zone-jeu").bounding_box()
     a13.mouse.move(src["x"] + src["width"] / 2, src["y"] + src["height"] / 2); a13.mouse.down()
     a13.mouse.move(zone["x"] + 420, zone["y"] + 40, steps=12); a13.mouse.up(); a13.wait_for_timeout(600)

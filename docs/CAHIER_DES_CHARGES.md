@@ -676,16 +676,24 @@ Piles et zones par siège `n` :
 
 Ordinateur et tablette seulement, mêmes gestes que le tapis (glisser au
 lâcher, clic droit / appui long = menu, double-clic = épuiser / redresser,
-loupe). Disposition à trancher sur maquette (captures) ; proposition :
+loupe). Cartes à 113 × 160 (0,9 × la carte du tapis ; retour de test :
+tout était trop petit), Commit et zone de menace côte à côte sous Play.
+Disposition validée sur captures :
 
-- **Barre du haut** : portrait de l'enquêteur, compteurs ressources /
-  indices / actions, vie et santé mentale avec dégâts et horreur (±),
-  taille de main, **occupation des slots** (icônes Arkham Cards : mains
-  n/2, arcanes n/2, allié, corps, accessoire, tarot, tête — dépassement
-  surligné, jamais bloqué), loupe sur le portrait et bouton « verso »
-  (dos de la carte d'enquêteur), phase courante + « Phase suivante », « Prendre mon tour » /
-  « Fin de mon tour », sac du chaos (tirer, tirer un autre, tout
-  remettre, jetons tirés), code de siège, lien « Table ».
+- **Barre du haut** (compacte, une rangée — révisée le 2026-09-08) :
+  portrait de l'enquêteur (loupe au survol, bouton « verso »), nom et
+  ★ principal, compteurs en chips (icône, valeur, ±) : ressources,
+  indices, vie et santé mentale avec dégâts et horreur ; actions et
+  « Prendre mon tour » / « Fin de mon tour » ; main et **occupation des
+  slots** en icônes Arkham Cards (dépassement surligné, jamais bloqué) ;
+  mise en place / mulligan. La barre de phase porte la phase courante,
+  « Phase suivante » et le sac du chaos ; la barre d'onglets porte le
+  formulaire « Rejoindre ce siège » et l'étiquette « lecture seule ».
+- **Mon lieu** (colonne de gauche, ajout du 2026-09-08) : le lieu où
+  se trouve le pion du siège (le plus proche du pion, comme « Poser sur
+  mon lieu »), dans l'état du tapis (indices, jetons, révélé ou non), les
+  pions présents, « Prendre 1 indice », « Révéler », et les cartes
+  posées sur ce lieu.
 - **Gauche** : pioche (dos, compte ; clic = piocher 1 en main ; menu :
   piocher N, chercher, regarder les n premières, mélanger), défausse
   (dernière carte visible, compte ; menu : consulter → reprendre en

@@ -17,6 +17,9 @@ const ORDRE_PHASES = ["mythos", "investigation", "enemy", "upkeep"];
 // Slots d'un enquêteur (Grimoire p. 21 ; ArkhamDB nomme le slot de chaque carte) et leurs limites.
 const SLOTS = [["hand", "Mains", 2], ["arcane", "Arcanes", 2], ["ally", "Allié", 1], ["body", "Corps", 1], ["accessory", "Accessoire", 1], ["tarot", "Tarot", 1], ["head", "Tête", 1]];
 
+/** replaceChildren qui ignore les enfants nuls (un null y deviendrait le texte « null »). */
+function remplir(parent, ...enfants) { parent.replaceChildren(...enfants.flat().filter((e) => e !== null && e !== undefined && e !== false)); }
+
 const parties = location.pathname.split("/").filter(Boolean);
 const code = parties[1]?.toUpperCase() ?? "";
 const siegeUrl = Number(parties[3]);
@@ -166,7 +169,7 @@ async function demarrer() {
       champ.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); rejoindre(); } });
       return el("div", { class: "rejoindre" },
         el("p", { text: court ? `Pour agir ici, entrez le code de siège affiché sur le tapis :` : `Le siège ${n + 1} est occupé (${nomSiege(s, ctx)}). Pour agir sur ce board depuis cet appareil, entrez le code de siège affiché sur le tapis ; sinon il reste en lecture seule.` }),
-        el("div", { class: "ligne-boutons" }, champ, el("button", { class: "bouton", type: "button", onclick: rejoindre }, "Rejoindre ce siège")));
+        el("div", { class: "ligne-boutons" }, champ, el("button", { class: `bouton${court ? " petit" : ""}`, type: "button", onclick: rejoindre }, "Rejoindre ce siège")));
     }
     const prenable = state.phase === "lobby" || s.investigatorCode;
     return el("div", { class: "rejoindre" },
@@ -179,7 +182,7 @@ async function demarrer() {
   function rendreAttente(state, moi) {
     const s = state.seats[siegeUrl];
     const inv = ctx.investigateurs.get(s.investigatorCode);
-    $attente.replaceChildren(
+    remplir($attente, 
       el("header", { class: "lobby-entete" },
         el("div", {},
           el("p", { class: "surtitre", text: `${ctx.scenario.campaign} · ${ctx.campagneBoite ?? ""}`.replace(/ · $/, "") }),
@@ -204,6 +207,7 @@ async function demarrer() {
     rendreBarre(state, moi);
     rendreOnglets(state, moi);
     rendreEntete(state, moi, s, peut);
+    rendreLieu(state, s, peut);
     rendrePiles(state, s, peut);
     rendreJeu(state, s, peut);
     rendreMain(state, s, mien);
@@ -233,21 +237,16 @@ async function demarrer() {
 
   function rendreOnglets(state, moi) {
     const nav = document.getElementById("onglets");
-    nav.replaceChildren(...state.seats.filter((x) => x.investigatorCode).map((x) => el("button", {
+    remplir(nav, ...[...state.seats.filter((x) => x.investigatorCode).map((x) => el("button", {
       type: "button", class: `onglet${ctx.vue === x.index ? " courant" : ""}${moi.seat === x.index ? " moi" : ""}`,
       title: moi.seat === x.index ? "Votre board" : `Board de ${nomSiege(x, ctx)} (lecture seule)`,
       onclick: () => { ctx.vue = x.index; ctx.regarder = false; history.replaceState(null, "", `/r/${code}/j/${x.index}`); rendre(); },
     }, el("span", { class: "nom", text: nomSiege(x, ctx) }), x.deck ? el("span", { class: "sous", text: ` · ${x.deck.name}` }) : el("span", { class: "sous", text: " · sans deck" }),
-      moi.seat === x.index ? el("span", { class: "vous", text: "vous" }) : null)));
-  }
-
-  function compteurLigne(libelle, valeur, icone, peut, moins, plus, unite, negatif = false) {
-    return el("div", { class: `compteur${negatif ? " negatif" : ""}`, title: negatif ? "Ressources négatives : la carte a été jouée sans assez de ressources (rien n'est bloqué)" : null },
-      el("dt", {}, icone ? el("img", { src: icone, alt: "" }) : null, el("span", { text: libelle })),
-      el("dd", {},
-        el("button", { class: "pm", type: "button", disabled: !peut, title: `−1 ${unite}`, onclick: moins }, "−"),
-        el("span", { class: "valeur", text: valeur }),
-        el("button", { class: "pm", type: "button", disabled: !peut, title: `+1 ${unite}`, onclick: plus }, "+")));
+      moi.seat === x.index ? el("span", { class: "vous", text: "vous" }) : null)),
+      // Board d'un autre siège : lecture seule ; rejoindre le siège (code) ou revenir à son board, sans encombrer l'entête.
+      moi.seat === ctx.vue ? null : el("span", { class: "espace" }),
+      moi.seat === ctx.vue ? null : el("span", { class: "lecture-seule", text: "lecture seule" }),
+      moi.seat === ctx.vue ? null : blocRejoindre(state, moi, ctx.vue, true)].filter(Boolean));
   }
 
   /** Occupation des slots d'après les cartes en jeu (ArkhamDB : « Hand », « Hand x2 », « Ally. Arcane »…). */
@@ -279,50 +278,85 @@ async function demarrer() {
     const actions = s.counters.actions ?? 0;
     const occ = occupationSlots(state, n);
     const main = (state.piles[`phand${n}`] ?? []).length;
-    const deck = s.deck;
     // Portrait : loupe au survol (recto), bouton « verso » pour lire le dos de la carte d'enquêteur.
     const portrait = inv?.custom ? (inv.image ? el("img", { class: "portrait", src: inv.image, alt: "" }) : el("div", { class: "portrait sans-image", text: inv.name }))
       : el("img", { class: "portrait", src: `${CDN}${s.investigatorCode}.webp`, alt: "", "data-loupe-id": `inv-${n}`, "data-loupe": "1", title: "Survoler : agrandir la carte" });
     const verso = inv?.custom ? null : el("button", { class: "lien-outil verso", type: "button", title: "Lire le dos de la carte d'enquêteur",
       onclick: () => document.dispatchEvent(new CustomEvent("ahwa:loupe-image", { detail: { src: `${CDN}${s.investigatorCode}b.webp`, paysage: true } })) }, "verso");
+    // Compteur compact : icône, valeur, ± ; le libellé est dans l'infobulle.
+    const chip = (libelle, valeur, icone, moins, plus, unite, extra = "") => el("div", { class: `chip-compteur${extra}`, title: libelle },
+      el("img", { src: icone, alt: libelle }),
+      el("button", { class: "pm", type: "button", disabled: !peut, title: `−1 ${unite}`, onclick: moins }, "−"),
+      el("span", { class: "valeur", text: valeur }),
+      el("button", { class: "pm", type: "button", disabled: !peut, title: `+1 ${unite}`, onclick: plus }, "+"));
     const entete = document.getElementById("entete");
     entete.style.setProperty("--faction", faction.couleur);
     entete.classList.toggle("lecture", !peut);
-    entete.replaceChildren(
+    remplir(entete, 
       el("div", { class: "identite" },
         el("div", { class: "portrait-bloc" }, portrait, verso),
         el("div", { class: "fiche" },
-          el("strong", { text: nomSiege(s, ctx) }),
-          inv && s.name ? el("span", { class: "sous", text: inv.name }) : null,
-          inv?.subname ? el("span", { class: "sous", text: inv.subname }) : null,
-          el("span", { class: "sous", text: peut ? "Votre board" : "Lecture seule — seul le siège agit sur son board" }),
-          state.lead === n ? el("span", { class: "sous", text: "★ enquêteur principal" }) : null),
-        peut ? null : blocRejoindre(state, moi, n, true)),
-      el("dl", { class: "compteurs" },
-        compteurLigne("Ressources", String(s.counters.resources ?? 0), "/img/tokens/tok_ressources.png", peut, () => compteur("resources", -1), () => compteur("resources", 1), "ressource", (s.counters.resources ?? 0) < 0),
-        compteurLigne("Indices", String(s.counters.clues ?? 0), "/img/tokens/tok_indices.png", peut, () => compteur("clues", -1), () => compteur("clues", 1), "indice"),
-        compteurLigne("Vie", `${Math.max(0, s.counters.health - degats)} / ${s.counters.health}`, "/img/tokens/tok_degats.png", peut, () => jeton("damage", -1), () => jeton("damage", 1), "dégât"),
-        compteurLigne("Santé", `${Math.max(0, s.counters.sanity - horreur)} / ${s.counters.sanity}`, "/img/tokens/tok_horreur.png", peut, () => jeton("horror", -1), () => jeton("horror", 1), "horreur")),
+          el("strong", {}, state.lead === n ? el("span", { class: "etoile", title: "enquêteur principal", text: "★ " }) : null, nomSiege(s, ctx)),
+          inv ? el("span", { class: "sous", text: `${s.name ? `${inv.name} — ` : ""}${inv.subname ?? ""}`.replace(/ — $/, "") }) : null)),
+      el("div", { class: "compteurs-compacts" },
+        chip("Ressources", String(s.counters.resources ?? 0), "/img/tokens/tok_ressources.png", () => compteur("resources", -1), () => compteur("resources", 1), "ressource"),
+        chip("Indices", String(s.counters.clues ?? 0), "/img/tokens/tok_indices.png", () => compteur("clues", -1), () => compteur("clues", 1), "indice"),
+        chip("Vie (dégâts)", `${Math.max(0, s.counters.health - degats)}/${s.counters.health}`, "/img/tokens/tok_degats.png", () => jeton("damage", -1), () => jeton("damage", 1), "dégât"),
+        chip("Santé mentale (horreur)", `${Math.max(0, s.counters.sanity - horreur)}/${s.counters.sanity}`, "/img/tokens/tok_horreur.png", () => jeton("horror", -1), () => jeton("horror", 1), "horreur")),
       el("div", { class: "tour-actions" },
-        el("div", { class: "actions-pips" },
-          el("span", { class: "libelle", text: "Actions" }),
+        el("div", { class: "actions-pips", title: "Actions restantes" },
           el("button", { class: "pm", type: "button", disabled: !peut, title: "Dépenser une action", onclick: () => compteur("actions", -1) }, "−"),
           ...[0, 1, 2].map((i) => el("span", { class: `pip${i < actions ? " plein" : ""}` })),
           actions > 3 ? el("span", { class: "plus", text: `+${actions - 3}` }) : null,
           el("button", { class: "pm", type: "button", disabled: !peut, title: "Action supplémentaire", onclick: () => compteur("actions", 1) }, "+")),
-        enTour && peut ? el("button", { class: "bouton-action", type: "button", disabled: actions <= 0, title: actions > 0 ? `Dépenser une action (${actions} restante${actions > 1 ? "s" : ""})` : "Plus d'action ce tour", onclick: () => compteur("actions", -1) },
-          el("span", { class: "fleche", html: ICONE_ACTION }), el("span", { class: "n", text: String(actions) })) : null,
         state.phase === "resolution" ? null : enTour
           ? el("button", { class: "bouton petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "endTurn", seat: n }) }, "Fin de mon tour")
           : el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "takeTurn", seat: n }) }, aJoue ? "Rejouer" : "Prendre mon tour"),
         aJoue && !enTour ? el("span", { class: "sous", text: "a joué" }) : null),
-      el("div", { class: "slots", title: "Occupation des slots d'après les cartes jouées (dépassement surligné, jamais bloqué)" },
-        el("span", { class: "libelle", text: `Main ${main}` }),
+      el("div", { class: "slots", title: "Main et occupation des slots d'après les cartes jouées (dépassement surligné, jamais bloqué)" },
+        el("span", { class: "slot main", title: `Main : ${main} carte${main > 1 ? "s" : ""}` }, el("span", { class: "libelle", text: "Main" }), el("span", { text: String(main) })),
         ...SLOTS.map(([k, lib, max]) => el("span", { class: `slot${occ[k] > max ? " depasse" : ""}${occ[k] ? " occupe" : ""}`, title: `${lib} : ${occ[k]} / ${max}` },
           el("img", { src: `/img/slots/${k}.svg`, alt: lib }), el("span", { text: `${occ[k]}/${max}` })))),
       blocMiseEnPlace(state, s, peut),
     );
     rendreChaos(ctx);
+  }
+
+  /** Mon lieu : le lieu où se trouve le pion du siège, dans l'état du tapis (indices, jetons), avec les pions présents
+   *  et les cartes posées dessus. Le lieu est le plus proche du pion (même règle que « Poser sur mon lieu »). */
+  function lieuDuPion(state, n) {
+    const mini = state.cards[`mini-${n}`];
+    if (!mini || mini.loc.zone !== "board") return null;
+    const mx = mini.loc.x + 22, my = mini.loc.y + 22;
+    let meilleur = null, dist = Infinity;
+    for (const l of Object.values(state.cards)) {
+      if (l.kind !== "location" || l.loc.zone !== "board") continue;
+      const d = Math.hypot(l.loc.x + 63 - mx, l.loc.y + 10 - my);
+      if (d < dist) { dist = d; meilleur = l; }
+    }
+    return meilleur && dist <= 126 * 1.5 ? meilleur : null;
+  }
+
+  function rendreLieu(state, s, peut) {
+    const n = s.index;
+    const lieu = lieuDuPion(state, n);
+    const sect = document.getElementById("mon-lieu");
+    if (!lieu) { remplir(sect, el("h2", { text: "Mon lieu" }), el("p", { class: "vide", text: "Le pion n'est sur aucun lieu du tapis." })); return; }
+    const dans = (c) => c.loc.zone === "board" && c.id !== lieu.id && c.loc.x + 63 >= lieu.loc.x - 10 && c.loc.x + 63 <= lieu.loc.x + 136 && c.loc.y + 30 >= lieu.loc.y - 40 && c.loc.y + 30 <= lieu.loc.y + 200;
+    const pions = Object.values(state.cards).filter((c) => c.kind === "mini" && dans(c));
+    const posees = Object.values(state.cards).filter((c) => c.kind !== "mini" && c.kind !== "location" && dans(c)).sort((a, b) => a.loc.z - b.loc.z);
+    const indices = lieu.tokens.clue ?? 0;
+    const nomLieu = ctx.defs.get(lieu.code)?.name ?? lieu.code;
+    remplir(sect, ...[
+      el("h2", { text: "Mon lieu" }),
+      el("div", { class: "lieu-carte" }, carteEl(lieu, ctx)),
+      el("p", { class: "lieu-nom", text: lieu.faceUp ? nomLieu : "Lieu non révélé" }),
+      el("div", { class: "pions" }, ...pions.map((p) => el("img", { class: "pion", src: urlImage(p, ctx.defs.get(p.code)), alt: "", title: nomSiege(state.seats[Number(p.id.replace("mini-", ""))] ?? {}, ctx) }))),
+      el("div", { class: "ligne-boutons" },
+        el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || indices <= 0, title: "Prendre 1 indice du lieu (+1 à votre réserve)", onclick: () => ctx.envoyer({ t: "takeClue", id: lieu.id }) }, "Prendre 1 indice"),
+        lieu.faceUp || !peut ? null : el("button", { class: "bouton secondaire petit", type: "button", onclick: () => ctx.envoyer({ t: "revealLocation", id: lieu.id }) }, "Révéler")),
+      posees.length ? el("div", { class: "sur-le-lieu" }, el("span", { class: "sous", text: "Sur ce lieu" }), ...posees.map((c) => carteEl(c, ctx))) : null,
+    ].filter(Boolean));
   }
 
   /** Mise en place du joueur, puis mulligan par sélection (cahier §10.5) ; faiblesses mises de côté comptées. */
@@ -360,7 +394,7 @@ async function demarrer() {
     const dessus = defausse.length ? state.cards[defausse[0]] : null;
     const cote = Object.values(state.cards).filter((c) => c.loc.zone === `paside${n}`).sort((a, b) => a.loc.x - b.loc.x || a.loc.z - b.loc.z);
     const sect = document.getElementById("piles-joueur");
-    sect.replaceChildren(
+    remplir(sect, 
       el("div", { class: "pile", "data-drop": `pile:pdeck${n}`, "data-outil": `pdeck${n}`, title: s.deck ? "Pioche (réserve) — clic : piocher en main ; clic droit : piocher plusieurs, chercher, regarder les premières, mélanger ; déposez ici pour mettre une carte dessus" : "Pas de deck" },
         el("div", { class: `dos-pile pioche-joueur${pioche.length ? "" : " vide"}` },
           pioche.length
@@ -391,7 +425,7 @@ async function demarrer() {
       zone.append(e);
     }
     if (!enJeu.length) zone.append(el("p", { class: "vide", text: "Play — glissez une carte de la main ici pour la jouer (coût déduit) ; clic droit : sans payer." }));
-    sect.replaceChildren(
+    remplir(sect, 
       el("section", { class: "bloc-jeu" }, el("h2", {}, "Play ", el("span", { class: "sous", text: "(cartes jouées et payées : soutiens, événements à défausser une fois résolus)" })), zone),
       el("section", { class: "bloc-cours" },
         el("h2", {}, "Commit ", el("span", { class: "sous", text: "(cartes engagées au test de compétence)" })),
@@ -411,7 +445,7 @@ async function demarrer() {
     const peut = mien && ctx.peutAgir();
     const cartes = ids.map((id) => state.cards[id]).filter(Boolean);
     const mulligan = mien && s.deck?.board.setup === "mulligan";
-    pied.replaceChildren(
+    remplir(pied, 
       el("header", {},
         el("h2", { text: `Main — ${pluriel(cartes.length, "carte")}` }),
         !mien && cartes.length ? el("button", { class: "bouton secondaire petit", type: "button", onclick: () => { ctx.regarder = !ctx.regarder; rendre(); } }, ctx.regarder ? "Masquer" : "Regarder") : null,

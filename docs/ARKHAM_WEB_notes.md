@@ -17,6 +17,20 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-08 (soir) : **retours de test, push 2 — mise en page**. Page
+  joueur : cartes **113 × 160** (`--carte-l/h` redéfinies sur
+  `.board-joueur`), chips et jetons agrandis, sac du chaos et jetons
+  tirés plus grands, police 1,05 rem ; **entête compacte** sur une
+  rangée (portrait + nom + ★, compteurs en chips icône / valeur / ±,
+  actions et tour, main et slots en icônes, mise en place) — 104 px au
+  lieu de 110‑184 ; en lecture seule le formulaire « Rejoindre ce
+  siège » et l'étiquette « lecture seule » passent dans la barre
+  d'onglets ; colonne **« Mon lieu »** à gauche (lieu du pion par la
+  même règle que « Poser sur mon lieu », rendu `carteEl` = même état
+  que le tapis, pions présents, « Prendre 1 indice », « Révéler »,
+  cartes posées dessus) ; Commit et zone de menace côte à côte sous
+  Play ; hors jeu en colonne. Piège : `replaceChildren(null)` insère le
+  texte « null » — helper `remplir()` qui filtre. Captures relues.
 - 2026-09-08 (soir) : **retours de test, push 1 — règles et
   nomenclature**. Zones renommées **Play** (`pplay<n>` : tout ce qui est
   joué et payé, événements compris, à défausser une fois résolus) et
@@ -625,10 +639,10 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
   encarts, loupe). Tests : `scripts/test_room.mjs` (bout en bout, 14
   messages entrants pour la séquence), `scripts/captures.py` (Playwright).
   Catalogue : The Gathering `available`, les 10 scénarios PCIO `wip`.
-- **Prochaine étape** : push 2 des retours de test (tout plus grand,
-  barre d'enquêteur compacte, zone « mon lieu » à gauche de la page
-  joueur), puis la suite des retours et les points ouverts du cahier
-  §10.10 (customisations, decks annexes, attaches). Ensuite le prologue
+- **Prochaine étape** : la suite des retours de test de l'utilisateur
+  (première série traitée en deux pushes le 2026-09-08), puis les points
+  ouverts du cahier §10.10 (customisations, decks annexes, attaches).
+  Ensuite le prologue
   Disappearance at the Twilight Estate (pack `tcu`, set
   `disappearance_at_the_twilight_estate` : choix des enquêteurs neutres
   05046‑49, lieux 05071‑77 / Spectral 05078‑84 à réutiliser), puis le
