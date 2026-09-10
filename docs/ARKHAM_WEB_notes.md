@@ -864,6 +864,9 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   `tokens` comme les autres : `addToken` le borne (2), le dépôt dans une
   pile l'efface (`tokens = {}`) — pour un jeton qui doit survivre au
   passage en pile, il faudrait un champ à part.
+- `python3 -m py_compile scripts/captures.py` crée `scripts/__pycache__/`,
+  qu'un `git add -A` a commité une fois (75909e9) : désormais dans le
+  `.gitignore` ; préférer `git add` des fichiers nommés.
 - `pkill -f "wrangler dev"` tue aussi la commande courante (son propre
   motif) : utiliser `pkill -f "wrangler d[e]v"`.
 - `replaceChildren(...liste.map(...))` : un `null` dans la liste lève
