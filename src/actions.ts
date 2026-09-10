@@ -904,6 +904,36 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       return { reminders };
     }
 
+    // ---- Road X (Horror in High Gear) ---------------------------------------------------
+    case "roadAhead": {
+      // {id, n} : n lieux entrent en jeu non révélés dans une nouvelle colonne devant ce lieu — la première carte de la pile
+      // Road deck + (n − 1) « Long Way Around » de côté, mélangés : le journal ne dit pas lequel est lequel.
+      const R = def.road ?? refuser("ce scénario n'a pas de Road deck");
+      const c = carte(state, msg.id);
+      if (c.kind !== "location" || !("zone" in c.loc) || c.loc.zone !== "board") refuser("ce n'est pas un lieu du tapis");
+      const n = Math.max(1, Math.min(3, Math.round(Number(msg.n) || 1)));
+      const tete = state.piles[R.pile]?.[0];
+      if (!tete) refuser(`${nomPile(def, R.pile)} est vide`);
+      const longs = Object.values(state.cards).filter((k) => k.code === R.longWay && "zone" in k.loc && k.loc.zone === "aside").slice(0, n - 1);
+      const ids = shuffle([tete, ...longs.map((k) => k.id)], rng);
+      state.piles[R.pile].shift();
+      const { x: lx, y: ly } = c.loc as { x: number; y: number };
+      const occupe = (x: number, y: number) => Object.values(state.cards).some((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board"
+        && Math.abs(k.loc.x - x) < PAS_X / 2 && Math.abs(k.loc.y - y) < PAS_Y / 2);
+      // Colonne devant le lieu (à droite) : 1 carte en face, 2 = en face + dessous, 3 = dessus + en face + dessous ; case prise → plus bas.
+      const decalages = ids.length === 1 ? [0] : ids.length === 2 ? [0, PAS_Y] : [-PAS_Y, 0, PAS_Y];
+      ids.forEach((id, i) => {
+        let y = ly + decalages[i];
+        while (occupe(lx + PAS_X, y)) y += PAS_Y;
+        const k = state.cards[id];
+        retirerDesPiles(state, id);
+        k.loc = { zone: "board", x: lx + PAS_X, y, z: nextZ(state) };
+        k.faceUp = false; k.side = "a";
+      });
+      addLog(state, "action", `Road ${n} : ${ids.length} lieu${ids.length > 1 ? "x" : ""} posé${ids.length > 1 ? "s" : ""} non révélé${ids.length > 1 ? "s" : ""} devant ${nomCarte(def, c)} (la première carte du Road deck${longs.length ? ` et ${longs.length} Long Way Around` : ""}, mélangé${ids.length > 1 ? "s" : ""})${longs.length < n - 1 ? " — plus assez de Long Way Around de côté" : ""} ; Road deck : ${state.piles[R.pile].length}.`);
+      return {};
+    }
+
     // ---- Barrières entre lieux adjacents (In Too Deep) --------------------------------
     case "setBarrier": {
       // {a, b, delta} : +1 / −1 barrière entre deux lieux du tapis (0 = plus de barrière, l'entrée disparaît).

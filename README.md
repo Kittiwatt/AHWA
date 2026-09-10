@@ -25,9 +25,10 @@ Conspiracy* I — The Pit of Despair (clés de couleur à deux faces,
 jetons d'inondation et marée, pile Tidal Tunnel) , II — The Vanishing
 of Elina Harper (Leads deck, Parley, pistes rayées, accusation
 appliquée par l'app) III — In Too Deep (24 barrières entre les
-lieux, journal à cases à cocher, effets d'agenda automatiques) et IV —
+lieux, journal à cases à cocher, effets d'agenda automatiques) IV —
 Devil Reef (navire porteur de pions, îles et profondeurs tirées au
-hasard, tunnels posés par direction), avec
+hasard, tunnels posés par direction) et V — Horror in High Gear (Road
+deck, voitures à deux faces, Road X), avec
 les questions de journal au lobby, les tirages au hasard, les piles et
 les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » et lien vers le livret de
 campagne dans chaque table. Lobby

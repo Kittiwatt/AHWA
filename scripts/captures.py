@@ -945,6 +945,54 @@ with sync_playwright() as p:
     h17.mouse.move(420, 520); h17.wait_for_timeout(300)
     h17.screenshot(path=f"{OUT}/88_reef_agenda2_navire.png")
 
+    # ---- Horror in High Gear (TIC V) : route en ligne, voitures à deux faces, ennemi Vehicle, ligne Road X, verso ennemi ----
+    code18, token18 = creer("tic_horror_in_high_gear")
+    print("room High Gear", code18)
+    h18 = page_pour(browser, "Hôte", host=True, code=code18, token=token18)
+    h18.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h18.get_by_role("button", name="Choisir un enquêteur").click(); h18.wait_for_selector("dialog.dialogue-inv[open]")
+    h18.fill("dialog .recherche", "trish"); h18.wait_for_timeout(300); h18.locator("dialog .inv").first.click()
+    h18.wait_for_selector(".siege-lobby.moi .fiche")
+    j18 = page_pour(browser, "Bob", code=code18, token=None)
+    j18.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j18.get_by_role("button", name="Choisir un enquêteur").click(); j18.wait_for_selector("dialog.dialogue-inv[open]")
+    j18.fill("dialog .recherche", "dexter"); j18.wait_for_timeout(300); j18.locator("dialog .inv").first.click()
+    j18.wait_for_selector(".siege-lobby.moi .fiche")
+    h18.wait_for_timeout(400)
+    h18.locator("input[name='q-mode'][value='campaign']").check()
+    h18.locator("input[name='q-terror_dead'][value='no']").check(); h18.wait_for_timeout(200)
+    h18.get_by_role("button", name="Lancer la mise en place").click()
+    h18.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h18.wait_for_load_state("networkidle"); h18.wait_for_timeout(1500)
+    assert h18.locator("#plateau .carte.kind-location").count() == 3, "trois lieux en ligne"
+    assert h18.locator("#plateau .carte.kind-location img[alt='Old Innsmouth Road']").count() == 3, "côté Old Innsmouth Road"
+    assert h18.locator("#plateau .carte.kind-asset").count() == 2, "deux voitures"
+    assert h18.locator("#plateau .carte.kind-enemy").count() == 1, "un ennemi Vehicle à l'arrière"
+    assert h18.locator("#pioches .pile[data-outil='pile:road'] .badge").inner_text() == "12", "Road deck : 12"
+    h18.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h18.mouse.move(420, 520); h18.wait_for_timeout(300)
+    h18.screenshot(path=f"{OUT}/89_gear_tapis.png")
+    # Menu de la voiture : « Autre face » (deux faces liées) ; menu du lieu de tête : ligne Road X.
+    h18.locator("#plateau .carte.kind-asset").first.dispatch_event("contextmenu"); h18.wait_for_selector(".menu-carte")
+    assert h18.locator(".menu-carte .item").filter(has_text="Autre face (Stopped)").count() == 1, "voiture : Autre face (Stopped) — sous-titre du verso lié"
+    h18.mouse.click(700, 600); h18.wait_for_timeout(300)   # clic hors du menu : le ferme
+    tete = h18.locator("#plateau .carte.kind-location").nth(2)
+    tete.dispatch_event("contextmenu"); h18.wait_for_selector(".menu-carte")
+    assert h18.locator(".menu-carte .inondation-ligne").filter(has_text="Road X").count() == 1, "ligne Road X"
+    h18.screenshot(path=f"{OUT}/90_gear_menu_route.png")
+    h18.locator(".menu-carte .inondation-ligne").filter(has_text="Road X").locator(".pm.niveau").nth(1).click(); h18.wait_for_timeout(700)
+    assert h18.locator("#plateau .carte.kind-location").count() == 5, "Road 2 : deux lieux devant"
+    assert h18.locator("#pioches .pile[data-outil='pile:road'] .badge").inner_text() == "11"
+    # Une voiture glissée sur un lieu devant : ses pions (posés dessus) suivent.
+    voiture = h18.locator("#plateau .carte.kind-asset").first
+    pion = h18.locator("#plateau .mini:not(.cle)").first
+    vb = voiture.bounding_box(); pb = pion.bounding_box()
+    h18.mouse.move(pb["x"] + pb["width"] / 2, pb["y"] + pb["height"] / 2); h18.mouse.down()
+    h18.mouse.move(vb["x"] + vb["width"] / 2, vb["y"] + 4, steps=8); h18.mouse.up(); h18.wait_for_timeout(500)   # le pion monte à bord
+    h18.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h18.mouse.move(420, 520); h18.wait_for_timeout(300)
+    h18.screenshot(path=f"{OUT}/91_gear_road2.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

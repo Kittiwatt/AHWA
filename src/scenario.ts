@@ -34,10 +34,13 @@ export type ScenarioCard = {
 // Les références « slot:<nom> » désignent une carte choisie plus tôt (pickRandom, setStart).
 export type SetupStep =
   | { op: "place"; code: string; zone: ZoneId; x: number; y: number; reveal?: boolean; faceUp?: boolean; log?: string }
-  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; rest?: "remove" | "aside" | "pile"; restPile?: string; log?: string }
+  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; rest?: "remove" | "aside" | "pile" | "keep"; restPile?: string; log?: string }
     // slot : « slot:<nom> » = première carte tirée, « slot:<nom>:<i> » = i-ème ; rest : sort des cartes non tirées (retirées par défaut, de côté, ou dans la pile restPile)
   | { op: "randomTokens"; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic"; n?: number; picks: number[]; rounds: number[]; log?: string }
     // jetons posés au hasard sur des lieux du tapis : à chaque manche (rounds[joueurs-1]), picks[joueurs-1] lieux distincts reçoivent n jetons (brèches d'In the Clutches of Chaos)
+  | { op: "fromPile"; pile: string; n: number; zone: ZoneId; positions: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; slot?: string; log?: string }
+    // les n premières cartes d'une pile déjà construite entrent en jeu aux positions données (Road deck : « put the top 3 cards
+    // into play ») ; `slot` mémorise `slot:<slot>:<i>` (0 = première tirée) et `slot:<slot>` (la première)
   | { op: "pickRandomSet"; from: string[]; n?: number; log?: string }   // garde n sets dans la pioche, retire les autres (sans révéler lesquels)
   | { op: "addDoom"; n?: number; nFrom?: string; log?: string }         // doom sur l'agenda courant (après « story ») ; nFrom = réponse numérique
   | { op: "addTokens"; at: string; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic" | "flood"; n?: number; nFrom?: string; log?: string }   // jetons sur une carte en jeu (code ou slot), ex. ressource = brasero allumé ; nFrom = réponse numérique
@@ -156,6 +159,9 @@ export type ScenarioDef = {
   mythosDoom?: boolean;     // false : la phase du mythe n'ajoute pas de doom automatiquement (brèches d'In the Clutches of Chaos)
   emptySpace?: boolean;     // le scénario pose des « espaces vides » (dos de carte joueur) : action emptySpace, menu des lieux (Before the Black Throne)
   barriers?: boolean;       // barrières entre lieux adjacents (In Too Deep) : action setBarrier, jetons sur les arêtes, menu des lieux « +1 barrière vers… »
+  road?: { pile: string; longWay: string };
+    // Road X (Horror in High Gear) : action roadAhead {id, n} — la première carte de la pile `pile` + (n − 1) cartes de côté de code
+    // `longWay`, mélangées, entrent en jeu non révélées dans une nouvelle colonne devant le lieu ; menu du lieu « Road X : 1 2 3 »
   flood?: { byAgenda?: Record<string, { all?: "increase" | "full"; onReveal?: 0 | 1 | 2 }>; onRevealByCode?: Record<string, 1 | 2> };
     // `onRevealByCode[code]` : ce lieu monte d'un niveau (1) ou est totalement inondé (2) à sa révélation — texte imprimé du lieu
     // (Devil Reef), même sémantique que la règle de marée `onReveal`

@@ -417,6 +417,15 @@ export function initInteractions(ctx) {
             && ((Math.abs(c.loc.y - carte.loc.y) < 20 && Math.abs(Math.abs(c.loc.x - carte.loc.x) - 186) < 40) || (Math.abs(c.loc.x - carte.loc.x) < 20 && Math.abs(Math.abs(c.loc.y - carte.loc.y) - 238) < 40)));
           for (const v of voisins) items.push(item(`+1 barrière vers ${faceVisible(v, ctx.defs.get(v.code)).name}`, () => ctx.envoyer({ t: "setBarrier", a: carte.id, b: v.id, delta: 1 })));
         }
+        // Road X (Horror in High Gear) : n lieux devant ce lieu — Road deck + Long Way Around de côté, mélangés.
+        if (ctx.scenario.road) {
+          const R = ctx.scenario.road;
+          const deck = (ctx.etat.state.piles[R.pile] ?? []).length;
+          const longs = Object.values(ctx.etat.state.cards).filter((k) => k.code === R.longWay && k.loc.zone === "aside").length;
+          items.push(el("div", { class: "item jetons-ligne inondation-ligne" }, el("span", { text: `Road X (deck ${deck}, détours ${longs})` }),
+            ...[1, 2, 3].map((n) => el("button", { class: "pm niveau", type: "button", disabled: !peut || !deck, title: `Road ${n} : ${n} lieu${n > 1 ? "x" : ""} devant ce lieu`,
+              onclick: () => ctx.envoyer({ t: "roadAhead", id: carte.id, n }) }, String(n)))));
+        }
         // Lieux d'une pile posés à côté de ce lieu (Tidal Tunnels, Unfathomable Depths) : une direction (↓ ← →) ou les trois
         // emplacements libres (⟳) — même ligne de boutons que l'inondation.
         for (const p of (ctx.scenario.piles ?? []).filter((p) => p.around)) {
@@ -446,7 +455,7 @@ export function initInteractions(ctx) {
       }
       // Carte dont les deux faces sont des faces de jeu (verso = lieu lié, ex. face Spectral ; ennemi à deux faces,
       // ex. Nathan Wick) : on bascule, on ne retourne pas.
-      const deuxFaces = !carte.storyBack && def?.backCode && def?.backKind === carte.kind && (carte.kind === "location" || carte.kind === "enemy");
+      const deuxFaces = !carte.storyBack && def?.backCode && def?.backKind === carte.kind && (carte.kind === "location" || carte.kind === "enemy" || carte.kind === "asset");
       if (deuxFaces && carte.faceUp) {
         const recto = def.subname ?? (carte.kind === "location" ? "normale" : "recto");
         const verso = def.backSubname ?? (def.backName === def.name ? (carte.kind === "location" ? "Spectral" : "verso") : def.backName);

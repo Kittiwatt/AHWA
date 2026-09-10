@@ -334,7 +334,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
           // Les cartes non tirées sont mises de côté, hors jeu (face cachée), au lieu d'être retirées.
           let deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
           for (const code of restes) for (const id of pool.takeAll(code)) state.cards[id] = newCard(pool, code, id, { zone: "aside", x: deja++ * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, false);
-        } else for (const code of restes) retirer(code);
+        } else if (step.rest !== "keep") for (const code of restes) retirer(code);   // "keep" : les restes restent au pool (pioche de rencontre)
         // Les cartes tirées reprennent leur place dans le pool pour être posées par `poser` (ou rester tirables par un slot).
         pool.giveBack(tires);
         if (step.zone !== undefined && (step.positions || (step.x !== undefined && step.y !== undefined))) {
@@ -352,6 +352,26 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
           if (step.slot) slots.set(step.slot, choix[0]);
           if (step.slot || step.log) addLog(state, "setup", step.log ?? `Tirage au hasard : ${noms.join(", ")}.`);
         }
+        break;
+      }
+      case "fromPile": {
+        // Les n premières cartes d'une pile déjà construite entrent en jeu aux positions données (Road deck : les trois
+        // premières en ligne), non révélées par défaut ; slots `slot:<nom>:<i>` pour y référer ensuite.
+        if (!state.piles[step.pile]?.length) throw new Error(`setup : pile ${step.pile} vide ou inconnue`);
+        const n = Math.min(step.n, state.piles[step.pile].length);
+        const noms: string[] = [];
+        for (let i = 0; i < n; i++) {
+          const id = state.piles[step.pile].shift()!;
+          const c = state.cards[id];
+          const pos = step.positions[i % step.positions.length];
+          c.loc = { zone: step.zone, x: pos.x, y: pos.y, z: z++ };
+          c.faceUp = step.faceUp ?? false;
+          c.side = "a";
+          if (step.reveal && c.kind === "location") revealLocation(state, def, c);
+          if (step.slot) { slots.set(`${step.slot}:${i}`, id); if (i === 0) slots.set(step.slot, id); }
+          noms.push(nomVisible(def, c));
+        }
+        addLog(state, "setup", step.log ?? `${n} carte${n > 1 ? "s" : ""} de la pile ${step.pile} en jeu : ${noms.join(", ")}.`);
         break;
       }
       case "pickRandomSet": {

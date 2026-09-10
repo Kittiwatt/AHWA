@@ -1850,6 +1850,98 @@ async function tableReef({ joueurs = 2, answers }) {
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Horror in High Gear (TIC V) : Road deck par couches, trois premières cartes en ligne, voitures à deux faces au lieu
+// de tête, ennemis Vehicle selon les joueurs (rest keep), Road X (roadAhead), verso ennemi de l'agenda v. I ============
+async function tableGear({ joueurs = 2, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tic_horror_in_high_gear" }) });
+  assert.equal(r.status, 200, "Horror in High Gear est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "07001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["07001", "07002", "07003", "07004"][i] });
+    autres.push(c);
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  return { h, autres, d };
+}
+{
+  const { h, autres: [j2], d } = await tableGear({ joueurs: 2, answers: { mode: "campaign", terror_dead: "no", tokens_out: ["tablet"] } });
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 19, "sac : 20 moins une tablette");
+  assert.equal(s.cards[s.agendaId].code, "07199", "agenda 1 v. I (Terreur en vie)");
+  assert.ok(!cartes.some((c) => c.code === "07200" && c.loc.pile !== "removed"), "v. II retirée");
+  // Road deck : 15 − 3 = 12, Falcon Point Approach parmi les trois du fond ; trois lieux en ligne, non révélés.
+  assert.equal(s.piles.road.length, 12, "Road deck : 12");
+  assert.ok(s.piles.road.slice(-3).some((id) => s.cards[id].code === "07203"), "Falcon Point Approach dans les trois cartes du fond");
+  assert.ok(!s.piles.road.slice(0, 9).some((id) => s.cards[id].code === "07203"));
+  const route = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.deepEqual(route.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["365,411", "551,411", "737,411"], "trois lieux en ligne");
+  assert.ok(route.every((c) => !c.faceUp && c.side === "a" && c.code !== "07203" && c.code !== "07210"), "non révélés, ni Falcon Point ni Long Way Around");
+  assert.ok(!s.log.some((e) => /(Dimly Lit|Cliffside|Fork in the Road|Intersection|Tight Turn|Desolate Road)/.test(e.text)), "le journal ne nomme pas les lieux de la route");
+  assert.equal(cartes.filter((c) => c.code === "07210" && c.loc.zone === "aside" && !c.faceUp).length, 6, "six Long Way Around de côté");
+  // Voitures au lieu de tête, face running (a), pions sur le lieu de tête ; un ennemi Vehicle à l'arrière (2 joueurs).
+  const voitures = cartes.filter((c) => ["07211a", "07212a"].includes(c.code));
+  assert.equal(voitures.length, 2); assert.ok(voitures.every((c) => c.loc.zone === "board" && c.faceUp && c.side === "a" && Math.abs(c.loc.x - 737) < 80 && Math.abs(c.loc.y - 411) < 80), "les deux voitures au lieu de tête");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.y === 411 - 22 && m.loc.x >= 737), "pions sur le lieu de tête");
+  const ennemis = cartes.filter((c) => c.kind === "enemy" && c.loc.zone === "board");
+  assert.equal(ennemis.length, 1, "un ennemi Vehicle en jeu à deux joueurs");
+  assert.ok(["07213", "07214", "07215"].includes(ennemis[0].code) && Math.abs(ennemis[0].loc.x - 365) < 80 && ennemis[0].faceUp, "à l'arrière");
+  assert.equal(s.piles.encounter.length, 27, "pioche : 28 − 1 ennemi (les autres Vehicle restent dans la pioche)");
+  assert.equal(s.piles.encounter.filter((id) => ["07213", "07214", "07215"].includes(s.cards[id].code)).length, 5);
+  // Voiture à deux faces : toggleSide.
+  let d2 = await h.action({ t: "toggleSide", id: voitures[0].id });
+  assert.equal(h.state.cards[voitures[0].id].side, "b", "voiture arrêtée (verso)");
+  d2 = await h.action({ t: "toggleSide", id: voitures[0].id });
+  assert.equal(h.state.cards[voitures[0].id].side, "a");
+  // Road X : deux lieux devant le lieu de tête (Road deck + un Long Way Around, mélangés), puis trois devant l'un d'eux.
+  const tete = route.find((c) => c.loc.x === 737);
+  d2 = await h.action({ t: "roadAhead", id: tete.id, n: 2 });
+  assert.equal(d2.t, "delta", "Road 2");
+  assert.equal(h.state.piles.road.length, 11, "une carte du Road deck sortie");
+  assert.equal(Object.values(h.state.cards).filter((c) => c.code === "07210" && c.loc.zone === "aside").length, 5, "un Long Way Around sorti");
+  const devant = Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board" && c.loc.x === 923);
+  assert.deepEqual(devant.map((c) => c.loc.y).sort((a, b) => a - b), [411, 649], "colonne devant : en face et dessous");
+  assert.ok(devant.every((c) => !c.faceUp) && devant.some((c) => c.code === "07210") && devant.some((c) => c.code !== "07210"), "un vrai lieu et un détour, non révélés");
+  assert.ok(h.state.log.some((e) => e.text.startsWith("Road 2 :") && !/(Dimly Lit|Cliffside|Fork|Intersection|Tight Turn|Desolate)/.test(e.text)), "journal muet sur lequel est lequel");
+  d2 = await h.action({ t: "roadAhead", id: devant[0].id, n: 3 });
+  assert.equal(d2.t, "delta", "Road 3");
+  assert.equal(Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board" && c.loc.x === 1109).length, 3, "trois lieux dans la colonne suivante");
+  assert.equal(h.state.piles.road.length, 10);
+  d2 = await h.action({ t: "roadAhead", id: ennemis[0].id, n: 1 }); assert.equal(d2.t, "nack", "pas un lieu");
+  // Verso ennemi de l'agenda v. I à l'avancement.
+  const agenda1 = h.state.agendaId;
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07201", "agenda 2 courant");
+  assert.ok(h.state.cards[agenda1].kind === "enemy" && h.state.cards[agenda1].side === "b" && h.state.cards[agenda1].loc.zone === "board", "The Terror of Devil Reef (verso) sur le tapis");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.piles.road, h.state.piles.road, "les autres clients suivent");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // Autonome solo : sac de base, v. I (Terreur en vie), aucun ennemi Vehicle ; campagne à quatre : deux ennemis, v. II si la Terreur est morte.
+  const { h, d } = await tableGear({ joueurs: 1, answers: { mode: "standalone", terror_dead: "yes", tokens_out: ["cultist"] } });
+  assert.equal(d.t, "delta"); assert.equal(h.state.chaos.bag.length, 20); assert.equal(h.state.cards[h.state.agendaId].code, "07199", "autonome : v. I");
+  assert.equal(Object.values(h.state.cards).filter((c) => c.kind === "enemy" && c.loc.zone === "board").length, 0, "solo : aucun ennemi Vehicle");
+  assert.equal(h.state.piles.encounter.length, 28);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+  const { h: g, d: dg } = await tableGear({ joueurs: 4, answers: { mode: "campaign", terror_dead: "yes", tokens_out: [] } });
+  assert.equal(dg.t, "delta"); assert.equal(g.state.cards[g.state.agendaId].code, "07200", "Terreur morte : v. II");
+  assert.equal(Object.values(g.state.cards).filter((c) => c.kind === "enemy" && c.loc.zone === "board").length, 2, "quatre joueurs : deux ennemis Vehicle");
+  assert.equal(g.state.piles.encounter.length, 26);
+  g.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 // ============ Board joueur, étape 1 (cahier §10) : import du deck au lobby, faiblesse aléatoire, code de siège et
 // connexions multiples, decks créés à la mise en place, actions p:* réservées au siège ============
 {

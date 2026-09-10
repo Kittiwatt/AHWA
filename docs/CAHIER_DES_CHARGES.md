@@ -520,6 +520,14 @@ lié est un ennemi devient `enemy`, côté b, posé au centre (ou
 trait `Vehicle` déplacé emmène ses pions et clés (`moveCard`) ; l'op
 `minis` accepte un véhicule.
 
+**Horror in High Gear (2026-09-10).** Op `fromPile {pile, n, zone,
+positions, faceUp?, reveal?, slot?}` (premières cartes d'une pile en
+jeu) ; `pickRandom rest:"keep"` (restes laissés au pool) ; définition
+`road {pile, longWay}` et action `roadAhead {id, n}` (Road deck + Long
+Way Around mélangés dans une colonne devant le lieu) ; « Autre face »
+(`toggleSide`) offert aux soutiens à verso lié de même kind (voitures
+Running / Stopped).
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets

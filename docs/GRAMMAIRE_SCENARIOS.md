@@ -182,7 +182,17 @@ donc pas ce qui est déjà posé.
   carte. Sans zone : tirage nominal seulement (slot/journal). **Sort
   des restes** (codes non tirés + copies restantes des codes tirés) :
   `rest` absent = retirés ; `"aside"` = de côté face cachée ; `"pile"` =
-  dans la pile `restPile` (créée au besoin). `slot` : voir Slots.
+  dans la pile `restPile` (créée au besoin) ; `"keep"` = laissés au
+  pool (ils rejoindront la pioche de rencontre au `buildEncounter` —
+  ennemis Vehicle non tirés de Horror in High Gear). `slot` : voir
+  Slots.
+- `{"op":"fromPile","pile","n","zone","positions":[{x,y}…],"faceUp"?,"reveal"?,"slot"?,"log"?}`
+  — les `n` premières cartes d'une pile **déjà construite** entrent en
+  jeu aux positions données (Road deck : « put the top 3 cards into
+  play in a straight line »), non révélées par défaut ; `slot`
+  mémorise `slot:<slot>:<i>` (0 = première) et `slot:<slot>` — pour un
+  `spawn` ou des `minis` sur le lieu de tête. Le journal nomme la face
+  visible (dos commun : rien de dévoilé).
 - `{"op":"pickRandomSet","from":[sets],"n"?,"log"?}` — garde `n` sets
   entiers dans le pool, retire les autres, **sans dire lesquels**
   (journal générique).
@@ -310,6 +320,14 @@ rendus pendant la partie.
   automatique (le rappel de phase reste).
 - **`emptySpace: true`** — action `emptySpace` + entrée de menu des
   lieux (Before the Black Throne).
+- **`road`** : `{pile, longWay}` — Road X (Horror in High Gear) :
+  action `roadAhead {id, n}` — la première carte de la pile `pile`
+  (Road deck) + (n − 1) cartes de côté de code `longWay` (Long Way
+  Around), mélangées, entrent en jeu non révélées dans une nouvelle
+  colonne devant le lieu (x + 186 ; 1 = en face, 2 = en face + dessous,
+  3 = dessus + en face + dessous, case prise → plus bas) ; journal muet
+  sur lequel est lequel ; menu du lieu : ligne « Road X (deck n,
+  détours m) 1 2 3 ».
 - **`barriers: true`** — rendu des chips sur les arêtes (clic = −1,
   « + » au survol) et menu du lieu « +1 barrière vers… » (voisins
   orthogonaux à 186/238 px). L'action serveur `setBarrier {a,b,delta}`
@@ -378,9 +396,13 @@ rendus pendant la partie.
   clés 44 px (bord gauche, empilées vers le bas), cartes de côté
   espacées de 136 px.
 - **Porteurs** : un lieu déplacé emmène pions, clés et cartes posés
-  dessus ; un **véhicule** (soutien à trait `Vehicle`, Fishing Vessel)
-  emmène ses pions et clés seulement — un pion à cheval sur le véhicule
-  est « dedans » (règle du guide), posé sur le lieu il n'y est pas.
+  dessus ; un **véhicule** (soutien à trait `Vehicle` : Fishing Vessel,
+  voitures de Horror in High Gear) emmène ses pions et clés seulement —
+  un pion à cheval sur le véhicule est « dedans » (règle du guide), posé
+  sur le lieu il n'y est pas. Un soutien à verso lié de même kind
+  (voitures : `07211a` → `07211b` « Stopped ») se bascule par « Autre
+  face (<sous-titre du verso>) » (`toggleSide`), comme un lieu Spectral
+  ou Nathan Wick.
 - **Zones** : `board` (tapis), `story` (agenda/acte/scénario), `aside`
   (de côté), `victory`, `seat0–3` (postes), zones du board joueur
   (`pplay/pevent/pcommit/paside` + n° de siège) — le setup n'écrit

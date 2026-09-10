@@ -1,0 +1,87 @@
+{
+  "_source": "Guide de campagne The Innsmouth Conspiracy (FFG, 2020) : Scenario V, « Scenario Setup » p. 24 (sets ; Road deck : Falcon Point Approach et les six Long Way Around de côté, Falcon Point Approach + deux Old Innsmouth Road mélangés en fond de pile, le reste au-dessus au hasard, côté Old Innsmouth Road ; les trois premières cartes en ligne, arrière à gauche, avant à droite ; deux voitures, deux enquêteurs au plus par voiture, la voiture vide retirée, face « running », enquêteurs à bord à l'avant, un conducteur par voiture ; ennemis Vehicle selon le nombre de joueurs, à l'arrière ; agenda 1 v. I ou v. II selon « The Terror of Devil Reef is dead »), diagramme « Location Placement » et encadrés « Vehicles », « Running / Stopped », « Road X », « Standalone Mode » p. 25 (sac de base, « The Terror of Devil Reef is alive ») ; flashbacks du scénario I p. 6 (jetons retirés). Rien d'autre du guide n'a été lu. Aucun texte de carte ; les rappels paraphrasent le guide ou décrivent les gestes de l'application. Choix (uniformisation) : voitures = véhicules porteurs de pions à deux faces (« Autre face »), Road deck = pile + action roadAhead (ligne « Road X : 1 2 3 » du menu, comme les lignes Inondation et Tidal Tunnels), verso ennemi de l'agenda 1 v. I par l'app, montée à bord et conducteurs manuels (choix des joueurs).",
+  "id": "tic_horror_in_high_gear",
+  "title": "Horror in High Gear",
+  "campaign": "The Innsmouth Conspiracy",
+  "campaignId": "tic",
+  "order": 5,
+  "packs": ["hhg", "tic", "core"],
+  "encounterSets": ["horror_in_high_gear", "fog_over_innsmouth", "malfunction", "shattered_memories", "ancient_evils"],
+  "scenarioCard": "07198",
+  "agendaDeck": ["07199", "07200", "07201"],
+  "actDeck": ["07202"],
+  "startLocation": "07204a",
+  "piles": [
+    { "id": "road", "label": "Road deck" }
+  ],
+  "road": { "pile": "road", "longWay": "07210" },
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-5", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "-8", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"]
+  },
+  "layout": [
+    { "code": "07204a", "x": 737, "y": 411 }
+  ],
+  "questions": [
+    { "id": "mode", "text": "Campagne ou scénario seul ?", "options": [
+      { "id": "campaign", "label": "Campagne : journal des scénarios précédents (questions suivantes)" },
+      { "id": "standalone", "label": "Scénario seul (mode autonome) : sac de base, « The Terror of Devil Reef is alive »" } ] },
+    { "id": "terror_dead", "text": "Au journal (scénario IV) : « The Terror of Devil Reef is dead » ?", "options": [
+      { "id": "no", "label": "Non (ou rien de noté)" }, { "id": "yes", "label": "Oui" } ] },
+    { "id": "tokens_out", "text": "Jetons retirés du sac pour le reste de la campagne (scénario I) :", "type": "multi", "options": [
+      { "id": "cultist", "label": "Cultiste" }, { "id": "tablet", "label": "Tablette" }, { "id": "elder_thing", "label": "Ancien" } ] }
+  ],
+  "setup": [
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "tokens_out", "has": "cultist" }] },
+      "then": [{ "op": "chaosRemove", "tokens": ["cultist"], "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)" }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "tokens_out", "has": "tablet" }] },
+      "then": [{ "op": "chaosRemove", "tokens": ["tablet"], "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)" }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "tokens_out", "has": "elder_thing" }] },
+      "then": [{ "op": "chaosRemove", "tokens": ["elder_thing"], "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)" }] },
+    { "op": "when", "cond": { "q": "mode", "is": "standalone" },
+      "then": [{ "op": "log", "text": "Mode autonome : sac de base du guide (p. 25), aucun retrait ; « The Terror of Devil Reef is alive »." }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "terror_dead", "is": "yes" }] },
+      "then": [{ "op": "remove", "codes": ["07199"], "log": "« The Terror of Devil Reef is dead » : l'agenda 1 utilisé est la version II, la version I est retirée de la partie." }],
+      "else": [{ "op": "remove", "codes": ["07200"], "log": "L'agenda 1 utilisé est la version I (la Terreur est en vie), la version II est retirée de la partie." }] },
+    { "op": "aside", "codes": ["07210", "07210", "07210", "07210", "07210", "07210"], "faceUp": false,
+      "log": "Les six Long Way Around sont mis de côté, hors jeu, côté Old Innsmouth Road : ils entrent en jeu par les Road X." },
+    { "op": "layeredPile", "pile": "road",
+      "pool": ["07204a", "07204b", "07204c", "07205a", "07205b", "07206a", "07206b", "07207a", "07207b", "07208a", "07208b", "07208c", "07209a", "07209b", "07203"],
+      "layers": [{ "n": 12 }, { "n": 2, "with": ["07203"] }],
+      "log": "Road deck : Falcon Point Approach et deux Old Innsmouth Road mélangés en forment le fond (trois cartes), les douze autres au-dessus dans un ordre aléatoire — côté Old Innsmouth Road, personne ne sait laquelle est laquelle." },
+    { "op": "fromPile", "pile": "road", "n": 3, "zone": "board", "positions": [{ "x": 365, "y": 411 }, { "x": 551, "y": 411 }, { "x": 737, "y": 411 }], "slot": "route",
+      "log": "Les trois premières cartes du Road deck sont posées en ligne, non révélées : l'arrière à gauche, l'avant à droite (diagramme p. 25)." },
+    { "op": "spawn", "code": "07211a", "at": "slot:route:2",
+      "log": "Thomas Dawson's Car est mise en jeu au lieu de tête (avant), face « running »." },
+    { "op": "spawn", "code": "07212a", "at": "slot:route:2",
+      "log": "Elina Harper's Car est mise en jeu au lieu de tête (avant), face « running »." },
+    { "op": "minis", "code": "slot:route:2",
+      "log": "Les pions des enquêteurs sont posés sur le lieu de tête : chacun monte dans une voiture (glissez votre pion sur la voiture choisie, deux au plus par voiture) ; la voiture vide est retirée de la partie." },
+    { "op": "branch", "on": "players", "cases": {
+      "1": [{ "op": "log", "text": "Un seul joueur : aucun ennemi Vehicle n'entre en jeu au départ." }],
+      "2": [{ "op": "pickRandom", "from": ["07213", "07213", "07214", "07214", "07215", "07215"], "n": 1, "zone": "board", "positions": [{ "x": 401, "y": 457 }], "faceUp": true, "rest": "keep",
+             "log": "Deux ou trois joueurs : un ennemi Vehicle tiré au hasard entre en jeu au lieu de queue (arrière) ; les autres restent dans la pioche." }],
+      "3": [{ "op": "pickRandom", "from": ["07213", "07213", "07214", "07214", "07215", "07215"], "n": 1, "zone": "board", "positions": [{ "x": 401, "y": 457 }], "faceUp": true, "rest": "keep",
+             "log": "Deux ou trois joueurs : un ennemi Vehicle tiré au hasard entre en jeu au lieu de queue (arrière) ; les autres restent dans la pioche." }],
+      "4": [{ "op": "pickRandom", "from": ["07213", "07213", "07214", "07214", "07215", "07215"], "n": 2, "zone": "board", "positions": [{ "x": 401, "y": 457 }, { "x": 419, "y": 475 }], "faceUp": true, "rest": "keep",
+             "log": "Quatre joueurs : deux ennemis Vehicle tirés au hasard entrent en jeu au lieu de queue (arrière) ; les autres restent dans la pioche." }] } },
+    { "op": "story" },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)." },
+    { "when": "setup", "text": "Voitures (guide p. 24‑25) : chaque enquêteur monte dans une voiture — glissez votre pion sur Thomas Dawson's Car ou Elina Harper's Car (deux au plus par voiture) ; retirez la voiture restée vide (menu → Retirer de la partie) ; désignez un conducteur par voiture (il en faut toujours un tant qu'elle est occupée). Un pion à cheval sur la voiture est à bord ; posé sur le lieu, il ne l'est pas. Une voiture glissée sur un autre lieu emmène ses passagers." },
+    { "when": "setup", "text": "En marche / à l'arrêt (guide) : chaque voiture a deux faces ; elle démarre face « running ». Menu de la voiture → « Autre face » pour la démarrer ou l'arrêter selon la capacité imprimée. Le lieu de tête a déclenché son Road X en étant révélé : révélez-le (clic) puis appliquez sa valeur." },
+    { "when": "setup", "text": "Road X (guide) : quand un lieu à mot-clé Road X est révélé sans lieu devant lui, X nouveaux lieux entrent en jeu en colonne devant lui, côté Old Innsmouth Road — la première carte du Road deck plus des Long Way Around de côté, mélangés. Menu du lieu → ligne « Road X : 1 2 3 » : l'app tire, mélange et pose sans dire lequel est lequel. Chaque lieu est connecté à ceux qui sont derrière et devant lui, pas aux autres lieux de sa colonne ; adjacence sans diagonale." },
+    { "when": "setup", "text": "Bénédictions et malédictions (guide) : clic droit sur le sac → Ajuster (10 au plus de chaque) ; révélé, un tel jeton retourne à la réserve : « ↺ Tout remettre » l'écarte tout seul." },
+    { "when": "agenda:2", "text": "Agenda 2 : appliquez le verso de l'agenda 1 — version I : l'ennemi du verso est entré en jeu au centre du tapis, déplacez-le là où sa carte l'envoie ; version II : voir la carte (de côté)." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour. À bord d'une voiture en marche, on ne descend pas et on ne se déplace pas seul." },
+    { "when": "enemy", "text": "Fin de la phase d'enquête : l'acte 1 fait avancer chaque voiture en marche vers un lieu connecté au choix de son conducteur (glissez la voiture : ses passagers suivent). Puis les ennemis chasseurs se déplacent et chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource. Fin de manche : l'agenda fait sortir de la partie les lieux de l'arrière sans véhicule, ennemi ni enquêteur (menu du lieu → Zone de victoire ou Retirer de la partie)." }
+  ]
+}
