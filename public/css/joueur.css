@@ -43,9 +43,11 @@
 .entete-joueur .fiche strong { font-size: 1.15rem; }
 .entete-joueur .fiche .sous { font-size: 0.9rem; }
 .entete-joueur .etoile { color: var(--dorure-2); }
-/* Jauges de l'enquêteur : mêmes chips que sur les cartes (clic = +1, « − » au survol), en plus grand dans l'entête */
-.compteurs-compacts { display: flex; flex-wrap: wrap; gap: 0.4rem 0.7rem; }
+/* Jauges de l'enquêteur : mêmes chips que sur les cartes (clic = +1, « − » au survol), en plus grand dans l'entête.
+   Écart et marge à gauche ≥ 1.1em + 4px : la pastille s'allonge vers la gauche au survol sans rien déplacer (room.css, .jauge-inv). */
+.compteurs-compacts { display: flex; flex-wrap: wrap; gap: 0.4rem 1.6rem; margin-left: 0.5rem; }
 .entete-joueur .jauges-inv .chip { font-size: 1.15rem; gap: 4px; padding: 2px 8px 2px 2px; }
+.entete-joueur .jauge-inv:not(.inactive):hover { margin-left: calc(-1.1em - 4px); padding-left: calc(1.1em + 6px); }
 .entete-joueur .jauges-inv .chip img { width: 32px; height: 32px; }
 .entete-joueur .jauges-inv .chip .chip-n { min-width: 1.6em; }
 .tour-actions { display: flex; align-items: center; gap: 0.6rem; }

@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | UX : le « − » des jauges hors carte se déploie sans rien déplacer | pastille ancrée à gauche : marge négative + retrait au survol, `.chip-moins` en absolu (`.jauge-inv`, room.css) ; gouttières ≥ 1.1em + écart ; siège et entête du board |
 | 2026-09-10 | BoA III — Queen of Ash | jetons p. 11 selon la difficulté (icônes vérifiées) + cultistes du II en campagne, tunnels mélangés, journal `multi` (doom, `seatCounter` indices, cultistes aux tunnels, Servant retiré / de côté), Elokoss à deux faces, `shuffleAside {code, n}`, `spawnAside ifAside` ; **campagne BoA complète** |
 | 2026-09-10 | BoA II — Smoke and Mirrors | 2 cultistes au sac (icône vérifiée), versions Downtown / Uptown au hasard, suspect secret (`pickRandom zone:"aside"`), `bury fromPool` + `under` (cinq suspects + Servant sous six quartiers), pile « Sous l'acte », journal (université) et porteur d'Armitage au lobby |
 | 2026-09-10 | UX : jauges des sièges sur deux lignes, case Play compacte | dégâts + horreur / ressources + indices, actions dessous ; case Play en `outline` + badge « Main N » ; même ordre de jauges sur le board joueur ; siège = hauteur de la carte, bandeau du bas 245 → 190 px (deck : 216 → 182), tapis central +55 px |
@@ -101,6 +102,40 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **Le « − » des jauges hors carte se déploie sans rien
+  déplacer** — retour de l'utilisateur : les jauges des cartes sont
+  « parfaites » (au survol la pastille s'allonge vers la gauche pour
+  loger le « − », l'icône et le nombre ne bougent pas), mais celles des
+  sièges du tapis et de l'entête du board « bougeaient pour laisser le
+  bouton se déployer », différence subtile et désagréable. Cause : sur
+  une carte la colonne `.chips` est ancrée à droite (`right: 3px`), la
+  pastille pousse donc vers la gauche ; hors carte les chips sont
+  ancrées à gauche, et le bouton inséré dans le flux décalait le contenu
+  vers la droite (et, en rangée, les chips suivantes). Correctif CSS
+  seul (`room.css` `.jauge-inv`, `joueur.css`) : la chip est `position:
+  relative`, `.chip-moins` est posé en absolu dans le retrait gauche
+  (`left: 2px`, centré verticalement), et au survol la pastille prend
+  une **marge gauche négative** égale au **retrait intérieur** qu'elle
+  gagne (1.1em + écart) — sa boîte s'allonge vers la gauche, sa boîte de
+  marge ne change pas, l'icône et le nombre restent en place, rien ne
+  bouge autour ; les chips `.inactive` (spectateur, siège d'un autre)
+  ne s'allongent pas. Conséquence : les gouttières à gauche de chaque
+  chip doivent mesurer au moins 1.1em + l'écart — siège : colonnes
+  `max-content` avec `column-gap: 1.4rem` (la grille `minmax` du matin
+  n'a plus lieu d'être) et `.jauges-col` décalé de 0.7rem du bord de
+  la carte d'enquêteur (colonne 181 → 154 px, la zone de menace y
+  gagne) ; entête du board : `gap` 0.7 → 1.6rem, marge gauche 0.5rem.
+  `.chip-n` des sièges à 1.75em : les quatre pastilles ont la même
+  largeur (66 px). Vérification par script Playwright (COB I, deck
+  importé) : survol de chacune des cinq jauges sur le siège et sur
+  l'entête — la pastille s'allonge de 20,6 px (siège) / 24,3 px
+  (board) vers la gauche, `img` et `.chip-n` aux mêmes coordonnées à
+  0,1 px près, aucune autre chip déplacée ; spectateur : rien ne bouge,
+  pas de « − » ; captures repos / survol ; `npm run check` zéro
+  erreur ; régression `test_room.mjs` (692 messages) OK. Piège
+  rencontré : `wrangler dev` mort trois fois (« Network connection
+  lost ») entre deux scripts de capture — relancé, rejoué, sans cause
+  dans le dépôt (§5).
 - 2026-09-10 : **Queen of Ash (BoA III) livré — campagne Brethren of
   Ash complète** (trois tables). Guide : consignes de mise en place de
   la p. 11 lues **par leurs encadrés seulement** (bbox de `pdftotext`
@@ -188,41 +223,9 @@ versement de son durable (format → grammaire, piège → §5, décision →
   régression). Catalogue et README.
 
 
-- 2026-09-10 : **UX : jauges des sièges sur deux lignes** — demande de
-  l'utilisateur (capture à l'appui) : sur la page de table, la colonne
-  de jauges à côté de la carte d'enquêteur (quatre chips empilées +
-  ligne « Actions », 165 px) dépassait de 55 px la carte (110 px) et
-  fixait seule la hauteur du bandeau du bas, au détriment du tapis
-  central. Nouvelle disposition (`rendreSieges`, `room.css`) : la
-  `.jauges-inv` du siège devient une grille à deux colonnes — première
-  ligne **dégâts + horreur**, seconde **ressources + indices** (ordre
-  des chips inversé dans `tapis.js`), compteurs du
-  scénario à la suite (COB : « Sang scellé » seul sur une troisième
-  ligne, colonne 129 px), et la ligne des actions en dessous, libellé
-  resserré contre les pastilles (`.siege .compteur.actions`, colonnes
-  `auto auto`). Colonnes en `minmax(5.4rem, max-content)` : le « − »
-  qui apparaît au survol d'une chip tient dans sa colonne et ne décale
-  ni sa voisine ni la ligne suivante (vérifié en capture). Deux
-  compléments tranchés par Claude (l'utilisateur a laissé le choix) :
-  **case Play compacte** — avec un deck importé, la case Play +
-  « Main N » (143 px) redevenait l'élément le plus haut du bandeau ; la
-  case fait désormais exactement la taille de la carte (`.play-siege`
-  78 × 110), son cadre pointillé est dessiné en `outline` /
-  `outline-offset: 3px` hors de la boîte et « Main N » devient un
-  **badge de coin** (`.badge-main`, comme le compte des pioches,
-  infobulle « N cartes en main ») ; et **même ordre de jauges sur le
-  board joueur** (entête : dégâts, horreur, ressources, indices, puis
-  compteurs du scénario) pour une seule logique partout. Mesures
-  (1600 × 1000, The Gathering) : colonne 94 px, corps du siège 165 →
-  110 px, bandeau `#sieges` 245 → 190 px (siège avec deck : 216 → 182),
-  zone des lieux 662 → 716 px ; en 1366 × 768 : 437 → 492 px. Tests :
-  régression `test_room.mjs` OK (694 puis 689 messages), `npm run
-  check` zéro erreur ; captures par script autonome (avant / après,
-  survol, COB, deck avant / après mise en place — badge « Main 5 »,
-  entête du board, 1366 × 768), zéro erreur console.
 - **Prochaine étape** : retours de l'utilisateur sur le bandeau des
-  sièges (jauges sur deux lignes, case Play compacte, ordre du board
-  joueur) et sur la campagne **Brethren of Ash complète** (disposition
+  sièges (jauges sur deux lignes, geste du « − », case Play compacte,
+  ordre du board joueur) et sur la campagne **Brethren of Ash complète** (disposition
   sans diagramme, attache Fire!, versos automatisés, suspects enfouis,
   pile « Sous l'acte », tunnels mélangés, Elokoss à deux faces) ;
   **question ouverte** : les journaux du I et du II modifient-ils le sac
@@ -402,7 +405,10 @@ hauteur de la carte d'enquêteur — deux jauges par ligne (dégâts + horreur,
 puis ressources + indices, compteurs du scénario à la suite), actions en
 dessous, case Play à la taille de la carte avec « Main N » en badge ; la
 hauteur du bandeau est réservée au tapis central. Le board joueur montre
-les mêmes jauges dans le même ordre, sur une rangée.
+les mêmes jauges dans le même ordre, sur une rangée. Partout, le « − »
+d'une jauge se déploie **à gauche sans déplacer l'icône ni le nombre**,
+comme sur les cartes (règle `.jauge-inv` de `room.css` : marge négative
+= retrait gagné, bouton en absolu ; prévoir la gouttière à gauche).
 
 **Bibliothèque.** Page d'accueil de présentation (avec champ
 « rejoindre une room par code »), puis la bibliothèque : tous les

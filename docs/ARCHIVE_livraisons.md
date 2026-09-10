@@ -8,6 +8,38 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **UX : jauges des sièges sur deux lignes** — demande de
+  l'utilisateur (capture à l'appui) : sur la page de table, la colonne
+  de jauges à côté de la carte d'enquêteur (quatre chips empilées +
+  ligne « Actions », 165 px) dépassait de 55 px la carte (110 px) et
+  fixait seule la hauteur du bandeau du bas, au détriment du tapis
+  central. Nouvelle disposition (`rendreSieges`, `room.css`) : la
+  `.jauges-inv` du siège devient une grille à deux colonnes — première
+  ligne **dégâts + horreur**, seconde **ressources + indices** (ordre
+  des chips inversé dans `tapis.js`), compteurs du
+  scénario à la suite (COB : « Sang scellé » seul sur une troisième
+  ligne, colonne 129 px), et la ligne des actions en dessous, libellé
+  resserré contre les pastilles (`.siege .compteur.actions`, colonnes
+  `auto auto`). Colonnes en `minmax(5.4rem, max-content)` : le « − »
+  qui apparaît au survol d'une chip tient dans sa colonne et ne décale
+  ni sa voisine ni la ligne suivante (vérifié en capture). Deux
+  compléments tranchés par Claude (l'utilisateur a laissé le choix) :
+  **case Play compacte** — avec un deck importé, la case Play +
+  « Main N » (143 px) redevenait l'élément le plus haut du bandeau ; la
+  case fait désormais exactement la taille de la carte (`.play-siege`
+  78 × 110), son cadre pointillé est dessiné en `outline` /
+  `outline-offset: 3px` hors de la boîte et « Main N » devient un
+  **badge de coin** (`.badge-main`, comme le compte des pioches,
+  infobulle « N cartes en main ») ; et **même ordre de jauges sur le
+  board joueur** (entête : dégâts, horreur, ressources, indices, puis
+  compteurs du scénario) pour une seule logique partout. Mesures
+  (1600 × 1000, The Gathering) : colonne 94 px, corps du siège 165 →
+  110 px, bandeau `#sieges` 245 → 190 px (siège avec deck : 216 → 182),
+  zone des lieux 662 → 716 px ; en 1366 × 768 : 437 → 492 px. Tests :
+  régression `test_room.mjs` OK (694 puis 689 messages), `npm run
+  check` zéro erreur ; captures par script autonome (avant / après,
+  survol, COB, deck avant / après mise en place — badge « Main 5 »,
+  entête du board, 1366 × 768), zéro erreur console.
 - 2026-09-10 : **Spreading Flames (BoA I) livré — première table de la
   nouvelle boîte de base Brethren of Ash (ahc100, 2026)**. Guide : seules
   les p. 2 (Campaign Setup) et 3 (Setup du I) ont été lues ; **aucun

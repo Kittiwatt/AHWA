@@ -437,12 +437,20 @@ body.mode-lien #plateau .carte.kind-location { outline: 2px dashed var(--dorure-
 .jauges-inv { display: flex; flex-wrap: wrap; gap: 0.35rem 0.5rem; }
 .siege .jauges-col { display: grid; gap: 0.4rem; align-content: start; }
 /* Deux jauges par ligne (dégâts + horreur, ressources + indices, compteurs du scénario à la suite), les actions en dessous :
-   la colonne tient dans la hauteur de la carte d'enquêteur (2026-09-10). Colonnes à largeur minimale fixe : le « − »
-   qui apparaît au survol d'une chip ne décale pas ses voisines. */
-.siege .jauges-inv { display: grid; grid-template-columns: repeat(2, minmax(5.4rem, max-content)); gap: 0.35rem 0.5rem; justify-items: start; }
+   la colonne tient dans la hauteur de la carte d'enquêteur (2026-09-10). La gouttière entre les colonnes et la marge
+   à gauche de la colonne réservent la place du « − » qui se déploie au survol (voir .jauge-inv plus bas). */
+.siege .jauges-col { margin-left: 0.7rem; }
+.siege .jauges-inv { display: grid; grid-template-columns: repeat(2, max-content); gap: 0.35rem 1.4rem; justify-items: start; }
 .siege .jauges-inv .chip { font-size: 1rem; gap: 3px; padding: 2px 7px 2px 2px; }
 .siege .jauges-inv .chip img { width: 26px; height: 26px; }
-.siege .jauges-inv .chip .chip-n { min-width: 1.5em; }
+.siege .jauges-inv .chip .chip-n { min-width: 1.75em; }
+/* Même geste que sur les cartes (retour de l'utilisateur du 2026-09-10) : au survol, la pastille s'allonge vers la gauche
+   pour loger le « − » et l'icône comme le nombre ne bougent pas. Sur une carte, la chip est ancrée à droite ; ici elle est
+   ancrée à gauche, donc la pastille avance d'autant vers la gauche (marge négative) qu'elle gagne de retrait intérieur,
+   le bouton est posé en absolu dans ce retrait — la gouttière voisine doit mesurer au moins 1.1em + l'écart. */
+.jauge-inv { position: relative; }
+.jauge-inv .chip-moins { position: absolute; left: 2px; top: 50%; transform: translateY(-50%); }
+.siege .jauge-inv:not(.inactive):hover { margin-left: calc(-1.1em - 3px); padding-left: calc(1.1em + 5px); }
 .chip.inactive { cursor: default; }
 .chip.inactive:hover .chip-moins { display: none; }
 
