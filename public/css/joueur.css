@@ -151,10 +151,13 @@
 .slots .slot img { width: 1.35rem; height: 1.35rem; }
 .portrait-bloc { position: relative; }
 .portrait-bloc .verso { position: absolute; right: 2px; bottom: 2px; font-size: 0.7rem; padding: 0 0.3rem; background: rgba(15, 26, 34, 0.85); border-radius: 2px; }
-/* Tapis : case Play (une carte) à côté de la zone de menace du siège ; Commit volant au-dessus des pioches */
-.play-siege { display: grid; gap: 0.2rem; justify-items: center; }
-.play-siege .case-play { width: calc(var(--carte-l) + 0.6rem); height: calc(var(--carte-h) + 0.6rem); padding: 0.3rem; display: grid; place-items: center; border: 1px dashed var(--dorure); border-radius: 4px; background: var(--zone); }
-.play-siege .case-play.vide { border-color: var(--zone-filet); }
+/* Tapis : case Play (une carte) à côté de la zone de menace du siège ; Commit volant au-dessus des pioches.
+   La case fait exactement la taille de la carte, son cadre pointillé est dessiné en outline hors de la boîte et « Main N »
+   est un badge de coin (comme le compte des pioches) : le siège garde la hauteur de la carte d'enquêteur (2026-09-10). */
+.play-siege { position: relative; width: var(--carte-l); height: var(--carte-h); }
+.play-siege .case-play { width: 100%; height: 100%; padding: 0; display: grid; place-items: center; outline: 1px dashed var(--dorure); outline-offset: 3px; border-radius: 4px; background: var(--zone); }
+.play-siege .case-play.vide { outline-color: var(--zone-filet); }
+.play-siege .badge-main { position: absolute; right: -8px; top: -8px; height: 1.4rem; padding: 0 0.45rem; display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; white-space: nowrap; color: var(--nuit); background: var(--dorure-2); border-radius: 999px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); }
 .commit-volant { position: absolute; left: 0.75rem; bottom: 10rem; z-index: 5; max-width: min(60vw, 52rem); padding: 0.45rem 0.6rem 0.5rem; background: rgba(30, 45, 51, 0.94); border: 1px solid var(--dorure); border-radius: 4px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
 .commit-volant h2 { font-size: 0.95rem; margin: 0 0 0.35rem; color: var(--dorure-2); }
 .commit-corps { display: flex; align-items: flex-start; gap: 0.8rem; }

@@ -331,6 +331,7 @@
 .compteur dd { display: inline-flex; align-items: center; gap: 0.3rem; }
 .compteur dd .valeur { min-width: 2.6rem; text-align: center; }
 .compteur.actions dd.actions-pips { margin-top: 0; }
+.siege .compteur.actions { grid-template-columns: auto auto; column-gap: 0.6rem; }
 .siege header .espace { flex: 1; }
 .siege.joue { opacity: 0.6; }
 .siege.actif { opacity: 1; }
@@ -435,7 +436,10 @@ body.mode-lien #plateau .carte.kind-location { outline: 2px dashed var(--dorure-
 /* Jauges d'un enquêteur (sièges du tapis, entête du board) : la même chip, hors carte */
 .jauges-inv { display: flex; flex-wrap: wrap; gap: 0.35rem 0.5rem; }
 .siege .jauges-col { display: grid; gap: 0.4rem; align-content: start; }
-.siege .jauges-inv { flex-direction: column; align-items: flex-start; }
+/* Deux jauges par ligne (dégâts + horreur, ressources + indices, compteurs du scénario à la suite), les actions en dessous :
+   la colonne tient dans la hauteur de la carte d'enquêteur (2026-09-10). Colonnes à largeur minimale fixe : le « − »
+   qui apparaît au survol d'une chip ne décale pas ses voisines. */
+.siege .jauges-inv { display: grid; grid-template-columns: repeat(2, minmax(5.4rem, max-content)); gap: 0.35rem 0.5rem; justify-items: start; }
 .siege .jauges-inv .chip { font-size: 1rem; gap: 3px; padding: 2px 7px 2px 2px; }
 .siege .jauges-inv .chip img { width: 26px; height: 26px; }
 .siege .jauges-inv .chip .chip-n { min-width: 1.5em; }

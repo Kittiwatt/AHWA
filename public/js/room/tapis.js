@@ -576,12 +576,14 @@ function rendreSieges(ctx) {
       el("div", { class: "siege-corps" },
         carteInv ? carteEl(carteInv, ctx) : el("div", { class: "carte paysage vide" }),
         // Jauges de l'enquêteur : les mêmes chips que sur les cartes (clic = +1, « − » au survol) — uniformisées le 2026-09-09.
+        // Deux jauges par ligne (grille CSS) pour tenir dans la hauteur de la carte : dégâts + horreur, puis ressources +
+        // indices, les compteurs du scénario à la suite ; les actions en dessous (retour de l'utilisateur du 2026-09-10).
         el("div", { class: "jauges-col" },
           el("div", { class: "jauges-inv" },
-            chipJauge({ token: "resource", libelle: "Ressources", unite: "ressource", img: "/img/tokens/tok_ressources.png", texte: String(s.counters.resources ?? 0), peut, onDelta: (d) => compteur("resources", d) }),
-            chipJauge({ token: "clue", libelle: "Indices", unite: "indice", img: "/img/tokens/tok_indices.png", texte: String(s.counters.clues ?? 0), peut, onDelta: (d) => compteur("clues", d) }),
             chipJauge({ token: "damage", libelle: `Dégâts (vie ${s.counters.health})`, unite: "dégât", img: "/img/tokens/tok_degats.png", texte: `${degats}/${s.counters.health}`, peut, onDelta: (d) => jeton("damage", d) }),
             chipJauge({ token: "horror", libelle: `Horreur (santé mentale ${s.counters.sanity})`, unite: "horreur", img: "/img/tokens/tok_horreur.png", texte: `${horreur}/${s.counters.sanity}`, peut, onDelta: (d) => jeton("horror", d) }),
+            chipJauge({ token: "resource", libelle: "Ressources", unite: "ressource", img: "/img/tokens/tok_ressources.png", texte: String(s.counters.resources ?? 0), peut, onDelta: (d) => compteur("resources", d) }),
+            chipJauge({ token: "clue", libelle: "Indices", unite: "indice", img: "/img/tokens/tok_indices.png", texte: String(s.counters.clues ?? 0), peut, onDelta: (d) => compteur("clues", d) }),
             // Compteurs propres au scénario (COB : jetons sang scellés — le chip passe par le sac).
             ...(ctx.scenario.seatCounters ?? []).map((sc) => chipJauge({
               token: sc.key, libelle: sc.label + (ctx.scenario.seal?.counter === sc.key ? " (+ : sceller depuis le sac, − : libérer vers le sac)" : ""), unite: sc.label.toLowerCase(),
@@ -611,10 +613,12 @@ function casePlay(state, s, ctx) {
   const n = s.index;
   const play = Object.values(state.cards).filter((c) => c.loc.zone === `pevent${n}`).sort((a, b) => a.loc.z - b.loc.z);
   const main = (state.piles[`phand${n}`] ?? []).length;
+  // Case à la taille exacte de la carte (cadre en outline hors de la boîte) et « Main N » en badge de coin : le siège
+  // reste à la hauteur de la carte d'enquêteur (2026-09-10).
   return el("div", { class: "play-siege" },
     el("div", { class: `case-play${play.length ? "" : " vide"}`, title: "Play : l'événement joué par ce siège (zone Play de son board)" },
       ...(play.length ? play.map((c) => carteEl(c, ctx)) : [el("span", { class: "sous", text: "Play" })])),
-    el("span", { class: "sous", text: `Main ${main}` }));
+    el("span", { class: "badge-main", title: `${main} carte${main > 1 ? "s" : ""} en main`, text: `Main ${main}` }));
 }
 
 /** Commit volant (retour de test du 2026-09-09) : au-dessus des pioches de rencontre dès qu'un siège a engagé des

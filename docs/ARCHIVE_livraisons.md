@@ -8,6 +8,41 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Into the Maelstrom (TIC VIII) livré — campagne The
+  Innsmouth Conspiracy complète** (huit tables). Setup + diagrammes
+  p. 36‑38 (pack `itm` ; sets Into the Maelstrom, Agents of Hydra,
+  Creatures of the Deep, Flooded Caverns, Shattered Memories, Syzygy,
+  Ancient Evils ; pioche 33). Lobby : campagne / autonome, quatre
+  entrées du journal à cocher (en autonome : au choix, de 4 = facile à
+  0 = difficile), nombre d'enquêteurs avec combinaison (question
+  numérique 0‑4 → `branch` : combinaisons de côté à glisser), jetons
+  retirés. Clés : une entrée vraie = clé de côté **face visible** (à
+  glisser sur le siège de l'enquêteur choisi), fausse = face cachée ;
+  puis **`keys fillAsideTo: 4`** tire au hasard parmi violette, blanche
+  et noire juste assez pour quatre clés cachées de côté (les autres
+  n'existent pas). Réutilisé : `pickRandom n:8 positions` pour les
+  tunnels autour du Gateway (grille 3 × 3), piles « Y'ha-nthlei » (7) et
+  « Y'ha-nthlei Sanctum » (4) `around`, Lairs de côté non révélés,
+  actes v. II / v. III de côté (`actDeck` = v. I), Hydra et Dagon de
+  côté sur leur recto. **Act 2 Setup automatisé** par `actEffects["2"]` :
+  `removeLocations {except: Gateway}` (les Underground River à Victory
+  partent en zone de victoire), puis **`byPlayers`** — une variante par
+  nombre d'enquêteurs avec les positions du diagramme p. 38 après
+  retraits A / B / C et glissements (colonnes 179 + k·186, rangées 649 /
+  887 / 1125) : `spreadPile yha` partiellement inondés, `placeAt` des
+  Lairs non révélés, variante imbriquée pour `spreadPile sanctum`
+  totalement inondés et le `spawnAside` de Dagon (un objet n'a qu'un
+  champ de chaque nom), Hydra en `spawnAside` commun — journal muet sur
+  les lieux posés, cartes en excès laissées en pile. Agenda 2 :
+  Lloigor et Abomination + défausse dans la pioche. Reste manuel avec
+  rappels : clés et combinaisons à glisser, réveil des Anciens (« Autre
+  face »), cartes de côté de l'acte 2. Tests : 669 messages (bloc
+  Maelstrom : clés 2 + 4 avec une couleur absente, journal muet,
+  Gateway inondé et huit tunnels, piles, mises de côté, acte 2 à deux
+  joueurs (positions exactes, inondations, Lairs, Hydra et Dagon),
+  agenda 2 ; autonome solo : quatre cachées, aucune combinaison, acte 2
+  à un joueur ; quatre joueurs : sept Y'ha-nthlei, quatre combinaisons)
+  ; captures 97‑99.
 - 2026-09-10 : **Menu natif du navigateur neutralisé sur la table** —
   retour UX : sur certains objets du tapis, « parfois et selon le
   zoom », le clic droit ouvrait aussi le menu du navigateur. Reproduit

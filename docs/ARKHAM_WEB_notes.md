@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | UX : jauges des sièges sur deux lignes, case Play compacte | dégâts + horreur / ressources + indices, actions dessous ; case Play en `outline` + badge « Main N » ; même ordre de jauges sur le board joueur ; siège = hauteur de la carte, bandeau du bas 245 → 190 px (deck : 216 → 182), tapis central +55 px |
 | 2026-09-10 | BoA I — Spreading Flames | pack `core_2026`, sacs 2026 (tablette, pas de cultiste), un seul lieu + tout de côté, disposition sans diagramme ; effets `discardEnemies` / `discardAside` / `setAside` / `discardAt` / `addClues`, `spawnAside` en liste, `removeLocations codes` ; **première table Brethren of Ash** |
 | 2026-09-10 | Bibliothèque : bandeaux de campagne + liens vers les guides | `banner {src, position}` dans library.json, `scripts/build_bandeaux.py` (art de la boîte, découpe par campagne, WebP), libellé de boîte = lien `guide` (renseigné pour toutes les campagnes) |
 | 2026-09-10 | TIC VIII — Into the Maelstrom | `keys fillAsideTo`, effets `byPlayers` + `spreadPile flood` (Act 2 Setup selon les joueurs) ; **campagne TIC complète** |
@@ -98,6 +99,38 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **UX : jauges des sièges sur deux lignes** — demande de
+  l'utilisateur (capture à l'appui) : sur la page de table, la colonne
+  de jauges à côté de la carte d'enquêteur (quatre chips empilées +
+  ligne « Actions », 165 px) dépassait de 55 px la carte (110 px) et
+  fixait seule la hauteur du bandeau du bas, au détriment du tapis
+  central. Nouvelle disposition (`rendreSieges`, `room.css`) : la
+  `.jauges-inv` du siège devient une grille à deux colonnes — première
+  ligne **dégâts + horreur**, seconde **ressources + indices** (ordre
+  des chips inversé dans `tapis.js`), compteurs du
+  scénario à la suite (COB : « Sang scellé » seul sur une troisième
+  ligne, colonne 129 px), et la ligne des actions en dessous, libellé
+  resserré contre les pastilles (`.siege .compteur.actions`, colonnes
+  `auto auto`). Colonnes en `minmax(5.4rem, max-content)` : le « − »
+  qui apparaît au survol d'une chip tient dans sa colonne et ne décale
+  ni sa voisine ni la ligne suivante (vérifié en capture). Deux
+  compléments tranchés par Claude (l'utilisateur a laissé le choix) :
+  **case Play compacte** — avec un deck importé, la case Play +
+  « Main N » (143 px) redevenait l'élément le plus haut du bandeau ; la
+  case fait désormais exactement la taille de la carte (`.play-siege`
+  78 × 110), son cadre pointillé est dessiné en `outline` /
+  `outline-offset: 3px` hors de la boîte et « Main N » devient un
+  **badge de coin** (`.badge-main`, comme le compte des pioches,
+  infobulle « N cartes en main ») ; et **même ordre de jauges sur le
+  board joueur** (entête : dégâts, horreur, ressources, indices, puis
+  compteurs du scénario) pour une seule logique partout. Mesures
+  (1600 × 1000, The Gathering) : colonne 94 px, corps du siège 165 →
+  110 px, bandeau `#sieges` 245 → 190 px (siège avec deck : 216 → 182),
+  zone des lieux 662 → 716 px ; en 1366 × 768 : 437 → 492 px. Tests :
+  régression `test_room.mjs` OK (694 puis 689 messages), `npm run
+  check` zéro erreur ; captures par script autonome (avant / après,
+  survol, COB, deck avant / après mise en place — badge « Main 5 »,
+  entête du board, 1366 × 768), zéro erreur console.
 - 2026-09-10 : **Spreading Flames (BoA I) livré — première table de la
   nouvelle boîte de base Brethren of Ash (ahc100, 2026)**. Guide : seules
   les p. 2 (Campaign Setup) et 3 (Setup du I) ont été lues ; **aucun
@@ -184,42 +217,9 @@ versement de son durable (format → grammaire, piège → §5, décision →
   desktop / mobile / planche des quatorze bandeaux, zéro erreur console ;
   régression `test_room.mjs` (669 messages) OK ; index des cartes
   rafraîchi au passage par le build (arkham.build).
-- 2026-09-10 : **Into the Maelstrom (TIC VIII) livré — campagne The
-  Innsmouth Conspiracy complète** (huit tables). Setup + diagrammes
-  p. 36‑38 (pack `itm` ; sets Into the Maelstrom, Agents of Hydra,
-  Creatures of the Deep, Flooded Caverns, Shattered Memories, Syzygy,
-  Ancient Evils ; pioche 33). Lobby : campagne / autonome, quatre
-  entrées du journal à cocher (en autonome : au choix, de 4 = facile à
-  0 = difficile), nombre d'enquêteurs avec combinaison (question
-  numérique 0‑4 → `branch` : combinaisons de côté à glisser), jetons
-  retirés. Clés : une entrée vraie = clé de côté **face visible** (à
-  glisser sur le siège de l'enquêteur choisi), fausse = face cachée ;
-  puis **`keys fillAsideTo: 4`** tire au hasard parmi violette, blanche
-  et noire juste assez pour quatre clés cachées de côté (les autres
-  n'existent pas). Réutilisé : `pickRandom n:8 positions` pour les
-  tunnels autour du Gateway (grille 3 × 3), piles « Y'ha-nthlei » (7) et
-  « Y'ha-nthlei Sanctum » (4) `around`, Lairs de côté non révélés,
-  actes v. II / v. III de côté (`actDeck` = v. I), Hydra et Dagon de
-  côté sur leur recto. **Act 2 Setup automatisé** par `actEffects["2"]` :
-  `removeLocations {except: Gateway}` (les Underground River à Victory
-  partent en zone de victoire), puis **`byPlayers`** — une variante par
-  nombre d'enquêteurs avec les positions du diagramme p. 38 après
-  retraits A / B / C et glissements (colonnes 179 + k·186, rangées 649 /
-  887 / 1125) : `spreadPile yha` partiellement inondés, `placeAt` des
-  Lairs non révélés, variante imbriquée pour `spreadPile sanctum`
-  totalement inondés et le `spawnAside` de Dagon (un objet n'a qu'un
-  champ de chaque nom), Hydra en `spawnAside` commun — journal muet sur
-  les lieux posés, cartes en excès laissées en pile. Agenda 2 :
-  Lloigor et Abomination + défausse dans la pioche. Reste manuel avec
-  rappels : clés et combinaisons à glisser, réveil des Anciens (« Autre
-  face »), cartes de côté de l'acte 2. Tests : 669 messages (bloc
-  Maelstrom : clés 2 + 4 avec une couleur absente, journal muet,
-  Gateway inondé et huit tunnels, piles, mises de côté, acte 2 à deux
-  joueurs (positions exactes, inondations, Lairs, Hydra et Dagon),
-  agenda 2 ; autonome solo : quatre cachées, aucune combinaison, acte 2
-  à un joueur ; quatre joueurs : sept Y'ha-nthlei, quatre combinaisons)
-  ; captures 97‑99.
-- **Prochaine étape** : retours de l'utilisateur sur Spreading Flames
+- **Prochaine étape** : retours de l'utilisateur sur le bandeau des
+  sièges (jauges sur deux lignes, case Play compacte, ordre du board
+  joueur) et sur Spreading Flames
   (première table Core 2026 : disposition sans diagramme, attache Fire!,
   versos automatisés) ; puis **BoA II — Smoke and Mirrors** (Setup +
   diagramme p. 6‑7, codex p. 8‑9 à ne pas lire hors instruction ; lieux
@@ -397,7 +397,13 @@ zoom/déplacement), sièges, pioches/défausse/sac, agenda/acte, cartes de
 côté, zone de victoire, panneau des rappels. Cibles : ordinateur et
 tablette (souris + tactile ; pas de mise en page téléphone). Images
 anglaises depuis cdn.arkham.build, une seule langue. Tailles de cartes
-et disposition précise à trancher sur maquette.
+et disposition précise à trancher sur maquette. **Sièges** (bandeau du bas, décision
+de l'utilisateur du 2026-09-10) : la colonne de jauges tient dans la
+hauteur de la carte d'enquêteur — deux jauges par ligne (dégâts + horreur,
+puis ressources + indices, compteurs du scénario à la suite), actions en
+dessous, case Play à la taille de la carte avec « Main N » en badge ; la
+hauteur du bandeau est réservée au tapis central. Le board joueur montre
+les mêmes jauges dans le même ordre, sur une rangée.
 
 **Bibliothèque.** Page d'accueil de présentation (avec champ
 « rejoindre une room par code »), puis la bibliothèque : tous les

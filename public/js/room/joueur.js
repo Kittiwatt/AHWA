@@ -301,12 +301,13 @@ async function demarrer() {
         el("div", { class: "fiche" },
           el("strong", {}, state.lead === n ? el("span", { class: "etoile", title: "enquêteur principal", text: "★ " }) : null, nomSiege(s, ctx)),
           inv ? el("span", { class: "sous", text: `${s.name ? `${inv.name} — ` : ""}${inv.subname ?? ""}`.replace(/ — $/, "") }) : null)),
-      // Jauges : les mêmes chips que sur les cartes (clic = +1, « − » au survol) — uniformisées le 2026-09-09.
+      // Jauges : les mêmes chips que sur les cartes (clic = +1, « − » au survol) — uniformisées le 2026-09-09 ; même ordre
+      // que sur les sièges du tapis depuis le 2026-09-10 (dégâts, horreur, ressources, indices, compteurs du scénario).
       el("div", { class: "jauges-inv compteurs-compacts" },
-        chipJauge({ token: "resource", libelle: "Ressources", unite: "ressource", img: "/img/tokens/tok_ressources.png", texte: String(s.counters.resources ?? 0), peut, onDelta: (d) => compteur("resources", d) }),
-        chipJauge({ token: "clue", libelle: "Indices", unite: "indice", img: "/img/tokens/tok_indices.png", texte: String(s.counters.clues ?? 0), peut, onDelta: (d) => compteur("clues", d) }),
         chipJauge({ token: "damage", libelle: `Dégâts (vie ${s.counters.health})`, unite: "dégât", img: "/img/tokens/tok_degats.png", texte: `${degats}/${s.counters.health}`, peut, onDelta: (d) => jeton("damage", d) }),
         chipJauge({ token: "horror", libelle: `Horreur (santé mentale ${s.counters.sanity})`, unite: "horreur", img: "/img/tokens/tok_horreur.png", texte: `${horreur}/${s.counters.sanity}`, peut, onDelta: (d) => jeton("horror", d) }),
+        chipJauge({ token: "resource", libelle: "Ressources", unite: "ressource", img: "/img/tokens/tok_ressources.png", texte: String(s.counters.resources ?? 0), peut, onDelta: (d) => compteur("resources", d) }),
+        chipJauge({ token: "clue", libelle: "Indices", unite: "indice", img: "/img/tokens/tok_indices.png", texte: String(s.counters.clues ?? 0), peut, onDelta: (d) => compteur("clues", d) }),
         // Compteurs propres au scénario (COB : jetons sang scellés — + scelle depuis le sac, − libère vers le sac).
         ...(ctx.scenario.seatCounters ?? []).map((sc) => chipJauge({
           token: sc.key, libelle: sc.label + (ctx.scenario.seal?.counter === sc.key ? " (+ : sceller depuis le sac, − : libérer vers le sac)" : ""), unite: sc.label.toLowerCase(),
