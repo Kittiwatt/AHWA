@@ -46,3 +46,33 @@ export function surveillerPleinEcran() {
   document.addEventListener("fullscreenchange", maj);
   maj();
 }
+
+/** Le bouton déployé d'une chip (« − » ou « + » au survol) reste disponible pour plusieurs clics : chaque clic fait
+ *  re-rendre la carte, le siège ou l'entête, et la chip sous la souris est souvent un élément neuf, plus étroit, que le
+ *  navigateur ne considère pas survolé tant que la souris ne bouge pas — le bouton se repliait après un seul clic
+ *  (retour de test du 2026-09-10). On mémorise la chip survolée par une clé stable (jeton + carte / siège / entête /
+ *  barrière) et on repose la classe `ouverte` (même rendu que `:hover`) sur son remplaçant dès qu'il apparaît ; la
+ *  classe tombe quand la souris quitte la chip ou qu'on appuie ailleurs. */
+export function garderChipsDeployees() {
+  let cle = null;
+  const cleDe = (chip) => {
+    const porteur = chip.closest(".carte, [data-seat], .entete-joueur");
+    const id = porteur?.dataset.id ?? porteur?.dataset.seat ?? (porteur ? "entete" : "");
+    return `${chip.dataset.token ?? ""}@${id}@${chip.dataset.a ?? ""}/${chip.dataset.b ?? ""}`;
+  };
+  const fermer = () => { for (const c of document.querySelectorAll(".chip.ouverte")) c.classList.remove("ouverte"); cle = null; };
+  const chipSous = (e) => (e.target instanceof Element ? e.target.closest(".chip") : null);
+  document.addEventListener("pointermove", (e) => {
+    const chip = chipSous(e);
+    if (!chip) { if (cle) fermer(); return; }
+    const k = cleDe(chip);
+    if (k !== cle) { fermer(); cle = k; }
+    chip.classList.add("ouverte");
+  }, true);
+  document.addEventListener("pointerdown", (e) => { if (cle && !chipSous(e)) fermer(); }, true);
+  document.addEventListener("pointerleave", () => fermer());
+  new MutationObserver(() => {
+    if (!cle || document.querySelector(".chip.ouverte")) return;
+    for (const chip of document.querySelectorAll(".chip")) if (cleDe(chip) === cle) { chip.classList.add("ouverte"); return; }
+  }).observe(document.body, { childList: true, subtree: true });
+}

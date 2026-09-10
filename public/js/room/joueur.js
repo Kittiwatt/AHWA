@@ -4,7 +4,7 @@
 // est en lecture seule, sa main masquée (dos + nombre, bouton « Regarder »).
 
 import { creerConnexion } from "./net.js";
-import { el, pluriel, surveillerPleinEcran, neutraliserMenuNatif } from "./dom.js";
+import { el, pluriel, surveillerPleinEcran, neutraliserMenuNatif, garderChipsDeployees } from "./dom.js";
 import { CDN, FACTIONS, totauxCompetences, elTotauxCompetences, chipJauge } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { blocDeck } from "./deck.js";
@@ -22,6 +22,7 @@ function remplir(parent, ...enfants) { parent.replaceChildren(...enfants.flat().
 
 surveillerPleinEcran();
 neutraliserMenuNatif("#board-joueur");
+garderChipsDeployees();
 const parties = location.pathname.split("/").filter(Boolean);
 const code = parties[1]?.toUpperCase() ?? "";
 const siegeUrl = Number(parties[3]);

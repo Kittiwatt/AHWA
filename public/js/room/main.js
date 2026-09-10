@@ -6,10 +6,11 @@ import { rendreTapis, initPlateau, initLoupe, ajusterVue, oublierVue, ouvrirDial
 import { initInteractions } from "./interactions.js";
 import { CDN } from "./cartes.js";
 import { lireSiegeMemorise, memoriserSiege } from "./siege.js";
-import { surveillerPleinEcran, neutraliserMenuNatif } from "./dom.js";
+import { surveillerPleinEcran, neutraliserMenuNatif, garderChipsDeployees } from "./dom.js";
 
 surveillerPleinEcran();
 neutraliserMenuNatif("#tapis", "#journal");   // le journal reste copiable
+garderChipsDeployees();
 const code = location.pathname.split("/").filter(Boolean)[1]?.toUpperCase() ?? "";
 const $etat = document.getElementById("etat");
 const $lobby = document.getElementById("lobby");

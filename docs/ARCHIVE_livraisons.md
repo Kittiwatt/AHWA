@@ -8,6 +8,49 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Queen of Ash (BoA III) livré — campagne Brethren of
+  Ash complète** (trois tables). Guide : consignes de mise en place de
+  la p. 11 lues **par leurs encadrés seulement** (bbox de `pdftotext`
+  pour ne recadrer que les puces, intros narratives non lues) : jetons
+  ajoutés « pour le reste de la campagne » selon la difficulté, glyphes
+  identifiés par corrélation avec tokens.ttf (≥ 0,96 ; composantes
+  connexes dilatées, seuil clair, sinon l'elder thing et la tablette,
+  plus pâles, passent sous le seuil) — Facile elder thing ; Standard
+  + tablette ; Difficile + crâne ; Expert + cultiste + crâne — et « 1
+  doom au setup » si le repaire de la secte n'a pas été découvert ;
+  Setup + diagramme p. 12 ; codex p. 13 et résolutions non lus. Sets
+  `queen_of_ash`, `ashen_pilgrims`, `cosmic_evils`, `cultists_ch2`,
+  `fire_ch2`, `hallucinations`, `reeking_decay`, `arkham_sewers`,
+  `torment` ; pioche 31 (moins les cultistes en jeu). Lobby : `mode`
+  (campagne = les 2 cultistes du II au sac / isolé) et **une question
+  `multi`** avec les quatre mentions du journal citées par les consignes
+  (repaire découvert → sinon +1 doom ; Arkham fouillée → **nouvelle op
+  `seatCounter`** : 1 indice par enquêteur ; troubles → 1 cultiste par
+  enquêteur tiré parmi Cantor ×2, Zealot ×3, Dark Magician — `pickRandom`
+  pondéré par les copies, `rest:"keep"`, posés chacun sur un tunnel
+  différent ; Servant tué → retiré, sinon de côté). Réutilisé :
+  `pickRandom n:5 positions` pour les cinq Sewer Tunnels (dos
+  identiques, journal muet), citerne non révélée en haut, Culvert révélé
+  en bas avec pions, `branch players` (+1 doom à 3‑4), `aside` de Fire!
+  ×5, Collector ×2, Elokoss (verso lié Mother of Flame : « Autre
+  face »), Queen's Knight, Herald, Sluice Control non révélée. Effets
+  d'étape : acte 2 = `spawnAside` Elokoss côté a + **`shuffleAside
+  {code:"12129", n:4}`** (une Fire! reste de côté pour l'enquêteur de la
+  citerne) + Knight + Herald + `placeAt` Sluice Control à droite de la
+  citerne ; agenda 2 = **`spawnAside ifAside`** du Servant (silence s'il
+  a été retiré) ; agenda 3a = `revealCodes` citerne + `spawnAside`
+  Elokoss côté b (dégâts conservés — une carte déjà en jeu est
+  retournée sur place). L'agenda 3a est la troisième carte du deck
+  d'agenda et remplace aussi l'acte : rappel « glissez l'acte de
+  côté », doom → dégâts directs. Tests : 724 messages (bloc Queen : sac
+  20 = 16 + 2 + 2, tunnels en ligne journal muet, Culvert sans indice,
+  1 indice par siège occupé, 2 cultistes à deux tunnels, mises de côté
+  exactes, pioche 29, doom 1 ; acte 2 : Elokoss, une Fire! de côté,
+  pioche + 6, Sluice Control ; agenda 2 : Servant à la citerne ; agenda
+  3a : citerne révélée 4 indices, Elokoss côté b avec 2 dégâts ; isolé
+  Expert 3 joueurs : sac 22 sans les cultistes du II, Servant retiré,
+  aucun indice, doom 1, agenda 2 silencieux) ; captures 105‑107
+  (autonome + Smoke en régression). Catalogue, README.
 - 2026-09-10 : **Smoke and Mirrors (BoA II) livré** — Setup p. 6 +
   diagramme p. 7 (grille 3 × 3 : Northside, Downtown, Easttown /
   Miskatonic University, Merchant District, Waterfront District / Uptown,

@@ -364,7 +364,8 @@ export function initInteractions(ctx) {
       if (carte.loc.zone !== "aside") items.push(item(courant ? "Hors jeu (le suivant sort)" : "Hors jeu (de côté)", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "aside", x: 9999, y: 0 })));
       if (carte.loc.zone !== "board") items.push(item("Sur le tapis (pour lire)", () => ctx.envoiSurTapis(carte)));
       if (carte.loc.zone !== "story") items.push(item("Ramener dans l'histoire", () => ctx.envoyer({ t: "moveCard", id: carte.id, zone: "story", x: 0, y: 0 })));
-      for (const t of agenda ? ["doom"] : ["clue"]) items.push(jeton(t));
+      // Doom (agenda) ou indices (acte), plus ressources et marqueurs génériques (retour de test du 2026-09-10).
+      for (const t of agenda ? ["doom", "resource", "generic"] : ["clue", "resource", "generic"]) items.push(jeton(t));
     } else if (carte.kind === "proxy") {
       items.push(item("Retirer (un lieu prend sa place)", () => ctx.envoyer({ t: "toPile", id: carte.id, pile: "removed" }), { danger: true }));
     } else if (carte.kind === "key") {
