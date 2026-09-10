@@ -1264,7 +1264,7 @@ with sync_playwright() as p:
     sec.scroll_into_view_if_needed(); bib.wait_for_timeout(300)
     sec.screenshot(path=f"{OUT}/108_blob_bibliotheque.png")
     assert bib.locator(".scenario.available", has_text="The Blob That Ate Everything").count() == 1, "Blob disponible dans la bibliothèque"
-    assert bib.locator(".scenario a.livret").count() == 1, "lien livret du scénario"
+    assert bib.locator(".scenario a.livret").count() >= 1, "lien livret des scénarios indépendants"
     code25, token25 = creer("sa_the_blob_that_ate_everything")
     print("room Blob", code25)
     h25 = page_pour(browser, "Hôte", host=True, code=code25, token=token25)
@@ -1413,6 +1413,46 @@ with sync_playwright() as p:
     h27.locator("#histoire").screenshot(path=f"{OUT}/125_fortune2_histoire.png")
     h27.locator("#aside").hover(); h27.wait_for_timeout(500)
     h27.locator("#aside").screenshot(path=f"{OUT}/126_fortune2_aside.png")
+
+    # ---- Curse of the Rougarou : bibliothèque (livret), question mode, une pile de trois lieux (Bayou révélé, pions), 27 cartes de côté,
+    # acte 2 (six lieux de côté en jeu, Lady Esprit au Bayou), zone de côté ----
+    assert bib.locator(".scenario.available", has_text="Curse of the Rougarou").count() == 1, "Rougarou disponible dans la bibliothèque"
+    code28, token28 = creer("sa_curse_of_the_rougarou")
+    print("room Rougarou", code28)
+    h28 = page_pour(browser, "Hôte", host=True, code=code28, token=token28)
+    h28.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h28.get_by_role("button", name="Choisir un enquêteur").click(); h28.wait_for_selector("dialog.dialogue-inv[open]")
+    h28.fill("dialog .recherche", "roland"); h28.wait_for_timeout(300); h28.locator("dialog .inv").first.click()
+    h28.wait_for_selector(".siege-lobby.moi .fiche")
+    j28 = page_pour(browser, "Bob", code=code28, token=None)
+    j28.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j28.get_by_role("button", name="Choisir un enquêteur").click(); j28.wait_for_selector("dialog.dialogue-inv[open]")
+    j28.fill("dialog .recherche", "daisy"); j28.wait_for_timeout(300); j28.locator("dialog .inv").first.click()
+    j28.wait_for_selector(".siege-lobby.moi .fiche")
+    h28.wait_for_timeout(400)
+    h28.locator("input[name='q-mode'][value='standalone']").check(); h28.wait_for_timeout(200)
+    h28.locator(".reglage.questions").screenshot(path=f"{OUT}/127_rougarou_lobby_question.png")
+    assert h28.locator("#lien-guide").is_visible(), "lien Guide = livret du scénario"
+    h28.get_by_role("button", name="Lancer la mise en place").click()
+    h28.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h28.wait_for_timeout(3000)
+    assert h28.locator("#plateau .carte.kind-location").count() == 3, "une pile : trois lieux"
+    assert h28.locator("#plateau .mini").count() == 2, "deux pions au Bayou"
+    assert h28.locator("#aside .carte").count() == 27, "de côté : set Curse of the Rougarou (18), six lieux, Lady Esprit et deux pièges"
+    h28.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h28.mouse.move(420, 520); h28.wait_for_timeout(300)
+    h28.screenshot(path=f"{OUT}/128_rougarou_tapis.png")
+    h28.locator("#aside").hover(); h28.wait_for_timeout(500)
+    h28.locator("#aside").screenshot(path=f"{OUT}/129_rougarou_aside.png")
+    # Acte 2 : les six lieux de côté entrent en jeu, Lady Esprit apparaît au Bayou de départ.
+    h28.locator("#histoire").get_by_role("button", name="Avancer l'acte").click(); h28.wait_for_timeout(1000)
+    assert h28.locator("#plateau .carte.kind-location").count() == 9, "neuf lieux en jeu"
+    assert h28.locator("#plateau .carte.kind-asset").count() == 1, "Lady Esprit en jeu"
+    h28.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h28.get_by_role("button", name="Recentrer").click(); h28.wait_for_timeout(500)
+    h28.mouse.move(420, 520); h28.wait_for_timeout(300)
+    h28.screenshot(path=f"{OUT}/130_rougarou_acte2.png")
+    h28.locator("#histoire").screenshot(path=f"{OUT}/131_rougarou_histoire.png")
 
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")

@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | Standalone — Curse of the Rougarou | livret (encart FFG 2016, transcription Hall of Arkham) lu en entier ; question `mode` (indépendant / side-story 1 XP), sac p. 1 à deux niveaux ; set Curse of the Rougarou de côté ; **`pickGroups`** (quatre piles de lieux par trait : 1 retirée, 1 en jeu, 2 de côté, `slot`) + `reveal`/`minis` sur le Bayou tiré ; disposition déduite des icônes (Bayou en carré) ; acte 2 : **`placeAt ifAside`** (six lieux de côté), **`spawnAside at` en liste** (Lady Esprit au Bayou), set + défausse mélangés ; agenda 3 : **`shuffleFromDiscard`** (On the Prowl) |
 | 2026-09-10 | Standalone — Fortune and Folly, Part II : The Heist | setup « from Scratch » : journal du Checkpoint en questions (jouée / sautée, tâches `multi`, Practiced `multi`, repos, indices `number`), deux hubs superposés, `place side:"b"` + `reveal` (Busy Night, indices du verso), `spawn side` (Isamara Crew), Wellspring `spawn` sur Relic Room, **`revealEffects`** (Hallway → Abarran Unleashed + cultistes ; Relic Room → **`moveTokens`**), effet **`seatCounter`** (+1 alerte), agendas 3-4 (Shambler, Plan in Shambles, Disfavor `drawAside`) ; **Fortune and Folly complet** |
 | 2026-09-10 | Standalone — Fortune and Folly, Part I : The Stakeout | livret lu en entier : deux parties = **deux rooms** (bibliothèque scindée, Part II prévue) ; hub public en anneau, cartes liées Calm Night révélées, The Stakeout + Wellspring (Key → `asset`, `addTokens perInvestigator`) dans l'histoire, garde tiré par `spawn` sur slot, matériel de Part II retiré, **`seatCounters min/max` + icône en chemin** (niveau d'alerte 1‑10), **`discardTop`** (icônes de jeu, aperçu, remélange hors cartes défaussées) |
 | 2026-09-10 | Standalone — The Blob That Ate Everything | livret lu en entier (consigne standalone) ; question `mode` (Single / Epic / side-story), losange par `pickRandom include` + billets = pool + op `reveal`, Subject 8L-08 dans la colonne Histoire (`place zone:"story"`, jauge 0/15*), pile « Dévorées » (`menuFor`), contremesures = ressources sur la carte de scénario, **`actCycle`** (deck d'acte réinitialisé), `shuffleAside ifAside`, `addClues` par trait plafonnés, `drawAside`, vie/indices négatifs (✱, X) sans maximum ; livret par scénario dans library.json ; **premier scénario indépendant** |
@@ -108,6 +109,64 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **Curse of the Rougarou** (scénario indépendant, pack
+  arkham.build `cotr`, 81001‑81036, sets `bayou` — scénario, agendas,
+  actes, lieux, Lady Esprit, pièges, 18 cartes de rencontre — et
+  `rougarou` — le Rougarou, la faiblesse, Monstrous Transformation, 15
+  cartes de rencontre). Créé par la tâche planifiée « une room par jour »
+  (ordre de l'utilisateur : les indépendants d'abord). **FFG ne publie
+  pas ce livret** (page produit sans PDF) : lu en entier sur la
+  transcription Hall of Arkham `curserules.pdf` (2 pages, texte et
+  icônes de l'encart de 2016 ; lien `guide` de la bibliothèque, à
+  remplacer si l'utilisateur préfère une autre source). Deux modes
+  (p. 1) → question `mode` : Standalone (sac lu à 600 dpi, deux niveaux
+  → Facile = Standard, Expert = Difficile, journal comme le Blob) ou
+  side-story (1 XP, sac de campagne, rappel). Carte de scénario
+  Easy/Standard au recto (`scenarioCardSide`). Setup : set Curse of the
+  Rougarou de côté face visible (`aside sets`) ; **les douze lieux en
+  quatre piles par trait** (New Orleans, Riverside, Wilderness,
+  Unhallowed : un lieu Bayou + deux autres chacune) — une pile au
+  hasard retirée, une autre en jeu, les deux dernières de côté face non
+  révélée → nouvelle op **`pickGroups`** (`groups` avec `label`, `codes`,
+  `positions` par carte ; `remove`, `play`, `rest`, `slot` = première
+  carte du premier groupe joué ; le journal nomme les piles) ; le Bayou
+  de la pile en jeu révélé par `reveal slot:pile` + `minis` (0 indice
+  imprimé) ; Lady Esprit, Bear Trap, Fishing Net de côté ; pioche 18.
+  **Pas de diagramme** : icônes de connexion lues sur les images des
+  douze lieux — les quatre Bayou (carré, triangle, losange, sablier)
+  sont tous connectés entre eux, les deux satellites d'une pile ne le
+  sont qu'à leur Bayou et l'un à l'autre → Bayou en carré au centre
+  (551/923 × 411/649), satellites à côté et au‑dessus / en dessous ;
+  rappel `setup` (chemins à tracer). Versos lus dans le dump : acte 1b →
+  `actEffects "2"` : **`spawnAside at` en liste** (Lady Esprit « at a
+  Bayou location » : le premier des quatre Bayou présent sur le tapis =
+  celui du départ, déplaçable), **`placeAt ifAside`** (les douze codes
+  déclarés à leur position, les six de côté entrent non révélés, les
+  trois de la pile retirée ignorés sans rappel), `shuffleAside` des 15
+  cartes de rencontre du set `withDiscard` ; le Rougarou « à un lieu
+  non‑Bayou au choix » et la faiblesse « dans la zone de menace du
+  principal » restent des rappels (glisser depuis la zone de côté).
+  Agenda 1b → `shuffleAside: []` + `withDiscard` (défausse remélangée)
+  ; agenda 2b → nouvel effet **`shuffleFromDiscard`** (seules les On the
+  Prowl de la défausse reviennent dans la pioche) ; déplacement du
+  Rougarou vers le lieu non‑Bayou le moins pourvu en indices, doom
+  conditionnel, Forcé de l'agenda 3, objectifs et quatre conditions de
+  l'acte 2 (dont « strange doll » / « binding stone » à noter) en
+  rappels décrits sans recopier. Tests : bloc `test_room.mjs` (sac
+  Standard 24, pile complète en jeu à ses positions, Bayou révélé +
+  pions, pile retirée, 27 de côté avec faces, pioche 18 ; acte 2 → 9
+  lieux à leur position, Lady Esprit au Bayou, pioche 33, aucun « à la
+  main », de côté = Rougarou + faiblesse + Monstrous + pièges + acte 1 ;
+  agenda 2 → défausse remélangée ; agenda 3 → 2 On the Prowl repris,
+  l'autre carte reste ; side-story Expert solo : sac Difficile 25, côté
+  b, Rougarou 5 vie par enquêteur, acte 1 = 1 indice par enquêteur) ;
+  Playwright (bloc autonome extrait de `captures.py`, images CDN
+  injoignables du bac à sable → cartes vides, `networkidle` remplacé par
+  une attente fixe dans ce bloc) : bibliothèque (4 liens livret),
+  question du lobby, trois lieux + deux pions, 27 de côté, acte 2 (9
+  lieux, Lady Esprit) ; zéro erreur console hors `ERR_CONNECTION_RESET`
+  des ressources externes ; `npm run check` zéro erreur ; régression
+  `test_room.mjs` complète (820 messages) OK.
 - 2026-09-10 : **Fortune and Folly, Part II : The Heist** — la seconde
   room du scénario, avec le setup « from Scratch » p. 23‑25 (celui qui
   vaut après une pause ou quand la partie I a été sautée ; en room
@@ -218,91 +277,27 @@ versement de son durable (format → grammaire, piège → §5, décision →
   deux hubs (restreint au-dessus du public), Vault Door, Cash Cart
   selon « cleaned out the house », Isamara Crew selon la tâche, Abarran
   Unleashed de côté, garde + patrouille sortis de la pioche.
-- 2026-09-10 : **The Blob That Ate Everything — premier scénario
-  indépendant** (ahc45, pack arkham.build `blob`, 85001‑85053). Consigne
-  de l'utilisateur pour tous les standalone : lire le livret **en
-  entier**, découper en plusieurs rooms si le livret contient plusieurs
-  scénarios (et adapter la bibliothèque), une room par push, validation
-  avant la suivante. Ici un seul scénario, trois façons de jouer (p. 2‑3)
-  → une room, question `mode` : Single Group / Epic Multiplayer (cette
-  table = un groupe, l'organisateur tient vie globale, seuil d'indices de
-  l'acte 1 et contremesures, p. 6‑9) / side-story de campagne (sac de la
-  campagne à reconstituer, 2 XP). Sets : `blob`, `blob_single_group`
-  (85006, 85009, 85038), `blob_epic_multiplayer` (85005, 85008, 85037),
-  `migo_incursion` (85021‑36) — le set non joué est retiré avant `story`,
-  qui saute les codes absents ; sac p. 2 (icônes à 600 dpi : crâne ×2,
-  cultiste, tablette, ancien, auto-fail, elder sign, deux niveaux
-  seulement → Facile = Standard, Expert = Difficile, ligne de journal par
-  `branch on:"difficulty"`) ; carte de scénario recto Easy/Standard,
-  verso Hard/Expert (`scenarioCardSide`). Mise en place (p. 13‑15) :
-  Mi-Go Incursion de côté (les quatre cartes histoire face cachée avec
-  `storyBack` — leur verso est la Part 2 —, le reste face visible, choix
-  de l'utilisateur), Vulnerable Heart + 1 Grasping + 1 Cubic + 2
-  Oozewraith de côté ; **Subject 8L-08 « à côté de l'agenda, à aucun
-  lieu »** = `place zone:"story"` face visible, et la colonne Histoire
-  rend désormais toute carte de la zone hors agenda / acte / scénario
-  (`.bloc.reference`, chips et menu, dépôt élargi aux ennemis / soutiens
-  / traîtrises / histoire) ; losange p. 15 (1‑3‑5‑3‑1, Crater 737 × 649,
-  lignes 173‑1125) : anneau intérieur = `pickRandom n:2 include:[RS,
-  HQ]` (nouvelle option : cartes imposées mélangées avec les tirées),
-  pointes = `n:3 include:[Fungus Mound]`, diagonales = `n:4`, la dernière
-  QZ retirée par le `rest` par défaut ; les **billets** de `pickRandom`
-  sont désormais les exemplaires restants au pool (tirages successifs sur
-  les mêmes sept codes sans crash ; les 25 scénarios livrés listaient
-  déjà chaque code autant que sa quantité : sémantique inchangée pour
-  eux) ; HQ révélé par la nouvelle op **`reveal`** puis `minis` ;
-  contremesures = `addTokens resource` sur la carte de scénario (1, ou 2
-  à 3‑4 joueurs ; aucune en Epic), « Ressource » ajouté au menu de la
-  carte de scénario ; pile déclarée **« Dévorées »** (`menuFor` lieux,
-  ennemis, traîtrises, soutiens, histoire — son badge sert au crâne « −1
-  par 5 cartes dévorées »). Runtime : agendas 2 et 3 = `shuffleAside`
-  {Cubic, Grasping} puis Oozewraith ×2 `withDiscard` (dévorer 2 lieux =
-  rappel) ; `after:85007` = `setAside` du cœur, qui dit maintenant le
-  total de dégâts retirés (X du verso) ; `after:85009` / `after:85008` =
-  drones Mi-Go `shuffleAside ifAside` (nouvelle option : tout le geste
-  seulement si une copie est encore de côté — « the first time this act
-  has advanced »), `addClues {trait:"Oozified", revealed, n:1,
-  perInvestigator, max:"printed"}` (nouvelle forme : chaque lieu du
-  trait, plafonné à sa valeur imprimée) et, en Single Group, `drawAside`
-  (nouveau : une carte histoire de côté tirée au hasard entre dans
-  l'histoire recto ; en Epic l'organisateur la désigne, texte du `log`
-  de l'effet) ; **`actCycle: true`** (nouveau, racine) : quand l'acte 3
-  avance, `avancer()` remet tous les actes dans le deck dans l'ordre et
-  l'acte 1 redevient courant avec ses effets `after:` et `act:1`
-  (`state.counters.actCycles`). Build : vie négative du dump (`-2` = X,
-  `-3` = ✱ réserve globale) → `health` omis, jauge sans maximum (idem
-  `room.ts` pour le générateur, `cartes.js` teste `max > 0`) ; indices
-  négatifs d'un acte → seuil 0. Bibliothèque : `guide` par scénario
-  (lien « livret » sous le titre, lien Guide de la table). Tests :
-  bloc `test_room.mjs` (Single 2 j. : sac, positions par anneau, QZ
-  retirée, journal muet, mises de côté, pioche 30, pile Dévorées,
-  agendas 2‑3, cœur soigné X = 4, retour à l'acte 1 avec drones +
-  défausse + indices plafonnés + carte histoire, second tour sans
-  remélange ; Epic 3 j. Expert : sac Difficile, côté b, Subject ✱ sans
-  `health`, seuil 0, pas de carte histoire tirée ; side-story 1 j.
-  Facile) ; Playwright : bibliothèque, lobby, losange, jauge 0/15* →
-  1/15*, lieu dévoré (badge 1), carte histoire dans la colonne après la
-  boucle, zone de côté (23) ; zéro erreur console ; `npm run check` zéro
-  erreur ; régression `test_room.mjs` (781 messages) OK. Non automatisé
-  (rappels) : lieux dévorés au choix, cœur au lieu choisi, ennemis
-  Manifold sortis de la pioche selon X, tableau Reality Acid (livret en
-  lien).
-- **Prochaine étape** : validation par l'utilisateur des deux rooms
+- **Prochaine étape** : validation par l'utilisateur de **Curse of the
+  Rougarou** (piles tirées au sort, disposition en carré déduite des
+  icônes, Lady Esprit au Bayou de départ à l'acte 2, lien du livret vers
+  la transcription Hall of Arkham faute de PDF FFG) et des deux rooms
   **Fortune and Folly** (Part I : anneau, niveau d'alerte, icônes de jeu
   par `discardTop`, Roles de côté ; Part II : questions du journal, deux
   hubs superposés, révélation du Hallway, Relic Room, agendas 3‑4), puis
-  le **scénario indépendant suivant à son choix**. Reste dans la
-  liste des indépendants : Curse of the Rougarou, Carnevale of Horrors,
-  The Labyrinths of Lunacy, Guardians of the Abyss (deux rooms déjà
+  le **scénario indépendant suivant dans l'ordre de l'utilisateur**
+  (tâche planifiée, une room par jour) : Carnevale of Horrors, The
+  Labyrinths of Lunacy, Guardians of the Abyss (deux rooms déjà
   prévues), Murder at the Excelsior Hotel, War of the Outer Gods,
   Machinations Through Time, The Midwinter Gala, Film Fatale (pioche
-  Reel, v2). Toujours en attente : validation de The Blob That Ate
-  Everything. Chantier connexe : rangement de la zone hors
-  jeu (le Blob a 23 cartes de côté). Toujours en attente : retours de
-  l'utilisateur sur le générateur
-  (board joueur, carte personnalisée en image — téléversement via un
-  bucket R2 si le besoin se confirme), sur les chips (tous les jetons
-  des cartes, bouton maintenu déployé, indices d'un lieu en chip
+  Reel, v2) ; puis les campagnes dans son ordre (Dunwich, Carcosa, TFA,
+  TDE, TIC déjà complète, EotE — premier scénario à scinder en trois, à
+  discuter —, TSK, FHV, TDC, BoA déjà complète). Toujours en attente :
+  validation de The Blob That Ate Everything. Chantier connexe :
+  rangement de la zone hors jeu (le Rougarou a 27 cartes de côté au
+  setup). Toujours en attente : retours de l'utilisateur sur le
+  générateur (board joueur, carte personnalisée en image — téléversement
+  via un bucket R2 si le besoin se confirme), sur les chips (tous les
+  jetons des cartes, bouton maintenu déployé, indices d'un lieu en chip
   inverse, agenda / acte à 30 px), sur le bandeau des sièges (jauges sur
   deux lignes, geste du « − », case Play compacte, ordre du board
   joueur) et sur la campagne **Brethren of Ash complète** (disposition
@@ -311,28 +306,26 @@ versement de son durable (format → grammaire, piège → §5, décision →
   **question ouverte** : les journaux du I et du II modifient-ils le sac
   au-delà des jetons lus dans les consignes (résolutions non lues —
   extrait de l'utilisateur, sinon le rappel « ajustez le sac » suffit).
-  Prochaine campagne au choix de l'utilisateur (Setup + diagramme
-  seulement). Toujours en attente : retours sur la campagne TIC
-  complète (I‑VIII) ; visuels PNG des clés et du jeton d'inondation à
-  générer dans le style des jetons du projet (choix B). En parallèle :
-  la suite des retours de test du board joueur et les points ouverts du
-  cahier §10.10 (customisations, decks annexes, attaches).
-  Ensuite le prologue
+  Toujours en attente : retours sur la campagne TIC complète (I‑VIII) ;
+  visuels PNG des clés et du jeton d'inondation à générer dans le style
+  des jetons du projet (choix B). En parallèle : la suite des retours de
+  test du board joueur et les points ouverts du cahier §10.10
+  (customisations, decks annexes, attaches). Ensuite le prologue
   Disappearance at the Twilight Estate (pack `tcu`, set
   `disappearance_at_the_twilight_estate` : choix des enquêteurs neutres
   05046‑49, lieux 05071‑77 / Spectral 05078‑84 à réutiliser), puis le
-  chantier convenu avec l'utilisateur :
-  **rangement de la zone hors jeu** (tri par groupes ou piles nommées ;
-  VI atteint 26 cartes de côté). Après quoi : retours de jeu sur les
-  huit tables TCU. Jetons de campagne : reportés par les questions
-  d'introduction, de la Loge et de The Black Book ; à chaque nouveau
-  scénario, relire les résolutions précédentes pour les ajouts.
-  Chantier possible : un compteur de doom / une ligne de journal par
-  pioche pour les scénarios à deux pioches. À faire au fil de
-  l'eau : étiquette de rangée sur le tapis (« devant X »), pincer pour
-  zoomer sur tablette, chemins pré-tracés depuis les connexions
-  imprimées, hook `onChaosDraw` (jetons scellés), pioches multiples
-  (v2), boutons scénario (`actions`, cahier §5, non implémentés).
+  chantier convenu avec l'utilisateur : **rangement de la zone hors
+  jeu** (tri par groupes ou piles nommées ; VI atteint 26 cartes de
+  côté). Après quoi : retours de jeu sur les huit tables TCU. Jetons de
+  campagne : reportés par les questions d'introduction, de la Loge et de
+  The Black Book ; à chaque nouveau scénario, relire les résolutions
+  précédentes pour les ajouts. Chantier possible : un compteur de doom /
+  une ligne de journal par pioche pour les scénarios à deux pioches. À
+  faire au fil de l'eau : étiquette de rangée sur le tapis (« devant
+  X »), pincer pour zoomer sur tablette, chemins pré-tracés depuis les
+  connexions imprimées, hook `onChaosDraw` (jetons scellés), pioches
+  multiples (v2), boutons scénario (`actions`, cahier §5, non
+  implémentés).
 
 ## 1. Décisions d'architecture (prises, ne pas rouvrir sans raison)
 
@@ -848,6 +841,23 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
 
 ## 5. Pièges connus (à enrichir)
 
+- **Livrets absents du site FFG** (Curse of the Rougarou, encart de
+  2016) : la page produit ne propose aucun PDF ; la transcription Hall
+  of Arkham (`hallofarkham.com/wp-content/uploads/2021/01/curserules.pdf`)
+  reprend texte et icônes de l'encart — lire le sac sur l'image à
+  600 dpi comme d'habitude ; BGG (fils « PDF rules ») répond 403 au
+  bac à sable. Le lien `guide` pointe donc hors FFG : à remplacer si
+  l'utilisateur fournit mieux.
+- **Bac à sable sans CDN** (session planifiée) : `cdn.arkham.build` et
+  les polices Google répondent `ERR_CONNECTION_RESET` dans Chromium →
+  cartes vides dans les captures et `wait_for_load_state("networkidle")`
+  qui n'aboutit jamais ; dans un bloc de captures, préférer une attente
+  fixe et ignorer ces seules erreurs console. Le `curl` des images
+  fonctionne, lui (vérification des versos).
+- **Les lieux d'une pile retirée au setup n'existent que dans
+  `removed`** : un `placeAt` d'acte qui liste tous les codes possibles
+  doit porter `ifAside` pour ne pas semer des rappels « à poser à la
+  main » (Rougarou : douze codes déclarés, six posés).
 - **Dump arkham.build** (2026-09-08) : ne jamais déduire le recto d'un
   verso par le code (`01121b` ↔ recto `01121a`, pas `01121`) — passer
   par l'ensemble des `back_link_id` ; `bonded_count` ≠ quantité pour
@@ -1160,7 +1170,7 @@ par phase (`reminders[]` du `*.src.json`).
   saisi (2026-09-08, p. 3 du guide lue sur l'image), COB saisi
   (2026-09-08, p. 5, jetons sang compris), BoA / Core 2026 saisi
   (2026-09-10, p. 2, icônes vérifiées par corrélation avec tokens.ttf),
-  The Blob et Fortune and Folly saisis (2026-09-10, p. 2 à 600 dpi, deux niveaux : Facile joue
+  The Blob, Fortune and Folly et Curse of the Rougarou saisis (2026-09-10, p. 2 / p. 1 à 600 dpi, deux niveaux : Facile joue
   Standard, Expert joue Difficile — le lobby propose toujours les quatre ;
   un champ `difficulties` qui masquerait Facile / Expert reste possible
   si l'utilisateur le demande) ; reste TDC, TDE‑A et Film Fatale (section

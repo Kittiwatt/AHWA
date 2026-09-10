@@ -199,12 +199,18 @@ async function buildScenario(fichierSrc) {
   const codes = new Set(cards.map((c) => c.code));
   const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), ...(s.include ?? []), s.at, ...(s.atRandom ?? []), ...(s.pool ?? []),
     ...(s.op === "bury" ? [...(s.with ?? []), ...(s.fromPool ?? []), ...(s.under ?? [])] : []),
+    ...(s.op === "pickGroups" ? s.groups.flatMap((g) => g.codes) : []),
     ...(s.cases ? Object.values(s.cases).flatMap(citesDe) : []), ...citesDe(s.then ?? []), ...citesDe(s.else ?? [])]).filter((c) => c && !String(c).startsWith("slot:"));
   for (const s of src.setup.flatMap(function aplat(x) { return [x, ...(x.cases ? Object.values(x.cases).flat().flatMap(aplat) : []), ...(x.then ?? []).flatMap(aplat), ...(x.else ?? []).flatMap(aplat)]; })) {
     if (s.op === "pickRandomSet") for (const set of s.from) if (!src.encounterSets.includes(set)) throw new Error(`${src.id} : set ${set} absent de encounterSets`);
     if (s.op === "aside" || s.op === "toPile") for (const set of [...(s.sets ?? []), ...(s.set ? [s.set] : [])]) if (!src.encounterSets.includes(set)) throw new Error(`${src.id} : set ${set} absent de encounterSets`);
     if (s.op === "dealToSeats" && (!Array.isArray(s.rows) || !s.rows.length)) throw new Error(`${src.id} : dealToSeats sans rows`);
     if (s.op === "bury" && !s.trait && !(Array.isArray(s.under) && s.under.length)) throw new Error(`${src.id} : bury sans trait ni under`);
+    if (s.op === "pickGroups") {
+      if (!Array.isArray(s.groups) || s.groups.some((g) => !g.label || !Array.isArray(g.codes) || !g.codes.length)) throw new Error(`${src.id} : pickGroups — chaque groupe a un label et des codes`);
+      if ((s.remove ?? 0) + (s.play ?? 1) > s.groups.length) throw new Error(`${src.id} : pickGroups — plus de groupes demandés que déclarés`);
+      for (const g of s.groups) if (g.positions && g.positions.length !== g.codes.length) throw new Error(`${src.id} : pickGroups — positions et codes du groupe ${g.label} en nombre différent`);
+    }
     if (s.op === "layeredPile") {
       const total = s.layers.reduce((n, l) => n + (l.n ?? 0) + (l.with?.length ?? 0), 0);
       if (total !== s.pool.length) throw new Error(`${src.id} : layeredPile ${s.pile} — couches (${total}) ≠ pool (${s.pool.length})`);
@@ -231,7 +237,8 @@ async function buildScenario(fichierSrc) {
   const citesSetup = src.setup.flatMap((s) => s.op === "leadsDeck" ? [...s.suspects, ...s.hideouts] : []);
   const citesBarrieres = src.setup.flatMap((s) => s.op === "barriers" ? s.pairs.flatMap((p) => [p.a, p.b]) : []);
   const citesAgendaPlus = effets.flatMap((e) => [
-    ...(e.spawnAside ? (Array.isArray(e.spawnAside) ? e.spawnAside : [e.spawnAside]).flatMap((sa) => [sa.code, sa.at]) : []), e.randomKeyOn,
+    ...(e.spawnAside ? (Array.isArray(e.spawnAside) ? e.spawnAside : [e.spawnAside]).flatMap((sa) => [sa.code, ...(Array.isArray(sa.at) ? sa.at : [sa.at])]) : []), e.randomKeyOn,
+    ...(e.shuffleFromDiscard ?? []),
     ...(e.discardAside ?? []).map((d) => d.code), ...(e.setAside ?? []), ...(e.discardAt ?? []), ...(e.addClues ?? []).map((a) => a.code), ...(e.removeLocations?.codes ?? []),
     ...(e.drawAside?.codes ?? []), e.moveTokens?.from, e.moveTokens?.to,
   ].filter(Boolean));

@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-10 (Fortune and Folly, Part II compris). Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-10 (Curse of the Rougarou compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -238,6 +238,20 @@ donc pas ce qui est déjà posé.
 - `{"op":"pickRandomSet","from":[sets],"n"?,"log"?}` — garde `n` sets
   entiers dans le pool, retire les autres, **sans dire lesquels**
   (journal générique).
+- `{"op":"pickGroups","groups":[{"label","codes":[…],"positions"?:[{x,y}…]}…],"remove"?,"play"?,"rest"?,"faceUp"?,"reveal"?,"slot"?,"log"?}`
+  — **piles entières tirées au sort** (Curse of the Rougarou : « sort
+  the locations into 4 piles by trait ; randomly choose 1 pile and
+  remove it from the game ; randomly choose another and put it into
+  play ; set the other 2 aside ») : les groupes sont mélangés, les
+  `remove` (0) premiers sont retirés, les `play` (1) suivants entrent en
+  jeu — chaque carte à sa `positions[i]`, non révélée par défaut
+  (`faceUp`, `reveal` comme `place`) —, les autres suivent `rest` :
+  `"aside"` (défaut, de côté face cachée — un lieu montre son côté non
+  révélé), `"remove"`, `"keep"` (au pool). `slot:<nom>` = première carte
+  du premier groupe joué (le lieu Bayou, à révéler ensuite par `reveal` +
+  `minis`), `slot:<nom>:<i>` = i‑ème. Une seule ligne de journal, qui
+  nomme les piles par leur `label` (rien n'est secret ici) ; pour des
+  piles à garder secrètes, ne pas nommer les cartes dans le `label`.
 - `{"op":"dealToSeats","from":[codes],"n","rows":[{x,y,dx?}…],"start"?,"log"?}`
   — `n` cartes tirées, distribuées une à une dans l'ordre des joueurs
   (principal d'abord) ; rangée i = i-ème enquêteur servi (`dx` défaut
@@ -457,8 +471,16 @@ rendus pendant la partie.
   d'enquêteurs ; un objet n'ayant qu'un champ de chaque nom, une
   seconde pile ou un second `spawnAside` se déclarent dans une variante
   imbriquée) ;
-  `placeAt [{code, x, y, faceUp?, flood?}]` (une carte de côté posée à
-  une position, révélée par défaut, inondée si demandé) ; `chaosAdd` /
+  `placeAt [{code, x, y, faceUp?, flood?, ifAside?}]` (une carte de côté
+  posée à une position, révélée par défaut, inondée si demandé ;
+  `ifAside:true` : seulement si une copie est de côté, sinon rien ni
+  rappel — les douze lieux du Rougarou déclarés, seuls les six de côté
+  entrent, la pile retirée au setup est ignorée) ;
+  `shuffleFromDiscard [codes]` (toutes les copies de ces codes présentes
+  dans la défausse de rencontre reviennent dans la pioche, mélangée —
+  « shuffle all copies of On the Prowl from the discard pile into the
+  encounter deck » ; le reste de la défausse ne bouge pas ; pour toute la
+  défausse : `shuffleAside: []` + `withDiscard`) ; `chaosAdd` /
   `chaosRemove` (jetons du sac, un exemplaire chacun) ;
   `discardEnemies: true` (« chaque ennemi en jeu est défaussé » : les
   ennemis de rencontre du tapis et des zones de menace vont dans la
@@ -494,7 +516,10 @@ rendus pendant la partie.
   d'erreur ; rien à faire → pas de ligne.
   `spawnAside` accepte un objet **ou une liste** (deux apparitions dans
   un même verso : Servant of Flame aux dortoirs et une Fire! attachée à
-  la chambre) ; il prend d'abord une copie **de côté**, sinon une copie
+  la chambre) ; son `at` accepte aussi une **liste de codes** : le
+  premier présent sur le tapis (« put Lady Esprit into play at a Bayou
+  location » quand le Bayou en jeu dépend d'un tirage : lister les
+  quatre, le lieu de départ est le seul en jeu à ce moment) ; il prend d'abord une copie **de côté**, sinon une copie
   en jeu, jamais une copie de la pioche, de la défausse ou de la zone
   de victoire — une carte à cinq exemplaires (Fire!) n'« apparaît »
   donc jamais depuis la défausse. `removeLocations` accepte aussi
@@ -568,6 +593,12 @@ rendus pendant la partie.
   internes `<code>-i` ; clés `key:<couleur|jeton>` ; espace vide
   `empty:space` ; enquêteur custom `custom:<siège>` ; slots
   `slot:<nom>`.
+- **Disposition sans diagramme** (Spreading Flames, Curse of the
+  Rougarou) : lire les icônes de connexion sur les images CDN (bande du
+  bas de chaque lieu, icône propre en haut à gauche) ; des lieux tous
+  connectés entre eux se posent en carré / en anneau, un satellite à
+  côté de son seul voisin ; la décision se note dans `_source` et un
+  rappel `setup` invite à tracer les chemins.
 - **Faces** : `side:"b"` seulement si un verso existe (carte
   `double_sided` ou liée) — un lieu `back:"encounter"` (Strange
   Geometry) n'a pas de côté b et entre révélé. `clues_fixed` des

@@ -3851,5 +3851,129 @@ const DISFAVOR = ["88025", "88026", "88027"];
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Curse of the Rougarou (scénario indépendant) : set Curse of the Rougarou de côté, quatre piles de lieux tirées au sort
+// (pickGroups : 1 retirée, 1 en jeu, 2 de côté), Bayou de départ révélé (slot), Lady Esprit + pièges de côté, sac à deux niveaux ;
+// acte 2 : lieux de côté en jeu (placeAt ifAside), Lady Esprit au Bayou (spawnAside at en liste), set mélangé avec la défausse ;
+// agendas 2-3 : défausse remélangée, On the Prowl repris de la défausse (shuffleFromDiscard) ============
+async function tableRougarou({ joueurs = 2, difficulty, answers } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "sa_curse_of_the_rougarou" }) });
+  assert.equal(r.status, 200, "Curse of the Rougarou est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const PILES_ROUGAROU = [["81007", "81008", "81009"], ["81010", "81011", "81012"], ["81013", "81014", "81015"], ["81016", "81017", "81018"]];
+const BAYOUS = ["81007", "81010", "81013", "81016"];
+const SET_ROUGAROU = ["81028", "81029", "81030", "81031", "81031", "81032", "81032", "81033", "81034", "81034", "81034", "81034", "81034", "81035", "81035", "81036", "81036", "81036"];
+const POS_ROUGAROU = { "81007": "551,411", "81008": "365,411", "81009": "551,173", "81010": "923,411", "81011": "1109,411", "81012": "923,173", "81013": "551,649", "81014": "365,649", "81015": "551,887", "81016": "923,649", "81017": "1109,649", "81018": "923,887" };
+
+{ // Standalone, Standard, 2 joueurs : sac p. 1, une pile en jeu (Bayou révélé, pions), une retirée, deux de côté ; puis acte 2 et agendas 2-3.
+  const { h } = await tableRougarou({ joueurs: 2, answers: { mode: "standalone" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 24, "sac Standard : 16 nombres + 8 icônes");
+  assert.deepEqual([...s.chaos.bag].sort(), ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "skull", "skull", "cultist", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"].sort(), "sac Standard p. 1");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a", "carte de scénario côté Easy/Standard");
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux.length, 3, "une pile de trois lieux en jeu");
+  const pile = PILES_ROUGAROU.find((p) => p.every((code) => lieux.some((c) => c.code === code)));
+  assert.ok(pile, "les trois lieux en jeu forment une pile complète");
+  for (const c of lieux) assert.equal(`${c.loc.x},${c.loc.y}`, POS_ROUGAROU[c.code], `${c.code} à sa position`);
+  const bayou = lieux.find((c) => c.code === pile[0]);
+  assert.ok(bayou.faceUp && !bayou.tokens.clue, "Bayou de départ révélé, sans indice (0 imprimé)");
+  assert.ok(lieux.filter((c) => c.code !== pile[0]).every((c) => !c.faceUp), "les deux autres lieux non révélés");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - bayou.loc.x) < 130 && Math.abs(m.loc.y - bayou.loc.y) < 60), "pions au Bayou");
+  const retirees = PILES_ROUGAROU.filter((p) => p.every((code) => cartes.some((c) => c.code === code && c.loc.pile === "removed")));
+  assert.equal(retirees.length, 1, "une pile entière retirée de la partie");
+  const deCote = cartes.filter((c) => c.loc.zone === "aside");
+  const pilesDeCote = PILES_ROUGAROU.filter((p) => p.every((code) => deCote.some((c) => c.code === code)));
+  assert.equal(pilesDeCote.length, 2, "deux piles de côté");
+  assert.ok(deCote.filter((c) => c.kind === "location").every((c) => !c.faceUp), "lieux de côté face non révélée");
+  assert.deepEqual(deCote.filter((c) => c.kind !== "location").map((c) => c.code).sort(), [...SET_ROUGAROU, "81019", "81020", "81021"].sort(), "de côté : set Curse of the Rougarou, Lady Esprit, Bear Trap, Fishing Net");
+  assert.ok(deCote.filter((c) => c.kind !== "location").every((c) => c.faceUp), "le reste de côté face visible");
+  assert.equal(deCote.length, 27);
+  assert.equal(s.piles.encounter.length, 18, "pioche : les 18 cartes de rencontre de The Bayou");
+  assert.equal(s.cards[s.actId].code, "81005"); assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["81006"]);
+  assert.equal(s.cards[s.agendaId].code, "81002"); assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["81003", "81004"]);
+  assert.ok(s.log.some((e) => /^Les douze lieux sont triés en quatre piles.*en jeu (New Orleans|Riverside|Wilderness|Unhallowed)/.test(e.text)), "journal du tirage des piles");
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /^Acte 1 : seuls les enquêteurs/.test(e.text)), "rappel de l'acte 1");
+  // Acte 2 : six lieux de côté en jeu (les trois retirés ignorés sans rappel), Lady Esprit au Bayou de départ, set + défausse dans la pioche.
+  await h.action({ t: "drawEncounter" });
+  await h.action({ t: "toPile", id: h.state.cards[h.state.piles.encounter[0]].id, pile: "encounterDiscard" });
+  assert.equal(h.state.piles.encounterDiscard.length, 1);
+  await h.action({ t: "advanceAct" });
+  let S = h.state;
+  assert.equal(S.cards[S.actId].code, "81006", "acte 2");
+  const lieux2 = Object.values(S.cards).filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux2.length, 9, "neuf lieux en jeu (trois piles)");
+  for (const c of lieux2) assert.equal(`${c.loc.x},${c.loc.y}`, POS_ROUGAROU[c.code], `${c.code} à sa position`);
+  assert.ok(lieux2.filter((c) => !pile.includes(c.code)).every((c) => !c.faceUp), "les six nouveaux lieux non révélés");
+  assert.equal(Object.values(S.cards).filter((c) => c.kind === "location" && c.loc.zone === "aside").length, 0, "plus de lieu de côté");
+  const esprit = Object.values(S.cards).find((c) => c.code === "81019");
+  assert.ok(esprit.loc.zone === "board" && esprit.faceUp && Math.abs(esprit.loc.x - bayou.loc.x) < 60 && Math.abs(esprit.loc.y - bayou.loc.y) < 60, "Lady Esprit apparaît au Bayou de départ");
+  assert.equal(S.piles.encounter.length, 17 + 1 + 15, "pioche : reste + défausse + 15 cartes du set Curse of the Rougarou");
+  assert.equal(S.piles.encounterDiscard.length, 0);
+  assert.deepEqual(Object.values(S.cards).filter((c) => c.loc.zone === "aside").map((c) => c.code).sort(), ["81028", "81029", "81030", "81020", "81021", "81005"].sort(), "de côté : le Rougarou, la faiblesse, Monstrous Transformation, les pièges (et l'acte 1 sorti)");
+  const rappel2 = S.log.find((e) => e.kind === "reminder" && /^Verso de l'acte 1 \(acte 2\) :/.test(e.text));
+  assert.ok(rappel2 && !/à poser à la main|introuvable/.test(rappel2.text), "aucun rappel « à la main » pour la pile retirée");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'acte 1 : l'app a mis en jeu/.test(e.text)), "rappel act:2");
+  // Agenda 2 : défausse remélangée. Agenda 3 : seuls les On the Prowl de la défausse reviennent dans la pioche.
+  await h.action({ t: "drawEncounter" });
+  await h.action({ t: "toPile", id: h.state.cards[h.state.piles.encounter[0]].id, pile: "encounterDiscard" });
+  await h.action({ t: "advanceAgenda" });
+  S = h.state;
+  assert.equal(S.cards[S.agendaId].code, "81003");
+  assert.equal(S.piles.encounterDiscard.length, 0, "agenda 2 : défausse remélangée");
+  assert.equal(S.piles.encounter.length, 33);
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'agenda 1 : l'app a remélangé/.test(e.text)), "rappel agenda:2");
+  // Deux On the Prowl et une autre carte dans la défausse (à la main), puis agenda 3.
+  const prowl = Object.values(S.cards).filter((c) => c.code === "81034" && c.loc.pile === "encounter").slice(0, 2);
+  const autre = Object.values(S.cards).find((c) => c.code !== "81034" && c.loc.pile === "encounter");
+  for (const k of [...prowl, autre]) await h.action({ t: "toPile", id: k.id, pile: "encounterDiscard" });
+  assert.equal(h.state.piles.encounterDiscard.length, 3);
+  await h.action({ t: "advanceAgenda" });
+  S = h.state;
+  assert.equal(S.cards[S.agendaId].code, "81004");
+  assert.deepEqual(S.piles.encounterDiscard.map((id) => S.cards[id].code), [autre.code], "seuls les On the Prowl ont quitté la défausse");
+  assert.equal(S.piles.encounter.length, 32);
+  assert.ok(prowl.every((k) => S.cards[k.id].loc.pile === "encounter" && !S.cards[k.id].faceUp));
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /Verso de l'agenda 2 \(agenda 3\) : 2 cartes de la défausse \(On the Prowl\) remélangées/.test(e.text)), "journal du shuffleFromDiscard");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'agenda 2 : l'app a remélangé les On the Prowl/.test(e.text)), "rappel agenda:3");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // Side-story, Expert, 1 joueur : sac Difficile (25 jetons), carte côté Hard/Expert, rappel du sac de campagne ; définition : Rougarou 5 vie par enquêteur.
+  const { h } = await tableRougarou({ joueurs: 1, difficulty: "expert", answers: { mode: "campaign" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.deepEqual([...s.chaos.bag].sort(), ["+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-5", "-6", "-8", "skull", "skull", "skull", "cultist", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"].sort(), "Expert joue le sac Difficile (p. 1)");
+  assert.ok(s.log.some((e) => /Expert joue le sac Difficile/.test(e.text)), "journal : deux niveaux seulement");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "b", "carte de scénario côté Hard/Expert");
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /^Side-story/.test(e.text)), "rappel side-story (sac de campagne, 1 XP)");
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 1);
+  assert.equal(cartes.filter((c) => c.kind === "location" && c.loc.zone === "board").length, 3);
+  const r = await fetch(`${BASE}/scenarios/sa_curse_of_the_rougarou.json`);
+  const def = await r.json();
+  const rougarou = def.cards.find((c) => c.code === "81028");
+  assert.equal(rougarou.health, 5); assert.equal(rougarou.healthPerInvestigator, true, "Rougarou : 5 vie par enquêteur");
+  assert.deepEqual(def.cards.find((c) => c.code === "81005").clue, { value: 1, perInvestigator: true }, "acte 1 : 1 indice par enquêteur");
+  assert.ok(def.cards.filter((c) => c.kind === "location").every((c) => c.back === "b"), "lieux à deux faces");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

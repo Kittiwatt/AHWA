@@ -1,0 +1,113 @@
+{
+  "_source": "Livret Curse of the Rougarou (FFG, Arkham Nights 2016, encart de 2 pages ; FFG ne publie pas ce PDF — lu sur la transcription Hall of Arkham curserules.pdf, texte et icônes identiques à l'encart), lu en entier (consigne pour les scénarios indépendants) : un seul scénario, deux façons de jouer (p. 1) — Standalone Mode (sac ci-dessous, deux niveaux : Facile = Standard, Expert = Difficile, journal) ou side-story de campagne (sac de la campagne, 1 XP par enquêteur). Sac (p. 1, icônes lues à 600 dpi) : Standard +1 +1 0 0 0 −1 −1 −1 −2 −2 −3 −3 −4 −4 −5 −6 crâne ×2 cultiste ×2 tablette ancien auto-fail elder sign ; Difficile +1 0 0 0 −1 −1 −1 −2 −2 −3 −3 −4 −4 −5 −5 −6 −8 crâne ×3 cultiste ×2 tablette ancien auto-fail elder sign. Carte de scénario 81001 : recto Easy/Standard, verso Hard/Expert. Sets arkham.build (pack cotr) : `bayou` (81001-81027 : scénario, agendas, actes, douze lieux, Lady Esprit, Bear Trap, Fishing Net, 18 cartes de rencontre) et `rougarou` (81028-81036 : The Rougarou, faiblesse Curse of the Rougarou, Monstrous Transformation, dhôles, gugs, Dark Young Host, On the Prowl ×5, Beast of the Bayou ×2, Insatiable Bloodlust ×3). Setup p. 1 : set Curse of the Rougarou de côté hors jeu ; les lieux triés en quatre piles par trait (New Orleans, Riverside, Wilderness, Unhallowed) — une pile au hasard retirée de la partie, une autre au hasard mise en jeu, les deux dernières de côté ; chacun commence au lieu Bayou en jeu ; Lady Esprit, Bear Trap et Fishing Net de côté ; le reste = pioche de rencontre. Pas de diagramme : chaque pile = un lieu Bayou (Cursed Shores, Brackish Waters, Forgotten Marsh, Foul Swamp — icônes carré, triangle, losange, sablier, tous connectés entre eux) + deux lieux connectés à ce seul Bayou et l'un à l'autre (icônes croix, barre, lune, égal) ; disposition retenue : les quatre Bayou en carré au centre (551/923 × 411/649), les deux satellites de chaque pile à l'extérieur (un à côté, un au-dessus ou en dessous). Versos lus dans le dump pour les effets d'étape (jamais recopiés) : agenda 1b (défausse remélangée ; le Rougarou, s'il est en jeu, va au lieu non-Bayou avec le moins d'indices ; sinon 1 doom sur l'agenda 2 → rappel), agenda 2b (les On the Prowl de la défausse remélangés ; même déplacement / doom → rappel), agenda 3 (Forcé : doom en fin de phase des enquêteurs si le Rougarou n'est engagé avec personne → rappel ; verso = résolution), acte 1b (Lady Esprit à un lieu Bayou → spawnAside sur le Bayou en jeu ; les lieux de côté entrent en jeu → placeAt ifAside ; le Rougarou à un lieu non-Bayou au choix → rappel ; défausse + set Curse of the Rougarou mélangés dans la pioche → shuffleAside withDiscard ; la faiblesse dans la zone de menace de l'enquêteur principal → rappel), acte 2 (Forcé : 1 indice là où le Rougarou vient de partir → rappel ; deux objectifs → rappel), acte 2b (quatre conditions, sinon la carte revient côté a → rappel). Résolutions p. 2 non reportées dans l'app (livret en lien dans la barre).",
+  "id": "sa_curse_of_the_rougarou",
+  "title": "Curse of the Rougarou",
+  "campaign": "Scénarios indépendants",
+  "campaignId": "standalone",
+  "order": 1,
+  "packs": ["cotr"],
+  "encounterSets": ["bayou", "rougarou"],
+  "extraCards": [],
+  "scenarioCard": "81001",
+  "scenarioCardSide": { "easy": "a", "standard": "a", "hard": "b", "expert": "b" },
+  "agendaDeck": ["81002", "81003", "81004"],
+  "actDeck": ["81005", "81006"],
+  "startLocation": "81007",
+  "layout": [
+    { "code": "81007", "x": 551, "y": 411 },
+    { "code": "81010", "x": 923, "y": 411 },
+    { "code": "81013", "x": 551, "y": 649 },
+    { "code": "81016", "x": 923, "y": 649 }
+  ],
+  "chaosBag": {
+    "easy": ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "skull", "skull", "cultist", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"],
+    "standard": ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "skull", "skull", "cultist", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"],
+    "hard": ["+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-5", "-6", "-8", "skull", "skull", "skull", "cultist", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"],
+    "expert": ["+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-5", "-6", "-8", "skull", "skull", "skull", "cultist", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"]
+  },
+  "questions": [
+    {
+      "id": "mode",
+      "text": "Comment jouez-vous ce scénario ? (livret p. 1)",
+      "options": [
+        { "id": "standalone", "label": "Scénario indépendant (Standalone Mode) : sac du chaos du livret" },
+        { "id": "campaign", "label": "Side-story dans une campagne (1 XP par enquêteur) : sac du chaos de votre campagne à reconstituer, faiblesses, traumatismes et soutiens d'histoire de la campagne" }
+      ]
+    }
+  ],
+  "setup": [
+    {
+      "op": "branch",
+      "on": "difficulty",
+      "cases": {
+        "easy": [{ "op": "log", "text": "Ce scénario n'a que deux niveaux de difficulté (livret p. 1) : Facile joue le sac Standard." }],
+        "expert": [{ "op": "log", "text": "Ce scénario n'a que deux niveaux de difficulté (livret p. 1) : Expert joue le sac Difficile." }]
+      }
+    },
+    {
+      "op": "when",
+      "cond": { "q": "mode", "is": "campaign" },
+      "then": [
+        { "op": "reminder", "text": "Side-story (livret p. 1) : jouez avec le sac du chaos de votre campagne — celui du livret sert de point de départ, ajustez-le (clic droit sur le sac → Ajuster) ; faiblesses, traumatismes, expérience et soutiens d'histoire de la campagne suivent vos decks, et ce que ce scénario vous laisse reste dans la campagne. Il coûte 1 XP par enquêteur et ne se joue qu'une fois par campagne." }
+      ]
+    },
+    { "op": "aside", "sets": ["rougarou"], "faceUp": true, "log": "Le set Curse of the Rougarou est mis de côté, hors jeu (The Rougarou, la faiblesse Curse of the Rougarou, Monstrous Transformation et ses quinze cartes de rencontre) : l'acte 1 le fait entrer en jeu." },
+    {
+      "op": "pickGroups",
+      "groups": [
+        { "label": "New Orleans (Cursed Shores, Garden District, Broadmoor)", "codes": ["81007", "81008", "81009"], "positions": [{ "x": 551, "y": 411 }, { "x": 365, "y": 411 }, { "x": 551, "y": 173 }] },
+        { "label": "Riverside (Brackish Waters, Audubon Park, Faubourg Marigny)", "codes": ["81010", "81011", "81012"], "positions": [{ "x": 923, "y": 411 }, { "x": 1109, "y": 411 }, { "x": 923, "y": 173 }] },
+        { "label": "Wilderness (Forgotten Marsh, Trapper's Cabin, Twisted Underbrush)", "codes": ["81013", "81014", "81015"], "positions": [{ "x": 551, "y": 649 }, { "x": 365, "y": 649 }, { "x": 551, "y": 887 }] },
+        { "label": "Unhallowed (Foul Swamp, Ritual Grounds, Overgrown Cairns)", "codes": ["81016", "81017", "81018"], "positions": [{ "x": 923, "y": 649 }, { "x": 1109, "y": 649 }, { "x": 923, "y": 887 }] }
+      ],
+      "remove": 1,
+      "play": 1,
+      "rest": "aside",
+      "slot": "pile",
+      "log": "Les douze lieux sont triés en quatre piles par trait ; une pile tirée au hasard est retirée de la partie, une autre est mise en jeu (non révélée), les deux dernières sont mises de côté face non révélée (l'acte 1 les fait entrer en jeu)"
+    },
+    { "op": "reveal", "code": "slot:pile", "log": "Le lieu Bayou de la pile en jeu est révélé : chaque enquêteur y commence la partie." },
+    { "op": "minis", "code": "slot:pile" },
+    { "op": "aside", "codes": ["81019", "81020", "81021"], "faceUp": true, "log": "Lady Esprit, Bear Trap et Fishing Net sont mis de côté, hors jeu (Lady Esprit entre en jeu avec l'acte 1 ; les pièges se gagnent à Trapper's Cabin et Brackish Waters)." },
+    { "op": "story", "log": "Agenda 1 et acte 1 sont en place ; la carte de scénario montre la référence de votre difficulté (recto Easy/Standard, verso Hard/Expert)." },
+    { "op": "buildEncounter" }
+  ],
+  "agendaEffects": {
+    "2": { "log": "Verso de l'agenda 1 (agenda 2)", "shuffleAside": [], "withDiscard": true },
+    "3": { "log": "Verso de l'agenda 2 (agenda 3)", "shuffleFromDiscard": ["81034"] }
+  },
+  "actEffects": {
+    "2": {
+      "log": "Verso de l'acte 1 (acte 2)",
+      "spawnAside": { "code": "81019", "at": ["81007", "81010", "81013", "81016"] },
+      "placeAt": [
+        { "code": "81007", "x": 551, "y": 411, "faceUp": false, "ifAside": true },
+        { "code": "81008", "x": 365, "y": 411, "faceUp": false, "ifAside": true },
+        { "code": "81009", "x": 551, "y": 173, "faceUp": false, "ifAside": true },
+        { "code": "81010", "x": 923, "y": 411, "faceUp": false, "ifAside": true },
+        { "code": "81011", "x": 1109, "y": 411, "faceUp": false, "ifAside": true },
+        { "code": "81012", "x": 923, "y": 173, "faceUp": false, "ifAside": true },
+        { "code": "81013", "x": 551, "y": 649, "faceUp": false, "ifAside": true },
+        { "code": "81014", "x": 365, "y": 649, "faceUp": false, "ifAside": true },
+        { "code": "81015", "x": 551, "y": 887, "faceUp": false, "ifAside": true },
+        { "code": "81016", "x": 923, "y": 649, "faceUp": false, "ifAside": true },
+        { "code": "81017", "x": 1109, "y": 649, "faceUp": false, "ifAside": true },
+        { "code": "81018", "x": 923, "y": 887, "faceUp": false, "ifAside": true }
+      ],
+      "shuffleAside": ["81031", "81032", "81033", "81034", "81035", "81036"],
+      "withDiscard": true
+    }
+  },
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)." },
+    { "when": "setup", "text": "Disposition : le livret ne donne pas de diagramme. D'après les icônes de connexion, les quatre lieux Bayou (Cursed Shores, Brackish Waters, Forgotten Marsh, Foul Swamp) sont tous connectés entre eux — l'app les pose en carré au centre — et les deux autres lieux de chaque pile ne sont connectés qu'à leur Bayou et l'un à l'autre (posés à côté et au-dessus ou en dessous). Tracez les chemins si vous le souhaitez (clic droit glissé d'un lieu à l'autre)." },
+    { "when": "setup", "text": "Acte 1 : seuls les enquêteurs à un lieu Bayou peuvent dépenser, en groupe, les indices de l'acte (1 par enquêteur). Les lieux valent peu d'indices : cherchez-les où il y en a (Broadmoor, Audubon Park, Twisted Underbrush, Ritual Grounds) et gardez-en pour engager le Rougarou (1 indice du groupe, 2 à 3-4 enquêteurs)." },
+    { "when": "mythos", "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche)." },
+    { "when": "enemy", "text": "Ennemis chasseurs : déplacez-les à la main. Le Rougarou est distant (Aloof) : on l'engage en payant des indices (voir sa carte) ; après 1 dégât par enquêteur dans une même phase, il fuit au lieu le plus éloigné de tous les enquêteurs." },
+    { "when": "act:2", "text": "Verso de l'acte 1 : l'app a mis en jeu les six lieux de côté (non révélés) et fait apparaître Lady Esprit au lieu Bayou de départ — vous pouvez la déplacer sur un autre lieu Bayou ; elle a mélangé la défausse et les cartes de rencontre du set Curse of the Rougarou dans la pioche (journal). À faire à la main : glissez The Rougarou depuis la zone de côté sur un lieu non-Bayou de votre choix, et la faiblesse Curse of the Rougarou dans la zone de menace de l'enquêteur principal (elle reste dans son deck). Acte 2 : quand le Rougarou quitte un lieu, posez-y 1 indice (menu du lieu). Deux issues : vaincre le Rougarou (résolution 2), ou, engagé avec lui, choisir d'avancer (une fois par phase) — n'utilisez « Avancer l'acte » que si les quatre conditions du verso sont remplies (4 indices par enquêteur en groupe, un piège attaché au Rougarou, au moins 1 dégât par enquêteur sur lui, « binding stone » ou « strange doll » trouvé) : c'est alors la résolution 3 ; sinon retournez la carte côté a." },
+    { "when": "agenda:2", "text": "Verso de l'agenda 1 : l'app a remélangé la défausse dans la pioche. Si le Rougarou est en jeu, déplacez-le, un lieu à la fois, jusqu'au lieu non-Bayou qui a le moins d'indices ; s'il n'est pas en jeu, ajoutez 1 doom à l'agenda 2 (menu de l'agenda → Doom)." },
+    { "when": "agenda:3", "text": "Verso de l'agenda 2 : l'app a remélangé les On the Prowl de la défausse dans la pioche. Si le Rougarou est en jeu, déplacez-le, un lieu à la fois, jusqu'au lieu non-Bayou qui a le moins d'indices ; sinon ajoutez 1 doom à l'agenda 3. Agenda 3 (Forcé) : à la fin de chaque phase des enquêteurs, si le Rougarou n'est engagé avec personne, +1 doom sur l'agenda. C'est le dernier agenda : quand il avance, le scénario se termine (livret)." }
+  ]
+}

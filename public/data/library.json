@@ -743,7 +743,8 @@
      "id": "sa_curse_of_the_rougarou",
      "num": "2016",
      "title": "Curse of the Rougarou",
-     "status": "planned"
+     "status": "available",
+     "guide": "https://hallofarkham.com/wp-content/uploads/2021/01/curserules.pdf"
     },
     {
      "id": "sa_carnevale_of_horrors",

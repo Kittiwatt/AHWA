@@ -595,6 +595,14 @@ révélé en partie) ; effets `seatCounter {key, n}` (compteur de chaque
 enquêteur, bornes déclarées) et `moveTokens {from, to, token}`.
 Fortune and Folly complet en deux rooms.
 
+**Curse of the Rougarou (2026-09-10).** Op **`pickGroups`** (piles de
+cartes tirées au sort entières : `groups {label, codes, positions}`,
+`remove`, `play`, `rest`, `slot`) ; effets `placeAt.ifAside` (silence si
+la carte n'est pas de côté), `spawnAside.at` en liste (premier lieu
+présent sur le tapis), **`shuffleFromDiscard [codes]`** (ces seules
+cartes de la défausse reviennent dans la pioche). Livret absent du site
+FFG : lien vers la transcription Hall of Arkham.
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets

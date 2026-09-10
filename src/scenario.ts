@@ -45,6 +45,11 @@ export type SetupStep =
     // les n premières cartes d'une pile déjà construite entrent en jeu aux positions données (Road deck : « put the top 3 cards
     // into play ») ; `slot` mémorise `slot:<slot>:<i>` (0 = première tirée) et `slot:<slot>` (la première)
   | { op: "pickRandomSet"; from: string[]; n?: number; log?: string }   // garde n sets dans la pioche, retire les autres (sans révéler lesquels)
+  | { op: "pickGroups"; groups: { label: string; codes: string[]; positions?: { x: number; y: number }[] }[]; play?: number; remove?: number; rest?: "aside" | "remove" | "keep"; faceUp?: boolean; reveal?: boolean; slot?: string; log?: string }
+    // groupes (piles) de cartes tirés au sort entiers (Curse of the Rougarou : quatre piles de lieux par trait) : `remove` groupes retirés
+    // de la partie, puis `play` groupes mis en jeu (chaque carte à sa position propre, non révélée par défaut), les autres suivent `rest`
+    // (de côté face cachée par défaut, ou retirés, ou laissés au pool) ; `slot:<nom>` = première carte du premier groupe joué,
+    // `slot:<nom>:<i>` = i-ème ; le journal nomme les groupes par leur `label`
   | { op: "addDoom"; n?: number; nFrom?: string; log?: string }         // doom sur l'agenda courant (après « story ») ; nFrom = réponse numérique
   | { op: "addTokens"; at: string; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic" | "flood"; n?: number; nFrom?: string; perInvestigator?: boolean; log?: string }
     // jetons sur une carte en jeu (code ou slot), ex. ressource = brasero allumé ; nFrom = réponse numérique ; perInvestigator : n par enquêteur (7 indices par enquêteur sur The Wellspring of Fortune)
@@ -120,7 +125,9 @@ export type StageEffects = {
   removeLocations?: { trait?: string; except?: string[]; codes?: string[] };   // idem, par trait et/ou sauf ces codes (« chaque lieu autre que… »), ou ces seuls codes
   spreadPile?: { pile: string; positions: { x: number; y: number }[]; flood?: 1 | 2 };   // les cartes d'une pile entrent en jeu non révélées aux positions données (une par position), inondées si demandé
   byPlayers?: Record<string, StageEffects>;                             // variante selon le nombre de joueurs ("1"…"4"), appliquée à sa place dans l'ordre
-  placeAt?: { code: string; x: number; y: number; faceUp?: boolean; flood?: 1 | 2 }[];   // une carte de côté posée à une position (révélée ou non, inondée)
+  placeAt?: { code: string; x: number; y: number; faceUp?: boolean; flood?: 1 | 2; ifAside?: true }[];   // une carte de côté posée à une position (révélée ou non, inondée) ;
+    // ifAside : seulement si une copie est de côté, sinon rien ni rappel (lieux d'une pile retirée au setup, Curse of the Rougarou)
+  shuffleFromDiscard?: string[];                                        // toutes les copies de ces codes dans la défausse de rencontre reviennent dans la pioche, mélangée (« shuffle all copies of On the Prowl from the discard pile into the encounter deck »)
   chaosAdd?: Token[]; chaosRemove?: Token[];                            // jetons ajoutés au sac / retirés (un exemplaire chacun)
   spawnAside?: SpawnAside | SpawnAside[];                               // une carte (de côté d'abord, sinon déjà en jeu) apparaît sur un lieu (code) — ou plusieurs
   randomKeyOn?: string;                                                 // une clé cachée au hasard posée sur cette carte
@@ -136,7 +143,8 @@ export type StageEffects = {
   moveTokens?: { from: string; to: string; token: "clue" | "doom" | "resource" | "generic" | "damage" | "horror" };   // tous les jetons de ce type passent de la carte `from` à la carte `to` (« move all clues from The Wellspring to Relic Room »)
   log?: string;
 };
-export type SpawnAside = { code: string; at: string; side?: "a" | "b"; ifAside?: true };   // ifAside : seulement si une copie est de côté (sinon rien, sans rappel — « if the Servant is set aside, spawn it »)
+export type SpawnAside = { code: string; at: string | string[]; side?: "a" | "b"; ifAside?: true };   // ifAside : seulement si une copie est de côté (sinon rien, sans rappel — « if the Servant is set aside, spawn it ») ;
+  // `at` en liste : le premier de ces lieux présent sur le tapis (« at a Bayou location » quand le lieu en jeu dépend d'un tirage)
 
 export function evalCond(c: Cond, answers: Answers): boolean {
   if ("q" in c && "has" in c) { const r = answers[c.q]; return Array.isArray(r) && r.includes(c.has); }

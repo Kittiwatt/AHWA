@@ -8,6 +8,75 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **The Blob That Ate Everything — premier scénario
+  indépendant** (ahc45, pack arkham.build `blob`, 85001‑85053). Consigne
+  de l'utilisateur pour tous les standalone : lire le livret **en
+  entier**, découper en plusieurs rooms si le livret contient plusieurs
+  scénarios (et adapter la bibliothèque), une room par push, validation
+  avant la suivante. Ici un seul scénario, trois façons de jouer (p. 2‑3)
+  → une room, question `mode` : Single Group / Epic Multiplayer (cette
+  table = un groupe, l'organisateur tient vie globale, seuil d'indices de
+  l'acte 1 et contremesures, p. 6‑9) / side-story de campagne (sac de la
+  campagne à reconstituer, 2 XP). Sets : `blob`, `blob_single_group`
+  (85006, 85009, 85038), `blob_epic_multiplayer` (85005, 85008, 85037),
+  `migo_incursion` (85021‑36) — le set non joué est retiré avant `story`,
+  qui saute les codes absents ; sac p. 2 (icônes à 600 dpi : crâne ×2,
+  cultiste, tablette, ancien, auto-fail, elder sign, deux niveaux
+  seulement → Facile = Standard, Expert = Difficile, ligne de journal par
+  `branch on:"difficulty"`) ; carte de scénario recto Easy/Standard,
+  verso Hard/Expert (`scenarioCardSide`). Mise en place (p. 13‑15) :
+  Mi-Go Incursion de côté (les quatre cartes histoire face cachée avec
+  `storyBack` — leur verso est la Part 2 —, le reste face visible, choix
+  de l'utilisateur), Vulnerable Heart + 1 Grasping + 1 Cubic + 2
+  Oozewraith de côté ; **Subject 8L-08 « à côté de l'agenda, à aucun
+  lieu »** = `place zone:"story"` face visible, et la colonne Histoire
+  rend désormais toute carte de la zone hors agenda / acte / scénario
+  (`.bloc.reference`, chips et menu, dépôt élargi aux ennemis / soutiens
+  / traîtrises / histoire) ; losange p. 15 (1‑3‑5‑3‑1, Crater 737 × 649,
+  lignes 173‑1125) : anneau intérieur = `pickRandom n:2 include:[RS,
+  HQ]` (nouvelle option : cartes imposées mélangées avec les tirées),
+  pointes = `n:3 include:[Fungus Mound]`, diagonales = `n:4`, la dernière
+  QZ retirée par le `rest` par défaut ; les **billets** de `pickRandom`
+  sont désormais les exemplaires restants au pool (tirages successifs sur
+  les mêmes sept codes sans crash ; les 25 scénarios livrés listaient
+  déjà chaque code autant que sa quantité : sémantique inchangée pour
+  eux) ; HQ révélé par la nouvelle op **`reveal`** puis `minis` ;
+  contremesures = `addTokens resource` sur la carte de scénario (1, ou 2
+  à 3‑4 joueurs ; aucune en Epic), « Ressource » ajouté au menu de la
+  carte de scénario ; pile déclarée **« Dévorées »** (`menuFor` lieux,
+  ennemis, traîtrises, soutiens, histoire — son badge sert au crâne « −1
+  par 5 cartes dévorées »). Runtime : agendas 2 et 3 = `shuffleAside`
+  {Cubic, Grasping} puis Oozewraith ×2 `withDiscard` (dévorer 2 lieux =
+  rappel) ; `after:85007` = `setAside` du cœur, qui dit maintenant le
+  total de dégâts retirés (X du verso) ; `after:85009` / `after:85008` =
+  drones Mi-Go `shuffleAside ifAside` (nouvelle option : tout le geste
+  seulement si une copie est encore de côté — « the first time this act
+  has advanced »), `addClues {trait:"Oozified", revealed, n:1,
+  perInvestigator, max:"printed"}` (nouvelle forme : chaque lieu du
+  trait, plafonné à sa valeur imprimée) et, en Single Group, `drawAside`
+  (nouveau : une carte histoire de côté tirée au hasard entre dans
+  l'histoire recto ; en Epic l'organisateur la désigne, texte du `log`
+  de l'effet) ; **`actCycle: true`** (nouveau, racine) : quand l'acte 3
+  avance, `avancer()` remet tous les actes dans le deck dans l'ordre et
+  l'acte 1 redevient courant avec ses effets `after:` et `act:1`
+  (`state.counters.actCycles`). Build : vie négative du dump (`-2` = X,
+  `-3` = ✱ réserve globale) → `health` omis, jauge sans maximum (idem
+  `room.ts` pour le générateur, `cartes.js` teste `max > 0`) ; indices
+  négatifs d'un acte → seuil 0. Bibliothèque : `guide` par scénario
+  (lien « livret » sous le titre, lien Guide de la table). Tests :
+  bloc `test_room.mjs` (Single 2 j. : sac, positions par anneau, QZ
+  retirée, journal muet, mises de côté, pioche 30, pile Dévorées,
+  agendas 2‑3, cœur soigné X = 4, retour à l'acte 1 avec drones +
+  défausse + indices plafonnés + carte histoire, second tour sans
+  remélange ; Epic 3 j. Expert : sac Difficile, côté b, Subject ✱ sans
+  `health`, seuil 0, pas de carte histoire tirée ; side-story 1 j.
+  Facile) ; Playwright : bibliothèque, lobby, losange, jauge 0/15* →
+  1/15*, lieu dévoré (badge 1), carte histoire dans la colonne après la
+  boucle, zone de côté (23) ; zéro erreur console ; `npm run check` zéro
+  erreur ; régression `test_room.mjs` (781 messages) OK. Non automatisé
+  (rappels) : lieux dévorés au choix, cœur au lieu choisi, ennemis
+  Manifold sortis de la pioche selon X, tableau Reality Acid (livret en
+  lien).
 - 2026-09-10 : **Générateur de cartes sur le board joueur, carte
   personnalisée à partir d'une image** — deux demandes de l'utilisateur.
   (1) Le bouton « Générer une carte » (même icône) est ajouté dans le

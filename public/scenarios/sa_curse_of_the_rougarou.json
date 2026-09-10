@@ -1,0 +1,1018 @@
+{
+ "id": "sa_curse_of_the_rougarou",
+ "title": "Curse of the Rougarou",
+ "campaign": "Scénarios indépendants",
+ "campaignId": "standalone",
+ "order": 1,
+ "packs": [
+  "cotr"
+ ],
+ "encounterSets": [
+  "bayou",
+  "rougarou"
+ ],
+ "extraCards": [],
+ "scenarioCard": "81001",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "81002",
+  "81003",
+  "81004"
+ ],
+ "actDeck": [
+  "81005",
+  "81006"
+ ],
+ "startLocation": "81007",
+ "layout": [
+  {
+   "code": "81007",
+   "x": 551,
+   "y": 411
+  },
+  {
+   "code": "81010",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "code": "81013",
+   "x": 551,
+   "y": 649
+  },
+  {
+   "code": "81016",
+   "x": 923,
+   "y": 649
+  }
+ ],
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Comment jouez-vous ce scénario ? (livret p. 1)",
+   "options": [
+    {
+     "id": "standalone",
+     "label": "Scénario indépendant (Standalone Mode) : sac du chaos du livret"
+    },
+    {
+     "id": "campaign",
+     "label": "Side-story dans une campagne (1 XP par enquêteur) : sac du chaos de votre campagne à reconstituer, faiblesses, traumatismes et soutiens d'histoire de la campagne"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "branch",
+   "on": "difficulty",
+   "cases": {
+    "easy": [
+     {
+      "op": "log",
+      "text": "Ce scénario n'a que deux niveaux de difficulté (livret p. 1) : Facile joue le sac Standard."
+     }
+    ],
+    "expert": [
+     {
+      "op": "log",
+      "text": "Ce scénario n'a que deux niveaux de difficulté (livret p. 1) : Expert joue le sac Difficile."
+     }
+    ]
+   }
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "campaign"
+   },
+   "then": [
+    {
+     "op": "reminder",
+     "text": "Side-story (livret p. 1) : jouez avec le sac du chaos de votre campagne — celui du livret sert de point de départ, ajustez-le (clic droit sur le sac → Ajuster) ; faiblesses, traumatismes, expérience et soutiens d'histoire de la campagne suivent vos decks, et ce que ce scénario vous laisse reste dans la campagne. Il coûte 1 XP par enquêteur et ne se joue qu'une fois par campagne."
+    }
+   ]
+  },
+  {
+   "op": "aside",
+   "sets": [
+    "rougarou"
+   ],
+   "faceUp": true,
+   "log": "Le set Curse of the Rougarou est mis de côté, hors jeu (The Rougarou, la faiblesse Curse of the Rougarou, Monstrous Transformation et ses quinze cartes de rencontre) : l'acte 1 le fait entrer en jeu."
+  },
+  {
+   "op": "pickGroups",
+   "groups": [
+    {
+     "label": "New Orleans (Cursed Shores, Garden District, Broadmoor)",
+     "codes": [
+      "81007",
+      "81008",
+      "81009"
+     ],
+     "positions": [
+      {
+       "x": 551,
+       "y": 411
+      },
+      {
+       "x": 365,
+       "y": 411
+      },
+      {
+       "x": 551,
+       "y": 173
+      }
+     ]
+    },
+    {
+     "label": "Riverside (Brackish Waters, Audubon Park, Faubourg Marigny)",
+     "codes": [
+      "81010",
+      "81011",
+      "81012"
+     ],
+     "positions": [
+      {
+       "x": 923,
+       "y": 411
+      },
+      {
+       "x": 1109,
+       "y": 411
+      },
+      {
+       "x": 923,
+       "y": 173
+      }
+     ]
+    },
+    {
+     "label": "Wilderness (Forgotten Marsh, Trapper's Cabin, Twisted Underbrush)",
+     "codes": [
+      "81013",
+      "81014",
+      "81015"
+     ],
+     "positions": [
+      {
+       "x": 551,
+       "y": 649
+      },
+      {
+       "x": 365,
+       "y": 649
+      },
+      {
+       "x": 551,
+       "y": 887
+      }
+     ]
+    },
+    {
+     "label": "Unhallowed (Foul Swamp, Ritual Grounds, Overgrown Cairns)",
+     "codes": [
+      "81016",
+      "81017",
+      "81018"
+     ],
+     "positions": [
+      {
+       "x": 923,
+       "y": 649
+      },
+      {
+       "x": 1109,
+       "y": 649
+      },
+      {
+       "x": 923,
+       "y": 887
+      }
+     ]
+    }
+   ],
+   "remove": 1,
+   "play": 1,
+   "rest": "aside",
+   "slot": "pile",
+   "log": "Les douze lieux sont triés en quatre piles par trait ; une pile tirée au hasard est retirée de la partie, une autre est mise en jeu (non révélée), les deux dernières sont mises de côté face non révélée (l'acte 1 les fait entrer en jeu)"
+  },
+  {
+   "op": "reveal",
+   "code": "slot:pile",
+   "log": "Le lieu Bayou de la pile en jeu est révélé : chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "minis",
+   "code": "slot:pile"
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "81019",
+    "81020",
+    "81021"
+   ],
+   "faceUp": true,
+   "log": "Lady Esprit, Bear Trap et Fishing Net sont mis de côté, hors jeu (Lady Esprit entre en jeu avec l'acte 1 ; les pièges se gagnent à Trapper's Cabin et Brackish Waters)."
+  },
+  {
+   "op": "story",
+   "log": "Agenda 1 et acte 1 sont en place ; la carte de scénario montre la référence de votre difficulté (recto Easy/Standard, verso Hard/Expert)."
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "agendaEffects": {
+  "2": {
+   "log": "Verso de l'agenda 1 (agenda 2)",
+   "shuffleAside": [],
+   "withDiscard": true
+  },
+  "3": {
+   "log": "Verso de l'agenda 2 (agenda 3)",
+   "shuffleFromDiscard": [
+    "81034"
+   ]
+  }
+ },
+ "actEffects": {
+  "2": {
+   "log": "Verso de l'acte 1 (acte 2)",
+   "spawnAside": {
+    "code": "81019",
+    "at": [
+     "81007",
+     "81010",
+     "81013",
+     "81016"
+    ]
+   },
+   "placeAt": [
+    {
+     "code": "81007",
+     "x": 551,
+     "y": 411,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81008",
+     "x": 365,
+     "y": 411,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81009",
+     "x": 551,
+     "y": 173,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81010",
+     "x": 923,
+     "y": 411,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81011",
+     "x": 1109,
+     "y": 411,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81012",
+     "x": 923,
+     "y": 173,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81013",
+     "x": 551,
+     "y": 649,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81014",
+     "x": 365,
+     "y": 649,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81015",
+     "x": 551,
+     "y": 887,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81016",
+     "x": 923,
+     "y": 649,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81017",
+     "x": 1109,
+     "y": 649,
+     "faceUp": false,
+     "ifAside": true
+    },
+    {
+     "code": "81018",
+     "x": 923,
+     "y": 887,
+     "faceUp": false,
+     "ifAside": true
+    }
+   ],
+   "shuffleAside": [
+    "81031",
+    "81032",
+    "81033",
+    "81034",
+    "81035",
+    "81036"
+   ],
+   "withDiscard": true
+  }
+ },
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Disposition : le livret ne donne pas de diagramme. D'après les icônes de connexion, les quatre lieux Bayou (Cursed Shores, Brackish Waters, Forgotten Marsh, Foul Swamp) sont tous connectés entre eux — l'app les pose en carré au centre — et les deux autres lieux de chaque pile ne sont connectés qu'à leur Bayou et l'un à l'autre (posés à côté et au-dessus ou en dessous). Tracez les chemins si vous le souhaitez (clic droit glissé d'un lieu à l'autre)."
+  },
+  {
+   "when": "setup",
+   "text": "Acte 1 : seuls les enquêteurs à un lieu Bayou peuvent dépenser, en groupe, les indices de l'acte (1 par enquêteur). Les lieux valent peu d'indices : cherchez-les où il y en a (Broadmoor, Audubon Park, Twisted Underbrush, Ritual Grounds) et gardez-en pour engager le Rougarou (1 indice du groupe, 2 à 3-4 enquêteurs)."
+  },
+  {
+   "when": "mythos",
+   "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche)."
+  },
+  {
+   "when": "enemy",
+   "text": "Ennemis chasseurs : déplacez-les à la main. Le Rougarou est distant (Aloof) : on l'engage en payant des indices (voir sa carte) ; après 1 dégât par enquêteur dans une même phase, il fuit au lieu le plus éloigné de tous les enquêteurs."
+  },
+  {
+   "when": "act:2",
+   "text": "Verso de l'acte 1 : l'app a mis en jeu les six lieux de côté (non révélés) et fait apparaître Lady Esprit au lieu Bayou de départ — vous pouvez la déplacer sur un autre lieu Bayou ; elle a mélangé la défausse et les cartes de rencontre du set Curse of the Rougarou dans la pioche (journal). À faire à la main : glissez The Rougarou depuis la zone de côté sur un lieu non-Bayou de votre choix, et la faiblesse Curse of the Rougarou dans la zone de menace de l'enquêteur principal (elle reste dans son deck). Acte 2 : quand le Rougarou quitte un lieu, posez-y 1 indice (menu du lieu). Deux issues : vaincre le Rougarou (résolution 2), ou, engagé avec lui, choisir d'avancer (une fois par phase) — n'utilisez « Avancer l'acte » que si les quatre conditions du verso sont remplies (4 indices par enquêteur en groupe, un piège attaché au Rougarou, au moins 1 dégât par enquêteur sur lui, « binding stone » ou « strange doll » trouvé) : c'est alors la résolution 3 ; sinon retournez la carte côté a."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 : l'app a remélangé la défausse dans la pioche. Si le Rougarou est en jeu, déplacez-le, un lieu à la fois, jusqu'au lieu non-Bayou qui a le moins d'indices ; s'il n'est pas en jeu, ajoutez 1 doom à l'agenda 2 (menu de l'agenda → Doom)."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Verso de l'agenda 2 : l'app a remélangé les On the Prowl de la défausse dans la pioche. Si le Rougarou est en jeu, déplacez-le, un lieu à la fois, jusqu'au lieu non-Bayou qui a le moins d'indices ; sinon ajoutez 1 doom à l'agenda 3. Agenda 3 (Forcé) : à la fin de chaque phase des enquêteurs, si le Rougarou n'est engagé avec personne, +1 doom sur l'agenda. C'est le dernier agenda : quand il avance, le scénario se termine (livret)."
+  }
+ ],
+ "builtAt": "2026-09-10",
+ "encounterSetNames": {
+  "bayou": "The Bayou",
+  "rougarou": "Curse of the Rougarou"
+ },
+ "cards": [
+  {
+   "code": "81001",
+   "name": "Curse of the Rougarou",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "81002",
+   "name": "A Creature of the Bayou",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Darkened Skies",
+   "doom": 5,
+   "stage": 1
+  },
+  {
+   "code": "81003",
+   "name": "The Rougarou Feeds",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "backName": "The Tenth Night",
+   "doom": 6,
+   "stage": 2
+  },
+  {
+   "code": "81004",
+   "name": "The Curse Spreads",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Taken by the Curse",
+   "doom": 8,
+   "stage": 3
+  },
+  {
+   "code": "81005",
+   "name": "Finding Lady Esprit",
+   "kind": "act",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "backName": "Understanding the Curse",
+   "stage": 1
+  },
+  {
+   "code": "81006",
+   "name": "Hunting the Rougarou",
+   "kind": "act",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Taming the Rougarou",
+   "stage": 2
+  },
+  {
+   "code": "81007",
+   "name": "Cursed Shores",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "New Orleans",
+    "Bayou"
+   ]
+  },
+  {
+   "code": "81008",
+   "name": "Garden District",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "New Orleans"
+   ],
+   "backName": "New Orleans"
+  },
+  {
+   "code": "81009",
+   "name": "Broadmoor",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "New Orleans"
+   ],
+   "backName": "New Orleans",
+   "victory": 1
+  },
+  {
+   "code": "81010",
+   "name": "Brackish Waters",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Riverside",
+    "Bayou"
+   ]
+  },
+  {
+   "code": "81011",
+   "name": "Audubon Park",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Riverside"
+   ],
+   "backName": "Riverside",
+   "victory": 1
+  },
+  {
+   "code": "81012",
+   "name": "Faubourg Marigny",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Riverside"
+   ],
+   "backName": "Riverside"
+  },
+  {
+   "code": "81013",
+   "name": "Forgotten Marsh",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Wilderness",
+    "Bayou"
+   ]
+  },
+  {
+   "code": "81014",
+   "name": "Trapper's Cabin",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Wilderness"
+   ],
+   "backName": "Wilderness"
+  },
+  {
+   "code": "81015",
+   "name": "Twisted Underbrush",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Wilderness"
+   ],
+   "backName": "Wilderness",
+   "victory": 1
+  },
+  {
+   "code": "81016",
+   "name": "Foul Swamp",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Unhallowed",
+    "Bayou"
+   ]
+  },
+  {
+   "code": "81017",
+   "name": "Ritual Grounds",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Unhallowed"
+   ],
+   "backName": "Unhallowed Land",
+   "victory": 1
+  },
+  {
+   "code": "81018",
+   "name": "Overgrown Cairns",
+   "kind": "location",
+   "qty": 1,
+   "set": "bayou",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Unhallowed"
+   ],
+   "backName": "Unhallowed Land"
+  },
+  {
+   "code": "81019",
+   "name": "Lady Esprit",
+   "kind": "asset",
+   "qty": 1,
+   "set": "bayou",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Dangerous Bokor",
+   "traits": [
+    "Ally",
+    "Sorcerer"
+   ],
+   "health": 2,
+   "sanity": 4
+  },
+  {
+   "code": "81020",
+   "name": "Bear Trap",
+   "kind": "asset",
+   "qty": 1,
+   "set": "bayou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Trap"
+   ]
+  },
+  {
+   "code": "81021",
+   "name": "Fishing Net",
+   "kind": "asset",
+   "qty": 1,
+   "set": "bayou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Trap"
+   ]
+  },
+  {
+   "code": "81022",
+   "name": "Bog Gator",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "bayou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Creature"
+   ],
+   "health": 2
+  },
+  {
+   "code": "81023",
+   "name": "Swamp Leech",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "bayou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Creature"
+   ],
+   "health": 1
+  },
+  {
+   "code": "81024",
+   "name": "Cursed Swamp",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "bayou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "81025",
+   "name": "Spectral Mist",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "bayou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "81026",
+   "name": "Dragged Under",
+   "kind": "treachery",
+   "qty": 4,
+   "set": "bayou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "81027",
+   "name": "Ripples on the Surface",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "bayou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "81028",
+   "name": "The Rougarou",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "rougarou",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Cursed Soul",
+   "traits": [
+    "Monster",
+    "Creature",
+    "Elite"
+   ],
+   "health": 5,
+   "healthPerInvestigator": true
+  },
+  {
+   "code": "81029",
+   "name": "Curse of the Rougarou",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "rougarou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "81030",
+   "name": "Monstrous Transformation",
+   "kind": "asset",
+   "qty": 1,
+   "set": "rougarou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Talent"
+   ]
+  },
+  {
+   "code": "81031",
+   "name": "Slime-Covered Dhole",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "rougarou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Dhole"
+   ],
+   "health": 3
+  },
+  {
+   "code": "81032",
+   "name": "Marsh Gug",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "rougarou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Gug"
+   ],
+   "health": 4
+  },
+  {
+   "code": "81033",
+   "name": "Dark Young Host",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "rougarou",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Dark Young"
+   ],
+   "health": 5,
+   "victory": 1
+  },
+  {
+   "code": "81034",
+   "name": "On the Prowl",
+   "kind": "treachery",
+   "qty": 5,
+   "set": "rougarou",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "81035",
+   "name": "Beast of the Bayou",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rougarou",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "81036",
+   "name": "Insatiable Bloodlust",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "rougarou",
+   "back": "encounter",
+   "storyBack": false
+  }
+ ]
+}

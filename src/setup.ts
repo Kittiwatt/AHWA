@@ -397,6 +397,33 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         addLog(state, "setup", step.log ?? `${n} des ${step.from.length} sets candidats rejoignent la pioche, sans être regardés ; les autres sont retirés de la partie.`);
         break;
       }
+      case "pickGroups": {
+        // Piles entières tirées au sort (Curse of the Rougarou : « sort each location into 4 piles by trait ; randomly choose 1 pile and
+        // remove it ; randomly choose another and put it into play ; set the other 2 aside ») : les groupes sont mélangés, les `remove`
+        // premiers sont retirés, les `play` suivants entrent en jeu (chaque carte à sa position propre, non révélée par défaut), le reste
+        // suit `rest`. Le journal nomme les piles par leur libellé — rien n'est secret, le lieu de départ est révélé ensuite.
+        const nRemove = step.remove ?? 0, nPlay = step.play ?? 1;
+        if (nRemove + nPlay > step.groups.length) throw new Error(`setup : pickGroups — ${nRemove + nPlay} groupes demandés, ${step.groups.length} déclarés`);
+        const ordre = shuffle([...step.groups], rng);
+        const retires = ordre.slice(0, nRemove), joues = ordre.slice(nRemove, nRemove + nPlay), autres = ordre.slice(nRemove + nPlay);
+        for (const g of retires) for (const code of g.codes) retirer(code);
+        joues.forEach((g, gi) => {
+          g.codes.forEach((code, i) => {
+            const pos = g.positions?.[i] ?? { x: 737 + i * (CARD_W + 32), y: 411 };
+            const card = poser(code, "board", pos.x, pos.y, step.faceUp ?? false, step.reveal, "");
+            state.log.pop();   // une seule ligne pour tout le tirage (ci-dessous)
+            if (step.slot && gi === 0) { if (i === 0) slots.set(step.slot, card.id); slots.set(`${step.slot}:${i}`, card.id); }
+          });
+        });
+        if (step.rest === "remove") for (const g of autres) for (const code of g.codes) retirer(code);
+        else if (step.rest !== "keep") {
+          let deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
+          for (const g of autres) for (const code of g.codes) for (const id of pool.takeAll(code)) state.cards[id] = newCard(pool, code, id, { zone: "aside", x: deja++ * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, false);
+        }
+        const libelles = (gs: typeof ordre) => gs.map((g) => g.label).join(", ");
+        addLog(state, "setup", `${step.log ?? "Piles tirées au sort"} : en jeu ${libelles(joues)}${retires.length ? ` ; retirée${retires.length > 1 ? "s" : ""} de la partie ${libelles(retires)}` : ""}${autres.length ? ` ; ${step.rest === "remove" ? "retirée(s) de la partie" : step.rest === "keep" ? "au pool" : "de côté, hors jeu"} ${libelles(autres)}` : ""}.`);
+        break;
+      }
       case "addDoom": {
         const agenda = state.agendaId ? state.cards[state.agendaId] : null;
         if (!agenda) throw new Error("setup : addDoom avant « story »");
