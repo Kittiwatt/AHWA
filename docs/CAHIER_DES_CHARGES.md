@@ -588,6 +588,13 @@ pioche « Défausser les N premières (icônes de jeu) », aperçu au
 demandeur, remélange de la défausse hors cartes défaussées quand la
 pioche se vide).
 
+**Fortune and Folly, Part II (2026-09-10).** `place side:"b"` (avec
+`reveal`, indices du verso lié) et `spawn side` ; racine
+**`revealEffects`** (`{code: StageEffects}` appliqués quand un lieu est
+révélé en partie) ; effets `seatCounter {key, n}` (compteur de chaque
+enquêteur, bornes déclarées) et `moveTokens {from, to, token}`.
+Fortune and Folly complet en deux rooms.
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets

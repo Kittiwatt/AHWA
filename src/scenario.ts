@@ -33,7 +33,8 @@ export type ScenarioCard = {
 
 // Les références « slot:<nom> » désignent une carte choisie plus tôt (pickRandom, setStart).
 export type SetupStep =
-  | { op: "place"; code: string; zone: ZoneId; x: number; y: number; reveal?: boolean; faceUp?: boolean; log?: string }
+  | { op: "place"; code: string; zone: ZoneId; x: number; y: number; reveal?: boolean; faceUp?: boolean; side?: "a" | "b"; log?: string }
+    // side "b" : posée sur son verso lié ou sa seconde face (Busy Night d'un lieu à deux faces révélées, The Heist au dos de The Stakeout) ; avec reveal, les indices du verso
   | { op: "pickRandom"; from: string[]; n?: number; include?: string[]; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; rest?: "remove" | "aside" | "pile" | "keep"; restPile?: string; log?: string }
     // slot : « slot:<nom> » = première carte tirée, « slot:<nom>:<i> » = i-ème ; rest : sort des cartes non tirées (retirées par défaut, de côté, ou dans la pile restPile) ;
     // les billets du tirage sont les exemplaires encore au pool de chaque code de `from` ; `include` : cartes imposées, mélangées avec les
@@ -61,7 +62,7 @@ export type SetupStep =
   | { op: "branch"; on: string; cases: Record<string, SetupStep[]>; log?: string }   // on = id de question ou "players"
     | { op: "remove"; codes: string[]; n?: number; log?: string }   // retire de la partie — toutes les copies restantes de chaque code ; avec n (un seul code) : seulement n exemplaires (COB III : 2 des 6 Suspicious Guests)
   | { op: "toPile"; pile: string; set?: string; codes?: string[]; shuffle?: boolean; log?: string }
-  | { op: "spawn"; code: string; at: string; log?: string }   // code, ou slot d'un tirage nominal (« 1 copy of Casino Guard » tirée parmi trois codes)
+  | { op: "spawn"; code: string; at: string; side?: "a" | "b"; log?: string }   // code, ou slot d'un tirage nominal (« 1 copy of Casino Guard » tirée parmi trois codes) ; side "b" = verso lié (Isamara Crew)
   | { op: "setStart"; code: string; log?: string }
   | { op: "minis"; code: string; log?: string }   // pions de tous les enquêteurs sur une carte en jeu : un lieu, ou un véhicule (Fishing Vessel)
   | { op: "aside"; codes?: string[]; sets?: string[]; faceUp?: boolean; side?: "a" | "b"; log?: string }   // codes (répétés selon la quantité) ou sets entiers ; `side: "b"` = mise de côté sur son verso lié (Angry Mob)
@@ -131,6 +132,8 @@ export type StageEffects = {
     // indices posés sur un lieu du tapis (code), ou sur chaque lieu du tapis portant `trait` (révélés seulement si `revealed`) ;
     // n, ou n par enquêteur ; `max: "printed"` : sans dépasser la valeur d'indices imprimée du lieu (« to a maximum of its clue value »)
   drawAside?: { codes: string[]; n?: number };                          // n (1) cartes tirées au hasard parmi celles de côté de ces codes entrent dans l'histoire, face visible recto (« draw a random set-aside story card »)
+  seatCounter?: { key: string; n: number };                             // compteur `key` de chaque enquêteur ± n, dans les bornes déclarées (« raise each investigator's alarm level by 1 »)
+  moveTokens?: { from: string; to: string; token: "clue" | "doom" | "resource" | "generic" | "damage" | "horror" };   // tous les jetons de ce type passent de la carte `from` à la carte `to` (« move all clues from The Wellspring to Relic Room »)
   log?: string;
 };
 export type SpawnAside = { code: string; at: string; side?: "a" | "b"; ifAside?: true };   // ifAside : seulement si une copie est de côté (sinon rien, sans rappel — « if the Servant is set aside, spawn it »)
@@ -203,6 +206,7 @@ export type ScenarioDef = {
     // `onRevealByCode[code]` : ce lieu monte d'un niveau (1) ou est totalement inondé (2) à sa révélation — texte imprimé du lieu
     // (Devil Reef), même sémantique que la règle de marée `onReveal`
   discardTop?: number[];    // menu de la pioche de rencontre « Défausser les N premières (icônes de jeu) » pour ces N (action discardTop — lieux Game de Fortune and Folly)
+  revealEffects?: Record<string, StageEffects>;   // clé = code d'un lieu : effets appliqués quand ce lieu est révélé en cours de partie (« Forced – When X is revealed », Staff Access Hallway)
   actCycle?: boolean;       // le deck d'acte se réinitialise quand le dernier acte avance (« Reset the act deck to act 1a », The Blob) : tous les
                             // actes reviennent dans le deck dans l'ordre, l'acte 1 redevient courant, effets `after:<dernier>` et `act:1` appliqués
   agendaEffects?: Record<string, StageEffects>;   // clé "<stage>" : quand l'agenda `stage` devient courant ; clé "after:<code>" : quand la carte

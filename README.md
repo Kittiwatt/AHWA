@@ -44,9 +44,12 @@ suspect secret de côté, pile « Sous l'acte ») et III — Queen of Ash
 Blob That Ate Everything* (Single Group, Epic Multiplayer ou side-story
 au lobby ; Subject 8L-08 à côté de l'agenda, pile des cartes dévorées,
 deck d'acte qui se réinitialise, carte histoire tirée au hasard) et
-*Fortune and Folly — Part I : The Stakeout* (niveau d'alerte par
-enquêteur, icônes de jeu lues en défaussant la pioche par paquets,
-Wellspring et liste des tâches à côté de l'acte ; Part II à venir), avec
+*Fortune and Folly* en deux tables — *Part I : The Stakeout* (niveau
+d'alerte par enquêteur, icônes de jeu lues en défaussant la pioche par
+paquets, Wellspring et liste des tâches à côté de l'acte) et *Part II :
+The Heist* (journal du Checkpoint au lobby, deux hubs, Abarran et les
+cultistes déclenchés par la révélation du couloir, indices du Wellspring
+déplacés sur Relic Room) —, avec
 les questions de journal au lobby, les tirages au hasard, les piles et
 les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » (n'importe quelle carte du jeu, ou une
 carte personnalisée à partir d'une image en lien) sur la table comme

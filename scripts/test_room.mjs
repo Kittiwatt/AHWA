@@ -3730,5 +3730,126 @@ const GARDES = ["88035a", "88035b", "88035c"];
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Fortune and Folly, Part II (room séparée, setup « from Scratch ») : questions du journal, deux hubs superposés, faces Busy Night
+// (place side b + reveal → indices du verso), The Heist côté b dans l'histoire, Wellspring sur Relic Room (indices du journal ou 7 par
+// enquêteur), Isamara Crew / Cash Cart selon les tâches, Roles Practiced selon le journal, Abarran et Package Delivery de côté côté b,
+// garde et patrouille sortis de la pioche, doom du repos ; revealEffects (Hallway : Abarran + cultistes ; Relic Room : moveTokens),
+// effets d'agenda seatCounter / spawnAside / shuffleAside / drawAside ============
+async function tableFortune2({ joueurs = 2, difficulty, answers } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "sa_fortune_and_folly_part_2" }) });
+  assert.equal(r.status, 200, "Fortune and Folly II est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const PLAN = ["88049a", "88049b", "88050a", "88050b", "88051a", "88051b", "88051c", "88052a", "88052b", "88052c", "88053a", "88053b"];
+const CHOSEN = ["88046a", "88046b", "88047a", "88047b"];
+const DISFAVOR = ["88025", "88026", "88027"];
+{ // Partie I jouée : Isamara convaincue, maison plumée, Face Practiced, repos, 9 indices ; puis Hallway, Relic Room, agendas 3 et 4.
+  const { h } = await tableFortune2({ joueurs: 2, answers: { mode: "standalone", part1: "played", tasks: ["vent", "isamara", "cleaned"], practiced: ["face"], rest: "yes", wellspring: "9" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const L = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  assert.deepEqual(["88022", "88019", "88021", "88020", "88017", "88016", "88018"].map((c) => `${L(c).loc.x},${L(c).loc.y}`), ["737,173", "551,411", "737,411", "923,411", "551,649", "737,649", "923,649"], "hub restreint p. 26 au-dessus");
+  assert.deepEqual(["88014", "88015", "88012", "88011", "88010", "88009", "88013"].map((c) => `${L(c).loc.x},${L(c).loc.y}`), ["551,887", "923,887", "551,1125", "923,1125", "551,1363", "737,1363", "923,1363"], "hub public en dessous");
+  assert.ok(["88022", "88019", "88021", "88020", "88017", "88016", "88018", "88012", "88011", "88010", "88013"].every((c) => !L(c).faceUp), "onze lieux non révélés");
+  assert.ok(L("88014").faceUp && L("88014").side === "b" && L("88014").tokens.clue === 4, "High Roller's Table côté Busy Night, 2 indices × 2 (verso)");
+  assert.ok(L("88015").faceUp && L("88015").side === "b" && L("88015").tokens.clue === 4, "Casino Lounge Busy Night");
+  assert.ok(L("88009").faceUp && L("88009").side === "b" && !L("88009").tokens.clue, "Casino Floor Busy Night sans indice");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 737) < 130 && Math.abs(m.loc.y - 1363) < 60), "pions à Casino Floor");
+  const heist = cartes.find((c) => c.code === "88023");
+  assert.ok(heist.loc.zone === "story" && heist.faceUp && heist.side === "b" && !heist.storyBack, "The Heist (côté b) dans l'histoire");
+  const well = cartes.find((c) => c.code === "88045");
+  assert.ok(well.loc.zone === "board" && Math.abs(well.loc.x - 773) < 20 && Math.abs(well.loc.y - 219) < 20 && well.tokens.clue === 9, "Wellspring sur Relic Room avec 9 indices (journal)");
+  const isa = cartes.find((c) => c.code === "88032");
+  assert.ok(isa.loc.zone === "board" && isa.side === "b" && Math.abs(isa.loc.x - 959) < 20 && Math.abs(isa.loc.y - 933) < 20, "Isamara Crew à Casino Lounge");
+  const cart = cartes.find((c) => c.code === "88033");
+  assert.ok(cart.loc.zone === "board" && Math.abs(cart.loc.x - 587) < 20 && Math.abs(cart.loc.y - 933) < 20, "Cash Cart à High Roller's Table");
+  assert.equal(cartes.filter((c) => GARDES.includes(c.code) && c.loc.zone === "board").length, 1, "un garde en jeu");
+  assert.equal(cartes.filter((c) => ["88037a", "88037b", "88037c"].includes(c.code) && c.loc.zone === "board").length, 1, "une patrouille en jeu");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.equal(cote.length, 28, "28 cartes de côté");
+  assert.ok(cote.find((c) => c.code === "88028").side === "b" && cote.find((c) => c.code === "88029").side === "a", "The Face Practiced, The Muscle Unpracticed");
+  assert.ok(cote.find((c) => c.code === "88034a").side === "b" && cote.find((c) => c.code === "88034a").faceUp, "Abarran de côté côté Unleashed");
+  assert.ok(cote.find((c) => c.code === "88024").side === "b", "Package Delivery (verso) de côté");
+  assert.ok(DISFAVOR.every((c) => cote.find((k) => k.code === c) && !cote.find((k) => k.code === c).faceUp && cote.find((k) => k.code === c).storyBack), "Fortune's Disfavor face cachée, dos histoire");
+  assert.ok([...CHOSEN, ...PLAN, "88048", "88043", "88044"].every((c) => cote.some((k) => k.code === c)), "sets et récompenses de côté");
+  assert.deepEqual(["88002", "88006"].map((c) => cartes.find((k) => k.code === c).loc.pile), ["removed", "removed"], "agenda 1 et acte 1 retirés");
+  assert.equal(s.cards[s.agendaId].code, "88003"); assert.equal(s.cards[s.agendaId].tokens.doom, 1, "repos : 1 doom sur l'agenda 2");
+  assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["88004", "88005"]);
+  assert.equal(s.cards[s.actId].code, "88007"); assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["88008"]);
+  assert.equal(s.piles.encounter.length, 22, "pioche : 2 gardes, 2 dealers, 2 patrouilles, 16 traîtrises");
+  assert.ok(s.log.some((e) => /« found a vent », « convinced Isamara to participate in the heist », « cleaned out the house »/.test(e.text)), "tâches du journal loggées");
+  // Staff Access Hallway révélé : Abarran Unleashed à Owner's Office, Fortune's Chosen + défausse dans la pioche.
+  await h.action({ t: "drawEncounter" }); await h.action({ t: "toPile", id: h.state.piles.encounter[0], pile: "encounterDiscard" });
+  let d2 = await h.action({ t: "revealLocation", id: L("88016").id });
+  assert.equal(d2.t, "delta");
+  let S = h.state;
+  const aba = Object.values(S.cards).find((c) => c.code === "88034a");
+  assert.ok(aba.loc.zone === "board" && aba.side === "b" && aba.faceUp && Math.abs(aba.loc.x - 587) < 20 && Math.abs(aba.loc.y - 457) < 20, "Abarran Unleashed à Owner's Office");
+  assert.equal(S.piles.encounter.length, 21 + 4 + 1, "cultistes et défausse mélangés"); assert.equal(S.piles.encounterDiscard.length, 0);
+  assert.ok(CHOSEN.every((c) => Object.values(S.cards).find((k) => k.code === c).loc.pile === "encounter"));
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Staff Access Hallway révélé \(Forced\) : Abarran Arrigorriagakoa apparaît à Owner's Office/.test(e.text)), "rappel de la révélation");
+  // Relic Room révélée : ses indices, puis ceux du Wellspring déplacés dessus.
+  d2 = await h.action({ t: "revealLocation", id: L("88022").id });
+  S = h.state;
+  assert.equal(S.cards[L("88022").id].tokens.clue, 2 + 9, "Relic Room : 1 × 2 + 9 du Wellspring");
+  assert.ok(!S.cards[well.id].tokens.clue, "Wellspring vidé");
+  assert.ok(S.log.some((e) => /Relic Room révélée \(Forced\) : 9 indices déplacés de The Wellspring of Fortune sur Relic Room/.test(e.text)));
+  // Agenda 3 : Shambler à Roulette Wheel, Plan in Shambles + défausse, +1 alerte pour tous ; agenda 4 : Fortune's Disfavor tirée, +1 alerte.
+  await h.action({ t: "drawEncounter" }); await h.action({ t: "toPile", id: h.state.piles.encounter[0], pile: "encounterDiscard" });
+  const avant = h.state.piles.encounter.length;
+  d2 = await h.action({ t: "advanceAgenda" });
+  S = h.state;
+  assert.equal(S.cards[S.agendaId].code, "88004");
+  const sham = Object.values(S.cards).find((c) => c.code === "88048");
+  assert.ok(sham.loc.zone === "board" && Math.abs(sham.loc.x - 959) < 20 && Math.abs(sham.loc.y - 1171) < 20, "Dimensional Shambler à Roulette Wheel");
+  assert.equal(S.piles.encounter.length, avant + 12 + 1, "Plan in Shambles + défausse");
+  assert.ok(PLAN.every((c) => Object.values(S.cards).find((k) => k.code === c).loc.pile === "encounter"));
+  assert.deepEqual(S.seats.slice(0, 2).map((se) => se.counters.alarm), [2, 2], "+1 alerte pour tous");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'agenda 2 appliqué par l'app/.test(e.text)));
+  d2 = await h.action({ t: "advanceAgenda" });
+  S = h.state;
+  assert.equal(S.cards[S.agendaId].code, "88005");
+  const dis = Object.values(S.cards).filter((c) => DISFAVOR.includes(c.code));
+  assert.equal(dis.filter((c) => c.loc.zone === "story" && c.faceUp && c.side === "a").length, 1, "une Fortune's Disfavor dans l'histoire, recto");
+  assert.equal(dis.filter((c) => c.loc.zone === "aside" && !c.faceUp).length, 2, "les deux autres restent cachées");
+  assert.deepEqual(S.seats.slice(0, 2).map((se) => se.counters.alarm), [3, 3]);
+  // Bornes : +1 d'alerte à 10 reste à 10.
+  await h.action({ t: "setSeatCounter", seat: 0, key: "alarm", value: 10 });
+  assert.equal(h.state.seats[0].counters.alarm, 10);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Partie I sautée, side-story, Expert, 1 joueur : 7 indices, Isamara et Cash Cart de côté, aucun doom, aucune tâche loggée.
+  const { h } = await tableFortune2({ joueurs: 1, difficulty: "expert", answers: { mode: "campaign", part1: "skipped", tasks: [], practiced: [], rest: "no", wellspring: "20" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(cartes.find((c) => c.code === "88045").tokens.clue, 7, "7 indices par enquêteur (1 joueur)");
+  assert.ok(cartes.find((c) => c.code === "88032").loc.zone === "aside" && cartes.find((c) => c.code === "88032").side === "a", "Isamara de côté (Lounge Singer)");
+  assert.equal(cartes.find((c) => c.code === "88033").loc.zone, "aside", "Cash Cart de côté");
+  assert.equal(cartes.filter((c) => c.loc.zone === "aside").length, 30);
+  assert.equal(s.cards[s.agendaId].tokens.doom, 0, "pas de repos : pas de doom");
+  assert.ok(cartes.filter((c) => c.loc.zone === "aside" && ["88028", "88029", "88030", "88031"].includes(c.code)).every((c) => c.side === "a"), "rôles Unpracticed");
+  assert.ok(s.log.some((e) => /Partie I sautée : chaque enquêteur choisit un rôle/.test(e.text)));
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "b");
+  assert.equal(s.chaos.bag.filter((t) => t === "-7").length, 1, "sac Difficile");
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 1);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

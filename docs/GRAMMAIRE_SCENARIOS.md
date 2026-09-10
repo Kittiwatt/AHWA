@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-10 (Fortune and Folly, Part I compris). Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-10 (Fortune and Folly, Part II compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -80,7 +80,7 @@ Le `.src.json` est la définition complète moins ce que le build ajoute
 | `piles` | non | Piles supplémentaires, §6. |
 | `backPlacement` | non | `{code:{x,y}}` — où le verso-lieu d'un agenda/acte lié entre en jeu (défaut : centre 737 × 411). |
 | `storyBack` | non | `[codes]` à dos histoire — recensement manuel (les données ne les marquent pas uniformément). Le verso reste secret dans le journal. |
-| `swaps`, `mythosDoom`, `emptySpace`, `barriers`, `flood`, `agendaEffects`, `actEffects`, `actCycle`, `discardTop`, `leads`, `seal`, `cardSeal`, `bury` | non | Comportements runtime, §6. |
+| `swaps`, `mythosDoom`, `emptySpace`, `barriers`, `flood`, `agendaEffects`, `actEffects`, `revealEffects`, `actCycle`, `discardTop`, `leads`, `seal`, `cardSeal`, `bury` | non | Comportements runtime, §6. |
 
 ## 3. Questions du lobby
 
@@ -137,11 +137,14 @@ donc pas ce qui est déjà posé.
 
 ### Poser et placer
 
-- `{"op":"place","code","zone","x","y","faceUp"?,"reveal"?,"log"?}` —
+- `{"op":"place","code","zone","x","y","faceUp"?,"reveal"?,"side"?,"log"?}` —
   pose un exemplaire. `zone` : presque toujours `"board"` (autres zones
   §7). `faceUp` défaut `false`. `reveal:true` sur un **lieu** : face
   visible + indices selon le nombre d'enquêteurs (`clue.perInvestigator`
   lu des données, `clues_fixed` → valeur fixe) + marée en cours (TIC).
+  `side:"b"` : posée sur son verso lié ou sa seconde face (Busy Night
+  d'un lieu à deux faces révélées, The Heist au dos de The Stakeout) —
+  avec `reveal`, les indices sont ceux du verso (`backClue`).
   Le journal nomme la **face visible** : un lieu non révélé garde son
   secret (`backName`, ex. « Decrepit Door »). `zone:"story"` avec
   `faceUp:true` pour une carte qui vit « à côté de l'agenda, à aucun
@@ -153,9 +156,11 @@ donc pas ce qui est déjà posé.
   ou slot) : indices selon les enquêteurs, marée ; sans effet s'il l'est
   déjà. Pour le lieu de départ posé non révélé par un tirage (Temporary
   HQ, tiré avec `include` parmi l'anneau intérieur du Blob).
-- `{"op":"spawn","code","at","log"?}` — pose révélée sur la carte `at`
+- `{"op":"spawn","code","at","side"?,"log"?}` — pose révélée sur la carte `at`
   (code ou slot) avec décalage automatique (36/46 px + 18 par carte déjà
-  présente). Pour les ennemis « mis en jeu à » un lieu. `code` peut être
+  présente). Pour les ennemis « mis en jeu à » un lieu ; `side:"b"` =
+  verso lié (Isamara Crew). Sert aussi à **attacher** une carte à un
+  lieu (The Wellspring of Fortune sur Relic Room). `code` peut être
   le slot d'un **tirage nominal** (`pickRandom` sans zone, `rest:"keep"`) :
   « spawn 1 copy of Casino Guard » parmi trois codes qui ne diffèrent que
   par leur icône de jeu (88035a‑c) — jamais le slot d'une carte déjà
@@ -388,6 +393,15 @@ rendus pendant la partie.
   règles l'emporte (journal « (texte du lieu) »). `flood: {}` suffit à
   activer menus « Inondation » et panneau Marée. Niveaux : 0 sec,
   1 partiellement, 2 totalement.
+- **`revealEffects`** : `{"<code>": StageEffects}` — mêmes effets que
+  ceux des étapes, appliqués quand **ce lieu est révélé en cours de
+  partie** (action `revealLocation` : clic ou double-clic), après ses
+  indices — « Forced – When Staff Access Hallway is revealed : spawn
+  Abarran Unleashed at Owner's Office, shuffle the discard and the
+  Fortune's Chosen set into the deck » (`spawnAside` avec `side`,
+  `shuffleAside withDiscard`), « After Relic Room is revealed: move all
+  clues from The Wellspring to Relic Room » (`moveTokens`). Le rappel
+  porte le `log` de l'effet. Une révélation au setup ne déclenche rien.
 - **`discardTop: [n…]`** — menu de la pioche de rencontre « Défausser les
   N premières (icônes de jeu) » pour chaque `n` listé (action `discardTop
   {n}`) : les cartes vont à la défausse face visible, s'affichent au
@@ -471,7 +485,12 @@ rendus pendant la partie.
   « draw a random set-aside story card » ; les autres restent de côté
   sans être regardées ; plus rien de côté → « à faire à la main ») ;
   `setAside` dit le total de dégâts retirés (« X is the amount of damage
-  removed »). Cible introuvable → rappel « à faire à la main », jamais
+  removed ») ; `seatCounter {key, n}` (compteur de chaque enquêteur
+  ± n dans ses bornes déclarées : « raise each investigator's alarm
+  level by 1 ») ; `moveTokens {from, to, token}` (tous les jetons de ce
+  type passent de la carte `from` à la carte `to`, codes de cartes en
+  jeu : « move all clues from The Wellspring of Fortune to Relic
+  Room »). Cible introuvable → rappel « à faire à la main », jamais
   d'erreur ; rien à faire → pas de ligne.
   `spawnAside` accepte un objet **ou une liste** (deux apparitions dans
   un même verso : Servant of Flame aux dortoirs et une Fire! attachée à

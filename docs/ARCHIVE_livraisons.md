@@ -8,6 +8,48 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Générateur de cartes sur le board joueur, carte
+  personnalisée à partir d'une image** — deux demandes de l'utilisateur.
+  (1) Le bouton « Générer une carte » (même icône) est ajouté dans le
+  bloc tour de la main du board joueur (`blocTour`, à droite de « Phase
+  suivante », `#generer-carte-board`, inactif en lecture seule) ; la
+  fenêtre est la même (`ouvrirGenerateur`, `dialogues.js`), la carte
+  arrive dans la zone de menace du siège, visible sur le board. Au
+  passage, la consigne « Tapez au moins deux lettres… » s'affichait sur
+  quatre lignes parce que le `<p>` occupait une case de 9 rem de la
+  grille des résultats : `.generateur .grille-cartes > .vide
+  { grid-column: 1 / -1 }`. (2) Sous la recherche, une section « Carte
+  personnalisée (image en lien) » : nom, lien https du recto, lien du
+  verso (facultatif), nature (soutien / ennemi / traîtrise / lieu /
+  histoire), vie (soutien, ennemi) et santé mentale (soutien) ;
+  aperçu de l'image dès que le lien répond, contrôles côté client
+  (nom, lien http(s)), Entrée = Générer. Serveur : action
+  **`createCustomCard`** (`room.ts`, `carteCustomPropre` sur le modèle
+  de `customPropre` de l'enquêteur personnalisé : nom ≤ 40, liens ≤ 600
+  caractères en http(s) sans espace, jauges 1‑99 selon la nature) →
+  définition `custom-card:<n>` dans `state.extraDefs` avec `custom:
+  true, image, imageBack?`, `back` = `b` si verso en lien, sinon dos
+  joueur (soutien) ou rencontre (ennemi, traîtrise, lieu, histoire) ;
+  carte `gen-<n>-custom-card:<n>` dans la zone de menace du demandeur,
+  journal « génère la carte personnalisée « X » (ennemi) ». Client :
+  `urlImage` étend la branche `def.custom` — recto = `image`, verso
+  (« Retourner », ou `side b`) = `imageBack`, sinon dos générique selon
+  `back` ; `loupePermise` suit `back` (loupe sur le verso en lien).
+  Les chips suivent la nature (ennemi : dégâts 0/vie ; soutien : dégâts
+  / horreur). **Pas de téléversement** : une image dans l'état
+  (base64) partirait dans chaque snapshot SQLite et chaque `welcome`
+  (limites du plan gratuit) ; un bucket R2 serait la voie propre si le
+  besoin se confirme — décision de l'utilisateur (« si l'upload est
+  relou, abandonne »). Tests : bloc `test_room.mjs` (ennemi avec verso
+  et vie, soutien, lieu, refus image / lien / jauge / nom / spectateur,
+  définitions partagées, retournement) ; Playwright : consigne sur une
+  ligne (27 px), carte « Le Gardien du Seuil » générée depuis la table
+  (kind-enemy, jauge 0/3, recto puis verso au retournement, journal),
+  Flashlight et une carte personnalisée depuis le board, erreur client
+  sur un lien ftp ; zéro erreur console ; `npm run check` zéro erreur ;
+  régression `test_room.mjs` (742 messages) OK. README, cahier
+  (action).
+
 - 2026-09-10 : **Chips : bouton maintenu déployé, agenda et acte** —
   trois retours de test de l'utilisateur. (1) Sur le « − » ou « + »
   déployé d'une chip, un seul clic passait puis le bouton se repliait ;

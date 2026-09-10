@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | Standalone — Fortune and Folly, Part II : The Heist | setup « from Scratch » : journal du Checkpoint en questions (jouée / sautée, tâches `multi`, Practiced `multi`, repos, indices `number`), deux hubs superposés, `place side:"b"` + `reveal` (Busy Night, indices du verso), `spawn side` (Isamara Crew), Wellspring `spawn` sur Relic Room, **`revealEffects`** (Hallway → Abarran Unleashed + cultistes ; Relic Room → **`moveTokens`**), effet **`seatCounter`** (+1 alerte), agendas 3-4 (Shambler, Plan in Shambles, Disfavor `drawAside`) ; **Fortune and Folly complet** |
 | 2026-09-10 | Standalone — Fortune and Folly, Part I : The Stakeout | livret lu en entier : deux parties = **deux rooms** (bibliothèque scindée, Part II prévue) ; hub public en anneau, cartes liées Calm Night révélées, The Stakeout + Wellspring (Key → `asset`, `addTokens perInvestigator`) dans l'histoire, garde tiré par `spawn` sur slot, matériel de Part II retiré, **`seatCounters min/max` + icône en chemin** (niveau d'alerte 1‑10), **`discardTop`** (icônes de jeu, aperçu, remélange hors cartes défaussées) |
 | 2026-09-10 | Standalone — The Blob That Ate Everything | livret lu en entier (consigne standalone) ; question `mode` (Single / Epic / side-story), losange par `pickRandom include` + billets = pool + op `reveal`, Subject 8L-08 dans la colonne Histoire (`place zone:"story"`, jauge 0/15*), pile « Dévorées » (`menuFor`), contremesures = ressources sur la carte de scénario, **`actCycle`** (deck d'acte réinitialisé), `shuffleAside ifAside`, `addClues` par trait plafonnés, `drawAside`, vie/indices négatifs (✱, X) sans maximum ; livret par scénario dans library.json ; **premier scénario indépendant** |
 | 2026-09-10 | Générateur de cartes : board joueur + carte personnalisée en image | bouton dans `blocTour` du board ; `createCustomCard {name, image, imageBack?, kind?, health?, sanity?}` → `custom-card:<n>` dans `extraDefs` (`custom`, `image`, `imageBack`), `urlImage` étendu ; consigne du générateur sur une ligne (`.grille-cartes > .vide` sur toute la largeur) ; pas de téléversement |
@@ -107,6 +108,55 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **Fortune and Folly, Part II : The Heist** — la seconde
+  room du scénario, avec le setup « from Scratch » p. 23‑25 (celui qui
+  vaut après une pause ou quand la partie I a été sautée ; en room
+  séparée, il n'y a pas de reprise directe). Le **journal du
+  Checkpoint** (p. 17‑19, lu pour concevoir les questions) devient six
+  questions de lobby : mode (sac), partie I jouée / sautée, tâches de
+  The Stakeout (`multi`, six mentions — Isamara Crew et Cash Cart en
+  dépendent, les autres sont loggées pour la partie), rôles notés
+  Practiced (`multi` : chaque Role de côté côté a ou b par `when has`),
+  « need time to rest » (1 doom sur l'agenda 2 par `addDoom` après
+  `story`), indices restant sur le Wellspring (`number`, `addTokens
+  nFrom` ; sautée : 7 par enquêteur). Niveaux d'alerte et cartes
+  « Stashed » restent à la main (rappels). Nouveautés d'engine, toutes
+  petites : `place side:"b"` (+ `revealLocation` prend les indices du
+  verso `backClue`) pour Casino Floor / Lounge / High Roller's Table
+  côté **Busy Night** révélés et The Heist (verso de The Stakeout) dans
+  l'histoire ; `spawn side` (Isamara Crew à Casino Lounge) ; le
+  Wellspring **attaché à Relic Room** par un `spawn` sur le lieu non
+  révélé (il le suit) ; **`revealEffects`** (racine, mêmes StageEffects
+  appliqués quand un lieu est révélé en partie) : Staff Access Hallway →
+  `spawnAside side:"b"` d'Abarran Unleashed à Owner's Office +
+  `shuffleAside withDiscard` du set Fortune's Chosen ; Relic Room →
+  **`moveTokens`** (nouveau : tous les indices du Wellspring sur Relic
+  Room, après ses propres indices) ; effet **`seatCounter {key, n}`**
+  (« raise each investigator's alarm level by 1 » aux agendas 2b et 3b,
+  bornes respectées). Agenda 3 : `spawnAside` du Dimensional Shambler à
+  Roulette Wheel + `shuffleAside` des douze autres Plan in Shambles avec
+  la défausse ; agenda 4 : `drawAside` d'une Fortune's Disfavor (trois de
+  côté face cachée, `storyBack` : leur verso est l'effet) ; acte 2b
+  (Abarran à Relic Room ou test) en rappel. Diagramme p. 26 « juste
+  au-dessus du hub public » : hub restreint aux lignes 173 / 411 / 649
+  (Relic Room seule en haut), hub public aux lignes 887 / 1125 / 1363 —
+  six lignes, la vue se cadre toute seule. De côté : 28 cartes (roles,
+  Package Delivery côté b, Abarran côté b, trois Disfavor, récompenses,
+  les deux sets) — le rangement de la zone hors jeu reste le chantier
+  ouvert. Garde et patrouille « sortis de la pioche » par tirage
+  nominal + `spawn` sur slot, comme en Part I. Tests : bloc
+  `test_room.mjs` (jouée : positions des deux hubs, faces b et indices
+  du verso, Heist, Wellspring 9, Isamara Crew, Cash Cart, garde +
+  patrouille, 28 de côté avec faces, doom du repos, pioche 22, tâches
+  loggées ; révélation du Hallway → Abarran + 4 cultistes + défausse,
+  Relic Room → 2 + 9 indices, agenda 3 → Shambler + 12 + 1, alerte 2,
+  agenda 4 → Disfavor recto, alerte 3 ; sautée Expert solo : 7 indices,
+  Isamara et Cash Cart de côté, pas de doom, rôles Unpracticed, sac
+  Difficile) ; Playwright : questions du lobby, deux hubs, révélation
+  du Hallway au clic (Abarran), agenda 3 (Shambler, alerte 2), colonne
+  Histoire, zone de côté ; zéro erreur console ; `npm run check` zéro
+  erreur ; régression `test_room.mjs` (802 messages) OK. **Fortune and
+  Folly complet** (deux rooms).
 - 2026-09-10 : **Fortune and Folly, Part I : The Stakeout** (ahc71 v2,
   pack arkham.build `fof`, 88001‑88053). Livret (32 p.) lu en entier :
   un scénario en **deux parties**, « chacune un jeu à part entière avec
@@ -237,56 +287,11 @@ versement de son durable (format → grammaire, piège → §5, décision →
   (rappels) : lieux dévorés au choix, cœur au lieu choisi, ennemis
   Manifold sortis de la pioche selon X, tableau Reality Acid (livret en
   lien).
-- 2026-09-10 : **Générateur de cartes sur le board joueur, carte
-  personnalisée à partir d'une image** — deux demandes de l'utilisateur.
-  (1) Le bouton « Générer une carte » (même icône) est ajouté dans le
-  bloc tour de la main du board joueur (`blocTour`, à droite de « Phase
-  suivante », `#generer-carte-board`, inactif en lecture seule) ; la
-  fenêtre est la même (`ouvrirGenerateur`, `dialogues.js`), la carte
-  arrive dans la zone de menace du siège, visible sur le board. Au
-  passage, la consigne « Tapez au moins deux lettres… » s'affichait sur
-  quatre lignes parce que le `<p>` occupait une case de 9 rem de la
-  grille des résultats : `.generateur .grille-cartes > .vide
-  { grid-column: 1 / -1 }`. (2) Sous la recherche, une section « Carte
-  personnalisée (image en lien) » : nom, lien https du recto, lien du
-  verso (facultatif), nature (soutien / ennemi / traîtrise / lieu /
-  histoire), vie (soutien, ennemi) et santé mentale (soutien) ;
-  aperçu de l'image dès que le lien répond, contrôles côté client
-  (nom, lien http(s)), Entrée = Générer. Serveur : action
-  **`createCustomCard`** (`room.ts`, `carteCustomPropre` sur le modèle
-  de `customPropre` de l'enquêteur personnalisé : nom ≤ 40, liens ≤ 600
-  caractères en http(s) sans espace, jauges 1‑99 selon la nature) →
-  définition `custom-card:<n>` dans `state.extraDefs` avec `custom:
-  true, image, imageBack?`, `back` = `b` si verso en lien, sinon dos
-  joueur (soutien) ou rencontre (ennemi, traîtrise, lieu, histoire) ;
-  carte `gen-<n>-custom-card:<n>` dans la zone de menace du demandeur,
-  journal « génère la carte personnalisée « X » (ennemi) ». Client :
-  `urlImage` étend la branche `def.custom` — recto = `image`, verso
-  (« Retourner », ou `side b`) = `imageBack`, sinon dos générique selon
-  `back` ; `loupePermise` suit `back` (loupe sur le verso en lien).
-  Les chips suivent la nature (ennemi : dégâts 0/vie ; soutien : dégâts
-  / horreur). **Pas de téléversement** : une image dans l'état
-  (base64) partirait dans chaque snapshot SQLite et chaque `welcome`
-  (limites du plan gratuit) ; un bucket R2 serait la voie propre si le
-  besoin se confirme — décision de l'utilisateur (« si l'upload est
-  relou, abandonne »). Tests : bloc `test_room.mjs` (ennemi avec verso
-  et vie, soutien, lieu, refus image / lien / jauge / nom / spectateur,
-  définitions partagées, retournement) ; Playwright : consigne sur une
-  ligne (27 px), carte « Le Gardien du Seuil » générée depuis la table
-  (kind-enemy, jauge 0/3, recto puis verso au retournement, journal),
-  Flashlight et une carte personnalisée depuis le board, erreur client
-  sur un lien ftp ; zéro erreur console ; `npm run check` zéro erreur ;
-  régression `test_room.mjs` (742 messages) OK. README, cahier
-  (action).
-- **Prochaine étape** : validation par l'utilisateur de la room
-  **Fortune and Folly, Part I** (anneau, niveau d'alerte, icônes de jeu
-  par `discardTop`, Roles de côté, matériel de Part II retiré), puis la
-  room **Part II : The Heist** (setup « from Scratch » p. 23‑25 : questions
-  du journal — Part I sautée ou jouée, tâches cochées, rôles par
-  enquêteur et Practiced, niveaux d'alerte, indices du Wellspring, stash,
-  repos → 1 doom sur l'agenda 2 —, deux hubs, Vault Door, garde et
-  patrouille sortis de la pioche, Cash Cart / Isamara Crew / Abarran
-  Unleashed selon le journal, agendas 2‑4 et actes 2‑3). Reste dans la
+- **Prochaine étape** : validation par l'utilisateur des deux rooms
+  **Fortune and Folly** (Part I : anneau, niveau d'alerte, icônes de jeu
+  par `discardTop`, Roles de côté ; Part II : questions du journal, deux
+  hubs superposés, révélation du Hallway, Relic Room, agendas 3‑4), puis
+  le **scénario indépendant suivant à son choix**. Reste dans la
   liste des indépendants : Curse of the Rougarou, Carnevale of Horrors,
   The Labyrinths of Lunacy, Guardians of the Abyss (deux rooms déjà
   prévues), Murder at the Excelsior Hotel, War of the Outer Gods,

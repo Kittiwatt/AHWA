@@ -92,7 +92,9 @@ export function clueValue(card: ScenarioCard | undefined, playerCount: number): 
 /** Révèle un lieu (face visible) et y pose ses indices selon le nombre d'enquêteurs ; la marée en cours (TIC) s'applique. */
 export function revealLocation(state: RoomState, def: ScenarioDef, card: CardState): number {
   card.faceUp = true;
-  const n = clueValue(def.cards.find((c) => c.code === card.code), state.playerCount);
+  const d = def.cards.find((c) => c.code === card.code);
+  // Lieu révélé sur son verso lié (Busy Night) : les indices de ce verso.
+  const n = card.side === "b" && d?.backClue ? clueValue({ ...d, clue: d.backClue }, state.playerCount) : clueValue(d, state.playerCount);
   if (n > 0) card.tokens.clue = (card.tokens.clue ?? 0) + n;
   inonderALaRevelation(state, card, def);
   return n;
@@ -286,9 +288,10 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
     return [...seated.slice(k), ...seated.slice(0, k)];
   };
 
-  const poser = (code: string, zone: ZoneId, x: number, y: number, faceUp: boolean, reveal: boolean | undefined, log: string | undefined) => {
+  const poser = (code: string, zone: ZoneId, x: number, y: number, faceUp: boolean, reveal: boolean | undefined, log: string | undefined, side?: "a" | "b") => {
     const id = pool.take(code);
     const card = newCard(pool, code, id, { zone, x, y, z: z++ }, faceUp);
+    if (side) card.side = side;   // seconde face de jeu (Busy Night, The Heist, Isamara Crew)
     state.cards[id] = card;
     let texte = log;
     if (reveal && card.kind === "location") {
@@ -310,7 +313,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
   const run = (step: SetupStep) => {
     switch (step.op) {
       case "place": {
-        poser(resoudre(step.code), step.zone, step.x, step.y, step.faceUp ?? false, step.reveal, step.log);
+        poser(resoudre(step.code), step.zone, step.x, step.y, step.faceUp ?? false, step.reveal, step.log, step.side);
         break;
       }
       case "pickRandom": {
@@ -550,7 +553,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         // `code` peut être le slot d'un tirage nominal (sans zone : il vaut un code, encore au pool) — jamais d'une carte déjà posée.
         const code = resoudre(step.code);
         poser(code, "board", lx + 36 + deja * 18, ly + 46 + deja * 18, true, false,
-          step.log ?? `${pool.def(code).name} apparaît à ${nomDe(def, lieu.code)}.`);
+          step.log ?? `${pool.def(code).name} apparaît à ${nomDe(def, lieu.code)}.`, step.side);
         break;
       }
       case "setStart": {

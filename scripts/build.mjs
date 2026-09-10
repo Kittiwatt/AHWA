@@ -225,7 +225,7 @@ async function buildScenario(fichierSrc) {
   // Leads deck (TIC II) et effets d'agenda : les codes cités doivent exister dans les sets.
   const citesLeads = src.leads ? [src.leads.reference, ...src.leads.suspects, ...src.leads.hideouts, src.leads.elina, src.leads.square, src.leads.act2, src.leads.agenda3] : [];
   const aplatEffets = (e) => [e, ...Object.values(e.byPlayers ?? {}).flatMap(aplatEffets)];
-  const effets = [...Object.values(src.agendaEffects ?? {}), ...Object.values(src.actEffects ?? {})].flatMap(aplatEffets);
+  const effets = [...Object.values(src.agendaEffects ?? {}), ...Object.values(src.actEffects ?? {}), ...Object.values(src.revealEffects ?? {})].flatMap(aplatEffets);
   const citesAgenda = effets.flatMap((e) => [...(e.shuffleAside ?? []).map((x) => (typeof x === "string" ? x : x.code)), ...(e.revealCodes ?? []), ...(e.placeBelow ?? []).flatMap((p) => [p.code, p.at]), ...(e.fillRows?.anchors ?? []), ...(e.removeLocations?.except ?? []), ...(e.placeAt ?? []).map((p) => p.code)]);
   for (const k of [...Object.keys(src.agendaEffects ?? {}), ...Object.keys(src.actEffects ?? {})]) if (k.startsWith("after:") && !codes.has(k.slice(6))) throw new Error(`${src.id} : effet after:${k.slice(6)} — code inconnu`);
   const citesSetup = src.setup.flatMap((s) => s.op === "leadsDeck" ? [...s.suspects, ...s.hideouts] : []);
@@ -233,8 +233,10 @@ async function buildScenario(fichierSrc) {
   const citesAgendaPlus = effets.flatMap((e) => [
     ...(e.spawnAside ? (Array.isArray(e.spawnAside) ? e.spawnAside : [e.spawnAside]).flatMap((sa) => [sa.code, sa.at]) : []), e.randomKeyOn,
     ...(e.discardAside ?? []).map((d) => d.code), ...(e.setAside ?? []), ...(e.discardAt ?? []), ...(e.addClues ?? []).map((a) => a.code), ...(e.removeLocations?.codes ?? []),
-    ...(e.drawAside?.codes ?? []),
+    ...(e.drawAside?.codes ?? []), e.moveTokens?.from, e.moveTokens?.to,
   ].filter(Boolean));
+  for (const code of Object.keys(src.revealEffects ?? {})) if (!codes.has(code)) throw new Error(`${src.id} : revealEffects ${code} — code inconnu`);
+  for (const e of effets) if (e.seatCounter && !(src.seatCounters ?? []).some((c) => c.key === e.seatCounter.key) && !["clues", "resources", "health", "sanity", "actions"].includes(e.seatCounter.key)) throw new Error(`${src.id} : effet seatCounter ${e.seatCounter.key} — compteur non déclaré`);
   for (const e of effets) for (const a of e.addClues ?? []) if (!a.code && !a.trait) throw new Error(`${src.id} : addClues sans code ni trait`);
   if (src.actCycle && !src.actDeck.length) throw new Error(`${src.id} : actCycle sans actDeck`);
   const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup), ...citesLeads, ...citesAgenda, ...citesSetup, ...citesBarrieres, ...citesAgendaPlus].filter(Boolean);

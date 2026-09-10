@@ -432,6 +432,23 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
         parties.push(`${n} indice${n > 1 ? "s" : ""}${ac.perInvestigator ? ` (${ac.n} par enquêteur)` : ""} posé${n > 1 ? "s" : ""} sur ${nomCarte(def, l)}`);
       }
     },
+    seatCounter: () => {
+      // « Raise each investigator's alarm level by 1 » : compteur de chaque siège occupé, dans ses bornes déclarées.
+      const { key, n } = effet.seatCounter!;
+      const decl = def.seatCounters.find((c) => c.key === key);
+      const sieges = state.seats.filter((se) => se.investigatorCode);
+      for (const se of sieges) se.counters[key] = Math.min(decl?.max ?? Infinity, Math.max(decl?.min ?? 0, (se.counters[key] ?? 0) + n));
+      parties.push(`${decl?.label ?? key} de chaque enquêteur ${n > 0 ? "+" : ""}${n} (${sieges.map((se) => `${nomSiege(state, se.index, def)} ${se.counters[key]}`).join(", ")})`);
+    },
+    moveTokens: () => {
+      // « Move all clues from The Wellspring of Fortune to Relic Room » : d'une carte en jeu (code) à une autre.
+      const { from, to, token } = effet.moveTokens!;
+      const a = Object.values(state.cards).find((c) => c.code === from && "zone" in c.loc), b = Object.values(state.cards).find((c) => c.code === to && "zone" in c.loc);
+      if (!a || !b) { parties.push(`${def.cards.find((d) => d.code === from)?.name ?? from} ou ${def.cards.find((d) => d.code === to)?.name ?? to} absent du jeu : jetons à déplacer à la main`); return; }
+      const n = a.tokens[token] ?? 0;
+      if (n > 0) { delete a.tokens[token]; b.tokens[token] = (b.tokens[token] ?? 0) + n; }
+      parties.push(`${n} ${token === "clue" ? "indice" : token}${n > 1 ? "s" : ""} déplacé${n > 1 ? "s" : ""} de ${nomCarte(def, a)} sur ${nomCarte(def, b)}`);
+    },
     drawAside: () => {
       // « The lead investigator chooses a random set-aside story card and draws it » : n cartes tirées au hasard parmi celles de côté
       // (codes listés) entrent dans l'histoire face visible, côté recto ; les autres restent de côté sans être regardées.
@@ -755,6 +772,12 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       if (c.faceUp) return {};
       const n = revealLocation(state, def, c);
       addLog(state, "action", `${nomCarte(def, c)} révélé${n ? ` : ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}${texteMaree(state, def, c)}.`);
+      // « Forced – When X is revealed » déclaré par le scénario (Staff Access Hallway : Abarran Unleashed, cultistes dans la pioche).
+      const effet = def.revealEffects?.[c.code];
+      if (effet) {
+        const parties = appliquerEffets(state, def, effet);
+        if (parties.length) return { reminders: [addLog(state, "reminder", `${effet.log ?? `${nomCarte(def, c)} révélé`} : ${parties.join(" ; ")}.`)] };
+      }
       return {};
     }
     case "toggleSide": {

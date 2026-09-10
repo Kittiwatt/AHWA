@@ -1,0 +1,2061 @@
+{
+ "id": "sa_fortune_and_folly_part_2",
+ "title": "Fortune and Folly — Part II : The Heist",
+ "campaign": "Scénarios indépendants",
+ "campaignId": "standalone",
+ "order": 11,
+ "packs": [
+  "fof"
+ ],
+ "encounterSets": [
+  "fortune_and_folly",
+  "fortunes_chosen",
+  "plan_in_shambles"
+ ],
+ "extraCards": [],
+ "scenarioCard": "88001",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "88003",
+  "88004",
+  "88005"
+ ],
+ "actDeck": [
+  "88007",
+  "88008"
+ ],
+ "startLocation": "88009",
+ "layout": [
+  {
+   "code": "88022",
+   "x": 737,
+   "y": 173
+  },
+  {
+   "code": "88019",
+   "x": 551,
+   "y": 411
+  },
+  {
+   "code": "88021",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "code": "88020",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "code": "88017",
+   "x": 551,
+   "y": 649
+  },
+  {
+   "code": "88016",
+   "x": 737,
+   "y": 649
+  },
+  {
+   "code": "88018",
+   "x": 923,
+   "y": 649
+  },
+  {
+   "code": "88014",
+   "x": 551,
+   "y": 887
+  },
+  {
+   "code": "88015",
+   "x": 923,
+   "y": 887
+  },
+  {
+   "code": "88012",
+   "x": 551,
+   "y": 1125
+  },
+  {
+   "code": "88011",
+   "x": 923,
+   "y": 1125
+  },
+  {
+   "code": "88010",
+   "x": 551,
+   "y": 1363
+  },
+  {
+   "code": "88009",
+   "x": 737,
+   "y": 1363
+  },
+  {
+   "code": "88013",
+   "x": 923,
+   "y": 1363
+  }
+ ],
+ "storyBack": [
+  "88025",
+  "88026",
+  "88027"
+ ],
+ "discardTop": [
+  1,
+  2,
+  3,
+  5
+ ],
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-6",
+   "-7",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-6",
+   "-7",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Comment jouez-vous ce scénario ? (livret p. 2-3)",
+   "options": [
+    {
+     "id": "standalone",
+     "label": "Scénario indépendant : sac du livret (Standard ou Difficile)"
+    },
+    {
+     "id": "campaign",
+     "label": "Side-story dans une campagne (3 XP par enquêteur ; The Scarlet Keys : coût et récompenses selon son guide) : sac de votre campagne à reconstituer"
+    }
+   ]
+  },
+  {
+   "id": "part1",
+   "text": "Partie I (The Stakeout) :",
+   "options": [
+    {
+     "id": "played",
+     "label": "Jouée — je reporte le journal du Checkpoint (questions suivantes)"
+    },
+    {
+     "id": "skipped",
+     "label": "Sautée (livret p. 11 : difficulté nettement accrue) — rôles au choix, alerte 1, 7 indices par enquêteur, aucune tâche"
+    }
+   ]
+  },
+  {
+   "id": "tasks",
+   "type": "multi",
+   "text": "Journal (Checkpoint) : tâches de The Stakeout accomplies en partie I — cochez les mentions notées (rien si la partie I a été sautée).",
+   "options": [
+    {
+     "id": "vent",
+     "label": "« found a vent »"
+    },
+    {
+     "id": "high_roller",
+     "label": "« impersonated a high roller »"
+    },
+    {
+     "id": "isamara",
+     "label": "« convinced Isamara to participate in the heist »"
+    },
+    {
+     "id": "uniform",
+     "label": "« obtained an employee uniform »"
+    },
+    {
+     "id": "keys",
+     "label": "« stole Abarran's keys »"
+    },
+    {
+     "id": "cleaned",
+     "label": "« cleaned out the house »"
+    }
+   ]
+  },
+  {
+   "id": "practiced",
+   "type": "multi",
+   "text": "Journal : rôles notés « Practiced » (ils entrent en jeu côté Practiced).",
+   "options": [
+    {
+     "id": "face",
+     "label": "The Face"
+    },
+    {
+     "id": "muscle",
+     "label": "The Muscle"
+    },
+    {
+     "id": "thief",
+     "label": "The Thief"
+    },
+    {
+     "id": "grifter",
+     "label": "The Grifter"
+    }
+   ]
+  },
+  {
+   "id": "rest",
+   "text": "Journal : « the investigators need time to rest » est-il noté ?",
+   "options": [
+    {
+     "id": "no",
+     "label": "Non (ou partie I sautée)"
+    },
+    {
+     "id": "yes",
+     "label": "Oui — 1 doom sur l'agenda 2"
+    }
+   ]
+  },
+  {
+   "id": "wellspring",
+   "type": "number",
+   "text": "Journal : indices restant sur The Wellspring of Fortune à la fin de la partie I (ignoré si la partie I a été sautée : 7 par enquêteur)",
+   "min": 0,
+   "max": 28,
+   "default": 14
+  }
+ ],
+ "setup": [
+  {
+   "op": "branch",
+   "on": "difficulty",
+   "cases": {
+    "easy": [
+     {
+      "op": "log",
+      "text": "Ce scénario n'a que deux niveaux de difficulté (livret p. 2) : Facile joue le sac Standard."
+     }
+    ],
+    "expert": [
+     {
+      "op": "log",
+      "text": "Ce scénario n'a que deux niveaux de difficulté (livret p. 2) : Expert joue le sac Difficile."
+     }
+    ]
+   }
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "campaign"
+   },
+   "then": [
+    {
+     "op": "reminder",
+     "text": "Side-story (livret p. 3) : jouez avec le sac du chaos de votre campagne — celui du livret sert de point de départ, ajustez-le (clic droit sur le sac → Ajuster) ; faiblesses, traumatismes et soutiens d'histoire de la campagne suivent vos decks. Ce scénario coûte 3 XP par enquêteur (The Scarlet Keys : voir son guide)."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "part1",
+    "is": "skipped"
+   },
+   "then": [
+    {
+     "op": "log",
+     "text": "Partie I sautée : chaque enquêteur choisit un rôle au choix (deux en solo), tous à 1 d'alerte, 7 indices par enquêteur sur The Wellspring of Fortune ; aucune tâche de The Stakeout n'est acquise. Pour les récompenses de fin (livret p. 31), comptez 2 tâches de plus que celles accomplies."
+    }
+   ],
+   "else": [
+    {
+     "op": "log",
+     "text": "Partie I jouée : le journal du Checkpoint est reporté (tâches, rôles Practiced, repos, indices du Wellspring ci-dessus) ; les niveaux d'alerte et les cartes « Stashed » se reportent à la main (voir les rappels)."
+    }
+   ]
+  },
+  {
+   "op": "remove",
+   "codes": [
+    "88002",
+    "88006"
+   ],
+   "log": "Partie II : l'agenda 1 et l'acte 1 (partie I) sont retirés ; agendas 2-4 et actes 2-3 forment les decks."
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "practiced",
+    "has": "face"
+   },
+   "then": [
+    {
+     "op": "aside",
+     "codes": [
+      "88028"
+     ],
+     "faceUp": true,
+     "side": "b",
+     "log": "The Face est de côté côté Practiced (journal)."
+    }
+   ],
+   "else": [
+    {
+     "op": "aside",
+     "codes": [
+      "88028"
+     ],
+     "faceUp": true,
+     "log": "The Face est de côté côté Unpracticed."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "practiced",
+    "has": "muscle"
+   },
+   "then": [
+    {
+     "op": "aside",
+     "codes": [
+      "88029"
+     ],
+     "faceUp": true,
+     "side": "b",
+     "log": "The Muscle est de côté côté Practiced (journal)."
+    }
+   ],
+   "else": [
+    {
+     "op": "aside",
+     "codes": [
+      "88029"
+     ],
+     "faceUp": true,
+     "log": "The Muscle est de côté côté Unpracticed."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "practiced",
+    "has": "thief"
+   },
+   "then": [
+    {
+     "op": "aside",
+     "codes": [
+      "88030"
+     ],
+     "faceUp": true,
+     "side": "b",
+     "log": "The Thief est de côté côté Practiced (journal)."
+    }
+   ],
+   "else": [
+    {
+     "op": "aside",
+     "codes": [
+      "88030"
+     ],
+     "faceUp": true,
+     "log": "The Thief est de côté côté Unpracticed."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "practiced",
+    "has": "grifter"
+   },
+   "then": [
+    {
+     "op": "aside",
+     "codes": [
+      "88031"
+     ],
+     "faceUp": true,
+     "side": "b",
+     "log": "The Grifter est de côté côté Practiced (journal)."
+    }
+   ],
+   "else": [
+    {
+     "op": "aside",
+     "codes": [
+      "88031"
+     ],
+     "faceUp": true,
+     "log": "The Grifter est de côté côté Unpracticed."
+    }
+   ]
+  },
+  {
+   "op": "place",
+   "code": "88022",
+   "zone": "board",
+   "x": 737,
+   "y": 173,
+   "log": "Hub restreint (diagramme p. 26, au-dessus du hub public) : Relic Room est mise en jeu en haut, non révélée."
+  },
+  {
+   "op": "place",
+   "code": "88019",
+   "zone": "board",
+   "x": 551,
+   "y": 411,
+   "log": "Owner's Office est mis en jeu, non révélé."
+  },
+  {
+   "op": "place",
+   "code": "88021",
+   "zone": "board",
+   "x": 737,
+   "y": 411,
+   "log": "Vault Door est mise en jeu, non révélée."
+  },
+  {
+   "op": "place",
+   "code": "88020",
+   "zone": "board",
+   "x": 923,
+   "y": 411,
+   "log": "Counting Room est mise en jeu, non révélée."
+  },
+  {
+   "op": "place",
+   "code": "88017",
+   "zone": "board",
+   "x": 551,
+   "y": 649,
+   "log": "Security Office est mis en jeu, non révélé."
+  },
+  {
+   "op": "place",
+   "code": "88016",
+   "zone": "board",
+   "x": 737,
+   "y": 649,
+   "log": "Staff Access Hallway est mis en jeu, non révélé."
+  },
+  {
+   "op": "place",
+   "code": "88018",
+   "zone": "board",
+   "x": 923,
+   "y": 649,
+   "log": "Guard Room est mise en jeu, non révélée."
+  },
+  {
+   "op": "place",
+   "code": "88014",
+   "zone": "board",
+   "x": 551,
+   "y": 887,
+   "reveal": true,
+   "side": "b",
+   "log": "Hub public (p. 15) : High Roller's Table est mis en jeu côté Busy Night, révélé."
+  },
+  {
+   "op": "place",
+   "code": "88015",
+   "zone": "board",
+   "x": 923,
+   "y": 887,
+   "reveal": true,
+   "side": "b",
+   "log": "Casino Lounge est mis en jeu côté Busy Night, révélé."
+  },
+  {
+   "op": "place",
+   "code": "88012",
+   "zone": "board",
+   "x": 551,
+   "y": 1125,
+   "log": "Baccarat Table est mis en jeu, non révélé."
+  },
+  {
+   "op": "place",
+   "code": "88011",
+   "zone": "board",
+   "x": 923,
+   "y": 1125,
+   "log": "Roulette Wheel est mis en jeu, non révélé."
+  },
+  {
+   "op": "place",
+   "code": "88010",
+   "zone": "board",
+   "x": 551,
+   "y": 1363,
+   "log": "Poker Table est mis en jeu, non révélé."
+  },
+  {
+   "op": "place",
+   "code": "88009",
+   "zone": "board",
+   "x": 737,
+   "y": 1363,
+   "reveal": true,
+   "side": "b",
+   "log": "Casino Floor est mis en jeu côté Busy Night, révélé : chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "place",
+   "code": "88013",
+   "zone": "board",
+   "x": 923,
+   "y": 1363,
+   "log": "Slot Machines est mis en jeu, non révélé."
+  },
+  {
+   "op": "minis",
+   "code": "88009"
+  },
+  {
+   "op": "place",
+   "code": "88023",
+   "zone": "story",
+   "x": 0,
+   "y": 0,
+   "faceUp": true,
+   "side": "b",
+   "log": "The Heist (verso de The Stakeout) est posée à côté de l'acte (colonne Histoire) : les tâches de la partie II — il en faut 4 pour franchir Vault Door."
+  },
+  {
+   "op": "spawn",
+   "code": "88045",
+   "at": "88022",
+   "log": "The Wellspring of Fortune est attachée à Relic Room, côté Stable (posée sur le lieu, elle le suit) : son texte est considéré vide."
+  },
+  {
+   "op": "branch",
+   "on": "part1",
+   "cases": {
+    "skipped": [
+     {
+      "op": "addTokens",
+      "at": "88045",
+      "token": "clue",
+      "n": 7,
+      "perInvestigator": true,
+      "log": "Indices sur The Wellspring of Fortune (partie I sautée : 7 par enquêteur)"
+     }
+    ],
+    "default": [
+     {
+      "op": "addTokens",
+      "at": "88045",
+      "token": "clue",
+      "nFrom": "wellspring",
+      "log": "Indices sur The Wellspring of Fortune (journal)"
+     }
+    ]
+   }
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "tasks",
+    "has": "isamara"
+   },
+   "then": [
+    {
+     "op": "spawn",
+     "code": "88032",
+     "at": "88015",
+     "side": "b",
+     "log": "Journal : Isamara a été convaincue — Isamara Ordoñez entre en jeu à Casino Lounge, côté Crew."
+    }
+   ],
+   "else": [
+    {
+     "op": "aside",
+     "codes": [
+      "88032"
+     ],
+     "faceUp": true,
+     "log": "Isamara Ordoñez (Lounge Singer) est mise de côté, hors jeu (elle n'a pas été convaincue)."
+    }
+   ]
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "88024"
+   ],
+   "faceUp": true,
+   "side": "b",
+   "log": "Package Delivery (verso de If the Uniform Fits…) est de côté face visible : Casino Floor peut l'attacher à un ennemi Casino sorti de la pioche."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "88034a"
+   ],
+   "faceUp": true,
+   "side": "b",
+   "log": "Abarran Arrigorriagakoa est de côté, côté Abarran Unleashed : il apparaît à Owner's Office quand Staff Access Hallway est révélé (l'app s'en charge)."
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "tasks",
+    "has": "cleaned"
+   },
+   "then": [
+    {
+     "op": "spawn",
+     "code": "88033",
+     "at": "88014",
+     "log": "Journal : la maison a été plumée — Cash Cart entre en jeu à High Roller's Table."
+    }
+   ],
+   "else": [
+    {
+     "op": "aside",
+     "codes": [
+      "88033"
+     ],
+     "faceUp": true,
+     "log": "Cash Cart est mis de côté, hors jeu."
+    }
+   ]
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "88025",
+    "88026",
+    "88027"
+   ],
+   "faceUp": false,
+   "log": "Les trois Fortune's Disfavor sont de côté face cachée, sans être lues : l'agenda 3 en tirera une."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "88044",
+    "88043"
+   ],
+   "faceUp": true,
+   "log": "Isamara Ordoñez (The Torch Singer) et Deck of Possibilities sont de côté, hors jeu (récompenses éventuelles de fin de scénario)."
+  },
+  {
+   "op": "aside",
+   "sets": [
+    "fortunes_chosen"
+   ],
+   "faceUp": true,
+   "log": "Le set Fortune's Chosen (deux Fortune's Shield, deux Fortune's Dagger) est de côté : il rejoint la pioche avec la défausse quand Staff Access Hallway est révélé (l'app s'en charge)."
+  },
+  {
+   "op": "aside",
+   "sets": [
+    "plan_in_shambles"
+   ],
+   "faceUp": true,
+   "log": "Le set Plan in Shambles (Dimensional Shambler et douze cartes) est de côté : l'agenda 2 le mélange dans la pioche et fait apparaître le Shambler (l'app s'en charge)."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "88035a",
+    "88035b",
+    "88035c"
+   ],
+   "n": 1,
+   "slot": "garde",
+   "rest": "keep",
+   "log": "Un Casino Guard est sorti de la pioche au hasard (les trois ne diffèrent que par leur icône de jeu)."
+  },
+  {
+   "op": "spawn",
+   "code": "slot:garde",
+   "at": "88014",
+   "log": "Le Casino Guard apparaît à High Roller's Table."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "88037a",
+    "88037b",
+    "88037c"
+   ],
+   "n": 1,
+   "slot": "patrouille",
+   "rest": "keep",
+   "log": "Une Security Patrol est sortie de la pioche au hasard."
+  },
+  {
+   "op": "spawn",
+   "code": "slot:patrouille",
+   "at": "88015",
+   "log": "La Security Patrol apparaît à Casino Lounge."
+  },
+  {
+   "op": "story",
+   "log": "Agenda 2 et acte 2 sont en place ; la carte de scénario montre la référence de votre difficulté (recto Easy/Standard, verso Hard/Expert)."
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "rest",
+    "is": "yes"
+   },
+   "then": [
+    {
+     "op": "addDoom",
+     "n": 1,
+     "log": "Journal : les enquêteurs ont besoin de repos —"
+    }
+   ]
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "agendaEffects": {
+  "3": {
+   "log": "Verso de l'agenda 2 (agenda 3)",
+   "spawnAside": {
+    "code": "88048",
+    "at": "88011"
+   },
+   "shuffleAside": [
+    "88049a",
+    "88049b",
+    "88050a",
+    "88050b",
+    "88051a",
+    "88051b",
+    "88051c",
+    "88052a",
+    "88052b",
+    "88052c",
+    "88053a",
+    "88053b"
+   ],
+   "withDiscard": true,
+   "seatCounter": {
+    "key": "alarm",
+    "n": 1
+   }
+  },
+  "4": {
+   "log": "Verso de l'agenda 3 (agenda 4)",
+   "drawAside": {
+    "codes": [
+     "88025",
+     "88026",
+     "88027"
+    ]
+   },
+   "seatCounter": {
+    "key": "alarm",
+    "n": 1
+   }
+  }
+ },
+ "revealEffects": {
+  "88016": {
+   "log": "Staff Access Hallway révélé (Forced)",
+   "spawnAside": {
+    "code": "88034a",
+    "at": "88019",
+    "side": "b"
+   },
+   "shuffleAside": [
+    "88046a",
+    "88046b",
+    "88047a",
+    "88047b"
+   ],
+   "withDiscard": true
+  },
+  "88022": {
+   "log": "Relic Room révélée (Forced)",
+   "moveTokens": {
+    "from": "88045",
+    "to": "88022",
+    "token": "clue"
+   }
+  }
+ },
+ "seatCounters": [
+  {
+   "key": "alarm",
+   "label": "Niveau d'alerte",
+   "icon": "/img/tokens/tok_doom.png",
+   "initial": 1,
+   "min": 1,
+   "max": 10
+  }
+ ],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : cartes « Stashed » du journal — chacun les cherche dans son deck, les met de côté et les ajoute à sa main de départ après le mulligan ; puis 5 ressources, main de départ, deck à portée (ou importé sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Niveau d'alerte (livret p. 4) : reportez sur la chip « Niveau d'alerte » de chaque siège le niveau noté au Checkpoint (partie I sautée : 1). Elle va de 1 à 10, ce n'est pas du doom ; à 6 ou plus, les ennemis Casino à votre lieu perdent Aloof ; les agendas 2 et 3 la montent d'un cran pour tous en avançant (l'app s'en charge)."
+  },
+  {
+   "when": "setup",
+   "text": "Rôles : les quatre Role sont de côté (côté Practiced s'ils étaient notés au journal) — chacun glisse sur son siège le rôle noté pour lui (partie I sautée : au choix, deux en solo) ; retirez de la partie ceux qui restent."
+  },
+  {
+   "when": "setup",
+   "text": "Deux hubs (livret p. 5 et 26) : le hub restreint en haut (Relic Room, puis Owner's Office / Vault Door / Counting Room, puis Security Office / Staff Access Hallway / Guard Room), le hub public en bas — les patrouilles tournent dans leur hub sans en changer. Vault Door : il faut 4 tâches de The Heist (colonne Histoire : un marqueur générique par tâche) ; Relic Room ne s'entre pas avant sa révélation (texte de son dos). Les tâches de la partie I cochées au lobby restent acquises (journal de bord)."
+  },
+  {
+   "when": "setup",
+   "text": "Icônes de jeu (livret p. 6-7) : menu de la pioche → « Défausser les N premières (icônes de jeu) » (Roulette 1, Baccarat 2, Slot Machines 3, Poker et High Roller's Table 5, Security Office 1 à 3, Vault Door 1 — mulligans si vous avez le schéma) ; pioche vide en cours de lecture, l'app remélange la défausse sauf les cartes tout juste défaussées."
+  },
+  {
+   "when": "setup",
+   "text": "The Wellspring of Fortune est posée sur Relic Room avec ses indices : quand Relic Room est révélée, l'app y déplace tous les indices du Wellspring ; en prendre le contrôle = la glisser sur votre siège. Package Delivery attend de côté pour la livraison de Casino Floor (« Chercher » la pioche, faites apparaître l'ennemi, glissez la carte dessus) ; Isamara (Crew) et Cash Cart se déplacent à la main."
+  },
+  {
+   "when": "mythos",
+   "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche)."
+  },
+  {
+   "when": "enemy",
+   "text": "Patrouilles (livret p. 5) : chaque ennemi Patrol prêt et non engagé avance d'un lieu dans le sens indiqué, dans son hub — public, sens horaire : High Roller's Table → Casino Lounge → Roulette Wheel → Slot Machines → Casino Floor → Poker Table → Baccarat Table ; restreint, sens horaire : Owner's Office → Vault Door → Counting Room → Guard Room → Staff Access Hallway → Security Office ; antihoraire : l'inverse. Déplacez-les à la main. Agendas 2-4 : chaque enquêteur au lieu d'un ennemi Casino prêt monte d'un niveau d'alerte au début de la phase."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Verso de l'agenda 2 appliqué par l'app (journal) : le Dimensional Shambler est apparu à Roulette Wheel, Plan in Shambles et la défausse ont été mélangés dans la pioche, chaque enquêteur monte d'un niveau d'alerte."
+  },
+  {
+   "when": "agenda:4",
+   "text": "Verso de l'agenda 3 appliqué par l'app (journal) : une Fortune's Disfavor tirée au hasard est dans la colonne Histoire — lisez-la, puis « Lire le côté histoire » pour résoudre son verso (elle peut entrer en jeu à côté de l'agenda ou s'attacher à un lieu : glissez-la) ; chaque enquêteur monte d'un niveau d'alerte. L'agenda 4 est le dernier."
+  },
+  {
+   "when": "act:3",
+   "text": "Verso de l'acte 2 : si Abarran (Abarran Unleashed) est en jeu, déplacez-le à Relic Room ; s'il est en zone de victoire, chaque enquêteur fait le test indiqué. Acte 3 : les ennemis Casino perdent Aloof et Patrol, gagnent Hunter et traquent le porteur du Wellspring ; l'acte avance quand ce porteur a résigné (retirez son pion)."
+  }
+ ],
+ "builtAt": "2026-09-10",
+ "encounterSetNames": {
+  "fortune_and_folly": "Fortune and Folly",
+  "fortunes_chosen": "Fortune's Chosen",
+  "plan_in_shambles": "Plan in Shambles"
+ },
+ "cards": [
+  {
+   "code": "88001",
+   "name": "Fortune and Folly",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "88002",
+   "name": "The House Always Watches",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Worn Out Welcome",
+   "doom": 8,
+   "stage": 1
+  },
+  {
+   "code": "88003",
+   "name": "Opening Hand",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Bluff Called",
+   "doom": 5,
+   "stage": 2
+  },
+  {
+   "code": "88004",
+   "name": "The Turn",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Improbable Chaos",
+   "doom": 3,
+   "stage": 3
+  },
+  {
+   "code": "88005",
+   "name": "All Bets Down",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Cleaned Out",
+   "doom": 12,
+   "stage": 4
+  },
+  {
+   "code": "88006",
+   "name": "Casing the Joint",
+   "kind": "act",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Come Back Soon!",
+   "stage": 1
+  },
+  {
+   "code": "88007",
+   "name": "The Take",
+   "kind": "act",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Relic Acquired",
+   "stage": 2
+  },
+  {
+   "code": "88008",
+   "name": "The Exit",
+   "kind": "act",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Sweet Freedom",
+   "stage": 3
+  },
+  {
+   "code": "88009",
+   "name": "Casino Floor",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "subname": "Calm Night",
+   "traits": [
+    "Public",
+    "Casino"
+   ],
+   "backCode": "88009b",
+   "backKind": "location",
+   "backName": "Casino Floor",
+   "backSubname": "Busy Night"
+  },
+  {
+   "code": "88010",
+   "name": "Poker Table",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Public",
+    "Casino",
+    "Game"
+   ]
+  },
+  {
+   "code": "88011",
+   "name": "Roulette Wheel",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Public",
+    "Casino",
+    "Game"
+   ]
+  },
+  {
+   "code": "88012",
+   "name": "Baccarat Table",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Public",
+    "Casino",
+    "Game"
+   ]
+  },
+  {
+   "code": "88013",
+   "name": "Slot Machines",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Public",
+    "Casino",
+    "Game"
+   ]
+  },
+  {
+   "code": "88014",
+   "name": "High Roller's Table",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "Calm Night",
+   "traits": [
+    "Public",
+    "Casino",
+    "Game"
+   ],
+   "backCode": "88014b",
+   "backKind": "location",
+   "backName": "High Roller's Table",
+   "backSubname": "Busy Night"
+  },
+  {
+   "code": "88015",
+   "name": "Casino Lounge",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "Calm Night",
+   "traits": [
+    "Public",
+    "Casino"
+   ],
+   "backCode": "88015b",
+   "backKind": "location",
+   "backName": "Casino Lounge",
+   "backSubname": "Busy Night",
+   "backVictory": 1
+  },
+  {
+   "code": "88016",
+   "name": "Staff Access Hallway",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Restricted",
+    "Casino"
+   ]
+  },
+  {
+   "code": "88017",
+   "name": "Security Office",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Restricted",
+    "Casino"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "88018",
+   "name": "Guard Room",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Restricted",
+    "Casino"
+   ]
+  },
+  {
+   "code": "88019",
+   "name": "Owner's Office",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Restricted",
+    "Casino"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "88020",
+   "name": "Counting Room",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Restricted",
+    "Casino"
+   ]
+  },
+  {
+   "code": "88021",
+   "name": "Vault Door",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Restricted",
+    "Casino"
+   ]
+  },
+  {
+   "code": "88022",
+   "name": "Relic Room",
+   "kind": "location",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "Sanctum of Fortune",
+   "traits": [
+    "Restricted",
+    "Casino"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "88023",
+   "name": "The Stakeout",
+   "kind": "story",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "backName": "The Heist"
+  },
+  {
+   "code": "88024",
+   "name": "If the Uniform Fits…",
+   "kind": "story",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Package Delivery"
+  },
+  {
+   "code": "88025",
+   "name": "Fortune's Disfavor",
+   "kind": "story",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": true,
+   "backName": "Lights Out!"
+  },
+  {
+   "code": "88026",
+   "name": "Fortune's Disfavor",
+   "kind": "story",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": true,
+   "backName": "Unlikely Injuries"
+  },
+  {
+   "code": "88027",
+   "name": "Fortune's Disfavor",
+   "kind": "story",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": true,
+   "backName": "Personal Entanglement"
+  },
+  {
+   "code": "88028",
+   "name": "The Face",
+   "kind": "asset",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "traits": [
+    "Role",
+    "Unpracticed"
+   ],
+   "backCode": "88028b",
+   "backKind": "asset",
+   "backName": "The Face"
+  },
+  {
+   "code": "88029",
+   "name": "The Muscle",
+   "kind": "asset",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "traits": [
+    "Role",
+    "Unpracticed"
+   ],
+   "backCode": "88029b",
+   "backKind": "asset",
+   "backName": "The Muscle"
+  },
+  {
+   "code": "88030",
+   "name": "The Thief",
+   "kind": "asset",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "traits": [
+    "Role",
+    "Unpracticed"
+   ],
+   "backCode": "88030b",
+   "backKind": "asset",
+   "backName": "The Thief"
+  },
+  {
+   "code": "88031",
+   "name": "The Grifter",
+   "kind": "asset",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "traits": [
+    "Role",
+    "Unpracticed"
+   ],
+   "backCode": "88031b",
+   "backKind": "asset",
+   "backName": "The Grifter"
+  },
+  {
+   "code": "88032",
+   "name": "Isamara Ordoñez",
+   "kind": "asset",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Lounge Singer",
+   "traits": [
+    "Ally",
+    "Casino",
+    "Inconspicuous"
+   ],
+   "backCode": "88032b",
+   "backKind": "asset",
+   "backName": "Isamara Ordoñez",
+   "backSubname": "Lounge Singer",
+   "backHealth": 1
+  },
+  {
+   "code": "88033",
+   "name": "Cash Cart",
+   "kind": "asset",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Casino"
+   ],
+   "health": 3
+  },
+  {
+   "code": "88034a",
+   "name": "Abarran Arrigorriagakoa",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "subname": "The Man with the Ruby Ring",
+   "traits": [
+    "Humanoid",
+    "Casino",
+    "Coterie",
+    "Elite"
+   ],
+   "backCode": "88034b",
+   "backKind": "enemy",
+   "backName": "Abarran Arrigorriagakoa",
+   "backSubname": "Abarran Unleashed",
+   "backHealth": 4,
+   "backHealthPerInvestigator": true,
+   "backVictory": 1
+  },
+  {
+   "code": "88035a",
+   "name": "Casino Guard",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino"
+   ],
+   "health": 3
+  },
+  {
+   "code": "88035b",
+   "name": "Casino Guard",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino"
+   ],
+   "health": 3
+  },
+  {
+   "code": "88035c",
+   "name": "Casino Guard",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino"
+   ],
+   "health": 3
+  },
+  {
+   "code": "88036a",
+   "name": "House Dealer",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino"
+   ],
+   "health": 1
+  },
+  {
+   "code": "88036b",
+   "name": "House Dealer",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino"
+   ],
+   "health": 1
+  },
+  {
+   "code": "88037a",
+   "name": "Security Patrol",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino"
+   ],
+   "health": 2
+  },
+  {
+   "code": "88037b",
+   "name": "Security Patrol",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino"
+   ],
+   "health": 2
+  },
+  {
+   "code": "88037c",
+   "name": "Security Patrol",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino"
+   ],
+   "health": 2
+  },
+  {
+   "code": "88038a",
+   "name": "Inconvenient Questioning",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "88038b",
+   "name": "Inconvenient Questioning",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "88038c",
+   "name": "Inconvenient Questioning",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "88038d",
+   "name": "Inconvenient Questioning",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "88039a",
+   "name": "Arcane Spotlight",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex",
+    "Obstacle"
+   ]
+  },
+  {
+   "code": "88039b",
+   "name": "Arcane Spotlight",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex",
+    "Obstacle"
+   ]
+  },
+  {
+   "code": "88039c",
+   "name": "Arcane Spotlight",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex",
+    "Obstacle"
+   ]
+  },
+  {
+   "code": "88040a",
+   "name": "Avarice Calls",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "88040b",
+   "name": "Avarice Calls",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "88040c",
+   "name": "Avarice Calls",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "88041a",
+   "name": "Suspicious Gaze",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "88041b",
+   "name": "Suspicious Gaze",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "88041c",
+   "name": "Suspicious Gaze",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "88042a",
+   "name": "Obsessed Gambler",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "88042b",
+   "name": "Obsessed Gambler",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "88042c",
+   "name": "Obsessed Gambler",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "88043",
+   "name": "Deck of Possibilities",
+   "kind": "asset",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Tychokinetic Implement",
+   "traits": [
+    "Item",
+    "Relic"
+   ],
+   "backCode": "88043b",
+   "backKind": "story",
+   "backName": "Deck of Possibilities"
+  },
+  {
+   "code": "88044",
+   "name": "Isamara Ordoñez",
+   "kind": "asset",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "The Torch Singer",
+   "traits": [
+    "Ally",
+    "Performer"
+   ],
+   "health": 1,
+   "sanity": 3
+  },
+  {
+   "code": "88045",
+   "name": "The Wellspring of Fortune",
+   "kind": "asset",
+   "qty": 1,
+   "set": "fortune_and_folly",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Symbol of Providence",
+   "traits": [
+    "Stable"
+   ],
+   "backCode": "88045b",
+   "backKind": "asset",
+   "backName": "The Wellspring of Fortune",
+   "backSubname": "Symbol of Providence"
+  },
+  {
+   "code": "88046a",
+   "name": "Fortune's Shield",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortunes_chosen",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino",
+    "Cultist"
+   ],
+   "health": 4
+  },
+  {
+   "code": "88046b",
+   "name": "Fortune's Shield",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortunes_chosen",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino",
+    "Cultist"
+   ],
+   "health": 4
+  },
+  {
+   "code": "88047a",
+   "name": "Fortune's Dagger",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortunes_chosen",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino",
+    "Cultist"
+   ],
+   "health": 3
+  },
+  {
+   "code": "88047b",
+   "name": "Fortune's Dagger",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "fortunes_chosen",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Casino",
+    "Cultist"
+   ],
+   "health": 3
+  },
+  {
+   "code": "88048",
+   "name": "Dimensional Shambler",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Hunter from Beyond",
+   "traits": [
+    "Monster",
+    "Extradimensional",
+    "Elite"
+   ],
+   "health": 5,
+   "victory": 1
+  },
+  {
+   "code": "88049a",
+   "name": "Dimensional Duplicator",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Extradimensional"
+   ],
+   "health": 3
+  },
+  {
+   "code": "88049b",
+   "name": "Dimensional Duplicator",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Extradimensional"
+   ],
+   "health": 3
+  },
+  {
+   "code": "88050a",
+   "name": "Dimensional Displacer",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Extradimensional"
+   ],
+   "health": 2
+  },
+  {
+   "code": "88050b",
+   "name": "Dimensional Displacer",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Extradimensional"
+   ],
+   "health": 2
+  },
+  {
+   "code": "88051a",
+   "name": "Dimensional Hypnosis",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "88051b",
+   "name": "Dimensional Hypnosis",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "88051c",
+   "name": "Dimensional Hypnosis",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "88052a",
+   "name": "Grip of the Beyond",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "88052b",
+   "name": "Grip of the Beyond",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "88052c",
+   "name": "Grip of the Beyond",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "88053a",
+   "name": "Hunter's Hunger",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "88053b",
+   "name": "Hunter's Hunger",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "plan_in_shambles",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  }
+ ]
+}

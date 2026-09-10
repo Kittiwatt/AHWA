@@ -1363,6 +1363,57 @@ with sync_playwright() as p:
     h26.locator("dialog[open]").get_by_role("button", name="Fermer").click(); h26.wait_for_timeout(300)
     assert h26.locator("#pioches .pile[data-outil='defausse'] .badge").inner_text() == "5", "défausse : 5"
 
+    # ---- Fortune and Folly, Part II : questions du journal (partie I jouée, tâches, Practiced, repos, indices), deux hubs superposés,
+    # Wellspring sur Relic Room, Isamara Crew et Cash Cart, révélation de Staff Access Hallway (Abarran Unleashed), agenda 3 (Shambler) ----
+    code27, token27 = creer("sa_fortune_and_folly_part_2")
+    print("room Fortune II", code27)
+    h27 = page_pour(browser, "Hôte", host=True, code=code27, token=token27)
+    h27.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h27.get_by_role("button", name="Choisir un enquêteur").click(); h27.wait_for_selector("dialog.dialogue-inv[open]")
+    h27.fill("dialog .recherche", "roland"); h27.wait_for_timeout(300); h27.locator("dialog .inv").first.click()
+    h27.wait_for_selector(".siege-lobby.moi .fiche")
+    j27 = page_pour(browser, "Bob", code=code27, token=None)
+    j27.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j27.get_by_role("button", name="Choisir un enquêteur").click(); j27.wait_for_selector("dialog.dialogue-inv[open]")
+    j27.fill("dialog .recherche", "daisy"); j27.wait_for_timeout(300); j27.locator("dialog .inv").first.click()
+    j27.wait_for_selector(".siege-lobby.moi .fiche")
+    h27.wait_for_timeout(400)
+    h27.locator("input[name='q-mode'][value='standalone']").check(); h27.wait_for_timeout(150)
+    h27.locator("input[name='q-part1'][value='played']").check(); h27.wait_for_timeout(150)
+    for t in ["vent", "isamara", "cleaned"]:
+        h27.locator(f"input[name='q-tasks'][value='{t}']").check(); h27.wait_for_timeout(150)
+    h27.locator("input[name='q-practiced'][value='face']").check(); h27.wait_for_timeout(150)
+    h27.locator("input[name='q-rest'][value='yes']").check(); h27.wait_for_timeout(150)
+    h27.fill("input[name='q-wellspring']", "9"); h27.locator("input[name='q-wellspring']").dispatch_event("change"); h27.wait_for_timeout(200)
+    h27.locator(".reglage.questions").screenshot(path=f"{OUT}/122_fortune2_lobby_questions.png")
+    h27.get_by_role("button", name="Lancer la mise en place").click()
+    h27.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h27.wait_for_load_state("networkidle"); h27.wait_for_timeout(1500)
+    assert h27.locator("#plateau .carte.kind-location").count() == 14, "deux hubs : 14 lieux"
+    assert h27.locator("#plateau .carte.kind-enemy").count() == 2, "un garde et une patrouille"
+    assert h27.locator("#plateau .carte.kind-asset").count() == 3, "Wellspring, Isamara Crew, Cash Cart"
+    assert h27.locator("#histoire .carte.kind-story").count() == 1, "The Heist dans la colonne Histoire"
+    assert h27.locator("#aside .carte").count() == 28, "28 cartes de côté"
+    assert "1" in h27.locator("#histoire .carte.kind-agenda .chip-doom .chip-n").inner_text(), "1 doom (repos)"
+    h27.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h27.mouse.move(420, 520); h27.wait_for_timeout(300)
+    h27.screenshot(path=f"{OUT}/123_fortune2_tapis.png")
+    # Révéler Staff Access Hallway (clic) : Abarran Unleashed apparaît à Owner's Office, cultistes dans la pioche.
+    hallway = h27.locator("#plateau .carte.kind-location[data-id='88016']")
+    hallway.click(); h27.wait_for_timeout(900)
+    assert h27.locator("#plateau .carte.kind-enemy").count() == 3, "Abarran Unleashed en jeu"
+    h27.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h27.mouse.move(420, 520); h27.wait_for_timeout(300)
+    h27.screenshot(path=f"{OUT}/124_fortune2_hallway.png")
+    # Agenda 3 : Dimensional Shambler à Roulette Wheel, +1 alerte.
+    h27.locator("#histoire").get_by_role("button", name="Avancer l'agenda").click(); h27.wait_for_timeout(1000)
+    assert h27.locator("#plateau .carte.kind-enemy").count() == 4, "Dimensional Shambler apparu"
+    assert h27.locator("#sieges .siege").nth(0).locator(".chip-alarm .chip-n").inner_text() == "2", "alerte +1"
+    h27.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h27.locator("#histoire").screenshot(path=f"{OUT}/125_fortune2_histoire.png")
+    h27.locator("#aside").hover(); h27.wait_for_timeout(500)
+    h27.locator("#aside").screenshot(path=f"{OUT}/126_fortune2_aside.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)
