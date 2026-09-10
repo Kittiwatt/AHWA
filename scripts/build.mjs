@@ -219,7 +219,8 @@ async function buildScenario(fichierSrc) {
   // Leads deck (TIC II) et effets d'agenda : les codes cités doivent exister dans les sets.
   const citesLeads = src.leads ? [src.leads.reference, ...src.leads.suspects, ...src.leads.hideouts, src.leads.elina, src.leads.square, src.leads.act2, src.leads.agenda3] : [];
   const effets = [...Object.values(src.agendaEffects ?? {}), ...Object.values(src.actEffects ?? {})];
-  const citesAgenda = effets.flatMap((e) => [...(e.shuffleAside ?? []), ...(e.revealCodes ?? []), ...(e.placeBelow ?? []).flatMap((p) => [p.code, p.at]), ...(e.fillRows?.anchors ?? [])]);
+  const citesAgenda = effets.flatMap((e) => [...(e.shuffleAside ?? []), ...(e.revealCodes ?? []), ...(e.placeBelow ?? []).flatMap((p) => [p.code, p.at]), ...(e.fillRows?.anchors ?? []), ...(e.removeLocations?.except ?? []), ...(e.placeAt ?? []).map((p) => p.code)]);
+  for (const k of [...Object.keys(src.agendaEffects ?? {}), ...Object.keys(src.actEffects ?? {})]) if (k.startsWith("after:") && !codes.has(k.slice(6))) throw new Error(`${src.id} : effet after:${k.slice(6)} — code inconnu`);
   const citesSetup = src.setup.flatMap((s) => s.op === "leadsDeck" ? [...s.suspects, ...s.hideouts] : []);
   const citesBarrieres = src.setup.flatMap((s) => s.op === "barriers" ? s.pairs.flatMap((p) => [p.a, p.b]) : []);
   const citesAgendaPlus = effets.flatMap((e) => [e.spawnAside?.code, e.spawnAside?.at, e.randomKeyOn].filter(Boolean));

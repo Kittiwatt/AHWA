@@ -8,6 +8,44 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Devil Reef (TIC IV) livré** — première room du nouveau
+  circuit (dépôt source de vérité, grammaire lue à la place du code,
+  Setup + diagramme seulement, un commit unique). Choix laissés à Claude
+  avec la consigne d'**uniformiser** : tout ce qui existait a été
+  réutilisé — piles `around` et `placeAround` (étendu d'une direction
+  `dir` : `below` / `left` / `right`, ligne « ↓ ← → ⟳ » du menu calquée
+  sur la ligne Inondation), clés du I (`keys colors` face visible /
+  cachée), inondation du I (`flood.onRevealByCode` : même sémantique
+  que la règle de marée, appliquée par `revealLocation`, journal
+  « (texte du lieu) »), verso-ennemi calqué sur le verso-lieu (l'agenda
+  1 a deux versions dont le dos est un ennemi : à l'avancement la carte
+  devient `enemy`, côté b, posée au centre avec le décalage d'un
+  spawn), **véhicule** = porteur comme un lieu (`moveCard` : un soutien
+  à trait Vehicle emmène ses pions et clés ; `minis` accepte un
+  véhicule : les enquêteurs commencent à bord du Fishing Vessel posé sur
+  Churning Waters). Setup p. 19‑20 : sets Devil Reef (`def`), Agents of
+  Hydra, Creatures of the Deep, Flooded Caverns, Malfunction, Rising
+  Tide ; pioche 33 ; Churning Waters révélé, totalement inondé
+  (`addTokens flood n:2`) ; cinq îles « Devil Reef » `pickRandom n:5`
+  aux positions du diagramme (737 × 0, 365 / 1109 × 173, 365 / 1109 ×
+  649, journal muet sur l'ordre) ; Unfathomable Depths : trois
+  `pickRandom n:1 rest:"pile"` (la tirée reste au pool → retirée sans
+  être regardée, l'autre en pile) puis `toPile codes:[] shuffle` pour
+  mélanger la pile (sinon l'ordre des paires serait connu) ; Tidal
+  Tunnels `toPile` (07174a/b + Flooded Caverns) ; Mantle, Headdress,
+  Idol et Thomas Dawson (`extraCards` 07082) de côté avec un journal
+  selon « mission successful / failed » ; agenda 1 v. I / v. II par
+  `when … remove` sur « a battle with a horrifying devil ». Lobby :
+  campagne / autonome, mission, devil, jetons retirés (cases) — les
+  flashbacks du guide hors scénario I ne retirent aucun jeton (vérifié
+  par comptage de « Remove 1 » page par page, sans lecture). Données :
+  agendas 07164 / 07165 liés à des ennemis `hidden` 07164b / 07165b
+  (backKind enemy, backHealth 6 via `linked_card`) ; lieux 07174a/b,
+  07175‑77 a/b (codes à suffixe). Tests : 602 messages (bloc Reef :
+  sac, versions d'agenda, navire et pions, îles, profondeurs retirées
+  sans regarder et journal muet, placeAround `dir` et refus, inondation
+  par lieu, verso ennemi, autonome) ; captures 85‑88.
+
 - 2026-09-10 : **Mémo scindé — le dépôt devient la source de vérité.**
   Le §0 passe au régime : un tableau (une ligne par livraison) + les
   derniers récits ; les 54 récits antérieurs partent tels quels dans

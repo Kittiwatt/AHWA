@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | TIC VII — The Lair of Dagon | effets `after:<code>`, ordre d'écriture des effets, `removeLocations` / `spreadPile` / `placeAt` / `chaosAdd` / `chaosRemove` ; set Core Dark Cult = `pentagram` |
 | 2026-09-10 | TIC VI — A Light in the Fog | `actEffects` + effets d'étape étendus (`revealCodes`, `placeBelow`, `fillRows`, `removeTrait`), Captured! histoire → lieu par `toggleSide` |
 | 2026-09-10 | TIC V — Horror in High Gear | `fromPile`, `pickRandom rest:"keep"`, `road` + `roadAhead` (ligne Road X), voitures à deux faces (`toggleSide` sur soutien lié) |
 | 2026-09-10 | TIC IV — Devil Reef | véhicule porteur de pions, `placeAround dir`, `flood.onRevealByCode`, verso-ennemi d'agenda, piles Tidal Tunnels / Unfathomable Depths |
@@ -92,6 +93,38 @@ versement de son durable (format → grammaire, piège → §5, décision →
 | 2026-09-03 | Étape 1 — première table (The Gathering) | pipeline de build, lobby, tapis, tests + captures |
 
 ### Derniers récits
+
+- 2026-09-10 : **The Lair of Dagon (TIC VII) livré** — Setup + diagramme
+  p. 31‑32 (pack `lod` ; sets The Lair of Dagon, Agents of Dagon,
+  Flooded Caverns, Syzygy, **Dark Cult = code `pentagram`** sur
+  arkham.build, Locked Doors ; pioche 27). Lobby : campagne / autonome,
+  nombre de souvenirs en trois tranches (≤ 4 → 5 bénédictions, 5‑7 →
+  2 malédictions, ≥ 8 → 5 malédictions — icônes lues sur l'image : la
+  croix ornée est la bénédiction, le crochet la malédiction), trois
+  souvenirs à cocher (secte → agenda 1 v. I, « stick together » →
+  agenda 2 v. I + Dawson à prendre en main, « jailbreak » → suspect
+  entouré de côté, choix parmi six + aucun), jetons retirés. Réutilisé :
+  `when … remove` pour les versions, `pickRandom n:2 positions` pour
+  les deux halls jumeaux de chaque étage (journal muet), clés visibles /
+  cachées, pile « Tidal Tunnels », `aside` du recto pour Dagon et la
+  statue (deux faces liées : « Autre face »), suspects et Dawson en
+  `extraCards` retirés s'ils ne servent pas. Généralisé : **clés
+  `after:<code>`** des effets d'étape (les versos des deux versions
+  d'agenda diffèrent : + ou − 2 puis 4 malédictions), **ordre
+  d'écriture des champs** = ordre d'application (le verso de l'acte 1
+  retire les lieux, pose les tunnels, inonde tout, mélange — écrit dans
+  cet ordre ; l'ancien ordre fixe aurait inondé avant de poser),
+  effets `removeLocations {except}`, `spreadPile` (sept tunnels aux
+  sept positions), `placeAt` (Lair of Dagon totalement inondé, révélé
+  avec 3 indices par enquêteur), `chaosAdd` / `chaosRemove`. Reste
+  manuel avec rappels : suspect en jeu au verso de l'agenda 1 (position
+  et clé selon la version), Dawson au verso de l'agenda 2 v. II, retrait
+  du suspect à l'acte 2, malédictions selon l'agenda courant à l'acte 3,
+  clés dépensées (glissées de côté). Tests : 663 messages (bloc Lair :
+  sac 22, versions, mises de côté, halls mélangés, clés, after:07275 →
+  +2 malédictions, acte 2 complet dans l'ordre, acte 3, Dagon autre
+  face ; autonome v. II sans suspect et retrait à vide ; ≤ 4 souvenirs
+  → 5 bénédictions) ; captures 94‑96.
 
 - 2026-09-10 : **A Light in the Fog (TIC VI) livré** — Setup + les deux
   diagrammes p. 27‑28 (pack `lif` ; sets A Light in the Fog, Creatures
@@ -162,49 +195,10 @@ versement de son durable (format → grammaire, piège → §5, décision →
   refus, verso ennemi, autonome v. I sans ennemi, quatre joueurs v. II
   deux ennemis) ; captures 89‑91.
 
-- 2026-09-10 : **Devil Reef (TIC IV) livré** — première room du nouveau
-  circuit (dépôt source de vérité, grammaire lue à la place du code,
-  Setup + diagramme seulement, un commit unique). Choix laissés à Claude
-  avec la consigne d'**uniformiser** : tout ce qui existait a été
-  réutilisé — piles `around` et `placeAround` (étendu d'une direction
-  `dir` : `below` / `left` / `right`, ligne « ↓ ← → ⟳ » du menu calquée
-  sur la ligne Inondation), clés du I (`keys colors` face visible /
-  cachée), inondation du I (`flood.onRevealByCode` : même sémantique
-  que la règle de marée, appliquée par `revealLocation`, journal
-  « (texte du lieu) »), verso-ennemi calqué sur le verso-lieu (l'agenda
-  1 a deux versions dont le dos est un ennemi : à l'avancement la carte
-  devient `enemy`, côté b, posée au centre avec le décalage d'un
-  spawn), **véhicule** = porteur comme un lieu (`moveCard` : un soutien
-  à trait Vehicle emmène ses pions et clés ; `minis` accepte un
-  véhicule : les enquêteurs commencent à bord du Fishing Vessel posé sur
-  Churning Waters). Setup p. 19‑20 : sets Devil Reef (`def`), Agents of
-  Hydra, Creatures of the Deep, Flooded Caverns, Malfunction, Rising
-  Tide ; pioche 33 ; Churning Waters révélé, totalement inondé
-  (`addTokens flood n:2`) ; cinq îles « Devil Reef » `pickRandom n:5`
-  aux positions du diagramme (737 × 0, 365 / 1109 × 173, 365 / 1109 ×
-  649, journal muet sur l'ordre) ; Unfathomable Depths : trois
-  `pickRandom n:1 rest:"pile"` (la tirée reste au pool → retirée sans
-  être regardée, l'autre en pile) puis `toPile codes:[] shuffle` pour
-  mélanger la pile (sinon l'ordre des paires serait connu) ; Tidal
-  Tunnels `toPile` (07174a/b + Flooded Caverns) ; Mantle, Headdress,
-  Idol et Thomas Dawson (`extraCards` 07082) de côté avec un journal
-  selon « mission successful / failed » ; agenda 1 v. I / v. II par
-  `when … remove` sur « a battle with a horrifying devil ». Lobby :
-  campagne / autonome, mission, devil, jetons retirés (cases) — les
-  flashbacks du guide hors scénario I ne retirent aucun jeton (vérifié
-  par comptage de « Remove 1 » page par page, sans lecture). Données :
-  agendas 07164 / 07165 liés à des ennemis `hidden` 07164b / 07165b
-  (backKind enemy, backHealth 6 via `linked_card`) ; lieux 07174a/b,
-  07175‑77 a/b (codes à suffixe). Tests : 602 messages (bloc Reef :
-  sac, versions d'agenda, navire et pions, îles, profondeurs retirées
-  sans regarder et journal muet, placeAround `dir` et refus, inondation
-  par lieu, verso ennemi, autonome) ; captures 85‑88.
-
-- **Prochaine étape** : retours de l'utilisateur sur TIC I‑VI, puis
-  **TIC VII The Lair of Dagon** (pack `lod` ; Setup + diagramme
+- **Prochaine étape** : retours de l'utilisateur sur TIC I‑VII, puis
+  **TIC VIII Into the Maelstrom** (pack `itm` ; Setup + diagramme
   seulement — si un report au lobby exige un extrait d'interlude ou de
-  résolution, le demander à l'utilisateur), puis VIII Into the
-  Maelstrom (`itm`) ; visuels PNG des clés et du jeton d'inondation à générer
+  résolution, le demander à l'utilisateur) : la campagne sera complète ; visuels PNG des clés et du jeton d'inondation à générer
   dans le style des jetons du projet (choix B). En parallèle : la suite
   des retours de test du board joueur et les points ouverts du cahier
   §10.10 (customisations, decks annexes, attaches).

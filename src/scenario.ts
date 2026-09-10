@@ -108,6 +108,10 @@ export type StageEffects = {
   fillRows?: { pile: string; anchors: string[]; columns: number[]; count: number };
     // rangée de chaque lieu-ancre complétée à `count` lieux avec les premières cartes de la pile, aux colonnes libres, non révélées
   removeTrait?: string;                                                 // les lieux de ce trait quittent la partie (victoire si Victory X sans indice)
+  removeLocations?: { trait?: string; except?: string[] };              // idem, par trait et/ou sauf ces codes (« chaque lieu autre que… »)
+  spreadPile?: { pile: string; positions: { x: number; y: number }[] }; // toutes les cartes d'une pile entrent en jeu non révélées aux positions données
+  placeAt?: { code: string; x: number; y: number; faceUp?: boolean; flood?: 1 | 2 }[];   // une carte de côté posée à une position (révélée ou non, inondée)
+  chaosAdd?: Token[]; chaosRemove?: Token[];                            // jetons ajoutés au sac / retirés (un exemplaire chacun)
   spawnAside?: { code: string; at: string; side?: "a" | "b" };          // une carte (de côté ou déjà en jeu) apparaît sur un lieu (code)
   randomKeyOn?: string;                                                 // une clé cachée au hasard posée sur cette carte
   log?: string;
@@ -180,8 +184,8 @@ export type ScenarioDef = {
   flood?: { byAgenda?: Record<string, { all?: "increase" | "full"; onReveal?: 0 | 1 | 2 }>; onRevealByCode?: Record<string, 1 | 2> };
     // `onRevealByCode[code]` : ce lieu monte d'un niveau (1) ou est totalement inondé (2) à sa révélation — texte imprimé du lieu
     // (Devil Reef), même sémantique que la règle de marée `onReveal`
-  agendaEffects?: Record<string, StageEffects>;   // quand l'agenda `stage` devient courant (verso de l'agenda précédent)
-  actEffects?: Record<string, StageEffects>;      // quand l'acte `stage` devient courant (verso de l'acte précédent) — mêmes effets
+  agendaEffects?: Record<string, StageEffects>;   // clé "<stage>" : quand l'agenda `stage` devient courant ; clé "after:<code>" : quand la carte
+  actEffects?: Record<string, StageEffects>;      // <code> quitte l'histoire (son verso résolu) — utile quand deux versions d'un agenda diffèrent
   leads?: {
     pile: string; secret: string; shown: string;   // piles : Leads deck, cartes cachées sous la référence, pistes révélées par le Parley
     reference: string;                              // carte de référence (story) : Finding Agent Harper

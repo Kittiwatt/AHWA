@@ -18,8 +18,9 @@ import s14 from "../public/scenarios/tic_a_light_in_the_fog.json";
 import s15 from "../public/scenarios/tic_devil_reef.json";
 import s16 from "../public/scenarios/tic_horror_in_high_gear.json";
 import s17 from "../public/scenarios/tic_in_too_deep.json";
-import s18 from "../public/scenarios/tic_the_pit_of_despair.json";
-import s19 from "../public/scenarios/tic_the_vanishing_of_elina_harper.json";
+import s18 from "../public/scenarios/tic_the_lair_of_dagon.json";
+import s19 from "../public/scenarios/tic_the_pit_of_despair.json";
+import s20 from "../public/scenarios/tic_the_vanishing_of_elina_harper.json";
 
 export const SCENARIOS = {
   "cob_blood_money": s0,
@@ -40,8 +41,9 @@ export const SCENARIOS = {
   "tic_devil_reef": s15,
   "tic_horror_in_high_gear": s16,
   "tic_in_too_deep": s17,
-  "tic_the_pit_of_despair": s18,
-  "tic_the_vanishing_of_elina_harper": s19,
+  "tic_the_lair_of_dagon": s18,
+  "tic_the_pit_of_despair": s19,
+  "tic_the_vanishing_of_elina_harper": s20,
 } as const;
 
 export type ScenarioId = keyof typeof SCENARIOS;

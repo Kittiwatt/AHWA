@@ -342,11 +342,15 @@ rendus pendant la partie.
   règles l'emporte (journal « (texte du lieu) »). `flood: {}` suffit à
   activer menus « Inondation » et panneau Marée. Niveaux : 0 sec,
   1 partiellement, 2 totalement.
-- **`agendaEffects`** / **`actEffects`** : `{"<stage>": StageEffects}`
-  — appliqués quand l'agenda (ou l'acte) `stage` devient courant,
-  **dans l'ordre** et **idempotents** (une carte déjà en jeu n'est pas
-  reposée : l'acte et l'agenda peuvent déclarer les mêmes gestes quand
-  les deux versos convergent — A Light in the Fog) :
+- **`agendaEffects`** / **`actEffects`** : `{"<stage>" | "after:<code>": StageEffects}`
+  — clé `"<stage>"` : appliqués quand l'agenda (ou l'acte) `stage`
+  devient courant ; clé `"after:<code>"` : quand la carte `code` quitte
+  l'histoire (son verso résolu — utile quand deux versions d'un agenda
+  ont des versos différents, The Lair of Dagon). Les effets s'appliquent
+  **dans l'ordre d'écriture des champs** (celui du verso de la carte) et
+  sont **idempotents** (une carte déjà en jeu n'est pas reposée :
+  l'acte et l'agenda peuvent déclarer les mêmes gestes quand les deux
+  versos convergent — A Light in the Fog) :
   `flood {mode, trait?, scope?:"all"|"revealed"}` (inonde les lieux du
   trait, tous ou révélés) ; `shuffleAside` (ces codes de côté rejoignent
   la pioche, `withDiscard:true` remélange aussi la défausse) ;
@@ -359,7 +363,13 @@ rendus pendant la partie.
   tapis : victoire si Victory X sans indice, retirés sinon — ce qui s'y
   trouvait est laissé, rappel) ; `spawnAside {code, at, side?}` (une
   carte de côté **ou déjà en jeu** apparaît sur un lieu) ;
-  `randomKeyOn` (clé cachée au hasard posée dessus). Cible introuvable
+  `randomKeyOn` (clé cachée au hasard posée dessus) ;
+  `removeLocations {trait?, except?}` (comme `removeTrait`, ou « chaque
+  lieu autre que… ») ; `spreadPile {pile, positions}` (toutes les cartes
+  d'une pile entrent en jeu non révélées aux positions libres données) ;
+  `placeAt [{code, x, y, faceUp?, flood?}]` (une carte de côté posée à
+  une position, révélée par défaut, inondée si demandé) ; `chaosAdd` /
+  `chaosRemove` (jetons du sac, un exemplaire chacun). Cible introuvable
   → rappel « à faire à la main », jamais d'erreur ; rien à faire → pas
   de ligne.
 - **`leads`** : `{pile, secret, shown, reference, suspects, hideouts, spots, elina, square, act2, agenda3}`

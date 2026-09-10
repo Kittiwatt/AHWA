@@ -1037,6 +1037,44 @@ with sync_playwright() as p:
     assert h19.locator(".menu-carte .item").filter(has_text="Autre face (Holding Cells)").count() == 1, "Captured! : Autre face (Holding Cells)"
     h19.mouse.click(700, 600); h19.wait_for_timeout(300)
 
+    # ---- The Lair of Dagon (TIC VII) : trois étages, sac selon les souvenirs, verso de l'acte 1 (tunnels, inondation) ----
+    code20, token20 = creer("tic_the_lair_of_dagon")
+    print("room Lair of Dagon", code20)
+    h20 = page_pour(browser, "Hôte", host=True, code=code20, token=token20)
+    h20.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h20.get_by_role("button", name="Choisir un enquêteur").click(); h20.wait_for_selector("dialog.dialogue-inv[open]")
+    h20.fill("dialog .recherche", "silas"); h20.wait_for_timeout(300); h20.locator("dialog .inv").first.click()
+    h20.wait_for_selector(".siege-lobby.moi .fiche")
+    j20 = page_pour(browser, "Bob", code=code20, token=None)
+    j20.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j20.get_by_role("button", name="Choisir un enquêteur").click(); j20.wait_for_selector("dialog.dialogue-inv[open]")
+    j20.fill("dialog .recherche", "trish"); j20.wait_for_timeout(300); j20.locator("dialog .inv").first.click()
+    j20.wait_for_selector(".siege-lobby.moi .fiche")
+    h20.wait_for_timeout(400)
+    h20.locator("input[name='q-mode'][value='campaign']").check()
+    h20.locator("input[name='q-memories'][value='5to7']").check()
+    h20.locator("input[name='q-log'][value='together']").check(); h20.wait_for_timeout(150)
+    h20.locator("input[name='q-suspect'][value='none']").check(); h20.wait_for_timeout(200)
+    h20.locator(".reglage.questions").screenshot(path=f"{OUT}/94_lair_lobby_questions.png")
+    h20.get_by_role("button", name="Lancer la mise en place").click()
+    h20.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h20.wait_for_load_state("networkidle"); h20.wait_for_timeout(1500)
+    assert h20.locator("#plateau .carte.kind-location").count() == 7, "sept lieux sur trois étages"
+    assert h20.locator("#chaos .sac-forme").inner_text().strip() == "22", "sac 20 + 2 malédictions"
+    assert h20.locator("#pioches .pile[data-outil='pile:tidal'] .badge").inner_text() == "7"
+    h20.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h20.mouse.move(420, 520); h20.wait_for_timeout(300)
+    h20.screenshot(path=f"{OUT}/95_lair_tapis.png")
+    # Verso de l'acte 1 : lieux retirés sauf l'Entryway, sept tunnels en jeu, inondation.
+    h20.locator("#histoire").get_by_role("button", name="Avancer l'acte").click(); h20.wait_for_timeout(1000)
+    assert h20.locator("#plateau .carte.kind-location").count() == 8, "Entryway + sept tunnels"
+    assert h20.locator("#plateau .carte.kind-location img.inondation").count() == 8, "tout inondé"
+    assert h20.locator("#pioches .pile[data-outil='pile:tidal'] .badge").inner_text() == "0"
+    h20.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h20.get_by_role("button", name="Recentrer").click(); h20.wait_for_timeout(500)
+    h20.mouse.move(420, 520); h20.wait_for_timeout(300)
+    h20.screenshot(path=f"{OUT}/96_lair_acte2.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

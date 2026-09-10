@@ -1,0 +1,127 @@
+{
+  "_source": "Guide de campagne The Innsmouth Conspiracy (FFG, 2020) : Scenario VII, « Investigator Setup » et « Scenario Setup » p. 31‑32 (sets ; clés noire, bleue, verte, violette, rouge face visible, blanche et jaune face cachée mélangées ; Grand Entryway, Foul Corridors, les deux First Floor Hall, les deux Second Floor Hall et Third Floor Hall en jeu, départ au Grand Entryway, autres lieux de côté ; Syzygy ×2, Tidal Alignment ×2, Y'ha-nthlei Statue, Apostle of Dagon et Dagon de côté ; jetons de bénédiction / malédiction selon le nombre de souvenirs (4 ou moins : 5 bénédictions ; 5 à 7 : 2 malédictions ; 8 ou plus : 5 malédictions — icônes lues sur l'image) ; suspect entouré de côté si « a jailbreak » ; agenda 1 v. I si « an encounter with a secret cult », sinon v. II ; « a decision to stick together » : Thomas Dawson en jeu et agenda 2 v. I, sinon Dawson de côté et v. II ; jetons d'inondation), diagramme « Location Placement » p. 32 (trois rangées), encadrés « Spending Keys », « Keys » et « Standalone Mode » p. 32 (sac de base, mission échouée, aucun des trois souvenirs) ; flashbacks du scénario I p. 6 (jetons retirés). Rien d'autre du guide n'a été lu. Aucun texte de carte ; les rappels paraphrasent le guide ou décrivent les gestes de l'application. Choix (uniformisation) : cases et choix au lobby, versions d'agenda par when/remove, effets d'étape déclarés (dont « after:<code> » pour les versos qui diffèrent selon la version), pile Tidal Tunnels, Dawson de côté avec rappel, clés dépensées glissées de côté.",
+  "id": "tic_the_lair_of_dagon",
+  "title": "The Lair of Dagon",
+  "campaign": "The Innsmouth Conspiracy",
+  "campaignId": "tic",
+  "order": 7,
+  "packs": ["lod", "tic", "core"],
+  "encounterSets": ["the_lair_of_dagon", "agents_of_dagon", "flooded_caverns", "syzygy", "pentagram", "locked_doors"],
+  "extraCards": ["07082", "07076", "07077", "07078", "07079", "07080", "07081"],
+  "scenarioCard": "07274",
+  "agendaDeck": ["07275", "07276", "07277", "07278", "07279"],
+  "actDeck": ["07280", "07281", "07282"],
+  "startLocation": "07283",
+  "piles": [
+    { "id": "tidal", "label": "Tidal Tunnels", "around": true }
+  ],
+  "flood": {},
+  "agendaEffects": {
+    "after:07275": { "log": "Verso de l'agenda 1 (v. I)", "chaosAdd": ["curse", "curse"] },
+    "after:07276": { "log": "Verso de l'agenda 1 (v. II)", "chaosRemove": ["curse", "curse"] },
+    "after:07277": { "log": "Verso de l'agenda 2 (v. I)", "chaosAdd": ["curse", "curse", "curse", "curse"] },
+    "after:07278": { "log": "Verso de l'agenda 2 (v. II)", "chaosRemove": ["curse", "curse", "curse", "curse"] }
+  },
+  "actEffects": {
+    "2": { "log": "Verso de l'acte 1", "removeLocations": { "except": ["07283"] },
+           "spreadPile": { "pile": "tidal", "positions": [{ "x": 365, "y": 411 }, { "x": 551, "y": 411 }, { "x": 737, "y": 411 }, { "x": 923, "y": 411 }, { "x": 1109, "y": 411 }, { "x": 551, "y": 173 }, { "x": 923, "y": 173 }] },
+           "flood": { "mode": "increase", "scope": "all" }, "shuffleAside": ["07101", "07100"] },
+    "3": { "log": "Verso de l'acte 2", "placeAt": [{ "code": "07291", "x": 737, "y": 173, "flood": 2 }], "spawnAside": { "code": "07292a", "at": "07291", "side": "a" } }
+  },
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-5", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "-8", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"]
+  },
+  "layout": [
+    { "code": "07283", "x": 737, "y": 649 }
+  ],
+  "questions": [
+    { "id": "mode", "text": "Campagne ou scénario seul ?", "options": [
+      { "id": "campaign", "label": "Campagne : journal des scénarios précédents (questions suivantes)" },
+      { "id": "standalone", "label": "Scénario seul (mode autonome) : sac de base, mission échouée, aucun des souvenirs ci-dessous" } ] },
+    { "id": "memories", "text": "Nombre de souvenirs sous « Memories Recovered » :", "options": [
+      { "id": "le4", "label": "4 ou moins" }, { "id": "5to7", "label": "5 à 7" }, { "id": "ge8", "label": "8 ou plus" } ] },
+    { "id": "log", "text": "Souvenirs listés sous « Memories Recovered » :", "type": "multi", "options": [
+      { "id": "cult", "label": "« An encounter with a secret cult »" }, { "id": "together", "label": "« A decision to stick together »" }, { "id": "jailbreak", "label": "« A jailbreak »" } ] },
+    { "id": "suspect", "text": "Si « a jailbreak » : suspect entouré sous « Possible Suspects » (scénario II) :", "options": [
+      { "id": "none", "label": "Aucun" },
+      { "id": "07076", "label": "Robert Friendly" }, { "id": "07077", "label": "Zadok Allen" }, { "id": "07078", "label": "Brian Burnham" },
+      { "id": "07079", "label": "Barnabas Marsh" }, { "id": "07080", "label": "Joyce Little" }, { "id": "07081", "label": "Othera Gilman" } ] },
+    { "id": "tokens_out", "text": "Jetons retirés du sac pour le reste de la campagne (scénario I) :", "type": "multi", "options": [
+      { "id": "cultist", "label": "Cultiste" }, { "id": "tablet", "label": "Tablette" }, { "id": "elder_thing", "label": "Ancien" } ] }
+  ],
+  "setup": [
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "tokens_out", "has": "cultist" }] },
+      "then": [{ "op": "chaosRemove", "tokens": ["cultist"], "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)" }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "tokens_out", "has": "tablet" }] },
+      "then": [{ "op": "chaosRemove", "tokens": ["tablet"], "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)" }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "tokens_out", "has": "elder_thing" }] },
+      "then": [{ "op": "chaosRemove", "tokens": ["elder_thing"], "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)" }] },
+    { "op": "when", "cond": { "q": "mode", "is": "campaign" }, "then": [
+      { "op": "branch", "on": "memories", "cases": {
+        "le4":  [{ "op": "chaosAdd", "tokens": ["bless", "bless", "bless", "bless", "bless"], "log": "4 souvenirs ou moins : 5 jetons de bénédiction ajoutés au sac." }],
+        "5to7": [{ "op": "chaosAdd", "tokens": ["curse", "curse"], "log": "5 à 7 souvenirs : 2 jetons de malédiction ajoutés au sac." }],
+        "ge8":  [{ "op": "chaosAdd", "tokens": ["curse", "curse", "curse", "curse", "curse"], "log": "8 souvenirs ou plus : 5 jetons de malédiction ajoutés au sac." }] } } ],
+      "else": [{ "op": "log", "text": "Mode autonome : sac de base du guide (p. 32), aucun retrait ni ajout ; la mission a échoué ; aucun des trois souvenirs n'est noté." }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "log", "has": "cult" }] },
+      "then": [{ "op": "remove", "codes": ["07276"], "log": "« An encounter with a secret cult » : l'agenda 1 utilisé est la version I, la version II est retirée de la partie." }],
+      "else": [{ "op": "remove", "codes": ["07275"], "log": "L'agenda 1 utilisé est la version II, la version I est retirée de la partie." }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "log", "has": "together" }] },
+      "then": [{ "op": "remove", "codes": ["07278"], "log": "« A decision to stick together » : l'agenda 2 utilisé est la version I, la version II est retirée ; Thomas Dawson entre en jeu sous le contrôle d'un enquêteur (ci-dessous)." },
+               { "op": "aside", "codes": ["07082"], "faceUp": true, "log": "Thomas Dawson : glissez-le de la zone de côté sur le siège de l'enquêteur qui le contrôle." }],
+      "else": [{ "op": "remove", "codes": ["07277"], "log": "L'agenda 2 utilisé est la version II, la version I est retirée ; Thomas Dawson reste de côté." },
+               { "op": "aside", "codes": ["07082"], "faceUp": true, "log": "Thomas Dawson est mis de côté, hors jeu." }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "log", "has": "jailbreak" }] }, "then": [
+      { "op": "branch", "on": "suspect", "cases": {
+        "07076": [{ "op": "aside", "codes": ["07076"], "faceUp": true, "log": "« A jailbreak » : Robert Friendly (suspect entouré) est mis de côté, hors jeu." }],
+        "07077": [{ "op": "aside", "codes": ["07077"], "faceUp": true, "log": "« A jailbreak » : Zadok Allen (suspect entouré) est mis de côté, hors jeu." }],
+        "07078": [{ "op": "aside", "codes": ["07078"], "faceUp": true, "log": "« A jailbreak » : Brian Burnham (suspect entouré) est mis de côté, hors jeu." }],
+        "07079": [{ "op": "aside", "codes": ["07079"], "faceUp": true, "log": "« A jailbreak » : Barnabas Marsh (suspect entouré) est mis de côté, hors jeu." }],
+        "07080": [{ "op": "aside", "codes": ["07080"], "faceUp": true, "log": "« A jailbreak » : Joyce Little (suspect entouré) est mis de côté, hors jeu." }],
+        "07081": [{ "op": "aside", "codes": ["07081"], "faceUp": true, "log": "« A jailbreak » : Othera Gilman (suspect entouré) est mis de côté, hors jeu." }],
+        "none": [{ "op": "log", "text": "« A jailbreak » sans suspect entouré : aucun suspect de côté." }] } } ] },
+    { "op": "remove", "codes": ["07076", "07077", "07078", "07079", "07080", "07081"], "log": "Les autres suspects ne font pas partie de ce scénario." },
+    { "op": "place", "code": "07283", "zone": "board", "x": 737, "y": 649, "reveal": true,
+      "log": "Grand Entryway est mis en jeu au rez-de-chaussée, révélé : chaque enquêteur y commence la partie." },
+    { "op": "minis", "code": "07283" },
+    { "op": "pickRandom", "from": ["07284", "07285"], "n": 2, "zone": "board", "positions": [{ "x": 365, "y": 649 }, { "x": 1109, "y": 649 }],
+      "log": "Les deux First Floor Hall sont posés de part et d'autre du Grand Entryway, non révélés, dans un ordre inconnu." },
+    { "op": "place", "code": "07286", "zone": "board", "x": 737, "y": 411,
+      "log": "Foul Corridors est mis en jeu au premier étage, non révélé." },
+    { "op": "pickRandom", "from": ["07287", "07288"], "n": 2, "zone": "board", "positions": [{ "x": 365, "y": 411 }, { "x": 1109, "y": 411 }],
+      "log": "Les deux Second Floor Hall sont posés de part et d'autre de Foul Corridors, non révélés, dans un ordre inconnu." },
+    { "op": "place", "code": "07289", "zone": "board", "x": 737, "y": 173,
+      "log": "Third Floor Hall est mis en jeu au dernier étage, non révélé (diagramme p. 32)." },
+    { "op": "keys", "colors": ["black", "blue", "green", "purple", "red"], "faceUp": true,
+      "log": "Clés noire, bleue, verte, violette et rouge mises de côté, face visible." },
+    { "op": "keys", "colors": ["white", "yellow"], "faceUp": false,
+      "log": "Clés blanche et jaune mises de côté face cachée et mélangées : personne ne sait laquelle est laquelle." },
+    { "op": "aside", "codes": ["07291"], "faceUp": false,
+      "log": "Lair of Dagon est mis de côté, hors jeu, côté non révélé." },
+    { "op": "toPile", "pile": "tidal", "codes": ["07290", "07102", "07103", "07104"], "shuffle": true,
+      "log": "Les sept Tidal Tunnels sont de côté en pile « Tidal Tunnels », mélangés, côté non révélé." },
+    { "op": "aside", "codes": ["07101", "07101", "07100", "07100", "07300", "07293", "07292a"], "faceUp": true,
+      "log": "Syzygy ×2, Tidal Alignment ×2, Y'ha-nthlei Statue (recto), Apostle of Dagon et Dagon (recto) sont mis de côté, hors jeu." },
+    { "op": "story" },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application : retirez Elina Harper des decks pour ce scénario ; puis 5 ressources, main de départ, mulligan possible (ou import du deck sur son board joueur)." },
+    { "when": "setup", "text": "Clés (guide) : noire, bleue, verte, violette et rouge de côté face visible — les cartes disent où elles se posent (glissez-les) ; blanche et jaune face cachée et mélangées (menu → « Poser ici une clé cachée au hasard » quand une carte le demande). Prendre le contrôle = glisser sur son siège. Dépenser une clé (guide « Spending Keys ») : elle va sur la carte de scénario — dans l'app, glissez-la dans la zone de côté ; seul celui qui la contrôle peut la dépenser." },
+    { "when": "setup", "text": "Disposition (guide) : trois étages — rez-de-chaussée, premier, second — reliés comme les cartes l'indiquent. Les Tidal Tunnels (pile) et Lair of Dagon (de côté) entrent en jeu quand les actes le demandent : l'app le fait à l'avancement (voir le journal) ; pour un tunnel ponctuel, menu d'un lieu → ligne « Tidal Tunnels » ↓ ← → ⟳." },
+    { "when": "setup", "text": "Inondation (guide) : menu du lieu → Inondation, panneau Marée ; l'acte 1 inonde tout d'un cran à son verso (appliqué par l'app). Y'ha-nthlei Statue et Dagon ont deux faces : menu → « Autre face »." },
+    { "when": "setup", "text": "Bénédictions et malédictions (guide) : le sac en contient selon vos souvenirs (voir le journal) ; des versos d'agenda en ajoutent ou en retirent (appliqué par l'app) ; clic droit sur le sac → Ajuster pour le reste (10 au plus de chaque) ; révélé, un tel jeton retourne à la réserve : « ↺ Tout remettre » l'écarte tout seul." },
+    { "when": "agenda:2", "text": "Agenda 2 : les jetons du verso de l'agenda 1 ont été ajustés (voir le journal). À la main, selon le journal : le suspect de côté entre en jeu là où la carte l'envoie (avec la clé bleue en version I, épuisé en version II), ou ce que la carte demande sinon." },
+    { "when": "agenda:3", "text": "Agenda 3 : les jetons du verso de l'agenda 2 ont été ajustés (voir le journal). Version II : un enquêteur prend le contrôle de Thomas Dawson (glissez-le de la zone de côté sur son siège) et peut reprendre une clé dépensée." },
+    { "when": "act:2", "text": "Acte 2 : le verso de l'acte 1 a été appliqué — lieux retirés sauf Grand Entryway, Tidal Tunnels en jeu, tout inondé d'un cran, Syzygy et Tidal Alignment dans la pioche (voir le journal). À la main : retirez de la partie le suspect s'il est en jeu ; défaussez ce qui se trouvait sur les lieux retirés." },
+    { "when": "act:3", "text": "Acte 3 : Lair of Dagon est entré en jeu totalement inondé et Dagon (recto) y est apparu (voir le journal). À la main : ajoutez au sac les malédictions que la carte indique selon l'agenda courant (clic droit sur le sac → Ajuster)." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

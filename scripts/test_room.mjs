@@ -2044,6 +2044,101 @@ async function tableFog({ joueurs = 2, answers }) {
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ The Lair of Dagon (TIC VII) : sac selon les souvenirs, versions d'agenda 1 et 2, suspect entouré, halls mélangés,
+// effets after:<code> (malédictions), acte 2 (lieux retirés, tunnels, inondation, mélange), acte 3 (Lair de Dagon et Dagon) ============
+async function tableLair({ joueurs = 2, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tic_the_lair_of_dagon" }) });
+  assert.equal(r.status, 200, "The Lair of Dagon est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "07001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["07001", "07002", "07003", "07004"][i] });
+    autres.push(c);
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  return { h, autres, d };
+}
+{
+  const { h, autres: [j2], d } = await tableLair({ joueurs: 2, answers: { mode: "campaign", memories: "5to7", log: ["cult", "together", "jailbreak"], suspect: "07079", tokens_out: [] } });
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 22, "sac : 20 + 2 malédictions (5 à 7 souvenirs)");
+  assert.equal(s.chaos.bag.filter((t) => t === "curse").length, 2);
+  assert.equal(s.cards[s.agendaId].code, "07275", "agenda 1 v. I (secte)");
+  assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["07277", "07279"], "agenda 2 v. I (stick together), puis 3");
+  assert.ok(["07276", "07278"].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed"), "versions II retirées");
+  const cote = cartes.filter((c) => c.loc.zone === "aside" && c.kind !== "key");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["07079", "07082", "07100", "07100", "07101", "07101", "07291", "07292a", "07293", "07300"], "de côté : Barnabas Marsh, Dawson, Tidal Alignment ×2, Syzygy ×2, Lair of Dagon, Dagon, Apostle, Statue");
+  assert.ok(cote.find((c) => c.code === "07292a").faceUp && cote.find((c) => c.code === "07292a").side === "a" && !cote.find((c) => c.code === "07291").faceUp);
+  assert.ok(["07076", "07077", "07078", "07080", "07081"].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed"), "autres suspects retirés");
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux.length, 7, "sept lieux");
+  const entree = lieux.find((c) => c.code === "07283");
+  assert.ok(entree.faceUp && entree.loc.x === 737 && entree.loc.y === 649, "Grand Entryway révélé au rez-de-chaussée");
+  assert.deepEqual(lieux.filter((c) => c.loc.y === 649 && c.code !== "07283").map((c) => c.code).sort(), ["07284", "07285"], "First Floor Hall ×2 au rez-de-chaussée");
+  assert.deepEqual(lieux.filter((c) => c.loc.y === 411).map((c) => c.code).sort(), ["07286", "07287", "07288"], "premier étage : Foul Corridors et Second Floor Hall ×2");
+  assert.equal(lieux.find((c) => c.loc.y === 173).code, "07289", "Third Floor Hall au dernier étage");
+  assert.ok(lieux.filter((c) => c.code !== "07283").every((c) => !c.faceUp), "les autres non révélés");
+  assert.ok(!s.log.some((e) => /(Hall of Blood|Hall of the Deep|Hall of Loyalty|Hall of Rebirth)/.test(e.text)), "journal muet sur l'ordre des halls");
+  const cles = cartes.filter((c) => c.kind === "key");
+  assert.equal(cles.filter((c) => c.faceUp).length, 5); assert.deepEqual(cles.filter((c) => !c.faceUp).map((c) => c.code).sort(), ["key:white", "key:yellow"]);
+  assert.equal(s.piles.tidal.length, 7, "sept Tidal Tunnels en pile");
+  assert.equal(s.piles.encounter.length, 27, "pioche : 27");
+  // Agenda 1 v. I quitte l'histoire : after:07275 → 2 malédictions de plus.
+  let d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07277");
+  assert.equal(h.state.chaos.bag.filter((t) => t === "curse").length, 4, "verso de l'agenda 1 v. I : +2 malédictions");
+  assert.ok(h.state.log.some((e) => e.kind === "reminder" && e.text.startsWith("Verso de l'agenda 1 (v. I)")));
+  // Acte 2 : lieux retirés sauf l'Entryway (victoire pour Victory X sans indice), tunnels en jeu, tout inondé d'un cran, Syzygy/Tidal Alignment dans la pioche.
+  d2 = await h.action({ t: "advanceAct" });
+  assert.equal(h.state.cards[h.state.actId].code, "07281");
+  const L = () => Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.ok(L().some((c) => c.code === "07283"), "Grand Entryway reste");
+  assert.ok(["07284", "07286", "07288", "07289"].every((code) => Object.values(h.state.cards).find((c) => c.code === code).loc.pile === "removed"), "halls sans Victory retirés");
+  assert.ok(["07285", "07287"].every((code) => Object.values(h.state.cards).find((c) => c.code === code).loc.zone === "victory"), "halls à Victory X en zone de victoire");
+  assert.equal(h.state.piles.tidal.length, 0, "les sept tunnels en jeu");
+  assert.equal(L().length, 8, "Entryway + sept tunnels");
+  assert.ok(L().every((c) => (c.tokens.flood ?? 0) >= 1), "tout inondé d'un cran (tunnels compris)");
+  assert.equal(h.state.piles.encounter.length, 27 + 4, "Syzygy ×2 et Tidal Alignment ×2 dans la pioche");
+  // Acte 3 : Lair of Dagon en jeu totalement inondé, révélé avec ses indices ; Dagon (recto) dessus.
+  d2 = await h.action({ t: "advanceAct" });
+  assert.equal(h.state.cards[h.state.actId].code, "07282");
+  const lair = Object.values(h.state.cards).find((c) => c.code === "07291");
+  assert.ok(lair.loc.zone === "board" && lair.loc.x === 737 && lair.loc.y === 173 && lair.faceUp && lair.tokens.flood === 2 && lair.tokens.clue === 6, "Lair of Dagon révélé, totalement inondé, 3 indices par enquêteur");
+  const dagon = Object.values(h.state.cards).find((c) => c.code === "07292a");
+  assert.ok(dagon.loc.zone === "board" && dagon.side === "a" && Math.abs(dagon.loc.x - 737) < 60 && Math.abs(dagon.loc.y - 173) < 60, "Dagon (recto) au Lair");
+  d2 = await h.action({ t: "toggleSide", id: dagon.id });
+  assert.equal(h.state.cards[dagon.id].side, "b", "Dagon : autre face");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.chaos.bag, h.state.chaos.bag, "les autres clients suivent");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // Autonome solo : sac de base, versions II, Dawson de côté, aucun suspect ; 4 souvenirs ou moins en campagne : 5 bénédictions.
+  const { h, d } = await tableLair({ joueurs: 1, answers: { mode: "standalone", memories: "ge8", log: ["cult"], suspect: "07076", tokens_out: ["cultist"] } });
+  assert.equal(d.t, "delta"); assert.equal(h.state.chaos.bag.length, 20, "autonome : sac de base");
+  assert.equal(h.state.cards[h.state.agendaId].code, "07276", "autonome : agenda 1 v. II");
+  assert.ok(!Object.values(h.state.cards).some((c) => c.code === "07076" && c.loc.pile !== "removed"), "autonome : pas de suspect de côté");
+  assert.ok(Object.values(h.state.cards).some((c) => c.code === "07082" && c.loc.zone === "aside"), "Dawson de côté");
+  let d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.chaos.bag.length, 20, "verso v. II : retirer 2 malédictions absentes ne change rien");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+  const { h: g, d: dg } = await tableLair({ joueurs: 1, answers: { mode: "campaign", memories: "le4", log: [], suspect: "none", tokens_out: [] } });
+  assert.equal(dg.t, "delta"); assert.equal(g.state.chaos.bag.filter((t) => t === "bless").length, 5, "4 souvenirs ou moins : 5 bénédictions");
+  assert.equal(g.state.cards[g.state.agendaId].code, "07276"); assert.equal(g.state.piles.agendaDeck.length, 2);
+  g.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 // ============ Board joueur, étape 1 (cahier §10) : import du deck au lobby, faiblesse aléatoire, code de siège et
 // connexions multiples, decks créés à la mise en place, actions p:* réservées au siège ============
 {

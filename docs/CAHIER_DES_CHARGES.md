@@ -534,6 +534,11 @@ avec `revealCodes`, `placeBelow`, `fillRows`, `removeTrait` en plus ;
 `spawnAside` accepte une carte déjà en jeu. `toggleSide` change la
 nature d'une carte histoire à verso-lieu (Captured! → Holding Cells).
 
+**The Lair of Dagon (2026-09-10).** Effets d'étape : clés
+`after:<code>` (à la sortie d'une carte précise), application dans
+l'ordre d'écriture des champs, `removeLocations {trait?, except?}`,
+`spreadPile`, `placeAt`, `chaosAdd`, `chaosRemove`.
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets
