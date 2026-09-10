@@ -539,6 +539,10 @@ nature d'une carte histoire à verso-lieu (Captured! → Holding Cells).
 l'ordre d'écriture des champs, `removeLocations {trait?, except?}`,
 `spreadPile`, `placeAt`, `chaosAdd`, `chaosRemove`.
 
+**Into the Maelstrom (2026-09-10).** `keys fillAsideTo` (clés tirées
+au hasard pour compléter les clés cachées de côté) ; effets d'étape
+`byPlayers` (variante par nombre de joueurs) et `spreadPile.flood`.
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets

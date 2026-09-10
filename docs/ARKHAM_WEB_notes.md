@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | TIC VIII — Into the Maelstrom | `keys fillAsideTo`, effets `byPlayers` + `spreadPile flood` (Act 2 Setup selon les joueurs) ; **campagne TIC complète** |
 | 2026-09-10 | UX : menu natif du navigateur neutralisé sur la table | `neutraliserMenuNatif`, ordre `contextmenu` Windows (après le `pointerup`), garde `lien.menuVu` |
 | 2026-09-10 | TIC VII — The Lair of Dagon | effets `after:<code>`, ordre d'écriture des effets, `removeLocations` / `spreadPile` / `placeAt` / `chaosAdd` / `chaosRemove` ; set Core Dark Cult = `pentagram` |
 | 2026-09-10 | TIC VI — A Light in the Fog | `actEffects` + effets d'étape étendus (`revealCodes`, `placeBelow`, `fillRows`, `removeTrait`), Captured! histoire → lieu par `toggleSide` |
@@ -95,6 +96,41 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **Into the Maelstrom (TIC VIII) livré — campagne The
+  Innsmouth Conspiracy complète** (huit tables). Setup + diagrammes
+  p. 36‑38 (pack `itm` ; sets Into the Maelstrom, Agents of Hydra,
+  Creatures of the Deep, Flooded Caverns, Shattered Memories, Syzygy,
+  Ancient Evils ; pioche 33). Lobby : campagne / autonome, quatre
+  entrées du journal à cocher (en autonome : au choix, de 4 = facile à
+  0 = difficile), nombre d'enquêteurs avec combinaison (question
+  numérique 0‑4 → `branch` : combinaisons de côté à glisser), jetons
+  retirés. Clés : une entrée vraie = clé de côté **face visible** (à
+  glisser sur le siège de l'enquêteur choisi), fausse = face cachée ;
+  puis **`keys fillAsideTo: 4`** tire au hasard parmi violette, blanche
+  et noire juste assez pour quatre clés cachées de côté (les autres
+  n'existent pas). Réutilisé : `pickRandom n:8 positions` pour les
+  tunnels autour du Gateway (grille 3 × 3), piles « Y'ha-nthlei » (7) et
+  « Y'ha-nthlei Sanctum » (4) `around`, Lairs de côté non révélés,
+  actes v. II / v. III de côté (`actDeck` = v. I), Hydra et Dagon de
+  côté sur leur recto. **Act 2 Setup automatisé** par `actEffects["2"]` :
+  `removeLocations {except: Gateway}` (les Underground River à Victory
+  partent en zone de victoire), puis **`byPlayers`** — une variante par
+  nombre d'enquêteurs avec les positions du diagramme p. 38 après
+  retraits A / B / C et glissements (colonnes 179 + k·186, rangées 649 /
+  887 / 1125) : `spreadPile yha` partiellement inondés, `placeAt` des
+  Lairs non révélés, variante imbriquée pour `spreadPile sanctum`
+  totalement inondés et le `spawnAside` de Dagon (un objet n'a qu'un
+  champ de chaque nom), Hydra en `spawnAside` commun — journal muet sur
+  les lieux posés, cartes en excès laissées en pile. Agenda 2 :
+  Lloigor et Abomination + défausse dans la pioche. Reste manuel avec
+  rappels : clés et combinaisons à glisser, réveil des Anciens (« Autre
+  face »), cartes de côté de l'acte 2. Tests : 669 messages (bloc
+  Maelstrom : clés 2 + 4 avec une couleur absente, journal muet,
+  Gateway inondé et huit tunnels, piles, mises de côté, acte 2 à deux
+  joueurs (positions exactes, inondations, Lairs, Hydra et Dagon),
+  agenda 2 ; autonome solo : quatre cachées, aucune combinaison, acte 2
+  à un joueur ; quatre joueurs : sept Y'ha-nthlei, quatre combinaisons)
+  ; captures 97‑99.
 - 2026-09-10 : **Menu natif du navigateur neutralisé sur la table** —
   retour UX : sur certains objets du tapis, « parfois et selon le
   zoom », le clic droit ouvrait aussi le menu du navigateur. Reproduit
@@ -150,45 +186,10 @@ versement de son durable (format → grammaire, piège → §5, décision →
   face ; autonome v. II sans suspect et retrait à vide ; ≤ 4 souvenirs
   → 5 bénédictions) ; captures 94‑96.
 
-- 2026-09-10 : **A Light in the Fog (TIC VI) livré** — Setup + les deux
-  diagrammes p. 27‑28 (pack `lif` ; sets A Light in the Fog, Creatures
-  of the Deep, Flooded Caverns, Rising Tide, Syzygy, Striking Fear ;
-  pioche 36). Lobby : campagne / autonome, reliques apportées au phare
-  (cases → `aside` des trois relics du pack `def` en `extraCards`),
-  mentions « after sunrise » / « tide has grown stronger » (cases →
-  `addDoom` après `story`), jetons retirés. Réutilisé : clés visibles /
-  cachées, `remove` des Underground River, carte histoire dans la zone
-  `story` (Captured!, comme Finding Agent Harper), pile « Tidal
-  Tunnels » `around` (comme au IV), grottes de côté non révélées (le dos
-  d'Upper Depths s'appelle Lighthouse Basement). Généralisé : les
-  **effets d'étape** deviennent un type `StageEffects` partagé par
-  `agendaEffects` et le nouveau **`actEffects`** (fonction
-  `appliquerEffets`, idempotente : l'acte 1 et l'agenda 1 ont des versos
-  qui convergent, de même l'acte 2 et l'agenda 2 — chacun déclare les
-  mêmes gestes, le second ne fait rien de plus), avec quatre effets de
-  plus : `revealCodes`, `placeBelow` (Basement sous le Stairwell, Lower
-  et Final Depths en colonne), `fillRows` (rangées complétées à quatre
-  par les tunnels : diagramme de l'acte 3 obtenu d'un clic), `removeTrait`
-  (lieux Falcon Point → victoire ou retrait à l'agenda 4) ; `spawnAside`
-  accepte une carte déjà en jeu (Oceiros remonte à Upper Depths). Et
-  **`toggleSide` change de nature** pour une carte histoire dont le dos
-  est un lieu (Captured! → Holding Cells : kind `location`, indices de
-  son verso la première fois ; menu « Autre face (Holding Cells) »
-  ouvert aux cartes `story` à verso-lieu). Reste manuel (choix ou
-  position selon le déclencheur) : Oceiros et la clé bleue au 2,
-  capturés et clés sur Holding Cells au 3, pions et ennemis déplacés au
-  4, inondation des quatre lieux les plus bas — rappels `agenda:2‑4`,
-  `act:2‑3`. Tests : 642 messages (bloc Fog : doom du journal, rangée
-  et Lantern Room, retraits, clés, Captured! bascule en lieu avec indices
-  et retour, agenda 2, acte 2 idempotent, agenda 3 : descente complète
-  et journal muet, acte 3 idempotent, agenda 4 : Oceiros et Falcon
-  Point, autonome) ; captures 92‑93. Piège : un test qui pose une carte
-  sur une rangée à compléter fausse `fillRows` — poser ailleurs.
-
-- **Prochaine étape** : retours de l'utilisateur sur TIC I‑VII, puis
-  **TIC VIII Into the Maelstrom** (pack `itm` ; Setup + diagramme
-  seulement — si un report au lobby exige un extrait d'interlude ou de
-  résolution, le demander à l'utilisateur) : la campagne sera complète ; visuels PNG des clés et du jeton d'inondation à générer
+- **Prochaine étape** : retours de l'utilisateur sur la campagne TIC
+  complète (I‑VIII) ; prochaine campagne au choix de l'utilisateur
+  (Setup + diagramme seulement — si un report au lobby exige un extrait
+  d'interlude ou de résolution, le demander) ; visuels PNG des clés et du jeton d'inondation à générer
   dans le style des jetons du projet (choix B). En parallèle : la suite
   des retours de test du board joueur et les points ouverts du cahier
   §10.10 (customisations, decks annexes, attaches).

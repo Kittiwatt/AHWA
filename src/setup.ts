@@ -569,14 +569,22 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         // est laquelle. Elles se posent sur un lieu, un ennemi ou un enquêteur par glisser.
         const deja = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
         const faceUp = step.faceUp ?? true;
-        const noms = [...(step.tokens ?? []), ...(step.colors ?? [])];
         for (const c of step.colors ?? []) if (!COULEURS_CLES.includes(c)) throw new Error(`setup : couleur de clé inconnue ${c}`);
+        let couleurs = [...(step.colors ?? [])];
+        if (step.fillAsideTo !== undefined) {
+          // Juste assez de clés, tirées au hasard, pour que n clés face cachée soient de côté (Into the Maelstrom) ; les autres ne servent pas.
+          const cacheesDeja = Object.values(state.cards).filter((k) => k.kind === "key" && !k.faceUp && "zone" in k.loc && k.loc.zone === "aside").length;
+          couleurs = shuffle(couleurs, rng).slice(0, Math.max(0, step.fillAsideTo - cacheesDeja));
+        }
+        const noms = [...(step.tokens ?? []), ...couleurs];
         const ordre = faceUp ? noms : shuffle([...noms], rng);
         ordre.forEach((t, i) => {
           const id = `key-${t}`;
           state.cards[id] = { id, code: `key:${t}`, kind: "key", storyBack: false, loc: { zone: "aside", x: (deja + i) * (CARD_W + ASIDE_GAP), y: 0, z: z++ }, faceUp, exhausted: false, side: "a", tokens: {} };
         });
-        addLog(state, "setup", step.log ?? (step.colors
+        addLog(state, "setup", step.log ?? (step.fillAsideTo !== undefined
+          ? `${noms.length} clé${noms.length > 1 ? "s" : ""} tirée${noms.length > 1 ? "s" : ""} au hasard parmi ${(step.colors ?? []).map((t) => LIBELLES_CLES[t] ?? t).join(", ")} rejoi${noms.length > 1 ? "gnent" : "nt"} les clés de côté face cachée (${step.fillAsideTo} au total) ; les autres ne servent pas.`
+          : step.colors
           ? `Clés mises de côté ${faceUp ? "face visible" : "face cachée, mélangées"} : ${noms.map((t) => LIBELLES_CLES[t] ?? t).join(", ")}.`
           : `Clés mises de côté : ${noms.map((t) => LIBELLES_CLES[t] ?? t).join(", ")} (jetons pris dans la collection, pas dans le sac).`));
         break;

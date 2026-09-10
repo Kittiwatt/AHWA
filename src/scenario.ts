@@ -74,9 +74,10 @@ export type SetupStep =
   | { op: "layeredPile"; pile: string; pool: string[]; layers: { n?: number; with?: string[] }[]; log?: string }
     // pile construite par couches, du dessus vers le dessous : chaque couche prend les codes `with` (imposés) plus
     // `n` cartes tirées au hasard dans ce qui reste de `pool`, puis est mélangée ; tout le pool doit être consommé
-  | { op: "keys"; tokens?: string[]; colors?: string[]; faceUp?: boolean; log?: string }
+  | { op: "keys"; tokens?: string[]; colors?: string[]; faceUp?: boolean; fillAsideTo?: number; log?: string }
     // clés mises de côté, cartes `key-<x>` déplaçables : `tokens` = jetons du chaos pris dans la collection (TCU), `colors` = clés de
-    // couleur à deux faces (TIC : red, blue, green, yellow, purple, black, white) ; faceUp false = face cachée, ordre mélangé (on ne sait pas laquelle est laquelle)
+    // couleur à deux faces (TIC : red, blue, green, yellow, purple, black, white) ; faceUp false = face cachée, ordre mélangé (on ne sait pas laquelle est laquelle) ;
+    // `fillAsideTo: n` : parmi `colors`, tirées au hasard, juste assez pour que n clés face cachée soient de côté (les autres ne servent pas)
   | { op: "randomKey"; at: string; log?: string }   // une clé de côté face cachée, tirée au hasard, posée sur une carte en jeu sans être regardée (journal muet sur sa couleur)
   | { op: "addClues"; code: string; n: number; log?: string }                  // indices fixes sur un lieu en jeu (révélé ou non)
   | { op: "removeClues"; from: string[]; n?: number; nFrom?: string; log?: string }   // retire n indices (ou la réponse numérique nFrom) aussi également que possible
@@ -109,7 +110,8 @@ export type StageEffects = {
     // rangée de chaque lieu-ancre complétée à `count` lieux avec les premières cartes de la pile, aux colonnes libres, non révélées
   removeTrait?: string;                                                 // les lieux de ce trait quittent la partie (victoire si Victory X sans indice)
   removeLocations?: { trait?: string; except?: string[] };              // idem, par trait et/ou sauf ces codes (« chaque lieu autre que… »)
-  spreadPile?: { pile: string; positions: { x: number; y: number }[] }; // toutes les cartes d'une pile entrent en jeu non révélées aux positions données
+  spreadPile?: { pile: string; positions: { x: number; y: number }[]; flood?: 1 | 2 };   // les cartes d'une pile entrent en jeu non révélées aux positions données (une par position), inondées si demandé
+  byPlayers?: Record<string, StageEffects>;                             // variante selon le nombre de joueurs ("1"…"4"), appliquée à sa place dans l'ordre
   placeAt?: { code: string; x: number; y: number; faceUp?: boolean; flood?: 1 | 2 }[];   // une carte de côté posée à une position (révélée ou non, inondée)
   chaosAdd?: Token[]; chaosRemove?: Token[];                            // jetons ajoutés au sac / retirés (un exemplaire chacun)
   spawnAside?: { code: string; at: string; side?: "a" | "b" };          // une carte (de côté ou déjà en jeu) apparaît sur un lieu (code)

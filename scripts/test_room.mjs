@@ -2139,6 +2139,103 @@ async function tableLair({ joueurs = 2, answers }) {
   g.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Into the Maelstrom (TIC VIII) : clés selon le journal (contrôlées / cachées, complétées à quatre au hasard), Gateway
+// et huit tunnels, combinaisons, Act 2 Setup selon le nombre de joueurs (byPlayers), agenda 2 ============
+async function tableMaelstrom({ joueurs = 2, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tic_into_the_maelstrom" }) });
+  assert.equal(r.status, 200, "Into the Maelstrom est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "07001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["07001", "07002", "07003", "07004"][i] });
+    autres.push(c);
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  return { h, autres, d };
+}
+{
+  const { h, autres: [j2], d } = await tableMaelstrom({ joueurs: 2, answers: { mode: "campaign", entries: ["blue", "green"], suits: "1", tokens_out: ["tablet"] } });
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 19);
+  const cles = cartes.filter((c) => c.kind === "key");
+  assert.deepEqual(cles.filter((c) => c.faceUp).map((c) => c.code).sort(), ["key:blue", "key:green"], "clés contrôlées : de côté face visible");
+  const cachees = cles.filter((c) => !c.faceUp);
+  assert.equal(cachees.length, 4, "quatre clés de côté face cachée");
+  assert.ok(cachees.some((c) => c.code === "key:red") && cachees.some((c) => c.code === "key:yellow"), "rouge et jaune cachées");
+  assert.equal(cachees.filter((c) => ["key:purple", "key:white", "key:black"].includes(c.code)).length, 2, "deux clés tirées parmi violette, blanche, noire");
+  assert.equal(cles.length, 6, "une des trois n'existe pas");
+  assert.ok(!s.log.some((e) => /clé (violette|blanche|noire)[^.]*(cachée|de côté)/.test(e.text) && !e.text.includes("tirée")), "journal muet sur les clés tirées");
+  const gate = cartes.find((c) => c.code === "07320");
+  assert.ok(gate.faceUp && gate.loc.x === 737 && gate.loc.y === 411 && gate.tokens.flood === 1, "Gateway révélé, partiellement inondé");
+  const tunnels = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board" && c.code !== "07320");
+  assert.equal(tunnels.length, 8, "huit tunnels autour"); assert.ok(tunnels.every((c) => !c.faceUp));
+  assert.deepEqual(tunnels.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["551,173", "551,411", "551,649", "737,173", "737,649", "923,173", "923,411", "923,649"]);
+  assert.equal(s.piles.yha.length, 7); assert.equal(s.piles.sanctum.length, 4);
+  const cote = cartes.filter((c) => c.loc.zone === "aside" && c.kind !== "key");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["07086", "07317", "07318", "07328", "07329", "07330a", "07331a", "07332", "07338"], "de côté : Lloigor, actes v. II/III, Lairs, Dagon, Hydra, Abomination, une combinaison");
+  assert.ok(cote.filter((c) => ["07328", "07329"].includes(c.code)).every((c) => !c.faceUp));
+  assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["07316"], "acte 2 = v. I");
+  assert.equal(s.piles.encounter.length, 33, "pioche : 33");
+  // Acte 2 (deux joueurs) : tunnels retirés, cinq Y'ha-nthlei et quatre sanctuaires inondés, Lairs, Hydra et Dagon endormis.
+  let d2 = await h.action({ t: "advanceAct" });
+  assert.equal(h.state.cards[h.state.actId].code, "07316");
+  const L = () => Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.ok(tunnels.every((t) => h.state.cards[t.id].loc.pile === "removed" || h.state.cards[t.id].loc.zone === "victory"), "tunnels retirés (ou en victoire s'ils ont Victory X sans indice)");
+  assert.equal(h.state.piles.yha.length, 2, "deux joueurs : cinq Y'ha-nthlei posés, deux restent de côté");
+  assert.equal(h.state.piles.sanctum.length, 0, "quatre sanctuaires posés");
+  const yha = L().filter((c) => ["07321", "07322", "07323"].includes(c.code)), sanct = L().filter((c) => ["07324", "07325", "07326", "07327"].includes(c.code));
+  assert.equal(yha.length, 5); assert.ok(yha.every((c) => c.tokens.flood === 1 && !c.faceUp), "Y'ha-nthlei partiellement inondés, non révélés");
+  assert.equal(sanct.length, 4); assert.ok(sanct.every((c) => c.tokens.flood === 2), "sanctuaires totalement inondés");
+  assert.deepEqual(yha.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["551,649", "737,1125", "737,649", "737,887", "923,649"], "positions des Y'ha-nthlei à deux joueurs");
+  assert.deepEqual(sanct.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["1109,649", "365,649", "551,887", "923,887"], "positions des sanctuaires à deux joueurs");
+  const hydraLair = L().find((c) => c.code === "07329"), dagonLair = L().find((c) => c.code === "07328");
+  assert.ok(hydraLair && hydraLair.loc.x === 551 && hydraLair.loc.y === 1125 && dagonLair && dagonLair.loc.x === 923 && dagonLair.loc.y === 1125, "Lairs en bas");
+  const hydra = Object.values(h.state.cards).find((c) => c.code === "07331a"), dagon = Object.values(h.state.cards).find((c) => c.code === "07330a");
+  assert.ok(hydra.loc.zone === "board" && hydra.side === "a" && Math.abs(hydra.loc.x - 551) < 60 && Math.abs(hydra.loc.y - 1125) < 60, "Hydra endormie au Lair of Hydra");
+  assert.ok(dagon.loc.zone === "board" && dagon.side === "a" && Math.abs(dagon.loc.x - 923) < 60, "Dagon endormi au Lair of Dagon");
+  assert.ok(!h.state.log.some((e) => /(Sunken Halls|Vault of Riches|Undersea Corridors|Statues in the Deep|Submerged Temple|Syzygy Chamber|Onyx Guardians)/.test(e.text)), "journal muet sur les lieux posés");
+  // Agenda 2 : Lloigor et Abomination + défausse dans la pioche.
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.piles.encounter.length, 35, "Lloigor et Aquatic Abomination dans la pioche");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.piles.yha, h.state.piles.yha, "les autres clients suivent");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // Autonome solo : sac de base, quatre clés cachées sans tirage, pas de combinaison ; Act 2 Setup à un joueur : quatre Y'ha-nthlei.
+  const { h, d } = await tableMaelstrom({ joueurs: 1, answers: { mode: "standalone", entries: [], suits: "3", tokens_out: ["cultist"] } });
+  assert.equal(d.t, "delta"); assert.equal(h.state.chaos.bag.length, 20);
+  const cles = Object.values(h.state.cards).filter((c) => c.kind === "key");
+  assert.equal(cles.length, 4); assert.ok(cles.every((c) => !c.faceUp), "quatre clés cachées, aucune tirée en plus");
+  assert.ok(!Object.values(h.state.cards).some((c) => c.code === "07338" && c.loc.zone === "aside"), "autonome : aucune combinaison");
+  let d2 = await h.action({ t: "advanceAct" });
+  assert.equal(h.state.piles.yha.length, 3, "un joueur : quatre Y'ha-nthlei posés");
+  assert.equal(h.state.piles.sanctum.length, 0);
+  const hydraLair = Object.values(h.state.cards).find((c) => c.code === "07329");
+  assert.ok(hydraLair.loc.zone === "board" && hydraLair.loc.y === 887, "Lairs remontés d'une rangée à un joueur");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+  const { h: g, d: dg } = await tableMaelstrom({ joueurs: 4, answers: { mode: "campaign", entries: ["blue", "red", "green", "yellow"], suits: "4", tokens_out: [] } });
+  assert.equal(dg.t, "delta");
+  const cles4 = Object.values(g.state.cards).filter((c) => c.kind === "key");
+  assert.equal(cles4.filter((c) => c.faceUp).length, 4); assert.equal(cles4.filter((c) => !c.faceUp).length, 3, "toutes contrôlées : violette, blanche et noire cachées (aucune retirée)");
+  assert.equal(Object.values(g.state.cards).filter((c) => c.code === "07338" && c.loc.zone === "aside").length, 4, "quatre combinaisons");
+  d2 = await g.action({ t: "advanceAct" });
+  assert.equal(g.state.piles.yha.length, 0, "quatre joueurs : sept Y'ha-nthlei posés");
+  assert.equal(Object.values(g.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board").length, 14, "Gateway + 7 + 4 + 2 Lairs");
+  g.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 // ============ Board joueur, étape 1 (cahier §10) : import du deck au lobby, faiblesse aléatoire, code de siège et
 // connexions multiples, decks créés à la mise en place, actions p:* réservées au siège ============
 {

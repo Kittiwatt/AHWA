@@ -278,7 +278,7 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
     removeTrait: () => retirerLieux(effet.removeTrait!, undefined, `lieux « ${effet.removeTrait} »`),
     removeLocations: () => retirerLieux(effet.removeLocations!.trait, effet.removeLocations!.except, effet.removeLocations!.trait ? `lieux « ${effet.removeLocations!.trait} »` : "lieux"),
     spreadPile: () => {
-      const { pile, positions } = effet.spreadPile!;
+      const { pile, positions, flood } = effet.spreadPile!;
       let n = 0, poses = 0;
       while (state.piles[pile]?.length && n < positions.length) {
         const pos = positions[n++];
@@ -286,11 +286,13 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
         const id = state.piles[pile].shift()!;
         const k = state.cards[id];
         k.loc = { zone: "board", x: pos.x, y: pos.y, z: nextZ(state) }; k.faceUp = false; k.side = "a";
+        if (flood) k.tokens.flood = flood;
         poses++;
       }
       const restant = state.piles[pile]?.length ?? 0;
-      if (poses) parties.push(`${nomPile(def, pile)} : ${poses} carte${poses > 1 ? "s" : ""} en jeu non révélée${poses > 1 ? "s" : ""}${restant ? ` (${restant} sans emplacement libre, à poser à la main)` : ""}`);
+      if (poses) parties.push(`${nomPile(def, pile)} : ${poses} carte${poses > 1 ? "s" : ""} en jeu non révélée${poses > 1 ? "s" : ""}${flood ? ` (${LIBELLES_INONDATION[flood]}${poses > 1 ? "s" : ""})` : ""}${restant ? ` — ${restant} resten${restant > 1 ? "t" : ""} de côté` : ""}`);
     },
+    byPlayers: () => { const v = effet.byPlayers![String(state.playerCount)]; if (v) parties.push(...appliquerEffets(state, def, v)); },
     placeAt: () => {
       for (const pa of effet.placeAt!) {
         if (surTapis(pa.code)) continue;

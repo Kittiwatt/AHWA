@@ -30,8 +30,9 @@ Devil Reef (navire porteur de pions, îles et profondeurs tirées au
 hasard, tunnels posés par direction) V — Horror in High Gear (Road
 deck, voitures à deux faces, Road X) VI — A Light in the Fog
 (descente sous le phare mise en place par les agendas et les actes)
-et VII — The Lair of Dagon (sac selon les souvenirs, versos d'agenda
-selon la version), avec
+VII — The Lair of Dagon (sac selon les souvenirs, versos d'agenda
+selon la version) et VIII — Into the Maelstrom (Act 2 Setup posé selon
+le nombre d'enquêteurs) — **campagne complète** —, avec
 les questions de journal au lobby, les tirages au hasard, les piles et
 les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » et lien vers le livret de
 campagne dans chaque table. Lobby

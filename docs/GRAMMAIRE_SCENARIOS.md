@@ -165,12 +165,18 @@ donc pas ce qui est déjà posé.
 - `{"op":"randomKey","at","log"?}` — une clé **face cachée de côté**,
   tirée au hasard, posée sur `at` sans être regardée (journal muet sur
   la couleur).
-- `{"op":"keys","tokens"?:[…]|"colors"?:[…],"faceUp"?,"log"?}` — clés
-  mises de côté (cartes `key:<x>` déplaçables). `tokens` = jetons du
-  chaos pris dans la **collection** (jamais dans le sac — TCU) ;
-  `colors` = clés de couleur à deux faces (TIC). `faceUp:false` :
+- `{"op":"keys","tokens"?:[…]|"colors"?:[…],"faceUp"?,"fillAsideTo"?,"log"?}`
+  — clés mises de côté (cartes `key:<x>` déplaçables). `tokens` =
+  jetons du chaos pris dans la **collection** (jamais dans le sac —
+  TCU) ; `colors` = clés de couleur à deux faces (TIC). `faceUp:false` :
   posées face cachée **et mélangées** (personne ne sait laquelle est
-  laquelle) — ne jamais nommer une clé cachée ensuite.
+  laquelle) — ne jamais nommer une clé cachée ensuite. `fillAsideTo:n` :
+  parmi `colors`, tirées au hasard, juste assez pour que `n` clés face
+  cachée soient de côté ; les autres n'existent pas dans la table
+  (Into the Maelstrom : « until there are no more than 4 set-aside
+  keys »). Une clé « contrôlée par un enquêteur » d'après le journal se
+  pose de côté face visible avec un rappel « glissez-la sur son siège »
+  (le choix de l'enquêteur reste aux joueurs).
 
 ### Tirages au hasard
 
@@ -365,8 +371,15 @@ rendus pendant la partie.
   carte de côté **ou déjà en jeu** apparaît sur un lieu) ;
   `randomKeyOn` (clé cachée au hasard posée dessus) ;
   `removeLocations {trait?, except?}` (comme `removeTrait`, ou « chaque
-  lieu autre que… ») ; `spreadPile {pile, positions}` (toutes les cartes
-  d'une pile entrent en jeu non révélées aux positions libres données) ;
+  lieu autre que… ») ; `spreadPile {pile, positions, flood?}` (les
+  cartes d'une pile entrent en jeu non révélées aux positions libres
+  données, une par position, inondées si demandé — le reste de la pile
+  reste de côté) ; `byPlayers {"1"…"4": StageEffects}` (variante selon
+  le nombre de joueurs, appliquée à sa place dans l'ordre — Act 2 Setup
+  d'Into the Maelstrom : positions différentes par nombre
+  d'enquêteurs ; un objet n'ayant qu'un champ de chaque nom, une
+  seconde pile ou un second `spawnAside` se déclarent dans une variante
+  imbriquée) ;
   `placeAt [{code, x, y, faceUp?, flood?}]` (une carte de côté posée à
   une position, révélée par défaut, inondée si demandé) ; `chaosAdd` /
   `chaosRemove` (jetons du sac, un exemplaire chacun). Cible introuvable

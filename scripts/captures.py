@@ -1111,6 +1111,45 @@ with sync_playwright() as p:
     h20.mouse.move(420, 520); h20.wait_for_timeout(300)
     h20.screenshot(path=f"{OUT}/96_lair_acte2.png")
 
+    # ---- Into the Maelstrom (TIC VIII) : Gateway et huit tunnels, clés selon le journal, Act 2 Setup selon les joueurs ----
+    code21, token21 = creer("tic_into_the_maelstrom")
+    print("room Into the Maelstrom", code21)
+    h21 = page_pour(browser, "Hôte", host=True, code=code21, token=token21)
+    h21.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h21.get_by_role("button", name="Choisir un enquêteur").click(); h21.wait_for_selector("dialog.dialogue-inv[open]")
+    h21.fill("dialog .recherche", "dexter"); h21.wait_for_timeout(300); h21.locator("dialog .inv").first.click()
+    h21.wait_for_selector(".siege-lobby.moi .fiche")
+    j21 = page_pour(browser, "Bob", code=code21, token=None)
+    j21.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j21.get_by_role("button", name="Choisir un enquêteur").click(); j21.wait_for_selector("dialog.dialogue-inv[open]")
+    j21.fill("dialog .recherche", "amanda"); j21.wait_for_timeout(300); j21.locator("dialog .inv").first.click()
+    j21.wait_for_selector(".siege-lobby.moi .fiche")
+    h21.wait_for_timeout(400)
+    h21.locator("input[name='q-mode'][value='campaign']").check()
+    h21.locator("input[name='q-entries'][value='blue']").check(); h21.wait_for_timeout(150)
+    h21.locator("input[name='q-entries'][value='yellow']").check(); h21.wait_for_timeout(150)
+    h21.locator("input[name='q-suits']").fill("1"); h21.locator("input[name='q-suits']").dispatch_event("change"); h21.wait_for_timeout(200)
+    h21.locator(".reglage.questions").screenshot(path=f"{OUT}/97_maelstrom_lobby_questions.png")
+    h21.get_by_role("button", name="Lancer la mise en place").click()
+    h21.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h21.wait_for_load_state("networkidle"); h21.wait_for_timeout(1500)
+    assert h21.locator("#plateau .carte.kind-location").count() == 9, "Gateway + huit tunnels"
+    assert h21.locator("#aside .mini.cle:not(.cachee)").count() == 2, "deux clés contrôlées face visible"
+    assert h21.locator("#aside .mini.cle.cachee").count() == 4, "quatre clés cachées"
+    assert h21.locator("#pioches .pile[data-outil='pile:yha'] .badge").inner_text() == "7"
+    assert h21.locator("#pioches .pile[data-outil='pile:sanctum'] .badge").inner_text() == "4"
+    h21.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h21.mouse.move(420, 520); h21.wait_for_timeout(300)
+    h21.screenshot(path=f"{OUT}/98_maelstrom_tapis.png")
+    # Acte 2 : Act 2 Setup à deux joueurs.
+    h21.locator("#histoire").get_by_role("button", name="Avancer l'acte").click(); h21.wait_for_timeout(1200)
+    assert h21.locator("#plateau .carte.kind-location").count() == 12, "Gateway + 5 Y'ha-nthlei + 4 sanctuaires + 2 Lairs"
+    assert h21.locator("#plateau .carte.kind-enemy").count() == 2, "Hydra et Dagon endormis"
+    h21.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h21.get_by_role("button", name="Recentrer").click(); h21.wait_for_timeout(500)
+    h21.mouse.move(420, 520); h21.wait_for_timeout(300)
+    h21.screenshot(path=f"{OUT}/99_maelstrom_acte2.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

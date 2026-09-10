@@ -1,0 +1,995 @@
+{
+  "_source": "Guide de campagne The Innsmouth Conspiracy (FFG, 2020) : Scenario VIII, « Scenario Setup » p. 36 (sets ; clés bleue, rouge, verte, jaune contrôlées si l'entrée du journal est vraie, sinon de côté face cachée ; violette, blanche, noire tirées au hasard pour compléter à quatre clés de côté, les autres retirées ; Gateway to Y'ha-nthlei en jeu partiellement inondé, entouré des huit Tidal Tunnels ; départ au Gateway ; autres lieux de côté ; Diving Suit par enquêteur qui en possède une, les autres retirées ; acte 2 = City of the Deep v. I, v. II et v. III de côté ; Lloigor, Aquatic Abomination, Hydra et Dagon de côté ; jetons d'inondation), encadré « Location Adjacency in Y'ha-nthlei » p. 36, diagramme « Location Placement for Act 1 » et encadrés « Standalone Mode » (sac de base, entrées vraies au choix des joueurs, aucune combinaison) et « Keys » p. 37, « Act 2 Setup » et diagramme « Location Placement for Act 2 » p. 38 (retraits A / B / C et glissements selon le nombre d'enquêteurs, sans regarder les faces retirées) ; flashbacks du scénario I p. 6 (jetons retirés). Rien d'autre du guide n'a été lu. Aucun texte de carte ; les rappels paraphrasent le guide ou décrivent les gestes de l'application. Choix (uniformisation) : clés contrôlées à glisser sur son siège (choix), combinaisons de côté à glisser (choix), piles Y'ha-nthlei / Sanctum pour l'Act 2 Setup posé par l'app selon le nombre de joueurs (effets d'étape byPlayers), Hydra et Dagon de côté sur leur recto avec « Autre face ».",
+  "id": "tic_into_the_maelstrom",
+  "title": "Into the Maelstrom",
+  "campaign": "The Innsmouth Conspiracy",
+  "campaignId": "tic",
+  "order": 8,
+  "packs": [
+    "itm",
+    "tic",
+    "core"
+  ],
+  "encounterSets": [
+    "into_the_maelstrom",
+    "agents_of_hydra",
+    "creatures_of_the_deep",
+    "flooded_caverns",
+    "shattered_memories",
+    "syzygy",
+    "ancient_evils"
+  ],
+  "scenarioCard": "07311",
+  "agendaDeck": [
+    "07312",
+    "07313",
+    "07314"
+  ],
+  "actDeck": [
+    "07315",
+    "07316"
+  ],
+  "startLocation": "07320",
+  "piles": [
+    {
+      "id": "yha",
+      "label": "Y'ha-nthlei",
+      "around": true
+    },
+    {
+      "id": "sanctum",
+      "label": "Y'ha-nthlei Sanctum",
+      "around": true
+    }
+  ],
+  "flood": {},
+  "agendaEffects": {
+    "2": {
+      "log": "Verso de l'agenda 1",
+      "shuffleAside": [
+        "07086",
+        "07332"
+      ],
+      "withDiscard": true
+    }
+  },
+  "actEffects": {
+    "2": {
+      "log": "Verso de l'acte 1 — Act 2 Setup",
+      "removeLocations": {
+        "except": [
+          "07320"
+        ]
+      },
+      "byPlayers": {
+        "4": {
+          "spreadPile": {
+            "pile": "yha",
+            "positions": [
+              {
+                "x": 365,
+                "y": 649
+              },
+              {
+                "x": 551,
+                "y": 649
+              },
+              {
+                "x": 737,
+                "y": 649
+              },
+              {
+                "x": 923,
+                "y": 649
+              },
+              {
+                "x": 1109,
+                "y": 649
+              },
+              {
+                "x": 737,
+                "y": 887
+              },
+              {
+                "x": 737,
+                "y": 1125
+              }
+            ],
+            "flood": 1
+          },
+          "placeAt": [
+            {
+              "code": "07329",
+              "x": 551,
+              "y": 1125,
+              "faceUp": false
+            },
+            {
+              "code": "07328",
+              "x": 923,
+              "y": 1125,
+              "faceUp": false
+            }
+          ],
+          "byPlayers": {
+            "4": {
+              "spreadPile": {
+                "pile": "sanctum",
+                "positions": [
+                  {
+                    "x": 179,
+                    "y": 649
+                  },
+                  {
+                    "x": 1295,
+                    "y": 649
+                  },
+                  {
+                    "x": 365,
+                    "y": 887
+                  },
+                  {
+                    "x": 1109,
+                    "y": 887
+                  }
+                ],
+                "flood": 2
+              },
+              "spawnAside": {
+                "code": "07330a",
+                "at": "07328",
+                "side": "a"
+              }
+            }
+          }
+        },
+        "3": {
+          "spreadPile": {
+            "pile": "yha",
+            "positions": [
+              {
+                "x": 365,
+                "y": 649
+              },
+              {
+                "x": 551,
+                "y": 649
+              },
+              {
+                "x": 737,
+                "y": 649
+              },
+              {
+                "x": 923,
+                "y": 649
+              },
+              {
+                "x": 1109,
+                "y": 649
+              },
+              {
+                "x": 737,
+                "y": 887
+              }
+            ],
+            "flood": 1
+          },
+          "placeAt": [
+            {
+              "code": "07329",
+              "x": 551,
+              "y": 887,
+              "faceUp": false
+            },
+            {
+              "code": "07328",
+              "x": 923,
+              "y": 887,
+              "faceUp": false
+            }
+          ],
+          "byPlayers": {
+            "3": {
+              "spreadPile": {
+                "pile": "sanctum",
+                "positions": [
+                  {
+                    "x": 179,
+                    "y": 649
+                  },
+                  {
+                    "x": 1295,
+                    "y": 649
+                  },
+                  {
+                    "x": 365,
+                    "y": 887
+                  },
+                  {
+                    "x": 1109,
+                    "y": 887
+                  }
+                ],
+                "flood": 2
+              },
+              "spawnAside": {
+                "code": "07330a",
+                "at": "07328",
+                "side": "a"
+              }
+            }
+          }
+        },
+        "2": {
+          "spreadPile": {
+            "pile": "yha",
+            "positions": [
+              {
+                "x": 551,
+                "y": 649
+              },
+              {
+                "x": 737,
+                "y": 649
+              },
+              {
+                "x": 923,
+                "y": 649
+              },
+              {
+                "x": 737,
+                "y": 887
+              },
+              {
+                "x": 737,
+                "y": 1125
+              }
+            ],
+            "flood": 1
+          },
+          "placeAt": [
+            {
+              "code": "07329",
+              "x": 551,
+              "y": 1125,
+              "faceUp": false
+            },
+            {
+              "code": "07328",
+              "x": 923,
+              "y": 1125,
+              "faceUp": false
+            }
+          ],
+          "byPlayers": {
+            "2": {
+              "spreadPile": {
+                "pile": "sanctum",
+                "positions": [
+                  {
+                    "x": 365,
+                    "y": 649
+                  },
+                  {
+                    "x": 1109,
+                    "y": 649
+                  },
+                  {
+                    "x": 551,
+                    "y": 887
+                  },
+                  {
+                    "x": 923,
+                    "y": 887
+                  }
+                ],
+                "flood": 2
+              },
+              "spawnAside": {
+                "code": "07330a",
+                "at": "07328",
+                "side": "a"
+              }
+            }
+          }
+        },
+        "1": {
+          "spreadPile": {
+            "pile": "yha",
+            "positions": [
+              {
+                "x": 551,
+                "y": 649
+              },
+              {
+                "x": 737,
+                "y": 649
+              },
+              {
+                "x": 923,
+                "y": 649
+              },
+              {
+                "x": 737,
+                "y": 887
+              }
+            ],
+            "flood": 1
+          },
+          "placeAt": [
+            {
+              "code": "07329",
+              "x": 551,
+              "y": 887,
+              "faceUp": false
+            },
+            {
+              "code": "07328",
+              "x": 923,
+              "y": 887,
+              "faceUp": false
+            }
+          ],
+          "byPlayers": {
+            "1": {
+              "spreadPile": {
+                "pile": "sanctum",
+                "positions": [
+                  {
+                    "x": 365,
+                    "y": 649
+                  },
+                  {
+                    "x": 1109,
+                    "y": 649
+                  },
+                  {
+                    "x": 365,
+                    "y": 887
+                  },
+                  {
+                    "x": 1109,
+                    "y": 887
+                  }
+                ],
+                "flood": 2
+              },
+              "spawnAside": {
+                "code": "07330a",
+                "at": "07328",
+                "side": "a"
+              }
+            }
+          }
+        }
+      },
+      "spawnAside": {
+        "code": "07331a",
+        "at": "07329",
+        "side": "a"
+      }
+    }
+  },
+  "chaosBag": {
+    "easy": [
+      "+1",
+      "+1",
+      "0",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-2",
+      "skull",
+      "skull",
+      "cultist",
+      "cultist",
+      "tablet",
+      "tablet",
+      "elder_thing",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "standard": [
+      "+1",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-2",
+      "-3",
+      "-4",
+      "skull",
+      "skull",
+      "cultist",
+      "cultist",
+      "tablet",
+      "tablet",
+      "elder_thing",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "hard": [
+      "0",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-2",
+      "-2",
+      "-3",
+      "-3",
+      "-4",
+      "-5",
+      "skull",
+      "skull",
+      "cultist",
+      "cultist",
+      "tablet",
+      "tablet",
+      "elder_thing",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "expert": [
+      "0",
+      "-1",
+      "-1",
+      "-2",
+      "-2",
+      "-3",
+      "-3",
+      "-4",
+      "-4",
+      "-5",
+      "-6",
+      "-8",
+      "skull",
+      "skull",
+      "cultist",
+      "cultist",
+      "tablet",
+      "tablet",
+      "elder_thing",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ]
+  },
+  "layout": [
+    {
+      "code": "07320",
+      "x": 737,
+      "y": 411
+    }
+  ],
+  "questions": [
+    {
+      "id": "mode",
+      "text": "Campagne ou scénario seul ?",
+      "options": [
+        {
+          "id": "campaign",
+          "label": "Campagne : journal des scénarios précédents (questions suivantes)"
+        },
+        {
+          "id": "standalone",
+          "label": "Scénario seul (mode autonome) : sac de base, entrées vraies au choix des joueurs (question suivante), aucune combinaison de plongée"
+        }
+      ]
+    },
+    {
+      "id": "entries",
+      "text": "Entrées vraies au journal (en autonome : vous choisissez, de 4 = le plus facile à 0 = le plus difficile) :",
+      "type": "multi",
+      "options": [
+        {
+          "id": "blue",
+          "label": "« The investigators possess the key to Y'ha-nthlei » (clé bleue)"
+        },
+        {
+          "id": "red",
+          "label": "« The investigators possess a map of Y'ha-nthlei » (clé rouge)"
+        },
+        {
+          "id": "green",
+          "label": "« The guardian of Y'ha-nthlei is dispatched » (clé verte)"
+        },
+        {
+          "id": "yellow",
+          "label": "« The gateway to Y'ha-nthlei recognizes you as its rightful keeper » (clé jaune)"
+        }
+      ]
+    },
+    {
+      "id": "suits",
+      "text": "Nombre d'enquêteurs qui possèdent une combinaison de plongée (« possesses a diving suit ») :",
+      "type": "number",
+      "min": 0,
+      "max": 4,
+      "default": 0
+    },
+    {
+      "id": "tokens_out",
+      "text": "Jetons retirés du sac pour le reste de la campagne (scénario I) :",
+      "type": "multi",
+      "options": [
+        {
+          "id": "cultist",
+          "label": "Cultiste"
+        },
+        {
+          "id": "tablet",
+          "label": "Tablette"
+        },
+        {
+          "id": "elder_thing",
+          "label": "Ancien"
+        }
+      ]
+    }
+  ],
+  "setup": [
+    {
+      "op": "when",
+      "cond": {
+        "all": [
+          {
+            "q": "mode",
+            "is": "campaign"
+          },
+          {
+            "q": "tokens_out",
+            "has": "cultist"
+          }
+        ]
+      },
+      "then": [
+        {
+          "op": "chaosRemove",
+          "tokens": [
+            "cultist"
+          ],
+          "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+        }
+      ]
+    },
+    {
+      "op": "when",
+      "cond": {
+        "all": [
+          {
+            "q": "mode",
+            "is": "campaign"
+          },
+          {
+            "q": "tokens_out",
+            "has": "tablet"
+          }
+        ]
+      },
+      "then": [
+        {
+          "op": "chaosRemove",
+          "tokens": [
+            "tablet"
+          ],
+          "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+        }
+      ]
+    },
+    {
+      "op": "when",
+      "cond": {
+        "all": [
+          {
+            "q": "mode",
+            "is": "campaign"
+          },
+          {
+            "q": "tokens_out",
+            "has": "elder_thing"
+          }
+        ]
+      },
+      "then": [
+        {
+          "op": "chaosRemove",
+          "tokens": [
+            "elder_thing"
+          ],
+          "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+        }
+      ]
+    },
+    {
+      "op": "when",
+      "cond": {
+        "q": "mode",
+        "is": "standalone"
+      },
+      "then": [
+        {
+          "op": "log",
+          "text": "Mode autonome : sac de base du guide (p. 37), aucun retrait ; entrées vraies au choix des joueurs ; aucune combinaison de plongée."
+        }
+      ]
+    },
+    {
+      "op": "when",
+      "cond": {
+        "q": "entries",
+        "has": "blue"
+      },
+      "then": [
+        {
+          "op": "keys",
+          "colors": [
+            "blue"
+          ],
+          "faceUp": true,
+          "log": "Entrée vraie (la clé de Y'ha-nthlei) : la clé bleue est contrôlée par un enquêteur — de côté face visible, glissez-la sur son siège."
+        }
+      ],
+      "else": [
+        {
+          "op": "keys",
+          "colors": [
+            "blue"
+          ],
+          "faceUp": false,
+          "log": "Entrée fausse : la clé bleue est mise de côté face cachée."
+        }
+      ]
+    },
+    {
+      "op": "when",
+      "cond": {
+        "q": "entries",
+        "has": "red"
+      },
+      "then": [
+        {
+          "op": "keys",
+          "colors": [
+            "red"
+          ],
+          "faceUp": true,
+          "log": "Entrée vraie (une carte de Y'ha-nthlei) : la clé rouge est contrôlée par un enquêteur — de côté face visible, glissez-la sur son siège."
+        }
+      ],
+      "else": [
+        {
+          "op": "keys",
+          "colors": [
+            "red"
+          ],
+          "faceUp": false,
+          "log": "Entrée fausse : la clé rouge est mise de côté face cachée."
+        }
+      ]
+    },
+    {
+      "op": "when",
+      "cond": {
+        "q": "entries",
+        "has": "green"
+      },
+      "then": [
+        {
+          "op": "keys",
+          "colors": [
+            "green"
+          ],
+          "faceUp": true,
+          "log": "Entrée vraie (le gardien de Y'ha-nthlei vaincu) : la clé verte est contrôlée par un enquêteur — de côté face visible, glissez-la sur son siège."
+        }
+      ],
+      "else": [
+        {
+          "op": "keys",
+          "colors": [
+            "green"
+          ],
+          "faceUp": false,
+          "log": "Entrée fausse : la clé verte est mise de côté face cachée."
+        }
+      ]
+    },
+    {
+      "op": "when",
+      "cond": {
+        "q": "entries",
+        "has": "yellow"
+      },
+      "then": [
+        {
+          "op": "keys",
+          "colors": [
+            "yellow"
+          ],
+          "faceUp": true,
+          "log": "Entrée vraie (le portail vous reconnaît) : la clé jaune est contrôlée par un enquêteur — de côté face visible, glissez-la sur son siège."
+        }
+      ],
+      "else": [
+        {
+          "op": "keys",
+          "colors": [
+            "yellow"
+          ],
+          "faceUp": false,
+          "log": "Entrée fausse : la clé jaune est mise de côté face cachée."
+        }
+      ]
+    },
+    {
+      "op": "keys",
+      "colors": [
+        "purple",
+        "white",
+        "black"
+      ],
+      "faceUp": false,
+      "fillAsideTo": 4
+    },
+    {
+      "op": "place",
+      "code": "07320",
+      "zone": "board",
+      "x": 737,
+      "y": 411,
+      "reveal": true,
+      "log": "Gateway to Y'ha-nthlei est mis en jeu au centre, révélé : chaque enquêteur y commence la partie."
+    },
+    {
+      "op": "addTokens",
+      "at": "07320",
+      "token": "flood",
+      "n": 1,
+      "log": "Gateway to Y'ha-nthlei entre en jeu partiellement inondé — niveau d'inondation"
+    },
+    {
+      "op": "minis",
+      "code": "07320"
+    },
+    {
+      "op": "pickRandom",
+      "from": [
+        "07319",
+        "07319",
+        "07102",
+        "07102",
+        "07103",
+        "07103",
+        "07104",
+        "07104"
+      ],
+      "n": 8,
+      "zone": "board",
+      "positions": [
+        {
+          "x": 551,
+          "y": 173
+        },
+        {
+          "x": 737,
+          "y": 173
+        },
+        {
+          "x": 923,
+          "y": 173
+        },
+        {
+          "x": 551,
+          "y": 411
+        },
+        {
+          "x": 923,
+          "y": 411
+        },
+        {
+          "x": 551,
+          "y": 649
+        },
+        {
+          "x": 737,
+          "y": 649
+        },
+        {
+          "x": 923,
+          "y": 649
+        }
+      ],
+      "log": "Les huit Tidal Tunnels sont mélangés et posés non révélés tout autour du Gateway (diagramme de l'acte 1, p. 37) ; adjacent = connecté, jamais en diagonale."
+    },
+    {
+      "op": "toPile",
+      "pile": "yha",
+      "codes": [
+        "07321",
+        "07322",
+        "07323"
+      ],
+      "shuffle": true,
+      "log": "Les sept lieux Y'ha-nthlei sont de côté en pile, mélangés, côté non révélé : l'Act 2 Setup les posera."
+    },
+    {
+      "op": "toPile",
+      "pile": "sanctum",
+      "codes": [
+        "07324",
+        "07325",
+        "07326",
+        "07327"
+      ],
+      "shuffle": true,
+      "log": "Les quatre Y'ha-nthlei Sanctum sont de côté en pile, mélangés, côté non révélé."
+    },
+    {
+      "op": "aside",
+      "codes": [
+        "07328",
+        "07329"
+      ],
+      "faceUp": false,
+      "log": "Lair of Dagon et Lair of Hydra sont mis de côté, hors jeu, côté non révélé."
+    },
+    {
+      "op": "aside",
+      "codes": [
+        "07317",
+        "07318"
+      ],
+      "faceUp": true,
+      "log": "City of the Deep v. II et v. III sont mis de côté, hors jeu ; l'acte 2 utilisé est la version I."
+    },
+    {
+      "op": "aside",
+      "codes": [
+        "07086",
+        "07332",
+        "07331a",
+        "07330a"
+      ],
+      "faceUp": true,
+      "log": "Lloigor, Aquatic Abomination, Hydra (recto) et Dagon (recto) sont mis de côté, hors jeu."
+    },
+    {
+      "op": "when",
+      "cond": {
+        "q": "mode",
+        "is": "campaign"
+      },
+      "then": [
+        {
+          "op": "branch",
+          "on": "suits",
+          "cases": {
+            "0": [
+              {
+                "op": "log",
+                "text": "Aucun enquêteur ne possède de combinaison de plongée : les Diving Suit ne servent pas."
+              }
+            ],
+            "1": [
+              {
+                "op": "aside",
+                "codes": [
+                  "07338"
+                ],
+                "faceUp": true,
+                "log": "Une combinaison de plongée : glissez-la sur le siège (ou le board) de l'enquêteur qui la possède."
+              }
+            ],
+            "2": [
+              {
+                "op": "aside",
+                "codes": [
+                  "07338",
+                  "07338"
+                ],
+                "faceUp": true,
+                "log": "Deux combinaisons de plongée : glissez chacune sur le siège (ou le board) de l'enquêteur qui la possède."
+              }
+            ],
+            "3": [
+              {
+                "op": "aside",
+                "codes": [
+                  "07338",
+                  "07338",
+                  "07338"
+                ],
+                "faceUp": true,
+                "log": "Trois combinaisons de plongée : glissez chacune sur le siège (ou le board) de l'enquêteur qui la possède."
+              }
+            ],
+            "4": [
+              {
+                "op": "aside",
+                "codes": [
+                  "07338",
+                  "07338",
+                  "07338",
+                  "07338"
+                ],
+                "faceUp": true,
+                "log": "Quatre combinaisons de plongée : glissez chacune sur le siège (ou le board) de l'enquêteur qui la possède."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "op": "story"
+    },
+    {
+      "op": "buildEncounter"
+    }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    {
+      "when": "setup",
+      "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+    },
+    {
+      "when": "setup",
+      "text": "Clés (guide) : les clés contrôlées d'après le journal sont de côté face visible — glissez chacune sur le siège de l'enquêteur choisi ; quatre clés sont de côté face cachée et mélangées (les cartes disent quand en poser une : menu → « Poser ici une clé cachée au hasard »). Les clés retirées de la partie n'existent pas dans cette table."
+    },
+    {
+      "when": "setup",
+      "text": "Combinaisons de plongée (guide) : de côté face visible, une par enquêteur qui en possède une — glissez-les ; les autres sont retirées."
+    },
+    {
+      "when": "setup",
+      "text": "Disposition (guide) : le Gateway au centre, les huit Tidal Tunnels autour ; adjacent = connecté, jamais en diagonale. L'Act 2 Setup (lieux Y'ha-nthlei et sanctuaires selon le nombre d'enquêteurs, Lair of Hydra et Lair of Dagon, Hydra et Dagon endormis) sera posé par l'app quand l'acte 1 avancera ; les piles Y'ha-nthlei et Sanctum restent disponibles par le menu d'un lieu (↓ ← → ⟳)."
+    },
+    {
+      "when": "setup",
+      "text": "Inondation (guide) : le Gateway est partiellement inondé ; les lieux Y'ha-nthlei entrent partiellement inondés et les sanctuaires totalement (appliqué par l'app à l'acte 2) ; menu du lieu → Inondation, panneau Marée."
+    },
+    {
+      "when": "setup",
+      "text": "Bénédictions et malédictions (guide) : clic droit sur le sac → Ajuster (10 au plus de chaque) ; révélé, un tel jeton retourne à la réserve : « ↺ Tout remettre » l'écarte tout seul."
+    },
+    {
+      "when": "agenda:2",
+      "text": "Agenda 2 : Lloigor et Aquatic Abomination ont rejoint la pioche avec la défausse (voir le journal)."
+    },
+    {
+      "when": "agenda:3",
+      "text": "Agenda 3 : le verso de l'agenda 2 réveille les Anciens en jeu (menu de la carte → « Autre face »)."
+    },
+    {
+      "when": "act:2",
+      "text": "Acte 2 : l'Act 2 Setup a été posé (lieux retirés sauf le Gateway, Y'ha-nthlei et sanctuaires selon le nombre d'enquêteurs, Lairs, Hydra et Dagon endormis — voir le journal). À la main : ce qui se trouvait sur les lieux retirés est défaussé ; les cartes de côté de l'acte 2 (v. II, v. III) entrent selon ce que la carte demande."
+    },
+    {
+      "when": "mythos",
+      "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout."
+    },
+    {
+      "when": "investigation",
+      "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour."
+    },
+    {
+      "when": "enemy",
+      "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur."
+    },
+    {
+      "when": "upkeep",
+      "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+    }
+  ]
+}

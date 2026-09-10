@@ -8,6 +8,41 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **A Light in the Fog (TIC VI) livré** — Setup + les deux
+  diagrammes p. 27‑28 (pack `lif` ; sets A Light in the Fog, Creatures
+  of the Deep, Flooded Caverns, Rising Tide, Syzygy, Striking Fear ;
+  pioche 36). Lobby : campagne / autonome, reliques apportées au phare
+  (cases → `aside` des trois relics du pack `def` en `extraCards`),
+  mentions « after sunrise » / « tide has grown stronger » (cases →
+  `addDoom` après `story`), jetons retirés. Réutilisé : clés visibles /
+  cachées, `remove` des Underground River, carte histoire dans la zone
+  `story` (Captured!, comme Finding Agent Harper), pile « Tidal
+  Tunnels » `around` (comme au IV), grottes de côté non révélées (le dos
+  d'Upper Depths s'appelle Lighthouse Basement). Généralisé : les
+  **effets d'étape** deviennent un type `StageEffects` partagé par
+  `agendaEffects` et le nouveau **`actEffects`** (fonction
+  `appliquerEffets`, idempotente : l'acte 1 et l'agenda 1 ont des versos
+  qui convergent, de même l'acte 2 et l'agenda 2 — chacun déclare les
+  mêmes gestes, le second ne fait rien de plus), avec quatre effets de
+  plus : `revealCodes`, `placeBelow` (Basement sous le Stairwell, Lower
+  et Final Depths en colonne), `fillRows` (rangées complétées à quatre
+  par les tunnels : diagramme de l'acte 3 obtenu d'un clic), `removeTrait`
+  (lieux Falcon Point → victoire ou retrait à l'agenda 4) ; `spawnAside`
+  accepte une carte déjà en jeu (Oceiros remonte à Upper Depths). Et
+  **`toggleSide` change de nature** pour une carte histoire dont le dos
+  est un lieu (Captured! → Holding Cells : kind `location`, indices de
+  son verso la première fois ; menu « Autre face (Holding Cells) »
+  ouvert aux cartes `story` à verso-lieu). Reste manuel (choix ou
+  position selon le déclencheur) : Oceiros et la clé bleue au 2,
+  capturés et clés sur Holding Cells au 3, pions et ennemis déplacés au
+  4, inondation des quatre lieux les plus bas — rappels `agenda:2‑4`,
+  `act:2‑3`. Tests : 642 messages (bloc Fog : doom du journal, rangée
+  et Lantern Room, retraits, clés, Captured! bascule en lieu avec indices
+  et retour, agenda 2, acte 2 idempotent, agenda 3 : descente complète
+  et journal muet, acte 3 idempotent, agenda 4 : Oceiros et Falcon
+  Point, autonome) ; captures 92‑93. Piège : un test qui pose une carte
+  sur une rangée à compléter fausse `fillRows` — poser ailleurs.
+
 - 2026-09-10 : **Horror in High Gear (TIC V) livré** — choix pris seul
   avec la consigne d'uniformisation. Setup + diagramme p. 24‑25 (pack
   `hhg` ; sets Horror in High Gear, Fog over Innsmouth, Malfunction,
