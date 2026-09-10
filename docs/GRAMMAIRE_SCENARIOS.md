@@ -415,8 +415,14 @@ rendus pendant la partie.
    pièges du scénario).
 6. `python3 scripts/captures.py` — vérification visuelle.
 7. Régression sur un scénario déjà livré.
-8. Mémo §0 + livraison des fichiers (rappel : remplacer ceux du
-   projet).
+8. Docs dans le même commit : récit + ligne de tableau au mémo §0 ;
+   rotation du plus ancien récit récent vers
+   `docs/ARCHIVE_livraisons.md` (durable versé d'abord) ; grammaire si
+   nouvelle op ou option.
+9. **Un commit unique** (code + données + docs) poussé sur `main` ;
+   SHA communiqué ; déploiement vérifié (check-runs du commit via
+   l'API GitHub, ou `curl` d'un fichier modifié une fois le build
+   passé).
 
 ## 10. Squelette minimal
 
