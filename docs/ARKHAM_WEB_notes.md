@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | UX : tous les jetons des cartes en chips | plus de pions ronds : indices, doom, ressources, générique = chips empilées en bas à droite avec le « − » qui se déploie ; indices d'un lieu = chip inverse (clic = prendre, « + » au survol) ; `elChip` + `clicChip` dans cartes.js, `.pmj` / `.jetons` supprimés |
 | 2026-09-10 | UX : le « − » des jauges hors carte se déploie sans rien déplacer | pastille ancrée à gauche : marge négative + retrait au survol, `.chip-moins` en absolu (`.jauge-inv`, room.css) ; gouttières ≥ 1.1em + écart ; siège et entête du board |
 | 2026-09-10 | BoA III — Queen of Ash | jetons p. 11 selon la difficulté (icônes vérifiées) + cultistes du II en campagne, tunnels mélangés, journal `multi` (doom, `seatCounter` indices, cultistes aux tunnels, Servant retiré / de côté), Elokoss à deux faces, `shuffleAside {code, n}`, `spawnAside ifAside` ; **campagne BoA complète** |
 | 2026-09-10 | BoA II — Smoke and Mirrors | 2 cultistes au sac (icône vérifiée), versions Downtown / Uptown au hasard, suspect secret (`pickRandom zone:"aside"`), `bury fromPool` + `under` (cinq suspects + Servant sous six quartiers), pile « Sous l'acte », journal (université) et porteur d'Armitage au lobby |
@@ -102,6 +103,44 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **Tous les jetons des cartes en chips** — demande de
+  l'utilisateur : « chaque jeton posé quelque part sur un objet (doom
+  sur agenda, indice sur lieu…) doit avoir ce type de bouton qui se
+  déploie ». Jusqu'ici deux rendus coexistaient : les **chips** (jauges
+  des ennemis / soutiens / uses, `.chips` en bas à droite) et les
+  **pions ronds** `.jeton` (indices, doom, ressources, générique ;
+  pastille + `.pmj` ± au survol sur les cartes joueur, rien sur les
+  autres — le menu ou le double-clic « prendre un indice »). Désormais
+  une seule fabrique `elChip` (`cartes.js`) rend tout jeton d'une carte
+  en chip, dans une pile unique `.chips` ancrée en bas à droite : les
+  jetons posés (`ORDRE_JETONS` : indices, doom, ressources, générique,
+  puis dégâts / horreur / uses hors jauge) au-dessus, les jauges
+  toujours visibles en dessous (elles gardent leur place quand un pion
+  arrive). Le jeton **générique** est un disque doré (`.chip-disque`)
+  sans image. `chipJauge` (sièges, board) s'appuie sur la même fabrique.
+  Sémantique : clic = +1, « − » au survol, sauf chips **inverses**
+  (`data-inverse`) — uses (déjà) et **indices d'un lieu**
+  (`data-prendre="clue"` : clic = `takeClue`, l'ancien double-clic ;
+  « + » au survol = en poser un). Gestes : `clicChip(ctx, carte, chip,
+  bouton)` partagé par `interactions.js` et `interactions-joueur.js`,
+  branche `.pmj` et double-clic sur `.jeton-clue` retirés ; le fantôme
+  du glisser cache `.chips`. CSS : règles `.jetons` / `.jeton` /
+  `.pmj` / pastille `.n` supprimées (`room.css`, `joueur.css`) — le
+  doom de l'agenda passe donc du bas gauche au bas droit, les jetons
+  des cartes de rencontre du haut gauche au bas droit (décision §1
+  révisée). Vérification (scripts autonomes, The Gathering + deck
+  Harrigan) : Study à 4 indices (chip inverse avec « + »), clic → 3 et
+  Alice à 1, survol → la pastille s'allonge à gauche, icône et nombre
+  fixes, « + » → 4 ; doom / ressource / générique sur le Study, doom 2
+  sur l'agenda (« − » → 1, clic → 2, « Doom en jeu » à jour), dégâts +
+  horreur en chips sur la carte d'enquêteur du siège, ennemi avec
+  indice + doom + dégâts ; board joueur : Venturer en jeu avec doom,
+  ressources, dégâts 0/2, horreur 0/2 et uses 3 empilés ; survol des
+  jauges des sièges et de l'entête toujours immobile ; zéro erreur
+  console ; `npm run check` zéro erreur ; régression `test_room.mjs`
+  (716 messages) OK ; `captures.py` : blocs Gathering (clic sur la chip
+  d'indices) et Devourer (`.chip-doom`) adaptés. `wrangler dev` mort
+  deux fois entre deux scripts (piège §5), relancé.
 - 2026-09-10 : **Le « − » des jauges hors carte se déploie sans rien
   déplacer** — retour de l'utilisateur : les jauges des cartes sont
   « parfaites » (au survol la pastille s'allonge vers la gauche pour
@@ -180,52 +219,11 @@ versement de son durable (format → grammaire, piège → §5, décision →
   aucun indice, doom 1, agenda 2 silencieux) ; captures 105‑107
   (autonome + Smoke en régression). Catalogue, README.
 
-- 2026-09-10 : **Smoke and Mirrors (BoA II) livré** — Setup p. 6 +
-  diagramme p. 7 (grille 3 × 3 : Northside, Downtown, Easttown /
-  Miskatonic University, Merchant District, Waterfront District / Uptown,
-  Southside, French Hill ; codex p. 8‑9 et résolutions p. 10 **non
-  lus**). Sets `smoke_and_mirrors`, `arcane_lock`, `arkham_ch2`,
-  `bad_weather`, `dead_ends`, `flying_terrors`, `gangs_of_arkham`,
-  `people_of_arkham`, `whippoorwills_ch2` ; pioche 23. Le guide ajoute
-  **2 cultistes au sac « pour le reste de la campagne »** (icône lue à
-  600 dpi : capuche à pointe et visage — c'est bien le cultiste, absent
-  du sac de base) : `chaosAdd` loggé, inconditionnel ; le journal du I
-  n'est pas lu → rappel « ajustez le sac » si le journal l'exige.
-  Lobby : deux questions du journal — université brûlée (12155 In
-  Flames) ou sauvée (12156 Quiet Campus, +1 doom), porteur de Dr.
-  Armitage (12115 en `extraCards` du set du I : de côté + rappel
-  « glissez-le sur son siège », sinon retiré). Réutilisé :
-  `pickRandom` + `slot` pour les deux versions de Downtown et d'Uptown
-  (dos identiques, `nomVisible` ne donne pas le sous-titre : tirage
-  secret, l'autre retirée), `place` révélé + `minis` pour l'université,
-  `branch on:"players"` → `addDoom` (1 par enquêteur) puis `when` →
-  +1, `aside` des 4 Mark of Elokoss, **pile déclarée `menuFor:
-  ["enemy"]` = « Sous l'acte »** (suspects interrogés ; les vaincus en
-  zone de victoire — l'objectif compte les deux). Nouveau : **`pickRandom
-  zone:"aside"`** sans coordonnées (le suspect tiré au hasard est mis
-  de côté face cachée sans être regardé, `rest:"keep"` laisse les cinq
-  autres au pool) et **`bury fromPool` + `under`** (les cinq suspects
-  restants + Servant of Flame « On the Run » pris au pool **avant**
-  `buildEncounter`, mélangés, un sous chacun des six quartiers nommés —
-  codes ou slots — avec la même mécanique que les repaires de COB :
-  z sous le lieu, seul le bas dépasse, menu → Retourner). Rappels :
-  cartes enfouies, codex (lien Guide, p. 8‑9), suspects et pile,
-  mots-clés p. 7 (Alert, Aloof, Elusive), verso de l'agenda 1 (Mark of
-  Elokoss à distribuer, porteurs au journal). Tests : 719 messages
-  (bloc Smoke : sac 18 dont 2 cultistes, une version par paire et
-  l'autre retirée, journal muet sur les versions et les suspects, MU
-  révélée avec pions, une carte enfouie sous chacun des six quartiers
-  et aucune sous les trois autres, codes enfouis = les cinq non tirés
-  + Servant, pioche 23, doom 2, pile vide puis un suspect retourné et
-  placé sous l'acte ; solo Expert université sauvée sans porteur : sac
-  20, doom 2, Armitage retiré, agendas jusqu'au bout) ; captures
-  103‑104 (bloc rejoué en autonome avec Spreading Flames en
-  régression). Catalogue et README.
-
-
-- **Prochaine étape** : retours de l'utilisateur sur le bandeau des
-  sièges (jauges sur deux lignes, geste du « − », case Play compacte,
-  ordre du board joueur) et sur la campagne **Brethren of Ash complète** (disposition
+- **Prochaine étape** : retours de l'utilisateur sur les chips (tous
+  les jetons des cartes, indices d'un lieu en chip inverse, doom de
+  l'agenda passé en bas à droite), sur le bandeau des sièges (jauges sur
+  deux lignes, geste du « − », case Play compacte, ordre du board
+  joueur) et sur la campagne **Brethren of Ash complète** (disposition
   sans diagramme, attache Fire!, versos automatisés, suspects enfouis,
   pile « Sous l'acte », tunnels mélangés, Elokoss à deux faces) ;
   **question ouverte** : les journaux du I et du II modifient-ils le sac
@@ -492,11 +490,21 @@ Détail et modèle dans le cahier des charges §10 ; ici l'essentiel.
 - **Première manche** : la mise en place enchaîne directement sur la
   phase des enquêteurs (le mythe est sauté à la manche 1, règle générale).
 - **Carte de scénario** posée côté « b » (référence des jetons du chaos).
-- **Jetons** posés là où la carte imprime la valeur correspondante :
-  indices en bas à droite des lieux, doom en bas à gauche des agendas,
-  dégâts/horreur en bas à droite de l'enquêteur, sinon en haut à
-  gauche. **Pions** d'enquêteur (44 px, portrait recadré, cercle de la
-  couleur de classe) en rangée à cheval sur le bord haut du lieu.
+- **Jetons** posés sur une carte (indices, doom, ressources, dégâts,
+  horreur, uses, générique) : depuis le 2026-09-10, **tous des chips**
+  (icône + nombre, clic = +1, « − » qui se déploie à gauche au survol
+  sans rien déplacer) empilées **en bas à droite** de toute carte,
+  jauges toujours visibles (dégâts des ennemis, dégâts / horreur des
+  soutiens, uses) en bas de la pile, jetons posés au-dessus — plus de
+  pions ronds ni de placement selon la valeur imprimée (décision
+  précédente du 2026-09-03 : indices en bas à droite des lieux, doom en
+  bas à gauche des agendas, sinon en haut à gauche). Chips **inverses**
+  (clic = −1 / prendre, « + » qui se déploie) pour ce qu'on dépense
+  plus qu'on n'ajoute : uses d'une carte joueur, **indices d'un lieu**
+  (clic = 1 indice passe du lieu à la réserve du joueur qui clique —
+  l'ancien double-clic). **Pions** d'enquêteur (44 px, portrait
+  recadré, cercle de la couleur de classe) en rangée à cheval sur le
+  bord haut du lieu.
 - **Loupe** (survol) dans le coin haut gauche de la zone des lieux.
 - **Statuts du catalogue** : `available` = définition présente dans le
   registre ; les 10 scénarios importés de PCIO sont `wip` tant qu'ils

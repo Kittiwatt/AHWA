@@ -216,10 +216,10 @@ with sync_playwright() as p:
     alice.wait_for_timeout(400)
     assert alice.locator("#pioches .pile").nth(1).locator(".badge").inner_text() == "0", "défausse remélangée"
     assert alice.evaluate("window.getSelection().toString()") == "", "aucune sélection de texte résiduelle"
-    # Double-clic sur les indices du Study : 1 indice passe à Alice.
-    alice.locator("#plateau .carte .jeton-clue").first.dblclick()
+    # Clic sur la chip d'indices du Study (chip inverse) : 1 indice passe à Alice ; « + » au survol en repose un.
+    alice.locator("#plateau .carte .chip-clue").first.click()
     alice.wait_for_timeout(400)
-    assert "3" in alice.locator("#plateau .carte .jeton-clue").first.inner_text(), "3 indices restent sur le Study"
+    assert alice.locator("#plateau .carte .chip-clue .chip-n").first.inner_text() == "3", "3 indices restent sur le Study"
     assert alice.locator("#sieges .siege").nth(0).locator(".jauges-inv .chip-clue .chip-n").inner_text() == "1", "Alice a 1 indice"
     # Bouton d'action (flèche) : 2 → 1 → 0 puis désactivé.
     assert alice.locator("#sieges .siege").nth(0).locator(".bouton-action").count() == 1
@@ -407,7 +407,7 @@ with sync_playwright() as p:
     h3.wait_for_load_state("networkidle"); h3.wait_for_timeout(1500)
     assert h3.locator("#plateau .carte.kind-location").count() == 5, "Main Path + 4 bois"
     assert h3.locator("#plateau .carte.kind-location.retournee").count() == 4, "bois face non révélée"
-    assert "1" in h3.locator("#histoire .carte.kind-agenda .jeton-doom").first.inner_text(), "1 doom de départ"
+    assert h3.locator("#histoire .carte.kind-agenda .chip-doom .chip-n").first.inner_text() == "1", "1 doom de départ"
     assert h3.locator("#chaos .sac-forme").inner_text().strip() == "17", "sac : 16 + jeton Ancien"
     h3.screenshot(path=f"{OUT}/20_devourer_tapis.png")
 
@@ -1580,7 +1580,7 @@ with sync_playwright() as p:
     assert a13.locator("#loupe").is_hidden(), "la loupe attend 500 ms"
     a13.wait_for_timeout(700)
     assert not a13.locator("#loupe").is_hidden(), "la loupe s'ouvre sur une carte de la main"
-    # Pions des cartes joueur : pastille du nombre et ± au survol ; sac et « Phase suivante » sous « Mon lieu ».
+    # Jetons des cartes joueur : des chips comme partout (2026-09-10) ; sac et « Phase suivante » sous « Mon lieu ».
     assert a13.locator(".bloc-cours .sac-joueur #chaos .sac-forme").count() == 1, "sac du chaos à droite de Play, sur Commit"
     # Jetons tirés : ils s'étalent à droite du sac, par-dessus les cartes engagées ; capture de la zone de jeu et de l'entête de la main.
     for _ in range(4): a13.locator(".sac-joueur .sac-forme").click(); a13.wait_for_timeout(250)

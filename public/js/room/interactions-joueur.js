@@ -4,7 +4,7 @@
 // Tout passe par ctx.envoyer : un geste = un message. Seul le siège agit sur son board (ctx.peutAgir()).
 
 import { el } from "./dom.js";
-import { CDN, faceVisible, urlArkhamDB } from "./cartes.js";
+import { CDN, faceVisible, urlArkhamDB, clicChip } from "./cartes.js";
 
 import { libelleUses } from "./uses.js";
 
@@ -134,17 +134,14 @@ export function initInteractionsJoueur(ctx) {
     const dos = e.target.closest(".pioche-joueur .dos-bouton");
     if (dos) { ctx.envoyer({ t: "p:draw", n: 1 }); return; }
     const chip = e.target.closest(".chip");
-    const pmj = e.target.closest(".jeton .pmj");
     const elem = e.target.closest(".carte");
     if (!elem || elem.closest("dialog, .loupe")) return;
     const carte = carteDe(elem);
     if (!carte) return;
-    if (pmj) { e.preventDefault(); e.stopPropagation(); ctx.envoyer({ t: "addToken", id: carte.id, token: pmj.closest(".jeton").dataset.token, delta: pmj.classList.contains("moins") ? -1 : 1 }); return; }
     if (e.target.closest(".ap")) { e.preventDefault(); e.stopPropagation(); jouer(carte); return; }
     if (chip) {
       e.preventDefault();
-      const bouton = e.target.closest(".chip-moins, .chip-plus");
-      ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: bouton ? Number(bouton.dataset.delta) : chip.dataset.inverse ? -1 : 1 });
+      clicChip(ctx, carte, chip, e.target.closest(".chip-moins, .chip-plus"));
       return;
     }
     const deck = ctx.etat.state.seats[n()].deck;

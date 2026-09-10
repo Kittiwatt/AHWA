@@ -73,44 +73,47 @@ export function initiales(nom) {
 
 import { imageUses } from "./uses.js";
 
-const JETONS = [
-  ["clue", "/img/tokens/tok_indices.png", "indice"],
-  ["doom", "/img/tokens/tok_doom.png", "doom"],
-  ["damage", "/img/tokens/tok_degats.png", "dégât"],
-  ["horror", "/img/tokens/tok_horreur.png", "horreur"],
-  ["resource", "/img/tokens/tok_ressources.png", "ressource"],
-  // Uses (munitions, charges, secrets…) : des jetons ressource posés sur la carte (Grimoire p. 24) — image des ressources, cerclée.
-  ["uses", "/img/tokens/tok_ressources.png", "use"],
-];
+/** Jetons posés sur une carte : image, libellé au singulier et au pluriel. `generic` est un disque doré sans image. */
+const JETONS = {
+  clue: ["/img/tokens/tok_indices.png", "indice", "indices"],
+  doom: ["/img/tokens/tok_doom.png", "doom", "doom"],
+  damage: ["/img/tokens/tok_degats.png", "dégât", "dégâts"],
+  horror: ["/img/tokens/tok_horreur.png", "horreur", "horreur"],
+  resource: ["/img/tokens/tok_ressources.png", "ressource", "ressources"],
+  // Uses (munitions, charges, secrets…) : le pion du type de la carte (images fournies), à défaut le pion générique.
+  uses: ["/img/tokens/uses/uses.png", "usage", "usages"],
+  generic: [null, "jeton", "jetons"],
+};
+/** Ordre d'empilement (du haut vers le bas) : les pions posés d'abord, les jauges toujours visibles en dernier — la pile
+ *  est ancrée en bas à droite, les jauges gardent donc leur place quand un pion arrive au-dessus. */
+const ORDRE_JETONS = ["clue", "doom", "resource", "generic", "damage", "horror", "uses"];
 
-export function elJetons(tokens = {}, usesType = null, pastille = false) {
-  const frag = document.createDocumentFragment();
-  for (const [cle, img0, libelle0] of JETONS) {
-    const n = tokens[cle] ?? 0;
-    if (n <= 0) continue;
-    // Uses : le pion du type de la carte (munitions, charges, secrets… ; images fournies), pas un jeton ressource.
-    const [img, libelle] = cle === "uses" && usesType ? imageUses(usesType) : [img0, libelle0];
-    const j = document.createElement("span");
-    j.className = `jeton jeton-${cle}`;
-    j.dataset.token = cle;
-    j.title = cle === "uses" && usesType ? `${n} ${libelle}` : `${n} ${libelle}${n > 1 ? "s" : ""}`;
-    j.style.backgroundImage = `url(${img})`;
-    if (pastille) {
-      // Cartes joueur : le nombre dans une pastille au coin du pion (le visuel reste lisible) et ± au survol.
-      const nb = document.createElement("b"); nb.className = "n"; nb.textContent = String(n);
-      const moins = document.createElement("button"); moins.type = "button"; moins.className = "pmj moins"; moins.title = `−1 ${libelle}`; moins.textContent = "−";
-      const plus = document.createElement("button"); plus.type = "button"; plus.className = "pmj plus"; plus.title = `+1 ${libelle}`; plus.textContent = "+";
-      j.append(moins, nb, plus);
-    } else j.textContent = String(n);
-    frag.append(j);
-  }
-  if ((tokens.generic ?? 0) > 0) {
-    const j = document.createElement("span");
-    j.className = "jeton jeton-generic";
-    j.textContent = String(tokens.generic);
-    frag.append(j);
-  }
-  return frag;
+/** Une chip de jeton : `[−] icône nombre` — clic sur la chip = +1, le « − » se déploie à gauche au survol sans rien
+ *  déplacer (la pile est ancrée à droite). `inverse` : clic = −1 (ou « prendre »), le « + » se déploie à gauche —
+ *  pour ce que l'on dépense plus souvent que l'on n'ajoute (uses d'une carte joueur, indices d'un lieu). */
+function elChip({ token, img, libelle, pluriel, texte, inverse = false, prendre = null, titre = null }) {
+  const chip = document.createElement("span");
+  chip.className = `chip chip-${token}`;
+  chip.dataset.token = token;
+  if (inverse) chip.dataset.inverse = "1";
+  if (prendre) chip.dataset.prendre = prendre;
+  chip.title = titre ?? `${pluriel} : clic ${inverse ? "−1" : "+1"}`;
+  const bouton = document.createElement("button");
+  bouton.type = "button"; bouton.className = inverse ? "chip-plus" : "chip-moins"; bouton.dataset.token = token; bouton.dataset.delta = inverse ? "1" : "-1";
+  bouton.title = `${inverse ? "+1" : "−1"} ${libelle}`; bouton.textContent = inverse ? "+" : "−";
+  const visuel = img ? Object.assign(document.createElement("img"), { src: img, alt: pluriel, draggable: false })
+    : Object.assign(document.createElement("span"), { className: "chip-disque" });
+  const n = document.createElement("b");
+  n.className = "chip-n"; n.textContent = texte;
+  chip.append(bouton, visuel, n);
+  return chip;
+}
+
+/** Clic sur la chip d'une carte (tapis et board joueur) : bouton déployé = son delta ; sinon +1, ou −1 pour une chip
+ *  inverse — et « prendre » pour les indices d'un lieu (1 indice passe du lieu à la réserve du joueur qui clique). */
+export function clicChip(ctx, carte, chip, bouton) {
+  if (!bouton && chip.dataset.prendre === "clue") { ctx.envoyer({ t: "takeClue", id: carte.id }); return; }
+  ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: bouton ? Number(bouton.dataset.delta) : chip.dataset.inverse ? -1 : 1 });
 }
 
 /** Crée (ou met à jour) l'élément DOM d'une carte. */
@@ -120,7 +123,7 @@ export function majCarte(el, carte, ctx) {
   if (!el) {
     el = document.createElement("div");
     el.dataset.id = carte.id;
-    el.append(document.createElement("img"), Object.assign(document.createElement("div"), { className: "jetons" }));
+    el.append(document.createElement("img"));
     el.firstChild.draggable = false;
   }
   const face0 = faceVisible(carte, def);
@@ -137,39 +140,45 @@ export function majCarte(el, carte, ctx) {
     }
     etiquette.textContent = def.name;
   } else el.querySelector(".nom-custom")?.remove();
-  // Ennemis : compteurs de dégâts et d'horreur toujours visibles (clic = +1, − au survol, menu pour le reste).
+  // Jetons et jauges de la carte : tous des chips empilées en bas à droite (uniformisé le 2026-09-10 à la demande de
+  // l'utilisateur — plus de pions ronds). Jauges toujours visibles en jeu : dégâts des ennemis (pas d'horreur), dégâts /
+  // horreur des soutiens qui en ont (vie → dégâts, santé mentale → horreur ; une carte liée montrant son verso ennemi
+  // compte comme ennemi), uses des cartes joueur (chip inverse : clic = −1, « + » au survol — retour du 2026-09-09).
+  // Les autres jetons (indices, doom, ressources, générique…) n'apparaissent que posés.
   let chips = el.querySelector(".chips");
   const enJeu = "zone" in carte.loc;
   const face = faceVisible(carte, def);
-  // Ennemis : dégâts seulement (pas de santé mentale) ; soutiens du scénario : selon leurs jauges
-  // (vie → dégâts, santé mentale → horreur). Une carte liée montrant son verso ennemi compte comme ennemi.
   const visible = carte.faceUp || face.liee;
   const jauges = !visible || !enJeu ? []
     : face.kind === "enemy" ? ["damage"]
     : face.kind === "asset" ? [face.health !== undefined ? "damage" : null, face.sanity !== undefined ? "horror" : null].filter(Boolean)
     : [];
-  // Cartes joueur : la jauge d'utilisations (charges, munitions…) est une chip comme les dégâts et l'horreur,
-  // mais inversée : clic = −1 (on dépense), « + » à gauche pour en ajouter (retour de test du 2026-09-09).
   const usesType = def?.player && def?.uses && enJeu && visible ? def.uses.type : null;
   if (usesType) jauges.push("uses");
-  if (jauges.length) {
-    const attendu = jauges.join(" ") + (usesType ? `:${usesType}` : "");
+  const poses = ORDRE_JETONS.filter((t) => !jauges.includes(t) && (carte.tokens[t] ?? 0) > 0);
+  const liste = [...poses, ...jauges];
+  // Indices d'un lieu : ce qu'on fait le plus souvent, c'est en prendre un (clic = 1 indice passe du lieu à sa réserve,
+  // l'ancien double-clic) ; le « + » qui se déploie en ajoute un.
+  const inverse = (t) => t === "uses" || (t === "clue" && carte.kind === "location");
+  if (liste.length) {
+    const attendu = liste.map((t) => t + (inverse(t) ? "!" : "")).join(" ") + (usesType ? `:${usesType}` : "") + (def?.uses?.type ? `/${def.uses.type}` : "");
     if (!chips || chips.dataset.jauges !== attendu) {
       chips?.remove();
       chips = document.createElement("div");
       chips.className = "chips";
       chips.dataset.jauges = attendu;
-      const lib = { damage: ["/img/tokens/tok_degats.png", "dégâts"], horror: ["/img/tokens/tok_horreur.png", "horreur"], uses: usesType ? imageUses(usesType) : ["/img/tokens/uses/uses.png", "usages"] };
-      chips.innerHTML = jauges.map((t) => t === "uses"
-        ? `<span class="chip chip-uses" data-token="uses" data-inverse="1" title="${lib.uses[1]} : clic −1"><button type="button" class="chip-plus" data-token="uses" data-delta="1" title="+1 ${lib.uses[1]}">+</button>` +
-          `<img src="${lib.uses[0]}" alt="${lib.uses[1]}" draggable="false"><b class="chip-n"></b></span>`
-        : `<span class="chip chip-${t}" data-token="${t}" title="${lib[t][1]} : clic +1"><button type="button" class="chip-moins" data-token="${t}" data-delta="-1" title="−1 ${lib[t][1]}">−</button>` +
-          `<img src="${lib[t][0]}" alt="${lib[t][1]}" draggable="false"><b class="chip-n"></b></span>`).join("");
+      for (const t of liste) {
+        const [img0, libelle, pluriel] = JETONS[t];
+        const [img, lib] = t === "uses" && (usesType ?? def?.uses?.type) ? imageUses(usesType ?? def.uses.type) : [img0, null];
+        const prendre = t === "clue" && carte.kind === "location" ? "clue" : null;
+        chips.append(elChip({ token: t, img, libelle: lib ?? libelle, pluriel: lib ?? pluriel, texte: "", inverse: inverse(t), prendre,
+          titre: prendre ? "Indices du lieu : clic = en prendre un (dans votre réserve), « + » au survol = en poser un" : null }));
+      }
       el.append(chips);
     }
-    for (const t of jauges) {
+    for (const t of liste) {
       const n = carte.tokens[t] ?? 0;
-      const max = t === "damage" ? face.health : t === "horror" ? face.sanity : 0;
+      const max = jauges.includes(t) ? (t === "damage" ? face.health : t === "horror" ? face.sanity : 0) : 0;
       chips.querySelector(`.chip-${t} .chip-n`).textContent = max ? `${n}/${max}${face.healthPerInvestigator && t === "damage" ? "*" : ""}` : String(n);
     }
   } else if (chips) chips.remove();
@@ -204,10 +213,6 @@ export function majCarte(el, carte, ctx) {
     if (jetonInondation.getAttribute("src") !== inondation[0]) jetonInondation.src = inondation[0];
     jetonInondation.alt = inondation[1]; jetonInondation.title = `Lieu ${inondation[1]}`;
   } else jetonInondation?.remove();
-  const jetons = el.querySelector(".jetons");
-  const tokens = jauges.length ? { ...carte.tokens, ...Object.fromEntries(jauges.map((t) => [t, 0])) } : carte.tokens;
-  // Les utilisations d'une carte joueur en jeu sont dans sa chip : pas de pion « uses » en plus.
-  jetons.replaceChildren(elJetons(usesType ? { ...tokens, uses: 0 } : tokens, def?.uses?.type ?? null, Boolean(def?.player)));
   return el;
 }
 
@@ -217,18 +222,10 @@ export const MINI = 44;
  *  (clic sur la chip = +1, bouton « − » au survol), pour que tout se manipule pareil (retour de test du 2026-09-09).
  *  `texte` est ce qui s'affiche (« 2/9 » pour les dégâts, « 5 » pour les ressources). */
 export function chipJauge({ token, libelle, img, texte, peut, onDelta, unite = libelle.toLowerCase() }) {
-  const chip = document.createElement("span");
-  chip.className = `chip chip-${token} jauge-inv${peut ? "" : " inactive"}`;
-  chip.dataset.token = token;
-  chip.title = peut ? `${libelle} : clic +1` : libelle;
-  const moins = document.createElement("button");
-  moins.type = "button"; moins.className = "chip-moins"; moins.dataset.token = token; moins.dataset.delta = "-1";
-  moins.title = `−1 ${unite}`; moins.textContent = "−"; moins.disabled = !peut;
-  const image = document.createElement("img");
-  image.src = img; image.alt = libelle; image.draggable = false;
-  const n = document.createElement("b");
-  n.className = "chip-n"; n.textContent = texte;
-  chip.append(moins, image, n);
+  const chip = elChip({ token, img, libelle: unite, pluriel: libelle, texte, titre: peut ? `${libelle} : clic +1` : libelle });
+  chip.classList.add("jauge-inv");
+  if (!peut) chip.classList.add("inactive");
+  chip.querySelector(".chip-moins").disabled = !peut;
   if (peut) chip.addEventListener("click", (e) => {
     e.preventDefault(); e.stopPropagation();
     onDelta(e.target.closest(".chip-moins") ? -1 : 1);

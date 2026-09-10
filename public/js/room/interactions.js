@@ -1,7 +1,7 @@
 // Interactions sur les cartes : glisser-déposer (message au lâcher), clic, double-clic, menu contextuel.
 
 import { el } from "./dom.js";
-import { faceVisible, cleDeCouleur, INONDATION, urlArkhamDB, JETONS_CHAOS } from "./cartes.js";
+import { faceVisible, cleDeCouleur, INONDATION, urlArkhamDB, JETONS_CHAOS, clicChip } from "./cartes.js";
 import { vue, setAsideActif, cheminProvisoire, versTapis, centreLieu, journalLocal } from "./tapis.js";
 import { nomSiege } from "./lobby.js";
 import { libelleUses } from "./uses.js";
@@ -144,7 +144,7 @@ export function initInteractions(ctx) {
   document.getElementById("aside").addEventListener("pointerleave", () => { if (!drag) setTimeout(() => { if (!drag) setAsideActif(false); }, 300); });
 
   // ---- Clic : lieu face cachée = révélation ; carte révélée sur la pioche = la prendre ;
-  //      chips d'ennemi = ±1 ; double-clic : épuiser / redresser ; double-clic sur les indices = en prendre un ----
+  //      chips (tous les jetons) = ±1, indices d'un lieu = en prendre un ; double-clic : épuiser / redresser ----
   // Barrières (In Too Deep) : clic sur le jeton = −1 (barrière franchie), « + » = +1.
   document.addEventListener("click", (e) => {
     const bar = e.target.closest(".barriere");
@@ -164,20 +164,13 @@ export function initInteractions(ctx) {
       return;
     }
     const chip = e.target.closest(".chip");
-    const pmj = e.target.closest(".jeton .pmj");
     const elem = e.target.closest(".carte");
     if (!elem || elem.closest("dialog, .loupe")) return;
     const carte = carteDe(elem);
     if (!carte) return;
-    if (pmj) {
-      e.preventDefault(); e.stopPropagation();
-      ctx.envoyer({ t: "addToken", id: carte.id, token: pmj.closest(".jeton").dataset.token, delta: pmj.classList.contains("moins") ? -1 : 1 });
-      return;
-    }
     if (chip) {
       e.preventDefault();
-      const bouton = e.target.closest(".chip-moins, .chip-plus");
-      ctx.envoyer({ t: "addToken", id: carte.id, token: chip.dataset.token, delta: bouton ? Number(bouton.dataset.delta) : chip.dataset.inverse ? -1 : 1 });
+      clicChip(ctx, carte, chip, e.target.closest(".chip-moins, .chip-plus"));
       return;
     }
     if (elem.closest(".dos-pile")) return; // carte révélée sur la pioche ou dessus de la défausse : glisser seulement
@@ -194,7 +187,6 @@ export function initInteractions(ctx) {
     if (!carte) return;
     e.preventDefault();
     if (e.target.closest(".chip")) return;
-    if (e.target.closest(".jeton-clue") && carte.kind === "location") { ctx.envoyer({ t: "takeClue", id: carte.id }); return; }
     if (elem.closest(".dos-pile")) return;
     if (carte.kind === "location" && carte.loc.zone === "board") {
       // Double-clic sur un lieu du tapis : le retourner (lieu à deux faces de jeu : basculer sa face). Si le premier clic

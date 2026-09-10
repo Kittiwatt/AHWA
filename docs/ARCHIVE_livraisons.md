@@ -8,6 +8,47 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Smoke and Mirrors (BoA II) livré** — Setup p. 6 +
+  diagramme p. 7 (grille 3 × 3 : Northside, Downtown, Easttown /
+  Miskatonic University, Merchant District, Waterfront District / Uptown,
+  Southside, French Hill ; codex p. 8‑9 et résolutions p. 10 **non
+  lus**). Sets `smoke_and_mirrors`, `arcane_lock`, `arkham_ch2`,
+  `bad_weather`, `dead_ends`, `flying_terrors`, `gangs_of_arkham`,
+  `people_of_arkham`, `whippoorwills_ch2` ; pioche 23. Le guide ajoute
+  **2 cultistes au sac « pour le reste de la campagne »** (icône lue à
+  600 dpi : capuche à pointe et visage — c'est bien le cultiste, absent
+  du sac de base) : `chaosAdd` loggé, inconditionnel ; le journal du I
+  n'est pas lu → rappel « ajustez le sac » si le journal l'exige.
+  Lobby : deux questions du journal — université brûlée (12155 In
+  Flames) ou sauvée (12156 Quiet Campus, +1 doom), porteur de Dr.
+  Armitage (12115 en `extraCards` du set du I : de côté + rappel
+  « glissez-le sur son siège », sinon retiré). Réutilisé :
+  `pickRandom` + `slot` pour les deux versions de Downtown et d'Uptown
+  (dos identiques, `nomVisible` ne donne pas le sous-titre : tirage
+  secret, l'autre retirée), `place` révélé + `minis` pour l'université,
+  `branch on:"players"` → `addDoom` (1 par enquêteur) puis `when` →
+  +1, `aside` des 4 Mark of Elokoss, **pile déclarée `menuFor:
+  ["enemy"]` = « Sous l'acte »** (suspects interrogés ; les vaincus en
+  zone de victoire — l'objectif compte les deux). Nouveau : **`pickRandom
+  zone:"aside"`** sans coordonnées (le suspect tiré au hasard est mis
+  de côté face cachée sans être regardé, `rest:"keep"` laisse les cinq
+  autres au pool) et **`bury fromPool` + `under`** (les cinq suspects
+  restants + Servant of Flame « On the Run » pris au pool **avant**
+  `buildEncounter`, mélangés, un sous chacun des six quartiers nommés —
+  codes ou slots — avec la même mécanique que les repaires de COB :
+  z sous le lieu, seul le bas dépasse, menu → Retourner). Rappels :
+  cartes enfouies, codex (lien Guide, p. 8‑9), suspects et pile,
+  mots-clés p. 7 (Alert, Aloof, Elusive), verso de l'agenda 1 (Mark of
+  Elokoss à distribuer, porteurs au journal). Tests : 719 messages
+  (bloc Smoke : sac 18 dont 2 cultistes, une version par paire et
+  l'autre retirée, journal muet sur les versions et les suspects, MU
+  révélée avec pions, une carte enfouie sous chacun des six quartiers
+  et aucune sous les trois autres, codes enfouis = les cinq non tirés
+  + Servant, pioche 23, doom 2, pile vide puis un suspect retourné et
+  placé sous l'acte ; solo Expert université sauvée sans porteur : sac
+  20, doom 2, Armitage retiré, agendas jusqu'au bout) ; captures
+  103‑104 (bloc rejoué en autonome avec Spreading Flames en
+  régression). Catalogue et README.
 - 2026-09-10 : **UX : jauges des sièges sur deux lignes** — demande de
   l'utilisateur (capture à l'appui) : sur la page de table, la colonne
   de jauges à côté de la carte d'enquêteur (quatre chips empilées +

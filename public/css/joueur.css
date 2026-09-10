@@ -144,7 +144,6 @@
 .eventail .carte.choisie::after { content: "✓"; position: absolute; right: 4px; top: 4px; width: 1.3rem; height: 1.3rem; display: grid; place-items: center; font-weight: 700; color: var(--nuit); background: var(--dorure-2); border-radius: 50%; }
 .carte.revelee::before { content: "montrée"; position: absolute; left: 0; right: 0; bottom: 0; padding: 1px 0; text-align: center; font-size: 0.65rem; color: var(--nuit); background: var(--dorure-2); border-radius: 0 0 4px 4px; z-index: 2; }
 .carte-peek .actions-peek { display: flex; flex-wrap: wrap; gap: 0.2rem 0.5rem; justify-content: flex-end; }
-.jeton-uses { box-shadow: 0 0 0 2px var(--dorure-2); }
 .pile.depot-ok .dos-pile { outline: 2px solid var(--dorure-2); }
 .zone-jeu.depot-ok, .eventail.depot-ok { background: rgba(200, 162, 90, 0.12); }
 
@@ -178,27 +177,12 @@
 /* Jauges et jetons plus lisibles sur le board */
 .board-joueur .carte .chip { font-size: 0.9rem; gap: 3px; padding: 2px 6px 2px 2px; }
 .board-joueur .carte .chip img { width: 24px; height: 24px; }
-.board-joueur .carte .jeton { width: 28px; height: 28px; font-size: 0.9rem; }
-/* Pions des cartes joueur : grands, le visuel dégagé, le nombre dans une pastille au coin, ± au survol */
-.carte.joueur .jeton { position: relative; width: 34px; height: 34px; text-shadow: none; overflow: visible; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.75); }
-.board-joueur .carte.joueur .jeton { width: 46px; height: 46px; }
-.carte.joueur .jeton .n { position: absolute; right: -5px; bottom: -5px; min-width: 18px; height: 18px; padding: 0 3px; display: grid; place-items: center; border-radius: 999px; background: var(--papier); color: var(--nuit); font-size: 0.75rem; font-weight: 700; line-height: 1; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
-.board-joueur .carte.joueur .jeton .n { min-width: 22px; height: 22px; font-size: 0.9rem; }
-.carte.joueur .jeton .pmj { display: none; position: absolute; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; padding: 0; border: 0; border-radius: 50%; background: var(--dorure); color: var(--nuit); font: 700 0.95rem/1 var(--sans, sans-serif); cursor: pointer; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
-.carte.joueur .jeton .pmj.moins { left: -18px; }
-.carte.joueur .jeton .pmj.plus { right: -18px; }
-.carte.joueur .jeton:hover .pmj, .carte.joueur .jeton:focus-within .pmj { display: grid; place-items: center; }
-.carte.joueur .jeton .pmj:hover { filter: brightness(1.15); }
-.carte.joueur .jetons { gap: 6px; }
-.board-joueur .carte.joueur .jetons { gap: 8px; }
 /* Loupe à droite quand sa place habituelle recouvrirait la carte survolée */
 .loupe.a-droite { left: auto; right: 0.75rem; }
 .board-joueur .tires .jeton-chaos-img { width: 2.6rem !important; height: 2.6rem !important; }
 
 /* Cartes joueur : la pile de pions (Uses, etc.) en bas sur le texte de la carte, un peu à droite du milieu — elle ne
    cache plus le coût en haut à gauche (retour de test du 2026-09-09). */
-.carte.joueur .jetons { left: 56%; top: auto; bottom: 15%; right: auto; transform: translateX(-50%); justify-content: center; max-width: 84%; }
-.carte.joueur .jetons .jeton { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
 
 /* Auto-pay : bouton « AP » au survol d'une carte de la main */
 .eventail .carte .ap { position: absolute; right: 4px; top: 4px; z-index: 3; display: none; width: 2.1rem; height: 2.1rem; padding: 0; border: 2px solid var(--nuit); border-radius: 50%; background: var(--dorure); color: var(--nuit); font: 700 0.85rem/1 var(--sans, sans-serif); cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); }
