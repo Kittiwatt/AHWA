@@ -2,7 +2,10 @@
 
 Mémo de suivi du chantier. **Il fait foi** : conventions, décisions,
 pièges, avancement. À lire en début de chaque session, à mettre à jour
-à chaque livraison.
+à chaque livraison. Le format des `*.src.json` est décrit dans
+`docs/GRAMMAIRE_SCENARIOS.md`, **qui fait foi pour le format** : à lire
+avant d'écrire ou de modifier un scénario, à mettre à jour à chaque
+nouvelle op ou option.
 
 Objectif : un site public « bibliothèque » listant tous les scénarios
 d'Horreur à Arkham JCE ; un clic ouvre une page « room » où n'importe qui
@@ -17,6 +20,24 @@ dont il reprend le savoir métier mais AUCUNE contrainte de plateforme.
 
 ## 0. État d'avancement
 
+- 2026-09-10 : **`docs/GRAMMAIRE_SCENARIOS.md` livré** — référence
+  complète du format `*.src.json`, établie depuis le code (scenario.ts,
+  setup.ts, actions.ts, build.mjs) : pipeline et contrôles du build,
+  champs racine, trois types de questions, `branch`/`when`, les 31 ops
+  de setup (sémantique exacte, slots, fin de setup implicite),
+  comportements runtime déclarés (piles, flood, agendaEffects,
+  seal/cardSeal, leads, bury, barriers…), grille du plateau (colonnes
+  365 + k·186, lignes 173 + k·238, centre 737 × 411), jetons, checklist
+  « nouvelle room » et squelette. **La grammaire fait foi pour le
+  format** : toute nouvelle op ou option s'y documente à sa livraison —
+  l'entrée §0 raconte le scénario, la grammaire décrit le format ; on
+  la lit à la place d'une fouille du code et de l'historique. Constats
+  de la passe : `startLocation` et `layout` ne sont consommés nulle
+  part (informatifs, vérifiés par le build) ; `hook` lève une erreur en
+  v1 (jamais l'utiliser) ; `branch` accepte aussi `on: "difficulty"` et
+  un cas `"default"` ; rappels `round:N` disponibles ; port de dev par
+  défaut 8787 (le « 8788 » du piège §5 venait d'un port décalé par une
+  seconde instance).
 - 2026-09-09 : **In Too Deep (TIC III) livré** (tous les choix A).
   Guide p. 15‑16 : 24 barrières relevées sur l'image du diagramme
   (arêtes : 4, 1, 3, 1 au nord ; 1 entre Railroad Station et Bookshop ;
