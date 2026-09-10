@@ -551,6 +551,12 @@ que ce soit), `discardAt` (attaches d'un lieu → défausse), `addClues
 d'abord ; `removeLocations {codes}`. Une attache = carte posée sur le
 lieu.
 
+**Smoke and Mirrors (2026-09-10).** `pickRandom zone:"aside"` (tirage
+mis de côté sans être regardé, en fin de rangée) ; `bury fromPool`
+(copies prises au pool avant `buildEncounter`) et `bury under` (lieux
+cibles par code ou slot) ; pile déclarée `menuFor` réutilisée pour
+« Sous l'acte ».
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets

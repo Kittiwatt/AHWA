@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-10 (Spreading Flames compris). Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-10 (Smoke and Mirrors compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -186,7 +186,12 @@ donc pas ce qui est déjà posé.
   exemplaires peut sortir plusieurs fois). Avec `zone` + position(s) :
   les tirées sont posées (`positions[i % len]`, ou `x + i·158`) ; avec
   `log`, une seule ligne de journal pour tout le tirage, sinon une par
-  carte. Sans zone : tirage nominal seulement (slot/journal). **Sort
+  carte. `zone:"aside"` sans coordonnées : les tirées vont en fin de
+  rangée de côté — avec `faceUp:false` et un `log` qui ne nomme rien,
+  c'est « choose one at random and set it aside, without looking at
+  it » (suspect secret de Smoke and Mirrors ; `rest:"keep"` laisse les
+  autres au pool pour un `bury fromPool`). Sans zone : tirage nominal
+  seulement (slot/journal). **Sort
   des restes** (codes non tirés + copies restantes des codes tirés) :
   `rest` absent = retirés ; `"aside"` = de côté face cachée ; `"pile"` =
   dans la pile `restPile` (créée au besoin) ; `"keep"` = laissés au
@@ -243,13 +248,17 @@ donc pas ce qui est déjà posé.
   mélange donc une pile déjà remplie (les Unfathomable Depths versées
   une à une par des `pickRandom rest:"pile"` : sans ce mélange, l'ordre
   des paires serait connu).
-- `{"op":"bury","with"?:[codes],"fromDeckTop"?,"trait","dy"?,"log"?}` —
-  **après `buildEncounter`** : les instances de `with` mises de côté
-  plus tôt + les `fromDeckTop` premières cartes de la pioche (défausse
-  remélangée au besoin), mélangées puis réparties face cachée aussi
-  également que possible **sous** les lieux en jeu portant `trait`
-  (elles glissent dessous, z inférieur, seul le bas dépasse). Journal
-  muet sur qui va où.
+- `{"op":"bury","with"?:[codes],"fromPool"?:[codes],"fromDeckTop"?,"trait"?,"under"?:[refs],"dy"?,"log"?}` —
+  les instances de `with` mises de côté plus tôt + **toutes les copies
+  encore au pool** des codes `fromPool` (donc **avant**
+  `buildEncounter` si ce sont des ennemis : suspects et Servant de
+  Smoke and Mirrors) + les `fromDeckTop` premières cartes de la pioche
+  (défausse remélangée au besoin — donc **après** `buildEncounter`,
+  COB), mélangées puis réparties face cachée aussi également que
+  possible **sous** les lieux en jeu portant `trait`, ou sous les lieux
+  `under` (codes ou `slot:` ; six cartes pour six lieux = une chacun).
+  Elles glissent dessous, z inférieur, seul le bas dépasse. Journal
+  muet sur qui va où. Le build exige `trait` ou `under`.
 
 ### Jetons et sac du chaos
 

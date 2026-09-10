@@ -194,11 +194,13 @@ async function buildScenario(fichierSrc) {
   // Contrôles de cohérence entre la source et ArkhamDB.
   const codes = new Set(cards.map((c) => c.code));
   const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), s.at, ...(s.atRandom ?? []), ...(s.pool ?? []),
+    ...(s.op === "bury" ? [...(s.with ?? []), ...(s.fromPool ?? []), ...(s.under ?? [])] : []),
     ...(s.cases ? Object.values(s.cases).flatMap(citesDe) : []), ...citesDe(s.then ?? []), ...citesDe(s.else ?? [])]).filter((c) => c && !String(c).startsWith("slot:"));
   for (const s of src.setup.flatMap(function aplat(x) { return [x, ...(x.cases ? Object.values(x.cases).flat().flatMap(aplat) : []), ...(x.then ?? []).flatMap(aplat), ...(x.else ?? []).flatMap(aplat)]; })) {
     if (s.op === "pickRandomSet") for (const set of s.from) if (!src.encounterSets.includes(set)) throw new Error(`${src.id} : set ${set} absent de encounterSets`);
     if (s.op === "aside" || s.op === "toPile") for (const set of [...(s.sets ?? []), ...(s.set ? [s.set] : [])]) if (!src.encounterSets.includes(set)) throw new Error(`${src.id} : set ${set} absent de encounterSets`);
     if (s.op === "dealToSeats" && (!Array.isArray(s.rows) || !s.rows.length)) throw new Error(`${src.id} : dealToSeats sans rows`);
+    if (s.op === "bury" && !s.trait && !(Array.isArray(s.under) && s.under.length)) throw new Error(`${src.id} : bury sans trait ni under`);
     if (s.op === "layeredPile") {
       const total = s.layers.reduce((n, l) => n + (l.n ?? 0) + (l.with?.length ?? 0), 0);
       if (total !== s.pool.length) throw new Error(`${src.id} : layeredPile ${s.pile} — couches (${total}) ≠ pool (${s.pool.length})`);

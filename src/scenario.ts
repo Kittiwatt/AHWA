@@ -81,10 +81,11 @@ export type SetupStep =
   | { op: "randomKey"; at: string; log?: string }   // une clé de côté face cachée, tirée au hasard, posée sur une carte en jeu sans être regardée (journal muet sur sa couleur)
   | { op: "addClues"; code: string; n: number; log?: string }                  // indices fixes sur un lieu en jeu (révélé ou non)
   | { op: "removeClues"; from: string[]; n?: number; nFrom?: string; log?: string }   // retire n indices (ou la réponse numérique nFrom) aussi également que possible
-  | { op: "bury"; fromDeckTop?: number; with?: string[]; trait: string; dy?: number; log?: string }
-    // cartes enfouies face cachée sous les lieux du trait donné (« Lair ») : les `with` (codes, prises où
-    // qu'elles soient — de côté après un aside) + les `fromDeckTop` premières cartes de la pioche de
-    // rencontre, mélangées puis réparties aussi également que possible ; journal muet sur qui va où
+  | { op: "bury"; fromDeckTop?: number; with?: string[]; fromPool?: string[]; trait?: string; under?: string[]; dy?: number; log?: string }
+    // cartes enfouies face cachée sous les lieux du trait donné (« Lair ») ou sous les lieux `under` (codes ou slots) :
+    // les `with` (codes, prises de côté après un aside) + les copies encore au pool des `fromPool` (avant buildEncounter :
+    // suspects de Smoke and Mirrors) + les `fromDeckTop` premières cartes de la pioche de rencontre, mélangées puis
+    // réparties aussi également que possible ; journal muet sur qui va où
   | { op: "log"; text: string }
   | { op: "hook"; name: string; log?: string };
 

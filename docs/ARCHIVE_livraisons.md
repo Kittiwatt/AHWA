@@ -8,6 +8,41 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Bibliothèque : bandeaux de campagne et liens vers les
+  guides** — demande de l'utilisateur : renforcer l'esthétique de la page
+  en découpant des images des guides FFG. Chaque en‑tête de campagne
+  devient un bandeau (`.campagne header.bandeau`, `site.css`) : image en
+  `cover` derrière le titre, dégradé nuit en bas pour la lisibilité,
+  ombre portée sur le titre, filet doré conservé ; déborde de 1,5 rem de
+  chaque côté de la colonne, bords gauche / droit / haut fondus dans la
+  nuit (masque CSS) comme les illustrations à bords déchirés des guides ;
+  hauteur 8,5 rem partout ; bord à bord sur mobile. Données :
+  `library.json` → `banner {src, position}` par campagne (`position` =
+  `background-position`, cadre la zone visible sans redécouper) et
+  `guide` désormais renseigné pour toutes les campagnes (URL FFG de
+  `docs/AHLCG_livrets_regles_FFG.md`) ; le libellé de boîte devient le
+  lien vers le guide (pointillé, ↗, doré au survol) ; « Scénarios
+  indépendants » sans guide. Images : `scripts/build_bandeaux.py`
+  (pymupdf + Pillow) télécharge le livret dans `data/cache/guides/`,
+  extrait l'image de la page (la plus grande, ou par xref), découpe une
+  bande (table `BANDEAUX` : page, xref, crop) et écrit
+  `public/img/campagnes/<id>.webp` (14 fichiers, 636 Ko). Découpes prises
+  dans l'art de la boîte (panneau peint de la couverture du guide) —
+  validé par l'utilisateur : lisible, sans spoiler pour les campagnes
+  encore « prévues ». Exceptions : NotZ, dont le guide n'a **aucune
+  illustration** (le premier essai, bande de ciel étoilé de la
+  couverture, « ressemblait à un dos de carte » — refusé) → couverture du
+  Learn to Play de la boîte révisée (ahc60 : Roland Banks, lune,
+  nightgaunts ; choisi par l'utilisateur entre deux cadrages) ; boa et
+  cob, couvertures « Chapitre 2 » dans un losange → bande à la largeur
+  maximale du losange (cob : bras et griffes, pas le visage) ;
+  standalone → vue d'Arkham la nuit, illustration p. 11 du même Learn to
+  Play. TDE : seul le guide A est lié (le B n'a pas de champ).
+  Vérification : servi en statique puis par `wrangler dev`, captures
+  desktop / mobile / planche des quatorze bandeaux, zéro erreur console ;
+  régression `test_room.mjs` (669 messages) OK ; index des cartes
+  rafraîchi au passage par le build (arkham.build).
+
 - 2026-09-10 : **Into the Maelstrom (TIC VIII) livré — campagne The
   Innsmouth Conspiracy complète** (huit tables). Setup + diagrammes
   p. 36‑38 (pack `itm` ; sets Into the Maelstrom, Agents of Hydra,

@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | BoA II — Smoke and Mirrors | 2 cultistes au sac (icône vérifiée), versions Downtown / Uptown au hasard, suspect secret (`pickRandom zone:"aside"`), `bury fromPool` + `under` (cinq suspects + Servant sous six quartiers), pile « Sous l'acte », journal (université) et porteur d'Armitage au lobby |
 | 2026-09-10 | UX : jauges des sièges sur deux lignes, case Play compacte | dégâts + horreur / ressources + indices, actions dessous ; case Play en `outline` + badge « Main N » ; même ordre de jauges sur le board joueur ; siège = hauteur de la carte, bandeau du bas 245 → 190 px (deck : 216 → 182), tapis central +55 px |
 | 2026-09-10 | BoA I — Spreading Flames | pack `core_2026`, sacs 2026 (tablette, pas de cultiste), un seul lieu + tout de côté, disposition sans diagramme ; effets `discardEnemies` / `discardAside` / `setAside` / `discardAt` / `addClues`, `spawnAside` en liste, `removeLocations codes` ; **première table Brethren of Ash** |
 | 2026-09-10 | Bibliothèque : bandeaux de campagne + liens vers les guides | `banner {src, position}` dans library.json, `scripts/build_bandeaux.py` (art de la boîte, découpe par campagne, WebP), libellé de boîte = lien `guide` (renseigné pour toutes les campagnes) |
@@ -98,6 +99,49 @@ versement de son durable (format → grammaire, piège → §5, décision →
 | 2026-09-03 | Étape 1 — première table (The Gathering) | pipeline de build, lobby, tapis, tests + captures |
 
 ### Derniers récits
+
+- 2026-09-10 : **Smoke and Mirrors (BoA II) livré** — Setup p. 6 +
+  diagramme p. 7 (grille 3 × 3 : Northside, Downtown, Easttown /
+  Miskatonic University, Merchant District, Waterfront District / Uptown,
+  Southside, French Hill ; codex p. 8‑9 et résolutions p. 10 **non
+  lus**). Sets `smoke_and_mirrors`, `arcane_lock`, `arkham_ch2`,
+  `bad_weather`, `dead_ends`, `flying_terrors`, `gangs_of_arkham`,
+  `people_of_arkham`, `whippoorwills_ch2` ; pioche 23. Le guide ajoute
+  **2 cultistes au sac « pour le reste de la campagne »** (icône lue à
+  600 dpi : capuche à pointe et visage — c'est bien le cultiste, absent
+  du sac de base) : `chaosAdd` loggé, inconditionnel ; le journal du I
+  n'est pas lu → rappel « ajustez le sac » si le journal l'exige.
+  Lobby : deux questions du journal — université brûlée (12155 In
+  Flames) ou sauvée (12156 Quiet Campus, +1 doom), porteur de Dr.
+  Armitage (12115 en `extraCards` du set du I : de côté + rappel
+  « glissez-le sur son siège », sinon retiré). Réutilisé :
+  `pickRandom` + `slot` pour les deux versions de Downtown et d'Uptown
+  (dos identiques, `nomVisible` ne donne pas le sous-titre : tirage
+  secret, l'autre retirée), `place` révélé + `minis` pour l'université,
+  `branch on:"players"` → `addDoom` (1 par enquêteur) puis `when` →
+  +1, `aside` des 4 Mark of Elokoss, **pile déclarée `menuFor:
+  ["enemy"]` = « Sous l'acte »** (suspects interrogés ; les vaincus en
+  zone de victoire — l'objectif compte les deux). Nouveau : **`pickRandom
+  zone:"aside"`** sans coordonnées (le suspect tiré au hasard est mis
+  de côté face cachée sans être regardé, `rest:"keep"` laisse les cinq
+  autres au pool) et **`bury fromPool` + `under`** (les cinq suspects
+  restants + Servant of Flame « On the Run » pris au pool **avant**
+  `buildEncounter`, mélangés, un sous chacun des six quartiers nommés —
+  codes ou slots — avec la même mécanique que les repaires de COB :
+  z sous le lieu, seul le bas dépasse, menu → Retourner). Rappels :
+  cartes enfouies, codex (lien Guide, p. 8‑9), suspects et pile,
+  mots-clés p. 7 (Alert, Aloof, Elusive), verso de l'agenda 1 (Mark of
+  Elokoss à distribuer, porteurs au journal). Tests : 719 messages
+  (bloc Smoke : sac 18 dont 2 cultistes, une version par paire et
+  l'autre retirée, journal muet sur les versions et les suspects, MU
+  révélée avec pions, une carte enfouie sous chacun des six quartiers
+  et aucune sous les trois autres, codes enfouis = les cinq non tirés
+  + Servant, pioche 23, doom 2, pile vide puis un suspect retourné et
+  placé sous l'acte ; solo Expert université sauvée sans porteur : sac
+  20, doom 2, Armitage retiré, agendas jusqu'au bout) ; captures
+  103‑104 (bloc rejoué en autonome avec Spreading Flames en
+  régression). Catalogue et README.
+
 
 - 2026-09-10 : **UX : jauges des sièges sur deux lignes** — demande de
   l'utilisateur (capture à l'appui) : sur la page de table, la colonne
@@ -183,58 +227,24 @@ versement de son durable (format → grammaire, piège → §5, décision →
   avec lien guide ; README.
 
 
-- 2026-09-10 : **Bibliothèque : bandeaux de campagne et liens vers les
-  guides** — demande de l'utilisateur : renforcer l'esthétique de la page
-  en découpant des images des guides FFG. Chaque en‑tête de campagne
-  devient un bandeau (`.campagne header.bandeau`, `site.css`) : image en
-  `cover` derrière le titre, dégradé nuit en bas pour la lisibilité,
-  ombre portée sur le titre, filet doré conservé ; déborde de 1,5 rem de
-  chaque côté de la colonne, bords gauche / droit / haut fondus dans la
-  nuit (masque CSS) comme les illustrations à bords déchirés des guides ;
-  hauteur 8,5 rem partout ; bord à bord sur mobile. Données :
-  `library.json` → `banner {src, position}` par campagne (`position` =
-  `background-position`, cadre la zone visible sans redécouper) et
-  `guide` désormais renseigné pour toutes les campagnes (URL FFG de
-  `docs/AHLCG_livrets_regles_FFG.md`) ; le libellé de boîte devient le
-  lien vers le guide (pointillé, ↗, doré au survol) ; « Scénarios
-  indépendants » sans guide. Images : `scripts/build_bandeaux.py`
-  (pymupdf + Pillow) télécharge le livret dans `data/cache/guides/`,
-  extrait l'image de la page (la plus grande, ou par xref), découpe une
-  bande (table `BANDEAUX` : page, xref, crop) et écrit
-  `public/img/campagnes/<id>.webp` (14 fichiers, 636 Ko). Découpes prises
-  dans l'art de la boîte (panneau peint de la couverture du guide) —
-  validé par l'utilisateur : lisible, sans spoiler pour les campagnes
-  encore « prévues ». Exceptions : NotZ, dont le guide n'a **aucune
-  illustration** (le premier essai, bande de ciel étoilé de la
-  couverture, « ressemblait à un dos de carte » — refusé) → couverture du
-  Learn to Play de la boîte révisée (ahc60 : Roland Banks, lune,
-  nightgaunts ; choisi par l'utilisateur entre deux cadrages) ; boa et
-  cob, couvertures « Chapitre 2 » dans un losange → bande à la largeur
-  maximale du losange (cob : bras et griffes, pas le visage) ;
-  standalone → vue d'Arkham la nuit, illustration p. 11 du même Learn to
-  Play. TDE : seul le guide A est lié (le B n'a pas de champ).
-  Vérification : servi en statique puis par `wrangler dev`, captures
-  desktop / mobile / planche des quatorze bandeaux, zéro erreur console ;
-  régression `test_room.mjs` (669 messages) OK ; index des cartes
-  rafraîchi au passage par le build (arkham.build).
 - **Prochaine étape** : retours de l'utilisateur sur le bandeau des
   sièges (jauges sur deux lignes, case Play compacte, ordre du board
-  joueur) et sur Spreading Flames
-  (première table Core 2026 : disposition sans diagramme, attache Fire!,
-  versos automatisés) ; puis **BoA II — Smoke and Mirrors** (Setup +
-  diagramme p. 6‑7, codex p. 8‑9 à ne pas lire hors instruction ; lieux
-  d'Arkham `arkham_ch2`, sets `people_of_arkham`, `arcane_lock`, `bad_weather`,
-  `dead_ends`, `flying_terrors`, `gangs_of_arkham`, `whippoorwills_ch2` selon le
-  Setup ; les « leads » — ressources sur les personnages — sont un
-  jeton ressource sur la carte) et BoA III — Queen of Ash (p. 12,
-  Elokoss à verso lié `12179b`, sets `arkham_sewers`, `cultists_ch2`,
-  `reeking_decay`, `torment`) ; les questions de journal de II et III
-  se conçoivent à partir du Setup seul (demander un extrait si un report
-  l'exige). Toujours en attente : retours sur la campagne TIC complète
-  (I‑VIII) ; visuels PNG des clés et du jeton d'inondation à générer
-  dans le style des jetons du projet (choix B). En parallèle : la suite
-  des retours de test du board joueur et les points ouverts du cahier
-  §10.10 (customisations, decks annexes, attaches).
+  joueur) et sur Spreading Flames et Smoke and Mirrors (première
+  campagne Core 2026 : disposition sans diagramme, attache Fire!, versos
+  automatisés, suspects enfouis, pile « Sous l'acte ») ; **question ouverte** : le journal du I modifie-t-il
+  le sac (résolutions non lues — l'utilisateur peut fournir un extrait,
+  sinon le rappel « ajustez le sac » suffit). Puis **BoA III — Queen of
+  Ash** (Setup p. 12, codex p. 13 à ne pas lire hors instruction ;
+  Elokoss 12179 à verso lié `12179b`, sets `queen_of_ash`,
+  `arkham_sewers`, `cultists_ch2`, `reeking_decay`, `torment`, Servant
+  « A Willing Sacrifice » 12180 ; les 2 cultistes du II restent au
+  sac ; questions de journal d'après le Setup seul — demander un extrait
+  si un report l'exige ; **campagne BoA complète** ensuite). Toujours
+  en attente : retours sur la campagne TIC complète (I‑VIII) ; visuels
+  PNG des clés et du jeton d'inondation à générer dans le style des
+  jetons du projet (choix B). En parallèle : la suite des retours de
+  test du board joueur et les points ouverts du cahier §10.10
+  (customisations, decks annexes, attaches).
   Ensuite le prologue
   Disappearance at the Twilight Estate (pack `tcu`, set
   `disappearance_at_the_twilight_estate` : choix des enquêteurs neutres
@@ -1032,10 +1042,12 @@ par phase (`reminders[]` du `*.src.json`).
   (2026-09-08, p. 5, jetons sang compris), BoA / Core 2026 saisi
   (2026-09-10, p. 2, icônes vérifiées par corrélation avec tokens.ttf) ;
   reste TDC, TDE‑A et Film Fatale (section Setup / encart du guide).
-- **Brethren of Ash II‑III** : le journal du I (résolutions, non lues)
-  alimente le Setup du II — question(s) au lobby à concevoir d'après la
-  section Setup p. 6 seule ; demander un extrait à l'utilisateur si un
-  report l'exige.
+- **Brethren of Ash** : le II reporte le journal du I par deux questions
+  (université, porteur d'Armitage) tirées du Setup p. 6 seul, et ajoute
+  les 2 cultistes du guide ; les résolutions du I n'ont pas été lues —
+  si elles modifient le sac, l'utilisateur fournit l'extrait (sinon
+  rappel « ajustez le sac »). Le III devra reporter les 2 cultistes
+  (sac du II) et ce que sa section Setup p. 12 demande.
 - **Jetons de campagne TIC** : les flashbacks retirent des jetons du sac
   « pour le reste de la campagne » (icônes p. 6, à lire sur l'image) et
   la résolution du I remplit « Memories Recovered » → questions au lobby

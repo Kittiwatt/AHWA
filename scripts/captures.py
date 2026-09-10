@@ -1193,6 +1193,34 @@ with sync_playwright() as p:
     h22.mouse.move(420, 520); h22.wait_for_timeout(300)
     h22.screenshot(path=f"{OUT}/102_flames_acte3.png")
 
+    # ---- Smoke and Mirrors (BoA II) : questions du journal au lobby, grille 3 × 3, six cartes enfouies, suspect secret de côté, pile Sous l'acte ----
+    code23, token23 = creer("boa_smoke_and_mirrors")
+    print("room Smoke and Mirrors", code23)
+    h23 = page_pour(browser, "Hôte", host=True, code=code23, token=token23)
+    h23.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h23.get_by_role("button", name="Choisir un enquêteur").click(); h23.wait_for_selector("dialog.dialogue-inv[open]")
+    h23.fill("dialog .recherche", "roland"); h23.wait_for_timeout(300); h23.locator("dialog .inv").first.click()
+    h23.wait_for_selector(".siege-lobby.moi .fiche")
+    j23 = page_pour(browser, "Bob", code=code23, token=None)
+    j23.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j23.get_by_role("button", name="Choisir un enquêteur").click(); j23.wait_for_selector("dialog.dialogue-inv[open]")
+    j23.fill("dialog .recherche", "daisy"); j23.wait_for_timeout(300); j23.locator("dialog .inv").first.click()
+    j23.wait_for_selector(".siege-lobby.moi .fiche")
+    h23.wait_for_timeout(400)
+    h23.locator("input[name='q-mu'][value='burned']").check(); h23.wait_for_timeout(150)
+    h23.locator("input[name='q-armitage'][value='oui']").check(); h23.wait_for_timeout(200)
+    h23.locator(".reglage.questions").screenshot(path=f"{OUT}/103_smoke_lobby_questions.png")
+    h23.get_by_role("button", name="Lancer la mise en place").click()
+    h23.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h23.wait_for_load_state("networkidle"); h23.wait_for_timeout(1500)
+    assert h23.locator("#plateau .carte.kind-location").count() == 9, "grille 3 × 3"
+    assert h23.locator("#plateau .carte.kind-enemy").count() == 6, "six cartes enfouies (cinq suspects + Servant)"
+    assert h23.locator("#aside .carte").count() == 6, "de côté : suspect secret, Armitage, 4 Mark of Elokoss"
+    assert h23.locator("#pioches .pile[data-outil='pile:underAct'] .badge").inner_text() == "0", "pile Sous l'acte vide"
+    h23.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h23.mouse.move(420, 520); h23.wait_for_timeout(300)
+    h23.screenshot(path=f"{OUT}/104_smoke_tapis.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

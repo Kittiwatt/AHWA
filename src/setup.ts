@@ -155,11 +155,11 @@ class Pool {
  *  dépasse du bas du lieu (elle le suit s'il est déplacé : son centre est dessus) ; jetons et épuisement
  *  effacés ; le journal reste muet sur qui va où. Renvoie le nombre de cartes enfouies. */
 export function enfouir(state: RoomState, def: ScenarioDef, rng: Rng,
-  opts: { avec: string[]; fromDeckTop: number; trait: string; dy?: number; cible?: CardState }): number {
+  opts: { avec: string[]; fromDeckTop: number; trait: string; dy?: number; cible?: CardState; cibles?: CardState[] }): number {
   const DY = opts.dy ?? 42;
   const traitsDe = (code: string) => def.cards.find((k) => k.code === code)?.traits ?? [];
-  const lieux = opts.cible ? [opts.cible] : Object.values(state.cards)
-    .filter((c) => c.kind === "location" && "zone" in c.loc && c.loc.zone === "board" && traitsDe(c.code).includes(opts.trait))
+  const lieux = opts.cible ? [opts.cible] : (opts.cibles ?? Object.values(state.cards)
+    .filter((c) => c.kind === "location" && "zone" in c.loc && c.loc.zone === "board" && traitsDe(c.code).includes(opts.trait)))
     .sort((a, b) => (a.loc as { y: number }).y - (b.loc as { y: number }).y || (a.loc as { x: number }).x - (b.loc as { x: number }).x);
   if (!lieux.length) throw new Error(`aucun lieu « ${opts.trait} » en jeu`);
   const enfouisA = (L: CardState) => Object.values(state.cards).filter((c) =>
@@ -337,11 +337,15 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         } else if (step.rest !== "keep") for (const code of restes) retirer(code);   // "keep" : les restes restent au pool (pioche de rencontre)
         // Les cartes tirées reprennent leur place dans le pool pour être posées par `poser` (ou rester tirables par un slot).
         pool.giveBack(tires);
-        if (step.zone !== undefined && (step.positions || (step.x !== undefined && step.y !== undefined))) {
+        if (step.zone !== undefined && (step.positions || (step.x !== undefined && step.y !== undefined) || step.zone === "aside")) {
           // Avec un `log` du scénario : une seule ligne pour le tirage, sinon une ligne par carte (nom de la face visible).
+          // Zone « aside » sans coordonnées : en fin de rangée de côté (« choose one at random and set it aside, without looking at it »).
           if (step.log) addLog(state, "setup", step.log);
+          const dejaDeCote = Object.values(state.cards).filter((c) => "zone" in c.loc && c.loc.zone === "aside").length;
           choix.forEach((code, i) => {
-            const pos = step.positions ? step.positions[i % step.positions.length] : { x: step.x! + i * (CARD_W + 32), y: step.y! };
+            const pos = step.positions ? step.positions[i % step.positions.length]
+              : step.zone === "aside" && step.x === undefined ? { x: (dejaDeCote + i) * (CARD_W + ASIDE_GAP), y: 0 }
+              : { x: step.x! + i * (CARD_W + 32), y: step.y! };
             const card = poser(code, step.zone!, pos.x, pos.y, step.faceUp ?? false, step.reveal, step.log ? "" : undefined);
             const derniere = state.log[state.log.length - 1];
             if (step.log) state.log.pop(); // ligne vide non conservée (les indices posés sont comptés dans revealLocation)
@@ -761,14 +765,18 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         break;
       }
       case "bury": {
-        // Après buildEncounter : les instances des codes `with` (mises de côté plus tôt) + les premières
-        // cartes de la pioche, mélangées et réparties face cachée sous les lieux du trait donné.
+        // Après buildEncounter : les instances des codes `with` (mises de côté plus tôt) + les copies encore au pool des
+        // codes `fromPool` (Smoke and Mirrors : les suspects restants et le Servant, avant buildEncounter) + les premières
+        // cartes de la pioche, mélangées et réparties face cachée sous les lieux du trait donné — ou sous les lieux `under`
+        // (codes ou slots), une par lieu quand les comptes s'y prêtent.
         const codes = new Set(step.with ?? []);
         const avec = Object.entries(state.cards)
           .filter(([, c]) => codes.has(c.code) && "zone" in c.loc && c.loc.zone === "aside")
           .map(([id]) => id);
-        const n = enfouir(state, def, rng, { avec, fromDeckTop: step.fromDeckTop ?? 0, trait: step.trait, dy: step.dy });
-        addLog(state, "setup", step.log ?? `${n} cartes mélangées et enfouies face cachée sous les lieux « ${step.trait} » — personne ne sait laquelle est où.`);
+        for (const code of step.fromPool ?? []) for (const id of pool.takeAll(code)) { state.cards[id] = newCard(pool, code, id, { zone: "aside", x: 0, y: 0, z: z++ }, false); avec.push(id); }
+        const cibles = step.under?.map((ref) => { const c = enJeu(ref); if (c.kind !== "location") throw new Error(`setup : bury under ${ref} n'est pas un lieu`); return c; });
+        const n = enfouir(state, def, rng, { avec, fromDeckTop: step.fromDeckTop ?? 0, trait: step.trait ?? "", dy: step.dy, cibles });
+        addLog(state, "setup", step.log ?? `${n} cartes mélangées et enfouies face cachée sous ${cibles ? `${cibles.length} lieux` : `les lieux « ${step.trait} »`} — personne ne sait laquelle est où.`);
         break;
       }
       case "hook":

@@ -3197,5 +3197,111 @@ const enPile = (s, code, pile) => Object.values(s.cards).filter((c) => c.code ==
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Smoke and Mirrors (BoA II) : deux cultistes au sac, Downtown / Uptown au hasard (l'autre retirée), suspect secret de côté
+// (pickRandom → aside), cinq suspects + Servant enfouis sous six lieux nommés (bury fromPool + under), université selon le journal, doom
+// par enquêteur, Armitage selon le porteur, pile « Sous l'acte » ============
+async function tableSmoke({ joueurs = 2, difficulty, answers } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "boa_smoke_and_mirrors" }) });
+  assert.equal(r.status, 200, "Smoke and Mirrors est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const SUSPECTS = ["12139", "12140", "12141", "12142", "12143", "12144"];
+const enfouieSous = (s, L) => Object.values(s.cards).filter((c) => c.kind !== "location" && c.kind !== "mini" && !c.faceUp && c.loc.zone === "board"
+  && Math.abs(c.loc.y - (L.loc.y + 42)) < 30 && c.loc.x >= L.loc.x - 12 && c.loc.x < L.loc.x + 126);
+
+{ // Standard, 2 joueurs, université brûlée, un porteur d'Armitage.
+  const { h } = await tableSmoke({ joueurs: 2, answers: { mu: "burned", armitage: "oui" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 18, "sac Standard 16 + 2 cultistes");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 2, "les deux cultistes du guide p. 6");
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 1);
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a", "référence Easy/Standard");
+  const L = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  const downtown = cartes.filter((c) => ["12145", "12146"].includes(c.code));
+  assert.equal(downtown.filter((c) => c.loc.zone === "board").length, 1, "une seule version de Downtown en jeu");
+  assert.equal(downtown.filter((c) => c.loc.pile === "removed").length, 1, "l'autre Downtown retirée");
+  const dt = downtown.find((c) => c.loc.zone === "board");
+  assert.ok(dt.loc.x === 737 && dt.loc.y === 173 && !dt.faceUp, "Downtown en haut au centre, non révélé");
+  const uptown = cartes.filter((c) => ["12147", "12148"].includes(c.code));
+  assert.equal(uptown.filter((c) => c.loc.zone === "board").length, 1); assert.equal(uptown.filter((c) => c.loc.pile === "removed").length, 1);
+  const ut = uptown.find((c) => c.loc.zone === "board");
+  assert.ok(ut.loc.x === 551 && ut.loc.y === 649 && !ut.faceUp, "Uptown en bas à gauche, non révélé");
+  assert.ok(!s.log.some((e) => /(First Bank|Sanatorium|St\. Mary|Magick Shoppe)/.test(e.text)), "journal muet sur les versions tirées");
+  for (const [code, x, y] of [["12149", 551, 173], ["12150", 923, 173], ["12151", 737, 411], ["12152", 923, 411], ["12153", 737, 649], ["12154", 923, 649]]) {
+    const l = L(code); assert.ok(l && l.loc.x === x && l.loc.y === y && !l.faceUp, `${code} à ${x},${y} non révélé`);
+  }
+  const mu = L("12155");
+  assert.ok(mu && mu.loc.x === 551 && mu.loc.y === 411 && mu.faceUp && mu.tokens.clue === 2, "MU (In Flames) révélée, 1 indice × 2");
+  assert.ok(cartes.some((c) => c.code === "12156" && c.loc.pile === "removed"), "Quiet Campus retirée");
+  assert.equal(cartes.filter((c) => c.kind === "location" && c.loc.zone === "board").length, 9, "grille 3 × 3");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 551) < 130 && Math.abs(m.loc.y - 411) < 60), "pions à l'université");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.equal(cote.length, 6, "de côté : le suspect secret + Armitage + 4 Mark of Elokoss");
+  const secret = cote.filter((c) => SUSPECTS.includes(c.code));
+  assert.equal(secret.length, 1, "un seul suspect de côté"); assert.ok(!secret[0].faceUp, "face cachée");
+  assert.ok(cote.some((c) => c.code === "12115" && c.faceUp), "Armitage de côté face visible");
+  assert.equal(cote.filter((c) => c.code === "12137" && c.faceUp).length, 4, "quatre Mark of Elokoss de côté");
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /^Dr\. Henry Armitage : glissez-le/.test(e.text)), "rappel du porteur");
+  // Enfouissement : une carte face cachée sous chacun des six lieux du Setup, jamais sous les trois autres.
+  const cibles = ["12149", dt.code, "12153", "12154", ut.code, "12152"].map(L);
+  for (const l of cibles) assert.equal(enfouieSous(s, l).length, 1, `une carte enfouie sous ${l.code}`);
+  for (const l of ["12150", "12151", "12155"].map(L)) assert.equal(enfouieSous(s, l).length, 0, `rien sous ${l.code}`);
+  const enfouies = cibles.flatMap((l) => enfouieSous(s, l));
+  assert.deepEqual(enfouies.map((c) => c.code).sort(), [...SUSPECTS.filter((c) => c !== secret[0].code), "12138"].sort(), "cinq suspects restants + Servant enfouis");
+  assert.ok(enfouies.every((c) => c.loc.z < Math.max(...cibles.map((l) => l.loc.z))), "z sous le lieu");
+  assert.ok(!s.log.some((e) => /Renfield|Akely|O'Bannion|Monroe|Foreman|Margaret Liu/.test(e.text)), "journal muet sur les suspects (secret comme enfouis)");
+  assert.equal(s.piles.encounter.length, 23, "pioche : 23");
+  assert.equal(s.cards[s.agendaId].code, "12134"); assert.equal(s.cards[s.agendaId].tokens.doom, 2, "1 doom par enquêteur");
+  assert.equal(s.cards[s.actId].code, "12136"); assert.equal(s.piles.actDeck.length, 0); assert.equal(s.piles.agendaDeck.length, 1);
+  assert.ok("underAct" in s.piles && s.piles.underAct.length === 0, "pile « Sous l'acte » déclarée, vide");
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /Codex \(guide p\. 7\)/.test(e.text)), "rappel codex");
+  // Une carte enfouie se retourne (piochée), puis un suspect va sous l'acte.
+  const enf = enfouieSous(s, L("12149"))[0];
+  let d2 = await h.action({ t: "flipCard", id: enf.id });
+  assert.equal(d2.t, "delta"); assert.ok(h.state.cards[enf.id].faceUp, "carte enfouie retournée");
+  d2 = await h.action({ t: "toPile", id: enf.id, pile: "underAct" });
+  assert.equal(d2.t, "delta"); assert.equal(h.state.piles.underAct.length, 1, "un suspect sous l'acte");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // Expert, solo, université sauvée, sans porteur d'Armitage ; agendas jusqu'au bout.
+  const { h } = await tableSmoke({ joueurs: 1, difficulty: "expert", answers: { mu: "saved", armitage: "non" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 20, "sac Expert 18 + 2 cultistes");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "b", "référence Hard/Expert");
+  const mu = cartes.find((c) => c.code === "12156" && c.loc.zone === "board");
+  assert.ok(mu && mu.faceUp && mu.tokens.clue === 1, "MU (Quiet Campus) révélée, 1 indice en solo");
+  assert.ok(cartes.some((c) => c.code === "12155" && c.loc.pile === "removed"), "In Flames retirée");
+  assert.equal(s.cards[s.agendaId].tokens.doom, 2, "1 doom (solo) + 1 doom (université sauvée)");
+  assert.ok(cartes.some((c) => c.code === "12115" && c.loc.pile === "removed"), "Armitage retiré sans porteur");
+  assert.equal(cartes.filter((c) => c.loc.zone === "aside").length, 5, "de côté : suspect secret + 4 Mark");
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 1);
+  assert.equal(s.piles.encounter.length, 23);
+  let d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "12135", "agenda 2");
+  assert.ok(h.state.log.some((e) => e.kind === "reminder" && /^Verso de l'agenda 1 : chaque enquêteur/.test(e.text)), "rappel agenda:2 (Mark of Elokoss)");
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(d2.t, "delta"); assert.equal(h.state.piles.agendaDeck.length, 0);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

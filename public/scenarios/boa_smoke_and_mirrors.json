@@ -1,0 +1,1063 @@
+{
+ "id": "boa_smoke_and_mirrors",
+ "title": "Smoke and Mirrors",
+ "campaign": "Brethren of Ash",
+ "campaignId": "boa",
+ "order": 2,
+ "packs": [
+  "core_2026"
+ ],
+ "encounterSets": [
+  "smoke_and_mirrors",
+  "arcane_lock",
+  "arkham_ch2",
+  "bad_weather",
+  "dead_ends",
+  "flying_terrors",
+  "gangs_of_arkham",
+  "people_of_arkham",
+  "whippoorwills_ch2"
+ ],
+ "extraCards": [
+  "12115"
+ ],
+ "scenarioCard": "12133",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "12134",
+  "12135"
+ ],
+ "actDeck": [
+  "12136"
+ ],
+ "startLocation": "12155",
+ "layout": [
+  {
+   "code": "12149",
+   "x": 551,
+   "y": 173
+  },
+  {
+   "code": "12145",
+   "x": 737,
+   "y": 173
+  },
+  {
+   "code": "12150",
+   "x": 923,
+   "y": 173
+  },
+  {
+   "code": "12155",
+   "x": 551,
+   "y": 411
+  },
+  {
+   "code": "12151",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "code": "12152",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "code": "12147",
+   "x": 551,
+   "y": 649
+  },
+  {
+   "code": "12153",
+   "x": 737,
+   "y": 649
+  },
+  {
+   "code": "12154",
+   "x": 923,
+   "y": 649
+  }
+ ],
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "questions": [
+  {
+   "id": "mu",
+   "text": "Journal de campagne (fin du scénario I) : laquelle de ces mentions est cochée ?",
+   "options": [
+    {
+     "id": "burned",
+     "label": "« Miskatonic University burned »"
+    },
+    {
+     "id": "saved",
+     "label": "« The investigators saved Miskatonic University »"
+    }
+   ]
+  },
+  {
+   "id": "armitage",
+   "text": "Un enquêteur est-il le porteur du soutien histoire Dr. Henry Armitage (journal du scénario I) ?",
+   "options": [
+    {
+     "id": "oui",
+     "label": "Oui"
+    },
+    {
+     "id": "non",
+     "label": "Non"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "chaosAdd",
+   "tokens": [
+    "cultist",
+    "cultist"
+   ],
+   "log": "Deux jetons Cultiste sont ajoutés au sac du chaos pour le reste de la campagne (guide p. 6 — à noter au journal de campagne)."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "12145",
+    "12146"
+   ],
+   "n": 1,
+   "slot": "downtown",
+   "zone": "board",
+   "x": 737,
+   "y": 173,
+   "log": "Downtown : l'une des deux versions, tirée au hasard, est mise en jeu (non révélée) ; l'autre est retirée de la partie."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "12147",
+    "12148"
+   ],
+   "n": 1,
+   "slot": "uptown",
+   "zone": "board",
+   "x": 551,
+   "y": 649,
+   "log": "Uptown : l'une des deux versions, tirée au hasard, est mise en jeu (non révélée) ; l'autre est retirée de la partie."
+  },
+  {
+   "op": "place",
+   "code": "12149",
+   "zone": "board",
+   "x": 551,
+   "y": 173,
+   "log": "Northside, Easttown, Merchant District, Waterfront District, Southside et French Hill sont mis en jeu, non révélés (grille du guide p. 7)."
+  },
+  {
+   "op": "place",
+   "code": "12150",
+   "zone": "board",
+   "x": 923,
+   "y": 173
+  },
+  {
+   "op": "place",
+   "code": "12151",
+   "zone": "board",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "12152",
+   "zone": "board",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "12153",
+   "zone": "board",
+   "x": 737,
+   "y": 649
+  },
+  {
+   "op": "place",
+   "code": "12154",
+   "zone": "board",
+   "x": 923,
+   "y": 649
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "12139",
+    "12140",
+    "12141",
+    "12142",
+    "12143",
+    "12144"
+   ],
+   "n": 1,
+   "zone": "aside",
+   "faceUp": false,
+   "rest": "keep",
+   "log": "People of Arkham : l'un des six personnages, tiré au hasard, est mis de côté face cachée sans être regardé ; les cinq autres seront enfouis."
+  },
+  {
+   "op": "branch",
+   "on": "mu",
+   "cases": {
+    "burned": [
+     {
+      "op": "remove",
+      "codes": [
+       "12156"
+      ],
+      "log": "Journal : l'université a brûlé — Miskatonic University (In Flames) est jouée, l'autre copie est retirée de la partie."
+     },
+     {
+      "op": "place",
+      "code": "12155",
+      "zone": "board",
+      "x": 551,
+      "y": 411,
+      "reveal": true,
+      "log": "Miskatonic University (In Flames) est mise en jeu et révélée : chaque enquêteur y commence la partie."
+     },
+     {
+      "op": "minis",
+      "code": "12155"
+     }
+    ],
+    "saved": [
+     {
+      "op": "remove",
+      "codes": [
+       "12155"
+      ],
+      "log": "Journal : les enquêteurs ont sauvé l'université — Miskatonic University (Quiet Campus) est jouée, l'autre copie est retirée de la partie."
+     },
+     {
+      "op": "place",
+      "code": "12156",
+      "zone": "board",
+      "x": 551,
+      "y": 411,
+      "reveal": true,
+      "log": "Miskatonic University (Quiet Campus) est mise en jeu et révélée : chaque enquêteur y commence la partie."
+     },
+     {
+      "op": "minis",
+      "code": "12156"
+     }
+    ]
+   }
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "armitage",
+    "is": "oui"
+   },
+   "then": [
+    {
+     "op": "aside",
+     "codes": [
+      "12115"
+     ],
+     "faceUp": true,
+     "log": "Dr. Henry Armitage est mis de côté, prêt à entrer en jeu sous le contrôle de son porteur."
+    },
+    {
+     "op": "reminder",
+     "text": "Dr. Henry Armitage : glissez-le de la zone de côté sur le siège de son porteur — il entre en jeu sous son contrôle et n'occupe pas d'emplacement d'allié dans ce scénario (si le deck importé de ce joueur le contient déjà, ignorez la copie de côté)."
+    }
+   ],
+   "else": [
+    {
+     "op": "remove",
+     "codes": [
+      "12115"
+     ],
+     "log": "Aucun porteur de Dr. Henry Armitage : sa carte ne sert pas."
+    }
+   ]
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "12137",
+    "12137",
+    "12137",
+    "12137"
+   ],
+   "faceUp": true,
+   "log": "Les 4 copies de la faiblesse Mark of Elokoss sont mises de côté, hors jeu."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "branch",
+   "on": "players",
+   "cases": {
+    "1": [
+     {
+      "op": "addDoom",
+      "n": 1,
+      "log": "1 doom sur l'agenda (1 par enquêteur)."
+     }
+    ],
+    "2": [
+     {
+      "op": "addDoom",
+      "n": 2,
+      "log": "2 doom sur l'agenda (1 par enquêteur)."
+     }
+    ],
+    "3": [
+     {
+      "op": "addDoom",
+      "n": 3,
+      "log": "3 doom sur l'agenda (1 par enquêteur)."
+     }
+    ],
+    "4": [
+     {
+      "op": "addDoom",
+      "n": 4,
+      "log": "4 doom sur l'agenda (1 par enquêteur)."
+     }
+    ]
+   }
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mu",
+    "is": "saved"
+   },
+   "then": [
+    {
+     "op": "addDoom",
+     "n": 1,
+     "log": "Université sauvée : 1 doom de plus sur l'agenda."
+    }
+   ]
+  },
+  {
+   "op": "bury",
+   "fromPool": [
+    "12139",
+    "12140",
+    "12141",
+    "12142",
+    "12143",
+    "12144",
+    "12138"
+   ],
+   "under": [
+    "12149",
+    "slot:downtown",
+    "12153",
+    "12154",
+    "slot:uptown",
+    "12152"
+   ],
+   "log": "Les cinq personnages restants et le Servant of Flame sont mélangés puis enfouis face cachée, un sous chacun de Northside, Downtown, Southside, French Hill, Uptown et Waterfront District — personne ne sait lequel est où."
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "piles": [
+  {
+   "id": "underAct",
+   "label": "Sous l'acte",
+   "menuFor": [
+    "enemy"
+   ]
+  }
+ ],
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Sac du chaos : les deux Cultistes du guide p. 6 sont déjà dedans (ils restent pour la suite de la campagne). Si votre journal de campagne demande d'autres ajouts ou retraits à la fin du scénario I, ajustez le sac (clic droit sur le sac → Ajuster)."
+  },
+  {
+   "when": "setup",
+   "text": "Cartes enfouies : une carte face cachée dépasse du bas de six lieux (Northside, Downtown, Southside, French Hill, Uptown, Waterfront District) et suit son lieu s'il est déplacé. Quand l'acte vous permet de piocher celle de votre lieu : menu de la carte → « Retourner », puis glissez l'ennemi révélé sur le lieu — il entre en jeu comme une carte rencontre piochée (un ennemi Aloof reste non engagé)."
+  },
+  {
+   "when": "setup",
+   "text": "Codex (guide p. 7) : les cartes qui portent le symbole codex renvoient à une entrée numérotée du guide (lien « Guide » dans la barre, p. 8‑9) — payez le coût ou résolvez la capacité qui la déclenche, puis lisez l'entrée et appliquez-la, une fois par scénario chacune. Ce que le guide fait noter au journal reste hors application."
+  },
+  {
+   "when": "setup",
+   "text": "Suspects : un suspect vaincu va en zone de victoire ; un suspect interrogé va sous l'acte — menu de l'ennemi → « Placer dans Sous l'acte » (pile à côté de la pioche). L'objectif de l'acte compte les deux ensemble ; les jetons de la carte de scénario aussi. Un jeton ressource posé sur un personnage (chip ressource) sert de piste."
+  },
+  {
+   "when": "setup",
+   "text": "Mots-clés (guide p. 7) — Alert : chaque test d'évasion raté contre lui déclenche une attaque de l'ennemi, engagé ou non, sans l'épuiser. Aloof : l'ennemi n'engage pas de lui-même (il apparaît non engagé ; il faut l'engager pour l'attaquer ou l'esquiver). Elusive : après qu'il a attaqué ou été attaqué, l'ennemi se désengage, se déplace vers un lieu connecté sans enquêteur si possible et s'épuise. Se retirer (action sur l'agenda) n'est pas perdre."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 : chaque enquêteur, l'un après l'autre, pioche une copie de Mark of Elokoss mise de côté et en devient le porteur — glissez une copie de la zone de côté dans la zone de menace de chaque enquêteur (elle entre en jeu par sa révélation) et notez le porteur au journal de campagne (elle rejoint son deck sans compter dans sa taille)."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour. L'acte offre une action de groupe pour piocher la carte enfouie sous son lieu ; l'agenda permet de se retirer."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur ; un ennemi Elusive se désengage et s'éloigne après une attaque (déplacez-le à la main)."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-10",
+ "encounterSetNames": {
+  "smoke_and_mirrors": "Smoke and Mirrors",
+  "arcane_lock": "Arcane Lock",
+  "arkham_ch2": "Arkham",
+  "bad_weather": "Bad Weather",
+  "dead_ends": "Dead Ends",
+  "flying_terrors": "Flying Terrors",
+  "gangs_of_arkham": "Gangs of Arkham",
+  "people_of_arkham": "People of Arkham",
+  "whippoorwills_ch2": "Whippoorwills"
+ },
+ "cards": [
+  {
+   "code": "12115",
+   "name": "Dr. Henry Armitage",
+   "kind": "asset",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Head Librarian",
+   "traits": [
+    "Ally",
+    "Miskatonic"
+   ],
+   "health": 3,
+   "sanity": 3
+  },
+  {
+   "code": "12133",
+   "name": "Smoke and Mirrors",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "smoke_and_mirrors",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "12134",
+   "name": "Arkham Alive",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "smoke_and_mirrors",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Growing Flames",
+   "doom": 10,
+   "stage": 1
+  },
+  {
+   "code": "12135",
+   "name": "Emergent Evils",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "smoke_and_mirrors",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Outta Time",
+   "doom": 8,
+   "stage": 2
+  },
+  {
+   "code": "12136",
+   "name": "Augurs of Flame",
+   "kind": "act",
+   "qty": 1,
+   "set": "smoke_and_mirrors",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Back to Velma's",
+   "stage": 1
+  },
+  {
+   "code": "12137",
+   "name": "Mark of Elokoss",
+   "kind": "treachery",
+   "qty": 4,
+   "set": "smoke_and_mirrors",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "12138",
+   "name": "Servant of Flame",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "smoke_and_mirrors",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "On the Run",
+   "traits": [
+    "Humanoid",
+    "Cultist",
+    "Elite"
+   ],
+   "health": 5,
+   "healthPerInvestigator": true,
+   "victory": 1
+  },
+  {
+   "code": "12139",
+   "name": "David Renfield",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "people_of_arkham",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Disillusioned Eschatologist",
+   "traits": [
+    "Humanoid",
+    "Silver Twilight",
+    "Elite"
+   ],
+   "health": 5,
+   "victory": 1
+  },
+  {
+   "code": "12140",
+   "name": "Cornelia Akely",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "people_of_arkham",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Exhausted Supervisor",
+   "traits": [
+    "Humanoid",
+    "Worker",
+    "Elite"
+   ],
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "12141",
+   "name": "Naomi O'Bannion",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "people_of_arkham",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Runs This Town",
+   "traits": [
+    "Humanoid",
+    "Syndicate",
+    "Elite"
+   ],
+   "health": 5,
+   "victory": 1
+  },
+  {
+   "code": "12142",
+   "name": "Sgt. Earl Monroe",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "people_of_arkham",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Dirty Cop",
+   "traits": [
+    "Humanoid",
+    "Police",
+    "Elite"
+   ],
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "12143",
+   "name": "Abigail Foreman",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "people_of_arkham",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Wary Librarian",
+   "traits": [
+    "Humanoid",
+    "Miskatonic",
+    "Elite"
+   ],
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "12144",
+   "name": "Margaret Liu",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "people_of_arkham",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Beguiling Lounge Singer",
+   "traits": [
+    "Humanoid",
+    "Socialite",
+    "Elite"
+   ],
+   "health": 3,
+   "victory": 1
+  },
+  {
+   "code": "12145",
+   "name": "Downtown",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "First Bank of Arkham",
+   "traits": [
+    "Arkham"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "12146",
+   "name": "Downtown",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "Arkham Sanatorium",
+   "traits": [
+    "Arkham"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "12147",
+   "name": "Uptown",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "St. Mary's Hospital",
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "12148",
+   "name": "Uptown",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "subname": "Ye Olde Magick Shoppe",
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "12149",
+   "name": "Northside",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "12150",
+   "name": "Easttown",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "12151",
+   "name": "Merchant District",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham",
+    "Central"
+   ]
+  },
+  {
+   "code": "12152",
+   "name": "Waterfront District",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "12153",
+   "name": "Southside",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ]
+  },
+  {
+   "code": "12154",
+   "name": "French Hill",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Arkham"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "12155",
+   "name": "Miskatonic University",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "In Flames",
+   "traits": [
+    "Arkham"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "12156",
+   "name": "Miskatonic University",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_ch2",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "Quiet Campus",
+   "traits": [
+    "Arkham"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "12157",
+   "name": "Arcane Lock",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "arcane_lock",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex",
+    "Obstacle"
+   ]
+  },
+  {
+   "code": "12158",
+   "name": "Downpour",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "bad_weather",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "12159",
+   "name": "Flash Flood",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "bad_weather",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "12160",
+   "name": "Raising Suspicions",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "dead_ends",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Blunder"
+   ]
+  },
+  {
+   "code": "12161",
+   "name": "Red Herring",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "dead_ends",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "12162",
+   "name": "Bat Horror",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "flying_terrors",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster"
+   ],
+   "health": 4
+  },
+  {
+   "code": "12163",
+   "name": "Aerial Pursuit",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "flying_terrors",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "12164",
+   "name": "Rogue Gangster",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "gangs_of_arkham",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Syndicate"
+   ],
+   "health": 3
+  },
+  {
+   "code": "12165",
+   "name": "Crossfire",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "gangs_of_arkham",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "12166",
+   "name": "Whippoorwill",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "whippoorwills_ch2",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Creature"
+   ],
+   "health": 1
+  },
+  {
+   "code": "12167",
+   "name": "Eager for Death",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "whippoorwills_ch2",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
+  }
+ ]
+}
