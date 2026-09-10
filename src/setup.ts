@@ -58,8 +58,9 @@ export function cleDeCouleur(card: CardState): boolean {
 export const LIBELLES_INONDATION = ["sec", "partiellement inondé", "totalement inondé"];
 
 /** Applique la règle de marée en cours (state.flood.onReveal) à un lieu qui vient d'être révélé ; renvoie son nouveau niveau ou null. */
-export function inonderALaRevelation(state: RoomState, card: CardState): number | null {
-  const regle = state.flood?.onReveal ?? 0;
+export function inonderALaRevelation(state: RoomState, card: CardState, def?: ScenarioDef): number | null {
+  // Règle de marée en cours, ou règle imprimée sur ce lieu (`flood.onRevealByCode`) : la plus forte l'emporte.
+  const regle = Math.max(state.flood?.onReveal ?? 0, def?.flood?.onRevealByCode?.[card.code] ?? 0);
   if (!regle) return null;
   const niveau = regle === 2 ? 2 : Math.min(2, (card.tokens.flood ?? 0) + 1);
   if (niveau === (card.tokens.flood ?? 0)) return null;
@@ -93,13 +94,15 @@ export function revealLocation(state: RoomState, def: ScenarioDef, card: CardSta
   card.faceUp = true;
   const n = clueValue(def.cards.find((c) => c.code === card.code), state.playerCount);
   if (n > 0) card.tokens.clue = (card.tokens.clue ?? 0) + n;
-  inonderALaRevelation(state, card);
+  inonderALaRevelation(state, card, def);
   return n;
 }
 
-/** Suffixe de journal quand la marée vient d'inonder un lieu révélé (« , partiellement inondé (marée) »). */
-export function texteMaree(state: RoomState, card: CardState): string {
-  return state.flood?.onReveal && card.tokens.flood ? `, ${LIBELLES_INONDATION[card.tokens.flood]} (marée)` : "";
+/** Suffixe de journal quand la révélation vient d'inonder un lieu : marée en cours ou texte imprimé du lieu. */
+export function texteMaree(state: RoomState, def: ScenarioDef, card: CardState): string {
+  if (!card.tokens.flood) return "";
+  if (def.flood?.onRevealByCode?.[card.code]) return `, ${LIBELLES_INONDATION[card.tokens.flood]} (texte du lieu)`;
+  return state.flood?.onReveal ? `, ${LIBELLES_INONDATION[card.tokens.flood]} (marée)` : "";
 }
 
 /** Pose une clé sur une carte du tapis : à cheval sur son bord gauche, la i-ème sous les précédentes. */

@@ -417,10 +417,15 @@ export function initInteractions(ctx) {
             && ((Math.abs(c.loc.y - carte.loc.y) < 20 && Math.abs(Math.abs(c.loc.x - carte.loc.x) - 186) < 40) || (Math.abs(c.loc.x - carte.loc.x) < 20 && Math.abs(Math.abs(c.loc.y - carte.loc.y) - 238) < 40)));
           for (const v of voisins) items.push(item(`+1 barrière vers ${faceVisible(v, ctx.defs.get(v.code)).name}`, () => ctx.envoyer({ t: "setBarrier", a: carte.id, b: v.id, delta: 1 })));
         }
-        // Lieux d'une pile posés autour de ce lieu (TIC « Tidal Tunnel deck ») : en dessous, à gauche, à droite, aux emplacements libres.
+        // Lieux d'une pile posés à côté de ce lieu (Tidal Tunnels, Unfathomable Depths) : une direction (↓ ← →) ou les trois
+        // emplacements libres (⟳) — même ligne de boutons que l'inondation.
         for (const p of (ctx.scenario.piles ?? []).filter((p) => p.around)) {
           const n = (ctx.etat.state.piles[p.id] ?? []).length;
-          items.push(item(`${p.label} autour de ce lieu (dessous, gauche, droite)`, () => ctx.envoyer({ t: "placeAround", id: carte.id, pile: p.id }), { off: !n }));
+          const b = (lib, titre, dir) => el("button", { class: "pm niveau", type: "button", disabled: !peut || !n, title: titre,
+            onclick: () => ctx.envoyer({ t: "placeAround", id: carte.id, pile: p.id, ...(dir ? { dir } : {}) }) }, lib);
+          items.push(el("div", { class: "item jetons-ligne inondation-ligne" }, el("span", { text: `${p.label} (${n})` }),
+            b("↓", `${p.label} : une carte en dessous`, "below"), b("←", `${p.label} : une carte à gauche`, "left"), b("→", `${p.label} : une carte à droite`, "right"),
+            b("⟳", `${p.label} : dessous, gauche et droite (emplacements libres)`, null)));
         }
       }
       if (carte.kind === "location" && ctx.scenario.flood) {

@@ -22,7 +22,7 @@ const TOKENS = new Set(["doom", "clue", "damage", "horror", "resource", "generic
 const JETONS_RESERVE = new Set<Token>(["bless", "curse"]);   // révélés, ils retournent à la réserve, pas dans le sac (TIC) ; 10 au plus chacun
 // Grille des diagrammes de placement (cartes 126 × 178 avec leurs marges) : « en dessous, à gauche, à droite » d'un lieu.
 const PAS_X = 186, PAS_Y = 238;
-const AUTOUR: [string, number, number][] = [["en dessous", 0, PAS_Y], ["à gauche", -PAS_X, 0], ["à droite", PAS_X, 0]];
+const AUTOUR: [string, number, number, string][] = [["en dessous", 0, PAS_Y, "below"], ["à gauche", -PAS_X, 0, "left"], ["à droite", PAS_X, 0, "right"]];
 const CHAOS_TOKENS = new Set<string>(["+1", "0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign", "bless", "curse", "frost", "blood"]);
 
 function carte(state: RoomState, id: unknown): CardState {
@@ -121,6 +121,17 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
       const n = d.backClue ? (d.backClue.perInvestigator ? d.backClue.value * state.playerCount : d.backClue.value) : 0;
       if (n > 0) ancien.tokens.clue = n;
       addLog(state, "action", `${d.backName ?? "Le verso"} entre en jeu sur le tapis (verso de ${agenda ? "l'agenda" : "l'acte"})${n > 0 ? ` : ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}.`);
+    } else if (d?.backCode && d.backKind === "enemy") {
+      // Verso = ennemi (agenda de Devil Reef) : la carte entre en jeu sur le tapis comme un ennemi, révélée,
+      // au centre (ou `backPlacement`) — à déplacer là où sa carte l'envoie.
+      const pos = def.backPlacement?.[ancien.code] ?? { x: 737, y: 411 };
+      ancien.kind = "enemy";
+      ancien.faceUp = true;
+      ancien.side = "b";
+      ancien.exhausted = false;
+      ancien.tokens = {};
+      ancien.loc = { zone: "board", x: pos.x + 36, y: pos.y + 46, z: nextZ(state) };
+      addLog(state, "action", `${d.backName ?? "Le verso"} entre en jeu sur le tapis (verso de ${agenda ? "l'agenda" : "l'acte"}) : déplacez-le là où sa carte l'envoie.`);
     } else {
       ancien.loc = { zone: "aside", x: boutDeCote(state), y: 0, z: nextZ(state) };
       ancien.tokens = {};
@@ -447,11 +458,14 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       }
       const reminders = sortieHistoire(state, def, c);
       // Un lieu déplacé sur le tapis emmène ce qui est posé dessus : pions (à cheval sur le bord) et cartes dont le centre est sur le lieu.
-      if (c.kind === "location" && avant?.zone === "board" && zone === "board") {
+      // Un véhicule (soutien à trait Vehicle, Fishing Vessel) emmène ses pions et clés : un pion à cheval sur le véhicule est dedans.
+      const vehicule = c.kind === "asset" && (def.cards.find((d) => d.code === c.code)?.traits ?? []).includes("Vehicle");
+      if ((c.kind === "location" || vehicule) && avant?.zone === "board" && zone === "board") {
         const dx = x - avant.x, dy = y - avant.y;
         for (const k of Object.values(state.cards)) {
           if (k.id === c.id || !("zone" in k.loc) || k.loc.zone !== "board" || k.kind === "location") continue;
           const petit = k.kind === "mini" || k.kind === "key";
+          if (vehicule && !petit) continue;
           const w = petit ? MINI : CARD_W, h = petit ? MINI : CARD_H;
           const cx = k.loc.x + w / 2, cy = k.loc.y + h / 2;
           const marge = petit ? MINI : 0;
@@ -513,7 +527,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       if (c.kind !== "location") refuser("ce n'est pas un lieu");
       if (c.faceUp) return {};
       const n = revealLocation(state, def, c);
-      addLog(state, "action", `${nomCarte(def, c)} révélé${n ? ` : ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}${texteMaree(state, c)}.`);
+      addLog(state, "action", `${nomCarte(def, c)} révélé${n ? ` : ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}` : ""}${texteMaree(state, def, c)}.`);
       return {};
     }
     case "toggleSide": {
@@ -741,8 +755,12 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       const { x: lx, y: ly } = c.loc as { x: number; y: number };
       const occupe = (x: number, y: number) => Object.values(state.cards).some((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board"
         && Math.abs(k.loc.x - x) < PAS_X / 2 && Math.abs(k.loc.y - y) < PAS_Y / 2);
+      // {dir} facultatif : une seule direction (below / left / right) — une carte ; sinon les trois emplacements libres.
+      const dir = msg.dir === undefined ? null : String(msg.dir);
+      const directions = dir ? AUTOUR.filter(([, , , cle]) => cle === dir) : AUTOUR;
+      if (dir && !directions.length) refuser("direction inconnue");
       const poses: string[] = [], pris: string[] = [];
-      for (const [lib, dx, dy] of AUTOUR) {
+      for (const [lib, dx, dy] of directions) {
         if (occupe(lx + dx, ly + dy)) { pris.push(lib); continue; }
         const id = state.piles[pile].shift();
         if (!id) break;
@@ -752,7 +770,7 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
         k.side = "a";
         poses.push(lib);
       }
-      if (!poses.length) refuser(pris.length === AUTOUR.length ? "les trois emplacements sont déjà occupés" : "rien à poser");
+      if (!poses.length) refuser(pris.length === directions.length ? (dir ? "cet emplacement est déjà occupé" : "les trois emplacements sont déjà occupés") : "rien à poser");
       addLog(state, "action", `${poses.length} lieu${poses.length > 1 ? "x" : ""} de ${nomPile(def, pile)} posé${poses.length > 1 ? "s" : ""} non révélé${poses.length > 1 ? "s" : ""} ${poses.join(", ")} de ${nomCarte(def, c)}${pris.length ? ` (déjà occupé : ${pris.join(", ")})` : ""}${state.piles[pile].length ? "" : " ; la pile est vide"}.`);
       return {};
     }

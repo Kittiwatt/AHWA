@@ -509,6 +509,17 @@ mode, scope}` (lieux du trait, tous ou révélés), `spawnAside {code,
 at, side?}` et `randomKeyOn` (clé cachée au hasard posée dessus),
 appliqués dans l'ordre inondation, mélange, apparition, clé.
 
+**Devil Reef (2026-09-10).** `placeAround {id, pile, dir?}` : `dir`
+(`below` / `left` / `right`) pose une seule carte à cet emplacement
+(refus s'il est occupé) ; menu du lieu : ligne « <pile> (n) ↓ ← → ⟳ »
+par pile `around`. `flood.onRevealByCode[code] = 1|2` : inondation
+imprimée d'un lieu appliquée à sa révélation (journal « (texte du
+lieu) »). Verso-ennemi : à l'avancement, un agenda/acte dont le verso
+lié est un ennemi devient `enemy`, côté b, posé au centre (ou
+`backPlacement`) avec le décalage d'un spawn. Véhicule : un soutien à
+trait `Vehicle` déplacé emmène ses pions et clés (`moveCard`) ; l'op
+`minis` accepte un véhicule.
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets

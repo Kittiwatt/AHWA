@@ -8,6 +8,39 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-09 : **In Too Deep (TIC III) livré** (tous les choix A).
+  Guide p. 15‑16 : 24 barrières relevées sur l'image du diagramme
+  (arêtes : 4, 1, 3, 1 au nord ; 1 entre Railroad Station et Bookshop ;
+  2, 2, 2, 1 au centre ; 1, 3, 1, 2 au sud) ; sac autonome = base ;
+  aucun changement de sac au II ni à l'Interlude II (seuls les
+  flashbacks du I retirent des jetons). Pack **`itd`** (44 cartes :
+  07108‑22 joueur sans set, `in_too_deep` 07123‑51) : les quinze lieux
+  d'Innsmouth ont leurs propres codes (07129‑43) avec traits
+  `Coastal` / `Midtown` ; Desolate Coastline a des indices **fixes**
+  (clues_fixed). **Questions à cocher** (`type: "multi"`, réponse =
+  liste, cond `{q, has}`, journal « aucun » si vide, `reponseValide`
+  vérifie les options et l'absence de doublons, lobby en checkboxes) :
+  suspects « out for blood » et jetons retirés. **Barrières** :
+  `state.barriers`, op `barriers`, action `setBarrier`, chip sur
+  l'arête (`elsBarrieres`, z 200000, clic −1 / + au survol, exclue du
+  pan du plateau — sinon `setPointerCapture` avale le clic), menu du
+  lieu « +1 barrière vers… » (voisins orthogonaux à 186 / 238 px).
+  **Suspects out for blood** : `spawn` au lieu de leur Révélation (lu
+  sur les cartes, jamais affiché) sans indices, `remove` des autres
+  avant `buildEncounter` (ils sont en `extraCards`, sinon ils iraient
+  dans la pioche). **Clé noire** : `placeKey` sur la cachette entourée
+  (branch sur la question) ou `atRandom` en autonome ; six autres clés
+  cachées de côté. **Angry Mob** : `aside {side: "b"}` de 07062a.
+  **Effets d'agenda** : 2 = inondation `Coastal` (tous, révélés ou non)
+  + Ravager ×2 / Young Deep One ×2 + défausse dans la pioche ; 3 =
+  `Midtown` + Angry Mob à Innsmouth Square + clé cachée au hasard
+  dessus ; 4 = tout monte (la pioche de chacun reste manuelle, rappel).
+  Tests : 595 messages (bloc Deep : option à cocher inconnue refusée,
+  sac 18, quinze lieux, inondation initiale, 24 barrières sur 13 arêtes,
+  clé noire, suspects out for blood sans indices et autres retirés,
+  cartes de côté dont Angry Mob côté b, setBarrier −1 / +2 / à 0 /
+  refus, agendas 2‑4) ; captures 82‑84.
+
 - 2026-09-08 : **COB III — Blood Money livré, et correction tablette/cultiste
   sur toute la campagne.** En relisant les icônes pour le III (comparaison à
   600 dpi contre les SVG du projet : la capuche du cultiste a une POINTE

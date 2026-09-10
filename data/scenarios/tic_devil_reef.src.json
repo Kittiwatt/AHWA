@@ -1,0 +1,99 @@
+{
+  "_source": "Guide de campagne The Innsmouth Conspiracy (FFG, 2020) : Scenario IV, « Investigator Setup » et « Scenario Setup » p. 19‑20 (sets, clés : violette, blanche, noire face visible, jaune, verte, rouge, bleue face cachée mélangées ; Churning Waters totalement inondé ; Fishing Vessel dessus, enquêteurs dans le navire ; Awakened Mantle, Headdress of Y'ha‑nthlei, Waveworn Idol de côté ; cinq îles mélangées non révélées ; Unfathomable Depths : une de chaque paire retirée sans regarder, trois de côté ; huit Tidal Tunnels mélangés en pile ; agenda 1 v. I si « a battle with a horrifying devil » est sous Memories Recovered, sinon v. II ; jetons d'inondation), diagramme « Suggested Location Placement » et encadrés « Vehicles », « Location Adjacency in Devil Reef » p. 20, « Standalone Mode » p. 20 (sac de base, mission échouée, pas de « devil ») ; flashbacks du scénario I p. 6 (jetons retirés pour le reste de la campagne). Rien d'autre du guide n'a été lu. Aucun texte de carte ; les rappels paraphrasent le guide ou décrivent les gestes de l'application. Choix : véhicule = porteur de pions, îles aux positions du diagramme, piles Tidal Tunnels / Unfathomable Depths, verso ennemi de l'agenda entré par l'app, inondation à la révélation par lieu.",
+  "id": "tic_devil_reef",
+  "title": "Devil Reef",
+  "campaign": "The Innsmouth Conspiracy",
+  "campaignId": "tic",
+  "order": 4,
+  "packs": ["def", "tic"],
+  "encounterSets": ["devil_reef", "agents_of_hydra", "creatures_of_the_deep", "flooded_caverns", "malfunction", "rising_tide"],
+  "extraCards": ["07082"],
+  "scenarioCard": "07163",
+  "agendaDeck": ["07164", "07165", "07166"],
+  "actDeck": ["07167"],
+  "startLocation": "07168",
+  "piles": [
+    { "id": "tidal", "label": "Tidal Tunnels", "around": true },
+    { "id": "depths", "label": "Unfathomable Depths", "around": true }
+  ],
+  "flood": { "onRevealByCode": { "07171": 1, "07172": 1, "07173": 1, "07175a": 1, "07175b": 1, "07176a": 2, "07176b": 2 } },
+  "chaosBag": {
+    "easy":     ["+1", "+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-2", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "standard": ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "hard":     ["0", "0", "0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-5", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"],
+    "expert":   ["0", "-1", "-1", "-2", "-2", "-3", "-3", "-4", "-4", "-5", "-6", "-8", "skull", "skull", "cultist", "cultist", "tablet", "tablet", "elder_thing", "elder_thing", "auto_fail", "elder_sign"]
+  },
+  "layout": [
+    { "code": "07168", "x": 737, "y": 411 }
+  ],
+  "questions": [
+    { "id": "mode", "text": "Campagne ou scénario seul ?", "options": [
+      { "id": "campaign", "label": "Campagne : journal des scénarios précédents (questions suivantes)" },
+      { "id": "standalone", "label": "Scénario seul (mode autonome) : sac de base, mission échouée, pas de « battle with a horrifying devil »" } ] },
+    { "id": "mission", "text": "Au journal (scénario II) :", "options": [
+      { "id": "successful", "label": "« The mission was successful »" }, { "id": "failed", "label": "« The mission failed »" } ] },
+    { "id": "devil", "text": "« A battle with a horrifying devil » figure sous « Memories Recovered » ?", "options": [
+      { "id": "no", "label": "Non" }, { "id": "yes", "label": "Oui" } ] },
+    { "id": "tokens_out", "text": "Jetons retirés du sac pour le reste de la campagne (scénario I) :", "type": "multi", "options": [
+      { "id": "cultist", "label": "Cultiste" }, { "id": "tablet", "label": "Tablette" }, { "id": "elder_thing", "label": "Ancien" } ] }
+  ],
+  "setup": [
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "tokens_out", "has": "cultist" }] },
+      "then": [{ "op": "chaosRemove", "tokens": ["cultist"], "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)" }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "tokens_out", "has": "tablet" }] },
+      "then": [{ "op": "chaosRemove", "tokens": ["tablet"], "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)" }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "tokens_out", "has": "elder_thing" }] },
+      "then": [{ "op": "chaosRemove", "tokens": ["elder_thing"], "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)" }] },
+    { "op": "when", "cond": { "q": "mode", "is": "standalone" },
+      "then": [{ "op": "log", "text": "Mode autonome : sac de base du guide (p. 20), aucun retrait ; la mission a échoué ; pas de « battle with a horrifying devil »." }] },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "devil", "is": "yes" }] },
+      "then": [{ "op": "remove", "codes": ["07165"], "log": "« A battle with a horrifying devil » est au journal : l'agenda 1 utilisé est la version I, la version II est retirée de la partie." }],
+      "else": [{ "op": "remove", "codes": ["07164"], "log": "L'agenda 1 utilisé est la version II, la version I est retirée de la partie." }] },
+    { "op": "place", "code": "07168", "zone": "board", "x": 737, "y": 411, "reveal": true,
+      "log": "Churning Waters est mis en jeu au centre, révélé : le navire y attend les enquêteurs." },
+    { "op": "addTokens", "at": "07168", "token": "flood", "n": 2, "log": "Churning Waters entre en jeu totalement inondé — niveau d'inondation" },
+    { "op": "spawn", "code": "07178", "at": "07168",
+      "log": "Le Fishing Vessel (véhicule) est mis en jeu à Churning Waters, posé sur le lieu." },
+    { "op": "minis", "code": "07178",
+      "log": "Les pions des enquêteurs sont posés sur le Fishing Vessel : chaque enquêteur commence la partie dans le navire (un pion à cheval sur le véhicule est dedans)." },
+    { "op": "keys", "colors": ["purple", "white", "black"], "faceUp": true,
+      "log": "Clés violette, blanche et noire mises de côté, face visible." },
+    { "op": "keys", "colors": ["yellow", "green", "red", "blue"], "faceUp": false,
+      "log": "Clés jaune, verte, rouge et bleue mises de côté face cachée et mélangées : personne ne sait laquelle est laquelle." },
+    { "op": "pickRandom", "from": ["07169", "07170", "07171", "07172", "07173"], "n": 5, "zone": "board",
+      "positions": [{ "x": 737, "y": 0 }, { "x": 365, "y": 173 }, { "x": 1109, "y": 173 }, { "x": 365, "y": 649 }, { "x": 1109, "y": 649 }],
+      "log": "Les cinq îles « Devil Reef » sont mélangées et posées non révélées aux positions du diagramme (p. 20) : une au nord, deux à l'ouest, deux à l'est, à distance de Churning Waters — elles ne lui sont pas adjacentes mais reliées par leurs icônes de connexion." },
+    { "op": "pickRandom", "from": ["07175a", "07175b"], "n": 1, "rest": "pile", "restPile": "depths",
+      "log": "Deep One Grotto : l'une de ses deux versions est retirée de la partie sans être regardée, l'autre rejoint la pile Unfathomable Depths." },
+    { "op": "pickRandom", "from": ["07176a", "07176b"], "n": 1, "rest": "pile", "restPile": "depths",
+      "log": "Cyclopean Ruins : l'une de ses deux versions est retirée de la partie sans être regardée, l'autre rejoint la pile Unfathomable Depths." },
+    { "op": "pickRandom", "from": ["07177a", "07177b"], "n": 1, "rest": "pile", "restPile": "depths",
+      "log": "Temple of the Union : l'une de ses deux versions est retirée de la partie sans être regardée, l'autre rejoint la pile Unfathomable Depths." },
+    { "op": "toPile", "pile": "depths", "codes": [], "shuffle": true,
+      "log": "Les trois Unfathomable Depths de côté sont mélangées (pile « Unfathomable Depths », côté non révélé) : nul ne sait laquelle est laquelle." },
+    { "op": "toPile", "pile": "tidal", "codes": ["07174a", "07174b", "07102", "07103", "07104"], "shuffle": true,
+      "log": "Les huit Tidal Tunnels sont mélangés en pile « Tidal Tunnels », côté non révélé." },
+    { "op": "aside", "codes": ["07180", "07181", "07179"], "faceUp": true,
+      "log": "Awakened Mantle, Headdress of Y'ha-nthlei et Waveworn Idol sont mis de côté, hors jeu, face visible." },
+    { "op": "when", "cond": { "all": [{ "q": "mode", "is": "campaign" }, { "q": "mission", "is": "successful" }] },
+      "then": [{ "op": "aside", "codes": ["07082"], "faceUp": true, "log": "La mission a réussi : Thomas Dawson est de côté, face visible — un enquêteur l'ajoute à sa main de départ en plus de ses cartes (glissez-le sur son siège)." }],
+      "else": [{ "op": "aside", "codes": ["07082"], "faceUp": true, "log": "La mission a échoué : Thomas Dawson est de côté — hors application, mélangez-le dans le deck d'un enquêteur pour ce scénario." }] },
+    { "op": "story" },
+    { "op": "buildEncounter" }
+  ],
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    { "when": "setup", "text": "Hors application (Investigator Setup, guide p. 19) : retirez Elina Harper des decks pour ce scénario ; Thomas Dawson selon le journal (voir le journal de bord) ; puis 5 ressources, main de départ, mulligan possible (ou import du deck sur son board)." },
+    { "when": "setup", "text": "Véhicules (guide) : un pion posé à cheval sur le Fishing Vessel est dans le navire, posé sur le lieu il n'y est pas ; le navire se déplace par une action et emmène ses pions (glissez-le : ils suivent) ; les enquêteurs à bord sont au lieu du navire. Le navire est posé sur Churning Waters, où chacun commence à bord." },
+    { "when": "setup", "text": "Adjacence (guide) : les îles et Churning Waters ne sont pas adjacents (connexions par icônes). Les Tidal Tunnels et Unfathomable Depths entrent en jeu adjacents à une île quand une carte le demande : menu de l'île → ligne « Tidal Tunnels » ou « Unfathomable Depths » : ↓ ← → pour une carte à cet emplacement, ⟳ pour les trois emplacements libres. Adjacent = connecté, jamais en diagonale." },
+    { "when": "setup", "text": "Clés (guide) : violette, blanche et noire de côté face visible — les cartes disent où elles se posent (glissez-les) ; jaune, verte, rouge et bleue face cachée et mélangées (menu → « Poser ici une clé cachée au hasard » quand une carte le demande). Prendre le contrôle d'une clé = la glisser sur son siège (elle se retourne)." },
+    { "when": "setup", "text": "Inondation (guide) : Churning Waters est totalement inondé dès le départ ; les lieux dont le texte le prévoit montent d'un niveau (ou sont totalement inondés) d'eux-mêmes à leur révélation (voir le journal) ; corrigez à la main le reste (menu du lieu → Inondation, panneau Marée)." },
+    { "when": "setup", "text": "Bénédictions et malédictions (guide) : clic droit sur le sac → Ajuster (10 au plus de chaque) ; révélé, un tel jeton retourne à la réserve : « ↺ Tout remettre » l'écarte tout seul." },
+    { "when": "agenda:2", "text": "Agenda 2 : le verso de l'agenda 1 est un ennemi — l'app l'a mis en jeu au centre du tapis, déplacez-le là où sa carte l'envoie." },
+    { "when": "mythos", "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout." },
+    { "when": "investigation", "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour. Pensez au navire : déplacer le Fishing Vessel emmène ses passagers." },
+    { "when": "enemy", "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur." },
+    { "when": "upkeep", "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource." }
+  ]
+}

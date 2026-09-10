@@ -744,11 +744,11 @@ with sync_playwright() as p:
     # Menu de la chambre : inondation, tunnels autour (grisé : pile vide), clé cachée au hasard.
     chambre = h14.locator("#plateau .carte.kind-location[title='Unfamiliar Chamber']")
     chambre.dispatch_event("contextmenu"); h14.wait_for_selector(".menu-carte")
-    assert h14.locator(".menu-carte .inondation-ligne").count() == 1, "ligne Inondation"
-    assert h14.locator(".menu-carte").get_by_role("button", name="Tidal Tunnel autour de ce lieu (dessous, gauche, droite)").is_disabled(), "tunnels autour grisé : pile vide"
+    assert h14.locator(".menu-carte .inondation-ligne").count() == 2, "lignes Tidal Tunnel (↓ ← → ⟳) et Inondation"
+    assert h14.locator(".menu-carte .inondation-ligne").filter(has_text="Tidal Tunnel").locator(".pm.niveau").nth(3).is_disabled(), "tunnels autour grisé : pile vide"
     assert h14.locator(".menu-carte").get_by_role("button", name="Poser ici une clé cachée au hasard (2 de côté, sans la regarder)").count() == 1, "clé cachée au hasard"
     h14.screenshot(path=f"{OUT}/72_pit_menu_lieu.png")
-    h14.locator(".menu-carte .inondation-ligne .pm.niveau").nth(1).click(); h14.wait_for_timeout(500)
+    h14.locator(".menu-carte .inondation-ligne").filter(has_text="Inondation").locator(".pm.niveau").nth(1).click(); h14.wait_for_timeout(500)
     h14.keyboard.press("Escape")
     assert h14.locator("#plateau .carte.kind-location[title='Unfamiliar Chamber'] img.inondation[alt='partiellement inondé']").count() == 1, "jeton partiellement inondé"
     # Agenda 2 : marée automatique (tous les lieux révélés +1, règle +1), panneau mis à jour.
@@ -770,7 +770,7 @@ with sync_playwright() as p:
     assert h14.locator("#aside .carte.kind-location").count() == 0, "plus de tunnel de côté"
     bas = h14.locator("#plateau .carte.kind-location").filter(has=h14.locator("img[alt='Tidal Tunnel']")).first
     bas.dispatch_event("contextmenu"); h14.wait_for_selector(".menu-carte")
-    h14.locator(".menu-carte").get_by_role("button", name="Tidal Tunnel autour de ce lieu (dessous, gauche, droite)").click(); h14.wait_for_timeout(800)
+    h14.locator(".menu-carte .inondation-ligne").filter(has_text="Tidal Tunnel").locator(".pm.niveau").nth(3).click(); h14.wait_for_timeout(800)   # ⟳ : les trois emplacements libres
     assert h14.locator("#plateau .carte.kind-location").count() >= 6, "des tunnels posés autour"
     h14.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     h14.mouse.move(420, 520); h14.wait_for_timeout(300)
@@ -889,6 +889,61 @@ with sync_playwright() as p:
     h16.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
     h16.mouse.move(700, 520); h16.wait_for_timeout(300)
     h16.screenshot(path=f"{OUT}/84_deep_agenda3.png")
+
+    # ---- Devil Reef (TIC IV) : navire et pions à bord, îles au hasard, piles Tidal Tunnels / Unfathomable Depths (direction), verso ennemi ----
+    code17, token17 = creer("tic_devil_reef")
+    print("room Devil Reef", code17)
+    h17 = page_pour(browser, "Hôte", host=True, code=code17, token=token17)
+    h17.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h17.get_by_role("button", name="Choisir un enquêteur").click(); h17.wait_for_selector("dialog.dialogue-inv[open]")
+    h17.fill("dialog .recherche", "sister mary"); h17.wait_for_timeout(300); h17.locator("dialog .inv").first.click()
+    h17.wait_for_selector(".siege-lobby.moi .fiche")
+    j17 = page_pour(browser, "Bob", code=code17, token=None)
+    j17.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j17.get_by_role("button", name="Choisir un enquêteur").click(); j17.wait_for_selector("dialog.dialogue-inv[open]")
+    j17.fill("dialog .recherche", "silas"); j17.wait_for_timeout(300); j17.locator("dialog .inv").first.click()
+    j17.wait_for_selector(".siege-lobby.moi .fiche")
+    h17.wait_for_timeout(400)
+    h17.locator("input[name='q-mode'][value='campaign']").check()
+    h17.locator("input[name='q-mission'][value='successful']").check()
+    h17.locator("input[name='q-devil'][value='yes']").check()
+    h17.locator("input[name='q-tokens_out'][value='cultist']").check(); h17.wait_for_timeout(200)
+    h17.locator(".reglage.questions").screenshot(path=f"{OUT}/85_reef_lobby_questions.png")
+    h17.get_by_role("button", name="Lancer la mise en place").click()
+    h17.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h17.wait_for_load_state("networkidle"); h17.wait_for_timeout(1500)
+    assert h17.locator("#plateau .carte.kind-location").count() == 6, "Churning Waters + cinq îles"
+    assert h17.locator("#plateau .carte.kind-location img[alt='Devil Reef']").count() == 5, "cinq îles non révélées « Devil Reef »"
+    assert h17.locator("#plateau .carte.kind-asset").count() == 1, "le navire sur le tapis"
+    assert h17.locator("#plateau .mini:not(.cle)").count() == 2, "deux pions"
+    assert h17.locator("#aside .mini.cle").count() == 7, "sept clés de côté"
+    assert h17.locator("#aside .mini.cle.cachee").count() == 4, "quatre cachées"
+    assert h17.locator("#pioches .pile[data-outil='pile:tidal'] .badge").inner_text() == "8", "Tidal Tunnels : 8"
+    assert h17.locator("#pioches .pile[data-outil='pile:depths'] .badge").inner_text() == "3", "Unfathomable Depths : 3"
+    assert h17.locator("#chaos .sac-forme").inner_text().strip() == "19", "sac 20 − 1 cultiste"
+    h17.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h17.mouse.move(420, 520); h17.wait_for_timeout(300)
+    h17.screenshot(path=f"{OUT}/86_reef_tapis.png")
+    # Menu d'une île : lignes directionnelles Tidal Tunnels / Unfathomable Depths ; une carte en dessous.
+    ile = h17.locator("#plateau .carte.kind-location").filter(has=h17.locator("img[alt='Devil Reef']")).first
+    ile.dispatch_event("contextmenu"); h17.wait_for_selector(".menu-carte")
+    assert h17.locator(".menu-carte .inondation-ligne").count() == 3, "lignes Inondation + Tidal Tunnels + Unfathomable Depths"
+    h17.screenshot(path=f"{OUT}/87_reef_menu_ile.png")
+    h17.locator(".menu-carte .inondation-ligne").filter(has_text="Tidal Tunnels").locator(".pm.niveau").nth(0).click(); h17.wait_for_timeout(600)
+    assert h17.locator("#pioches .pile[data-outil='pile:tidal'] .badge").inner_text() == "7", "un tunnel posé"
+    assert h17.locator("#plateau .carte.kind-location img[alt='Tidal Tunnel']").count() == 1, "tunnel non révélé sur le tapis"
+    # Le navire déplacé emmène ses pions : glisser le navire sur une île.
+    nav = h17.locator("#plateau .carte.kind-asset").first.bounding_box(); dst = ile.bounding_box()
+    h17.mouse.move(nav["x"] + nav["width"] / 2, nav["y"] + nav["height"] / 2); h17.mouse.down()
+    h17.mouse.move(dst["x"] + dst["width"] / 2 + 20, dst["y"] + dst["height"] / 2 + 20, steps=12); h17.mouse.up(); h17.wait_for_timeout(600)
+    nav2 = h17.locator("#plateau .carte.kind-asset").first.bounding_box(); pion = h17.locator("#plateau .mini:not(.cle)").first.bounding_box()
+    assert abs(pion["y"] + pion["height"] / 2 - nav2["y"]) < 30 and nav2["x"] - 10 < pion["x"] < nav2["x"] + nav2["width"], "les pions ont suivi le navire"
+    # Agenda 2 : le verso de l'agenda 1 (ennemi) entre en jeu.
+    h17.locator("#histoire").get_by_role("button", name="Avancer l'agenda").click(); h17.wait_for_timeout(800)
+    assert h17.locator("#plateau .carte.kind-enemy").count() == 1, "verso ennemi de l'agenda 1 sur le tapis"
+    h17.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h17.mouse.move(420, 520); h17.wait_for_timeout(300)
+    h17.screenshot(path=f"{OUT}/88_reef_agenda2_navire.png")
 
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")

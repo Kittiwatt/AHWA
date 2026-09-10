@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | TIC IV — Devil Reef | véhicule porteur de pions, `placeAround dir`, `flood.onRevealByCode`, verso-ennemi d'agenda, piles Tidal Tunnels / Unfathomable Depths |
 | 2026-09-10 | Mémo scindé, dépôt source de vérité | tableau + archive, instructions dans docs/, cycle « un commit » |
 | 2026-09-10 | GRAMMAIRE_SCENARIOS.md | référence du format `*.src.json`, fait foi |
 | 2026-09-09 | TIC III — In Too Deep | `barriers`, question `multi`, agendaEffects complets, clé noire |
@@ -90,6 +91,44 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **Devil Reef (TIC IV) livré** — première room du nouveau
+  circuit (dépôt source de vérité, grammaire lue à la place du code,
+  Setup + diagramme seulement, un commit unique). Choix laissés à Claude
+  avec la consigne d'**uniformiser** : tout ce qui existait a été
+  réutilisé — piles `around` et `placeAround` (étendu d'une direction
+  `dir` : `below` / `left` / `right`, ligne « ↓ ← → ⟳ » du menu calquée
+  sur la ligne Inondation), clés du I (`keys colors` face visible /
+  cachée), inondation du I (`flood.onRevealByCode` : même sémantique
+  que la règle de marée, appliquée par `revealLocation`, journal
+  « (texte du lieu) »), verso-ennemi calqué sur le verso-lieu (l'agenda
+  1 a deux versions dont le dos est un ennemi : à l'avancement la carte
+  devient `enemy`, côté b, posée au centre avec le décalage d'un
+  spawn), **véhicule** = porteur comme un lieu (`moveCard` : un soutien
+  à trait Vehicle emmène ses pions et clés ; `minis` accepte un
+  véhicule : les enquêteurs commencent à bord du Fishing Vessel posé sur
+  Churning Waters). Setup p. 19‑20 : sets Devil Reef (`def`), Agents of
+  Hydra, Creatures of the Deep, Flooded Caverns, Malfunction, Rising
+  Tide ; pioche 33 ; Churning Waters révélé, totalement inondé
+  (`addTokens flood n:2`) ; cinq îles « Devil Reef » `pickRandom n:5`
+  aux positions du diagramme (737 × 0, 365 / 1109 × 173, 365 / 1109 ×
+  649, journal muet sur l'ordre) ; Unfathomable Depths : trois
+  `pickRandom n:1 rest:"pile"` (la tirée reste au pool → retirée sans
+  être regardée, l'autre en pile) puis `toPile codes:[] shuffle` pour
+  mélanger la pile (sinon l'ordre des paires serait connu) ; Tidal
+  Tunnels `toPile` (07174a/b + Flooded Caverns) ; Mantle, Headdress,
+  Idol et Thomas Dawson (`extraCards` 07082) de côté avec un journal
+  selon « mission successful / failed » ; agenda 1 v. I / v. II par
+  `when … remove` sur « a battle with a horrifying devil ». Lobby :
+  campagne / autonome, mission, devil, jetons retirés (cases) — les
+  flashbacks du guide hors scénario I ne retirent aucun jeton (vérifié
+  par comptage de « Remove 1 » page par page, sans lecture). Données :
+  agendas 07164 / 07165 liés à des ennemis `hidden` 07164b / 07165b
+  (backKind enemy, backHealth 6 via `linked_card`) ; lieux 07174a/b,
+  07175‑77 a/b (codes à suffixe). Tests : 602 messages (bloc Reef :
+  sac, versions d'agenda, navire et pions, îles, profondeurs retirées
+  sans regarder et journal muet, placeAround `dir` et refus, inondation
+  par lieu, verso ennemi, autonome) ; captures 85‑88.
+
 - 2026-09-10 : **Mémo scindé — le dépôt devient la source de vérité.**
   Le §0 passe au régime : un tableau (une ligne par livraison) + les
   derniers récits ; les 54 récits antérieurs partent tels quels dans
@@ -126,44 +165,11 @@ versement de son durable (format → grammaire, piège → §5, décision →
   un cas `"default"` ; rappels `round:N` disponibles ; port de dev par
   défaut 8787 (le « 8788 » du piège §5 venait d'un port décalé par une
   seconde instance).
-- 2026-09-09 : **In Too Deep (TIC III) livré** (tous les choix A).
-  Guide p. 15‑16 : 24 barrières relevées sur l'image du diagramme
-  (arêtes : 4, 1, 3, 1 au nord ; 1 entre Railroad Station et Bookshop ;
-  2, 2, 2, 1 au centre ; 1, 3, 1, 2 au sud) ; sac autonome = base ;
-  aucun changement de sac au II ni à l'Interlude II (seuls les
-  flashbacks du I retirent des jetons). Pack **`itd`** (44 cartes :
-  07108‑22 joueur sans set, `in_too_deep` 07123‑51) : les quinze lieux
-  d'Innsmouth ont leurs propres codes (07129‑43) avec traits
-  `Coastal` / `Midtown` ; Desolate Coastline a des indices **fixes**
-  (clues_fixed). **Questions à cocher** (`type: "multi"`, réponse =
-  liste, cond `{q, has}`, journal « aucun » si vide, `reponseValide`
-  vérifie les options et l'absence de doublons, lobby en checkboxes) :
-  suspects « out for blood » et jetons retirés. **Barrières** :
-  `state.barriers`, op `barriers`, action `setBarrier`, chip sur
-  l'arête (`elsBarrieres`, z 200000, clic −1 / + au survol, exclue du
-  pan du plateau — sinon `setPointerCapture` avale le clic), menu du
-  lieu « +1 barrière vers… » (voisins orthogonaux à 186 / 238 px).
-  **Suspects out for blood** : `spawn` au lieu de leur Révélation (lu
-  sur les cartes, jamais affiché) sans indices, `remove` des autres
-  avant `buildEncounter` (ils sont en `extraCards`, sinon ils iraient
-  dans la pioche). **Clé noire** : `placeKey` sur la cachette entourée
-  (branch sur la question) ou `atRandom` en autonome ; six autres clés
-  cachées de côté. **Angry Mob** : `aside {side: "b"}` de 07062a.
-  **Effets d'agenda** : 2 = inondation `Coastal` (tous, révélés ou non)
-  + Ravager ×2 / Young Deep One ×2 + défausse dans la pioche ; 3 =
-  `Midtown` + Angry Mob à Innsmouth Square + clé cachée au hasard
-  dessus ; 4 = tout monte (la pioche de chacun reste manuelle, rappel).
-  Tests : 595 messages (bloc Deep : option à cocher inconnue refusée,
-  sac 18, quinze lieux, inondation initiale, 24 barrières sur 13 arêtes,
-  clé noire, suspects out for blood sans indices et autres retirés,
-  cartes de côté dont Angry Mob côté b, setBarrier −1 / +2 / à 0 /
-  refus, agendas 2‑4) ; captures 82‑84.
-
-- **Prochaine étape** : retours de l'utilisateur sur TIC I‑III, puis
-  **TIC IV Devil Reef** (guide p. 17 sq. : Interlude III « Beneath the
-  Waves » et résolutions du III — clés, « Innsmouth was consumed… »,
-  « made it safely to their vehicles » — pour les reports au lobby ;
-  pack `def`), puis la suite de la campagne ; visuels PNG des clés et du jeton d'inondation à générer
+- **Prochaine étape** : retours de l'utilisateur sur TIC I‑IV, puis
+  **TIC V Horror in High Gear** (pack `hhg` ; Setup + diagramme
+  seulement — si un report au lobby exige un extrait d'interlude ou de
+  résolution, le demander à l'utilisateur), puis la suite de la
+  campagne ; visuels PNG des clés et du jeton d'inondation à générer
   dans le style des jetons du projet (choix B). En parallèle : la suite
   des retours de test du board joueur et les points ouverts du cahier
   §10.10 (customisations, decks annexes, attaches).
@@ -812,6 +818,12 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   avant de chercher plus loin — la relance 8ed2a43 est passée. Vérifier
   ensuite que le site sert bien le nouveau code (`curl` d'un fichier
   modifié), pas seulement le statut du check.
+- `wrangler dev` (4.128‑4.130) meurt parfois au milieu d'une longue
+  série de captures (« Network connection lost » côté ProxyWorker,
+  aucun rapport avec le code) : les blocs suivants échouent en
+  « Connection refused » ou par timeout ; relancer le serveur et rejouer
+  le bloc concerné (script autonome extrait de `captures.py`), ne pas
+  chercher de cause dans le dépôt.
 - `ss` n'existe pas dans le bac à sable : vérifier `wrangler dev` par
   `curl http://127.0.0.1:8788/` ; deux `wrangler dev` sur le même port
   → le second meurt sans bruit.

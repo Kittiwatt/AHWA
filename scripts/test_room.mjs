@@ -1735,6 +1735,121 @@ async function tableDeep({ joueurs = 2, answers }) {
   g.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Devil Reef (TIC IV) : versions d'agenda, navire porteur de pions, îles au hasard, profondeurs retirées sans regarder,
+// piles Tidal Tunnels / Unfathomable Depths avec direction, inondation à la révélation par lieu, verso ennemi de l'agenda ============
+async function tableReef({ joueurs = 2, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tic_devil_reef" }) });
+  assert.equal(r.status, 200, "Devil Reef est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "07001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["07001", "07002", "07003", "07004"][i] });
+    autres.push(c);
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  return { h, autres, d };
+}
+{
+  const { h, autres: [j2], d } = await tableReef({ joueurs: 2, answers: { mode: "campaign", mission: "successful", devil: "yes", tokens_out: ["cultist"] } });
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 19, "sac : 20 moins un cultiste");
+  // Agenda 1 version I courant, version II retirée ; agenda 2 à venir ; acte 1.
+  assert.equal(s.cards[s.agendaId].code, "07164", "agenda 1 v. I (devil au journal)");
+  assert.ok(!cartes.some((c) => c.code === "07165" && c.loc.pile !== "removed"), "v. II retirée");
+  assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["07166"]);
+  assert.equal(s.cards[s.actId].code, "07167");
+  // Churning Waters révélé au centre, totalement inondé ; le navire dessus ; les pions sur le navire.
+  const eaux = cartes.find((c) => c.code === "07168");
+  assert.ok(eaux.faceUp && eaux.loc.x === 737 && eaux.loc.y === 411 && eaux.tokens.flood === 2, "Churning Waters révélé, totalement inondé");
+  const navire = cartes.find((c) => c.code === "07178");
+  assert.ok(navire.loc.zone === "board" && navire.loc.x === 773 && navire.loc.y === 457 && navire.faceUp, "Fishing Vessel posé sur le lieu");
+  const minis = cartes.filter((c) => c.kind === "mini");
+  assert.equal(minis.length, 2); assert.ok(minis.every((m) => m.loc.y === 457 - 22 && m.loc.x >= 773), "pions à cheval sur le navire");
+  // Cinq îles non révélées aux positions du diagramme, dans un ordre inconnu.
+  const iles = cartes.filter((c) => c.kind === "location" && ["07169", "07170", "07171", "07172", "07173"].includes(c.code));
+  assert.equal(iles.length, 5); assert.ok(iles.every((c) => c.loc.zone === "board" && !c.faceUp && c.side === "a"), "îles non révélées");
+  assert.deepEqual(iles.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["1109,173", "1109,649", "365,173", "365,649", "737,0"], "positions du diagramme");
+  assert.ok(!s.log.some((e) => /(Lonely Isle|Hidden Cove|Waveworn Island|Salt Marshes|Black Reef).*(nord|ouest|est)/.test(e.text)), "le journal ne dit pas quelle île est où");
+  // Clés : trois face visible, quatre face cachée, de côté.
+  const cles = cartes.filter((c) => c.kind === "key");
+  assert.deepEqual(cles.filter((c) => c.faceUp).map((c) => c.code).sort(), ["key:black", "key:purple", "key:white"]);
+  assert.equal(cles.filter((c) => !c.faceUp && c.loc.zone === "aside").length, 4);
+  // Profondeurs : une version de chaque paire retirée, trois en pile mélangée, face cachée ; huit Tidal Tunnels en pile.
+  assert.equal(s.piles.depths.length, 3, "trois Unfathomable Depths en pile");
+  const noms = s.piles.depths.map((id) => s.cards[id].code.slice(0, 5)).sort();
+  assert.deepEqual(noms, ["07175", "07176", "07177"], "une de chaque paire");
+  assert.ok(s.piles.depths.every((id) => !s.cards[id].faceUp));
+  assert.equal(cartes.filter((c) => ["07175a", "07175b", "07176a", "07176b", "07177a", "07177b"].includes(c.code) && c.loc.pile === "removed").length, 3, "trois versions retirées");
+  assert.ok(!s.log.some((e) => /0717[567][ab]/.test(e.text)), "le journal ne dit pas quelle version reste");
+  assert.equal(s.piles.tidal.length, 8, "huit Tidal Tunnels");
+  assert.deepEqual(cartes.filter((c) => c.loc.zone === "aside" && c.kind !== "key").map((c) => c.code).sort(), ["07082", "07179", "07180", "07181"], "Dawson, Idol, Mantle, Headdress de côté");
+  assert.ok(s.log.some((e) => e.text.includes("La mission a réussi")), "journal : Dawson en main");
+  assert.equal(s.piles.encounter.length, 33, "pioche : 33");
+  // Le navire déplacé emmène ses pions (véhicule) ; une carte déplacée ne les emmène pas.
+  let d2 = await h.action({ t: "moveCard", id: navire.id, zone: "board", x: 401, y: 219 });
+  assert.equal(d2.t, "delta");
+  assert.ok(Object.values(h.state.cards).filter((c) => c.kind === "mini").every((m) => m.loc.y === 219 - 22 && m.loc.x >= 401 && m.loc.x < 401 + 126), "les pions ont suivi le navire");
+  d2 = await h.action({ t: "moveCard", id: navire.id, zone: "board", x: 773, y: 457 });
+  // placeAround avec direction : une carte en dessous de l'île du nord (737,0) → (737,238) ; à gauche de l'île nord-ouest → (179,173).
+  const nord = iles.find((c) => c.loc.y === 0), nordOuest = iles.find((c) => c.loc.x === 365 && c.loc.y === 173);
+  d2 = await h.action({ t: "placeAround", id: nord.id, pile: "tidal", dir: "below" });
+  assert.equal(d2.t, "delta", "une carte en dessous");
+  assert.equal(h.state.piles.tidal.length, 7);
+  const tunnel = Object.values(h.state.cards).find((c) => c.kind === "location" && c.loc.zone === "board" && c.loc.x === 737 && c.loc.y === 238);
+  assert.ok(tunnel && !tunnel.faceUp && tunnel.side === "a", "tunnel non révélé en dessous de l'île du nord");
+  d2 = await h.action({ t: "placeAround", id: nord.id, pile: "tidal", dir: "below" });
+  assert.equal(d2.t, "nack", "emplacement occupé");
+  d2 = await h.action({ t: "placeAround", id: nord.id, pile: "tidal", dir: "up" });
+  assert.equal(d2.t, "nack", "direction inconnue");
+  d2 = await h.action({ t: "placeAround", id: nordOuest.id, pile: "depths", dir: "left" });
+  assert.equal(d2.t, "delta", "une profondeur à gauche");
+  assert.equal(h.state.piles.depths.length, 2);
+  const prof = Object.values(h.state.cards).find((c) => c.kind === "location" && c.loc.zone === "board" && c.loc.x === 179 && c.loc.y === 173);
+  assert.ok(prof && !prof.faceUp, "profondeur non révélée à gauche");
+  // Inondation à la révélation, par lieu : Waveworn Island +1, Cyclopean Ruins totalement, Temple sans.
+  const attendu = { "07171": 1, "07172": 1, "07173": 1, "07175a": 1, "07175b": 1, "07176a": 2, "07176b": 2, "07177a": 0, "07177b": 0 };
+  d2 = await h.action({ t: "revealLocation", id: prof.id });
+  assert.equal(h.state.cards[prof.id].tokens.flood ?? 0, attendu[prof.code], `${prof.code} : inondation ${attendu[prof.code]} à la révélation`);
+  if (attendu[prof.code]) assert.ok(h.state.log.some((e) => e.text.includes("(texte du lieu)")), "journal : texte du lieu");
+  const waveworn = iles.find((c) => c.code === "07171");
+  d2 = await h.action({ t: "revealLocation", id: waveworn.id });
+  assert.equal(h.state.cards[waveworn.id].tokens.flood, 1, "Waveworn Island partiellement inondé à sa révélation");
+  const lonely = iles.find((c) => c.code === "07169");
+  d2 = await h.action({ t: "revealLocation", id: lonely.id });
+  assert.ok(!h.state.cards[lonely.id].tokens.flood, "Lonely Isle : pas d'inondation à la révélation");
+  // Agenda 2 : le verso de l'agenda 1 (ennemi) entre en jeu au centre, révélé, comme un ennemi.
+  const agenda1 = h.state.agendaId;
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07166", "agenda 2 courant");
+  const terreur = h.state.cards[agenda1];
+  assert.ok(terreur.kind === "enemy" && terreur.side === "b" && terreur.faceUp && terreur.loc.zone === "board" && terreur.loc.x === 773 && terreur.loc.y === 457, "verso ennemi de l'agenda 1 sur le tapis");
+  assert.ok(h.state.log.some((e) => e.text.includes("The Terror of Devil Reef entre en jeu")), "journal : verso ennemi");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.cards[navire.id], h.state.cards[navire.id], "les autres clients suivent");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // Autonome, solo : sac de base, agenda 1 v. II, mission échouée (Dawson à mélanger hors application).
+  const { h, d } = await tableReef({ joueurs: 1, answers: { mode: "standalone", mission: "successful", devil: "yes", tokens_out: ["cultist", "tablet"] } });
+  assert.equal(d.t, "delta");
+  assert.equal(h.state.chaos.bag.length, 20, "autonome : sac de base");
+  assert.equal(h.state.cards[h.state.agendaId].code, "07165", "autonome : agenda 1 v. II");
+  assert.ok(h.state.log.some((e) => e.text.includes("La mission a échoué")), "autonome : mission échouée");
+  assert.equal(Object.values(h.state.cards).filter((c) => c.kind === "mini").length, 1);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 // ============ Board joueur, étape 1 (cahier §10) : import du deck au lobby, faiblesse aléatoire, code de siège et
 // connexions multiples, decks créés à la mise en place, actions p:* réservées au siège ============
 {

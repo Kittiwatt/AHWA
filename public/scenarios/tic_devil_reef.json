@@ -1,0 +1,1235 @@
+{
+ "id": "tic_devil_reef",
+ "title": "Devil Reef",
+ "campaign": "The Innsmouth Conspiracy",
+ "campaignId": "tic",
+ "order": 4,
+ "packs": [
+  "def",
+  "tic"
+ ],
+ "encounterSets": [
+  "devil_reef",
+  "agents_of_hydra",
+  "creatures_of_the_deep",
+  "flooded_caverns",
+  "malfunction",
+  "rising_tide"
+ ],
+ "extraCards": [
+  "07082"
+ ],
+ "scenarioCard": "07163",
+ "agendaDeck": [
+  "07164",
+  "07165",
+  "07166"
+ ],
+ "actDeck": [
+  "07167"
+ ],
+ "startLocation": "07168",
+ "piles": [
+  {
+   "id": "tidal",
+   "label": "Tidal Tunnels",
+   "around": true
+  },
+  {
+   "id": "depths",
+   "label": "Unfathomable Depths",
+   "around": true
+  }
+ ],
+ "flood": {
+  "onRevealByCode": {
+   "07171": 1,
+   "07172": 1,
+   "07173": 1,
+   "07175a": 1,
+   "07175b": 1,
+   "07176a": 2,
+   "07176b": 2
+  }
+ },
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "layout": [
+  {
+   "code": "07168",
+   "x": 737,
+   "y": 411
+  }
+ ],
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Campagne ou scénario seul ?",
+   "options": [
+    {
+     "id": "campaign",
+     "label": "Campagne : journal des scénarios précédents (questions suivantes)"
+    },
+    {
+     "id": "standalone",
+     "label": "Scénario seul (mode autonome) : sac de base, mission échouée, pas de « battle with a horrifying devil »"
+    }
+   ]
+  },
+  {
+   "id": "mission",
+   "text": "Au journal (scénario II) :",
+   "options": [
+    {
+     "id": "successful",
+     "label": "« The mission was successful »"
+    },
+    {
+     "id": "failed",
+     "label": "« The mission failed »"
+    }
+   ]
+  },
+  {
+   "id": "devil",
+   "text": "« A battle with a horrifying devil » figure sous « Memories Recovered » ?",
+   "options": [
+    {
+     "id": "no",
+     "label": "Non"
+    },
+    {
+     "id": "yes",
+     "label": "Oui"
+    }
+   ]
+  },
+  {
+   "id": "tokens_out",
+   "text": "Jetons retirés du sac pour le reste de la campagne (scénario I) :",
+   "type": "multi",
+   "options": [
+    {
+     "id": "cultist",
+     "label": "Cultiste"
+    },
+    {
+     "id": "tablet",
+     "label": "Tablette"
+    },
+    {
+     "id": "elder_thing",
+     "label": "Ancien"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "tokens_out",
+      "has": "cultist"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "cultist"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "tokens_out",
+      "has": "tablet"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "tablet"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "tokens_out",
+      "has": "elder_thing"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "elder_thing"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "standalone"
+   },
+   "then": [
+    {
+     "op": "log",
+     "text": "Mode autonome : sac de base du guide (p. 20), aucun retrait ; la mission a échoué ; pas de « battle with a horrifying devil »."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "devil",
+      "is": "yes"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "remove",
+     "codes": [
+      "07165"
+     ],
+     "log": "« A battle with a horrifying devil » est au journal : l'agenda 1 utilisé est la version I, la version II est retirée de la partie."
+    }
+   ],
+   "else": [
+    {
+     "op": "remove",
+     "codes": [
+      "07164"
+     ],
+     "log": "L'agenda 1 utilisé est la version II, la version I est retirée de la partie."
+    }
+   ]
+  },
+  {
+   "op": "place",
+   "code": "07168",
+   "zone": "board",
+   "x": 737,
+   "y": 411,
+   "reveal": true,
+   "log": "Churning Waters est mis en jeu au centre, révélé : le navire y attend les enquêteurs."
+  },
+  {
+   "op": "addTokens",
+   "at": "07168",
+   "token": "flood",
+   "n": 2,
+   "log": "Churning Waters entre en jeu totalement inondé — niveau d'inondation"
+  },
+  {
+   "op": "spawn",
+   "code": "07178",
+   "at": "07168",
+   "log": "Le Fishing Vessel (véhicule) est mis en jeu à Churning Waters, posé sur le lieu."
+  },
+  {
+   "op": "minis",
+   "code": "07178",
+   "log": "Les pions des enquêteurs sont posés sur le Fishing Vessel : chaque enquêteur commence la partie dans le navire (un pion à cheval sur le véhicule est dedans)."
+  },
+  {
+   "op": "keys",
+   "colors": [
+    "purple",
+    "white",
+    "black"
+   ],
+   "faceUp": true,
+   "log": "Clés violette, blanche et noire mises de côté, face visible."
+  },
+  {
+   "op": "keys",
+   "colors": [
+    "yellow",
+    "green",
+    "red",
+    "blue"
+   ],
+   "faceUp": false,
+   "log": "Clés jaune, verte, rouge et bleue mises de côté face cachée et mélangées : personne ne sait laquelle est laquelle."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "07169",
+    "07170",
+    "07171",
+    "07172",
+    "07173"
+   ],
+   "n": 5,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 737,
+     "y": 0
+    },
+    {
+     "x": 365,
+     "y": 173
+    },
+    {
+     "x": 1109,
+     "y": 173
+    },
+    {
+     "x": 365,
+     "y": 649
+    },
+    {
+     "x": 1109,
+     "y": 649
+    }
+   ],
+   "log": "Les cinq îles « Devil Reef » sont mélangées et posées non révélées aux positions du diagramme (p. 20) : une au nord, deux à l'ouest, deux à l'est, à distance de Churning Waters — elles ne lui sont pas adjacentes mais reliées par leurs icônes de connexion."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "07175a",
+    "07175b"
+   ],
+   "n": 1,
+   "rest": "pile",
+   "restPile": "depths",
+   "log": "Deep One Grotto : l'une de ses deux versions est retirée de la partie sans être regardée, l'autre rejoint la pile Unfathomable Depths."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "07176a",
+    "07176b"
+   ],
+   "n": 1,
+   "rest": "pile",
+   "restPile": "depths",
+   "log": "Cyclopean Ruins : l'une de ses deux versions est retirée de la partie sans être regardée, l'autre rejoint la pile Unfathomable Depths."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "07177a",
+    "07177b"
+   ],
+   "n": 1,
+   "rest": "pile",
+   "restPile": "depths",
+   "log": "Temple of the Union : l'une de ses deux versions est retirée de la partie sans être regardée, l'autre rejoint la pile Unfathomable Depths."
+  },
+  {
+   "op": "toPile",
+   "pile": "depths",
+   "codes": [],
+   "shuffle": true,
+   "log": "Les trois Unfathomable Depths de côté sont mélangées (pile « Unfathomable Depths », côté non révélé) : nul ne sait laquelle est laquelle."
+  },
+  {
+   "op": "toPile",
+   "pile": "tidal",
+   "codes": [
+    "07174a",
+    "07174b",
+    "07102",
+    "07103",
+    "07104"
+   ],
+   "shuffle": true,
+   "log": "Les huit Tidal Tunnels sont mélangés en pile « Tidal Tunnels », côté non révélé."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "07180",
+    "07181",
+    "07179"
+   ],
+   "faceUp": true,
+   "log": "Awakened Mantle, Headdress of Y'ha-nthlei et Waveworn Idol sont mis de côté, hors jeu, face visible."
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "mission",
+      "is": "successful"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "aside",
+     "codes": [
+      "07082"
+     ],
+     "faceUp": true,
+     "log": "La mission a réussi : Thomas Dawson est de côté, face visible — un enquêteur l'ajoute à sa main de départ en plus de ses cartes (glissez-le sur son siège)."
+    }
+   ],
+   "else": [
+    {
+     "op": "aside",
+     "codes": [
+      "07082"
+     ],
+     "faceUp": true,
+     "log": "La mission a échoué : Thomas Dawson est de côté — hors application, mélangez-le dans le deck d'un enquêteur pour ce scénario."
+    }
+   ]
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application (Investigator Setup, guide p. 19) : retirez Elina Harper des decks pour ce scénario ; Thomas Dawson selon le journal (voir le journal de bord) ; puis 5 ressources, main de départ, mulligan possible (ou import du deck sur son board)."
+  },
+  {
+   "when": "setup",
+   "text": "Véhicules (guide) : un pion posé à cheval sur le Fishing Vessel est dans le navire, posé sur le lieu il n'y est pas ; le navire se déplace par une action et emmène ses pions (glissez-le : ils suivent) ; les enquêteurs à bord sont au lieu du navire. Le navire est posé sur Churning Waters, où chacun commence à bord."
+  },
+  {
+   "when": "setup",
+   "text": "Adjacence (guide) : les îles et Churning Waters ne sont pas adjacents (connexions par icônes). Les Tidal Tunnels et Unfathomable Depths entrent en jeu adjacents à une île quand une carte le demande : menu de l'île → ligne « Tidal Tunnels » ou « Unfathomable Depths » : ↓ ← → pour une carte à cet emplacement, ⟳ pour les trois emplacements libres. Adjacent = connecté, jamais en diagonale."
+  },
+  {
+   "when": "setup",
+   "text": "Clés (guide) : violette, blanche et noire de côté face visible — les cartes disent où elles se posent (glissez-les) ; jaune, verte, rouge et bleue face cachée et mélangées (menu → « Poser ici une clé cachée au hasard » quand une carte le demande). Prendre le contrôle d'une clé = la glisser sur son siège (elle se retourne)."
+  },
+  {
+   "when": "setup",
+   "text": "Inondation (guide) : Churning Waters est totalement inondé dès le départ ; les lieux dont le texte le prévoit montent d'un niveau (ou sont totalement inondés) d'eux-mêmes à leur révélation (voir le journal) ; corrigez à la main le reste (menu du lieu → Inondation, panneau Marée)."
+  },
+  {
+   "when": "setup",
+   "text": "Bénédictions et malédictions (guide) : clic droit sur le sac → Ajuster (10 au plus de chaque) ; révélé, un tel jeton retourne à la réserve : « ↺ Tout remettre » l'écarte tout seul."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Agenda 2 : le verso de l'agenda 1 est un ennemi — l'app l'a mis en jeu au centre du tapis, déplacez-le là où sa carte l'envoie."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour. Pensez au navire : déplacer le Fishing Vessel emmène ses passagers."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-10",
+ "encounterSetNames": {
+  "devil_reef": "Devil Reef",
+  "agents_of_hydra": "Agents of Hydra",
+  "creatures_of_the_deep": "Creatures of the Deep",
+  "flooded_caverns": "Flooded Caverns",
+  "malfunction": "Malfunction",
+  "rising_tide": "Rising Tide"
+ },
+ "cards": [
+  {
+   "code": "07082",
+   "name": "Thomas Dawson",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_vanishing_of_elina_harper",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Soldier in a New War",
+   "traits": [
+    "Ally",
+    "Agency",
+    "Veteran"
+   ],
+   "health": 2,
+   "sanity": 3
+  },
+  {
+   "code": "07086",
+   "name": "Lloigor",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "agents_of_hydra",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster"
+   ],
+   "health": 5,
+   "victory": 1
+  },
+  {
+   "code": "07087",
+   "name": "Psychic Pull",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "agents_of_hydra",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power"
+   ]
+  },
+  {
+   "code": "07088",
+   "name": "Deep One Bull",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 5
+  },
+  {
+   "code": "07089",
+   "name": "Lurking Deep One",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 2
+  },
+  {
+   "code": "07090",
+   "name": "Deep One Assault",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "07091",
+   "name": "Undertow",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07092",
+   "name": "Rising Tides",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07093",
+   "name": "Riptide",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07099",
+   "name": "Malfunction",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "malfunction",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Blunder"
+   ]
+  },
+  {
+   "code": "07102",
+   "name": "Underwater Cavern",
+   "kind": "location",
+   "qty": 2,
+   "set": "flooded_caverns",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07103",
+   "name": "Tidal Pool",
+   "kind": "location",
+   "qty": 2,
+   "set": "flooded_caverns",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07104",
+   "name": "Underground River",
+   "kind": "location",
+   "qty": 2,
+   "set": "flooded_caverns",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel",
+   "victory": 1
+  },
+  {
+   "code": "07163",
+   "name": "Devil Reef",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "07164",
+   "name": "Secrets of the Sea (v. I)",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "backCode": "07164b",
+   "backKind": "enemy",
+   "backName": "The Terror of Devil Reef",
+   "backSubname": "Grasping Abomination",
+   "backHealth": 6,
+   "backVictory": 1,
+   "doom": 9,
+   "stage": 1
+  },
+  {
+   "code": "07165",
+   "name": "Secrets of the Sea (v. II)",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "backCode": "07165b",
+   "backKind": "enemy",
+   "backName": "The Terror of Devil Reef",
+   "backSubname": "Writhing in the Deep",
+   "backHealth": 6,
+   "doom": 9,
+   "stage": 1
+  },
+  {
+   "code": "07166",
+   "name": "The Devil of the Depths",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Triumph of the Waves",
+   "doom": 9,
+   "stage": 2
+  },
+  {
+   "code": "07167",
+   "name": "Reef of Mysteries",
+   "kind": "act",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Secrets Uncovered",
+   "stage": 1
+  },
+  {
+   "code": "07168",
+   "name": "Churning Waters",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Ocean"
+   ]
+  },
+  {
+   "code": "07169",
+   "name": "Lonely Isle",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Ocean",
+    "Island"
+   ],
+   "backName": "Devil Reef"
+  },
+  {
+   "code": "07170",
+   "name": "Hidden Cove",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Ocean",
+    "Island"
+   ],
+   "backName": "Devil Reef"
+  },
+  {
+   "code": "07171",
+   "name": "Waveworn Island",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Ocean",
+    "Island"
+   ],
+   "backName": "Devil Reef"
+  },
+  {
+   "code": "07172",
+   "name": "Salt Marshes",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Ocean",
+    "Island"
+   ],
+   "backName": "Devil Reef"
+  },
+  {
+   "code": "07173",
+   "name": "Black Reef",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Ocean",
+    "Island"
+   ],
+   "backName": "Devil Reef"
+  },
+  {
+   "code": "07174a",
+   "name": "Bootlegger's Hideaway",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel",
+   "victory": 1
+  },
+  {
+   "code": "07174b",
+   "name": "Bootlegger's Hideaway",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel",
+   "victory": 1
+  },
+  {
+   "code": "07175a",
+   "name": "Deep One Grotto",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave",
+    "Y'ha-nthlei"
+   ],
+   "backName": "Unfathomable Depths"
+  },
+  {
+   "code": "07175b",
+   "name": "Deep One Grotto",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave",
+    "Y'ha-nthlei"
+   ],
+   "backName": "Unfathomable Depths"
+  },
+  {
+   "code": "07176a",
+   "name": "Cyclopean Ruins",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave",
+    "Y'ha-nthlei"
+   ],
+   "backName": "Unfathomable Depths"
+  },
+  {
+   "code": "07176b",
+   "name": "Cyclopean Ruins",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave",
+    "Y'ha-nthlei"
+   ],
+   "backName": "Unfathomable Depths"
+  },
+  {
+   "code": "07177a",
+   "name": "Temple of the Union",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave",
+    "Y'ha-nthlei"
+   ],
+   "backName": "Unfathomable Depths"
+  },
+  {
+   "code": "07177b",
+   "name": "Temple of the Union",
+   "kind": "location",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave",
+    "Y'ha-nthlei"
+   ],
+   "backName": "Unfathomable Depths"
+  },
+  {
+   "code": "07178",
+   "name": "Fishing Vessel",
+   "kind": "asset",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Vehicle"
+   ]
+  },
+  {
+   "code": "07179",
+   "name": "Waveworn Idol",
+   "kind": "asset",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Relic"
+   ],
+   "sanity": 2
+  },
+  {
+   "code": "07180",
+   "name": "Awakened Mantle",
+   "kind": "asset",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Relic",
+    "Clothing"
+   ],
+   "health": 2
+  },
+  {
+   "code": "07181",
+   "name": "Headdress of Y'ha-nthlei",
+   "kind": "asset",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Relic"
+   ],
+   "health": 1,
+   "sanity": 1
+  },
+  {
+   "code": "07182",
+   "name": "Deep One Predator",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 2
+  },
+  {
+   "code": "07183",
+   "name": "Hunting Deep One",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 3
+  },
+  {
+   "code": "07184",
+   "name": "Shapes in the Water",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "07185",
+   "name": "Aquatic Ambush",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "07186",
+   "name": "Horrors from the Deep",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "07187",
+   "name": "Stowaway",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "07188",
+   "name": "Dragged Under",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme",
+    "Terror"
+   ]
+  }
+ ]
+}

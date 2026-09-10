@@ -57,7 +57,7 @@ export type SetupStep =
   | { op: "toPile"; pile: string; set?: string; codes?: string[]; shuffle?: boolean; log?: string }
   | { op: "spawn"; code: string; at: string; log?: string }
   | { op: "setStart"; code: string; log?: string }
-  | { op: "minis"; code: string; log?: string }
+  | { op: "minis"; code: string; log?: string }   // pions de tous les enquêteurs sur une carte en jeu : un lieu, ou un véhicule (Fishing Vessel)
   | { op: "aside"; codes?: string[]; sets?: string[]; faceUp?: boolean; side?: "a" | "b"; log?: string }   // codes (répétés selon la quantité) ou sets entiers ; `side: "b"` = mise de côté sur son verso lié (Angry Mob)
   | { op: "barriers"; pairs: { a: string; b: string; n: number }[]; log?: string }   // barrières (jetons ressource) entre deux lieux adjacents (In Too Deep)
   | { op: "placeKey"; color: string; at?: string; atRandom?: string[]; faceUp?: boolean; log?: string }
@@ -156,7 +156,9 @@ export type ScenarioDef = {
   mythosDoom?: boolean;     // false : la phase du mythe n'ajoute pas de doom automatiquement (brèches d'In the Clutches of Chaos)
   emptySpace?: boolean;     // le scénario pose des « espaces vides » (dos de carte joueur) : action emptySpace, menu des lieux (Before the Black Throne)
   barriers?: boolean;       // barrières entre lieux adjacents (In Too Deep) : action setBarrier, jetons sur les arêtes, menu des lieux « +1 barrière vers… »
-  flood?: { byAgenda?: Record<string, { all?: "increase" | "full"; onReveal?: 0 | 1 | 2 }> };
+  flood?: { byAgenda?: Record<string, { all?: "increase" | "full"; onReveal?: 0 | 1 | 2 }>; onRevealByCode?: Record<string, 1 | 2> };
+    // `onRevealByCode[code]` : ce lieu monte d'un niveau (1) ou est totalement inondé (2) à sa révélation — texte imprimé du lieu
+    // (Devil Reef), même sémantique que la règle de marée `onReveal`
   agendaEffects?: Record<string, {
     shuffleAside?: string[]; withDiscard?: boolean;                       // cartes de côté (et la défausse) mélangées dans la pioche
     flood?: { trait?: string; mode: "increase" | "full"; scope?: "all" | "revealed" };   // inondation des lieux (du trait, tous ou révélés)

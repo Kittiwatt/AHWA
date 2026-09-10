@@ -144,8 +144,10 @@ donc pas ce qui est déjà posé.
 - `{"op":"spawn","code","at","log"?}` — pose révélée sur la carte `at`
   (code ou slot) avec décalage automatique (36/46 px + 18 par carte déjà
   présente). Pour les ennemis « mis en jeu à » un lieu.
-- `{"op":"minis","code","log"?}` — pions de tous les enquêteurs sur le
-  lieu (rangée de 44 px à cheval sur le bord haut).
+- `{"op":"minis","code","log"?}` — pions de tous les enquêteurs sur la
+  carte en jeu (rangée de 44 px à cheval sur le bord haut) : un lieu, ou
+  un **véhicule** (Fishing Vessel : « chaque enquêteur commence dans le
+  navire »).
 - `{"op":"setStart","code"}` — définit `slot:start` (référence pure,
   aucun effet visuel).
 - `{"op":"emptySpace","positions":[{x,y}…],"log"?}` — proxys « espace
@@ -218,8 +220,12 @@ donc pas ce qui est déjà posé.
   `side:"b"` : mise de côté sur son **verso lié** (Angry Mob = verso de
   07062) — interdit sur une carte à simple face (image inexistante).
 - `{"op":"toPile","pile","set"?|"codes"?,"shuffle"?,"log"?}` — envoie
-  dans une pile (créée au besoin) le set entier ou les codes ;
-  `shuffle` mélange **toute** la pile, y compris son contenu antérieur.
+  dans une pile (créée au besoin) le set entier ou les codes (toutes les
+  copies restantes de chaque code) ; `shuffle` mélange **toute** la
+  pile, y compris son contenu antérieur — `"codes":[]` + `shuffle`
+  mélange donc une pile déjà remplie (les Unfathomable Depths versées
+  une à une par des `pickRandom rest:"pile"` : sans ce mélange, l'ordre
+  des paires serait connu).
 - `{"op":"bury","with"?:[codes],"fromDeckTop"?,"trait","dy"?,"log"?}` —
   **après `buildEncounter`** : les instances de `with` mises de côté
   plus tôt + les `fromDeckTop` premières cartes de la pioche (défausse
@@ -291,9 +297,12 @@ rendus pendant la partie.
   de Wages of Sin, avec `buildEncounter.split`) ; `gather:{backName}` :
   la pile se forme en cours de partie (action `formPile`) avec les
   lieux de côté dont le côté non révélé porte ce nom (« Tidal
-  Tunnel ») ; `around:true` : ses lieux se posent autour d'un lieu du
-  tapis (action `placeAround` : dessous, à gauche, à droite — pas de
-  grille 186/238) ; `menuFor:[kinds]` : le menu de ces cartes propose
+  Tunnel ») ; `around:true` : ses lieux se posent à côté d'un lieu du
+  tapis (action `placeAround {id, pile, dir?}` : `dir` = `below` /
+  `left` / `right` pour une seule carte à cet emplacement, sans `dir`
+  les trois emplacements libres — pas de grille 186/238 ; menu du lieu :
+  une ligne « <label> (n) ↓ ← → ⟳ » par pile, même ligne de boutons que
+  l'inondation) ; `menuFor:[kinds]` : le menu de ces cartes propose
   « Placer dans <label> » (Invités sauvés, Profondeurs).
 - **`swaps`** : `[{pair:[a,b], labels:[la,lb]}]` — lieux jumeaux
   (normal ↔ Spectral) ; action `swapLocation` (un lieu, ou `all`).
@@ -305,12 +314,16 @@ rendus pendant la partie.
   « + » au survol) et menu du lieu « +1 barrière vers… » (voisins
   orthogonaux à 186/238 px). L'action serveur `setBarrier {a,b,delta}`
   existe toujours ; le flag gate le front.
-- **`flood`** : `{byAgenda:{"<stage>":{all?:"increase"|"full", onReveal?:0|1|2}}}`
-  — quand cet agenda devient courant : tous les lieux révélés montent
-  d'un niveau (`increase`) ou sont totalement inondés (`full`), et
-  `onReveal` devient la règle appliquée à chaque révélation (0 rien,
-  1 +1 niveau, 2 totalement). Active menus « Inondation » et panneau
-  Marée. Niveaux : 0 sec, 1 partiellement, 2 totalement.
+- **`flood`** : `{byAgenda?:{"<stage>":{all?:"increase"|"full", onReveal?:0|1|2}}, onRevealByCode?:{"<code>":1|2}}`
+  — `byAgenda` : quand cet agenda devient courant, tous les lieux
+  révélés montent d'un niveau (`increase`) ou sont totalement inondés
+  (`full`), et `onReveal` devient la règle appliquée à chaque révélation
+  (0 rien, 1 +1 niveau, 2 totalement) ; `onRevealByCode` : règle
+  imprimée sur un lieu précis (Devil Reef : îles et profondeurs qui
+  s'inondent à leur révélation), même sémantique, la plus forte des deux
+  règles l'emporte (journal « (texte du lieu) »). `flood: {}` suffit à
+  activer menus « Inondation » et panneau Marée. Niveaux : 0 sec,
+  1 partiellement, 2 totalement.
 - **`agendaEffects`** : `{"<stage>":{flood?, shuffleAside?, withDiscard?, spawnAside?, randomKeyOn?, log?}}`
   — appliqués quand l'agenda `stage` devient courant, **dans l'ordre** :
   `flood {mode, trait?, scope?:"all"|"revealed"}` (inonde les lieux du
@@ -339,10 +352,14 @@ rendus pendant la partie.
   de rencontre (libellé `menuPile`) et `buryAt` sur une carte de
   `withAny` (libellé `menuCard` : elle + 1 carte de la pioche, sous son
   lieu).
-- **`backPlacement`** : `{code:{x,y}}` — position d'entrée du
-  verso-lieu quand l'agenda/acte lié avance (défaut 737 × 411). Le
-  verso ne devient un lieu pour le moteur que par l'avancement — le
-  retourner à la main le laisse « acte » (lisible, sans indices).
+- **`backPlacement`** : `{code:{x,y}}` — position d'entrée du verso
+  quand l'agenda/acte lié avance (défaut 737 × 411) : **verso-lieu**
+  (la carte devient un lieu : couche des lieux, indices de son verso)
+  ou **verso-ennemi** (Devil Reef : la carte devient un ennemi posé au
+  centre avec le décalage d'un `spawn`, à déplacer là où sa carte
+  l'envoie). Le verso ne change de nature pour le moteur que par
+  l'avancement — le retourner à la main le laisse « acte » ou
+  « agenda » (lisible, sans indices ni jauges).
 - **`reminders`** : `{when, text}` avec `when` ∈ `"setup"`, phases
   (`"mythos"`, `"investigation"`, `"enemy"`, `"upkeep"` — au début de
   chaque phase concernée), `"act:N"` / `"agenda:N"` (quand l'étape
@@ -360,6 +377,10 @@ rendus pendant la partie.
 - **Autres constantes** : minis 44 px (rangée bord haut des lieux),
   clés 44 px (bord gauche, empilées vers le bas), cartes de côté
   espacées de 136 px.
+- **Porteurs** : un lieu déplacé emmène pions, clés et cartes posés
+  dessus ; un **véhicule** (soutien à trait `Vehicle`, Fishing Vessel)
+  emmène ses pions et clés seulement — un pion à cheval sur le véhicule
+  est « dedans » (règle du guide), posé sur le lieu il n'y est pas.
 - **Zones** : `board` (tapis), `story` (agenda/acte/scénario), `aside`
   (de côté), `victory`, `seat0–3` (postes), zones du board joueur
   (`pplay/pevent/pcommit/paside` + n° de siège) — le setup n'écrit
