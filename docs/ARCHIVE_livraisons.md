@@ -8,6 +8,36 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Chips : bouton maintenu déployé, agenda et acte** —
+  trois retours de test de l'utilisateur. (1) Sur le « − » ou « + »
+  déployé d'une chip, un seul clic passait puis le bouton se repliait ;
+  voulu : cliquer plusieurs fois, le bouton ne se repliant que quand la
+  souris part ailleurs. Cause reproduite (Playwright, `mouse.down/up`
+  sans déplacement) : chaque clic re-rend le siège (`replaceChildren`),
+  la colonne « histoire » ou l'entête du board — la chip sous la souris
+  est un élément **neuf, plus étroit** (pas de `:hover` tant que la
+  souris ne bouge pas), le bouton n'y est plus ; sur le tapis, où
+  `majCarte` réutilise l'élément, ça marchait déjà. Correctif générique
+  `garderChipsDeployees()` (`dom.js`, appelé par `main.js` et
+  `joueur.js`) : `pointermove` en capture mémorise la chip survolée par
+  une **clé stable** (jeton @ id de carte / index de siège / entête,
+  + a/b des barrières) et lui pose la classe `ouverte` ; un
+  `MutationObserver` sur `body` repose la classe sur le remplaçant dès
+  qu'il apparaît (microtâche, avant le clic suivant) ; la classe tombe
+  quand la souris quitte la chip, appuie ailleurs ou quitte la page.
+  CSS : `.ouverte` rejoint `:hover` (`:is(:hover, .ouverte)`) pour
+  l'affichage du bouton et l'allongement à gauche des `.jauge-inv`.
+  Vérifié : siège 5 → 4, 3, 2 ; Study « + » 3, 4, 5 ; agenda 3 → 2, 1 ;
+  entête du board 5 → 4, 3, 2 ; soutien en jeu 4 → 3, 2, 1 ; souris
+  ailleurs → replié. (2) Les doom de l'agenda et de l'acte étaient trop
+  petits : chips de `.histoire .carte.kind-agenda / .kind-act` à la
+  taille des jauges d'un soutien (image 30 px, police 1 rem, comme les
+  uses). (3) Le menu de l'agenda et de l'acte propose aussi
+  **Ressource** et **Marqueur** (générique), en plus du doom / des
+  indices. `npm run check` zéro erreur ; régression `test_room.mjs`
+  (732 messages) OK ; survol des jauges des sièges toujours immobile ;
+  zéro erreur console.
+
 - 2026-09-10 : **Tous les jetons des cartes en chips** — demande de
   l'utilisateur : « chaque jeton posé quelque part sur un objet (doom
   sur agenda, indice sur lieu…) doit avoir ce type de bouton qui se

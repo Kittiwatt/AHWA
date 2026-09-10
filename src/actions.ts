@@ -2,7 +2,7 @@
 // Règle « rien n'est jamais bloqué » (cahier §8) : on ne refuse que pour intégrité (carte, pile,
 // siège inconnus), jamais parce que « ce n'est pas le moment ».
 
-import type { CardState, LogEntry, Phase, RoomState, Token, ZoneId } from "./state";
+import type { CardId, CardState, LogEntry, Phase, RoomState, Token, ZoneId } from "./state";
 import type { StageEffects, ScenarioDef } from "./scenario";
 import { addLog, nextZ, nomVisible, revealLocation, clueValue, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI, cleDeCouleur, LIBELLES_INONDATION, poserCleSur, texteMaree, enfouir } from "./setup";
 import { Refus, refuser } from "./refus";
@@ -617,7 +617,9 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       if (!(key in seat.counters)) refuser("compteur inconnu");
       const v = msg.value !== undefined ? Number(msg.value) : seat.counters[key] + Number(msg.delta ?? 0);
       if (!Number.isFinite(v)) refuser("valeur invalide");
-      seat.counters[key] = Math.max(0, Math.round(v));   // jamais négatif (ressources comprises : retour de test 2026-09-08)
+      // Jamais négatif (ressources comprises : retour de test 2026-09-08) ; un compteur déclaré peut avoir ses bornes (niveau d'alerte 1-10).
+      const decl = def.seatCounters.find((c) => c.key === key);
+      seat.counters[key] = Math.min(decl?.max ?? Infinity, Math.max(decl?.min ?? 0, Math.round(v)));
       return {};
     }
     case "setCounter": {
@@ -844,6 +846,33 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
       state.seats[s].counters.clues = (state.seats[s].counters.clues ?? 0) + pris;
       addLog(state, "action", `${nomSiege(state, s, def)} prend ${pris} indice${pris > 1 ? "s" : ""} sur ${nomCarte(def, c)}.`, s);
       return {};
+    }
+    case "discardTop": {
+      // {n} : les n premières cartes de la pioche de rencontre vont à la défausse, face visible, et s'affichent au demandeur
+      // (« discard the top 5 cards of the encounter deck and check their game icons », lieux Game de Fortune and Folly).
+      // Pioche vide en cours de route : les cartes déjà défaussées par ce geste restent de côté, le reste de la défausse est
+      // remélangé dans la pioche (livret p. 6), puis on continue.
+      if (!def.discardTop?.length) refuser("ce scénario ne défausse pas la pioche par paquets");
+      const n = Math.min(20, Math.max(1, Math.round(Number(msg.n) || 1)));
+      const sorties: CardId[] = [];
+      for (let i = 0; i < n; i++) {
+        if (!state.piles.encounter.length) {
+          const reste = state.piles.encounterDiscard.filter((id) => !sorties.includes(id));
+          if (!reste.length) break;
+          state.piles.encounterDiscard = state.piles.encounterDiscard.filter((id) => sorties.includes(id));
+          for (const id of reste) state.cards[id].faceUp = false;
+          state.piles.encounter.push(...shuffle(reste, rng));
+          addLog(state, "action", `Pioche vide en cours de lecture : les ${reste.length} autres cartes de la défausse sont remélangées dans la pioche.`);
+        }
+        const id = state.piles.encounter.shift()!;
+        const k = state.cards[id];
+        k.loc = { pile: "encounterDiscard" }; k.faceUp = true; k.tokens = {}; k.exhausted = false; k.side = "a";
+        state.piles.encounterDiscard.unshift(id);
+        sorties.push(id);
+      }
+      if (!sorties.length) refuser("pioche et défausse vides");
+      addLog(state, "action", `${moi !== null ? nomSiege(state, moi, def) : "Un joueur"} défausse les ${sorties.length} première${sorties.length > 1 ? "s" : ""} carte${sorties.length > 1 ? "s" : ""} de la pioche : ${sorties.map((id) => nomCarte(def, state.cards[id])).join(", ")} (icônes de jeu à lire sur les cartes).`, moi ?? undefined);
+      return { peek: { pile: "encounterDiscard", cards: sorties.map((id) => ({ id, code: state.cards[id].code })) } };
     }
     case "searchEncounter": {
       // {pile, n?} : consulte la pile (ou seulement ses n premières cartes : « regardez les X premières cartes du Cosmos »).

@@ -242,6 +242,8 @@ export function initInteractions(ctx) {
       const premiere = state.piles.encounter.length ? state.cards[state.piles.encounter[0]] : null;
       items.push(el("p", { class: "titre-menu", text: `Pioche de rencontre — ${state.piles.encounter.length}` }));
       items.push(item("Piocher (retourner la première carte)", () => ctx.envoyer({ t: "drawEncounter" }), { off: Boolean(premiere?.faceUp) || (!state.piles.encounter.length && !state.piles.encounterDiscard.length) }));
+      // Icônes de jeu (Fortune and Folly) : les N premières cartes vont à la défausse et s'affichent au demandeur.
+      for (const n of ctx.scenario.discardTop ?? []) items.push(item(`Défausser les ${n} première${n > 1 ? "s" : ""} (icônes de jeu)`, () => ctx.envoyer({ t: "discardTop", n }), { off: !state.piles.encounter.length && !state.piles.encounterDiscard.length }));
       items.push(item("Chercher (puis mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: "encounter" }), { off: !state.piles.encounter.length }));
       items.push(item("Mélanger", () => ctx.envoyer({ t: "shufflePile", pile: "encounter" }), { off: !state.piles.encounter.length }));
     } else if (outil === "defausse") {

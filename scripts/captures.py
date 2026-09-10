@@ -1316,6 +1316,53 @@ with sync_playwright() as p:
     h25.locator("#aside").hover(); h25.wait_for_timeout(500)
     h25.locator("#aside").screenshot(path=f"{OUT}/116_blob_aside.png")
 
+    # ---- Fortune and Folly, Part I : hub public en anneau, colonne Histoire (The Stakeout, Wellspring 7 indices par enquêteur), chip
+    # Niveau d'alerte des sièges (1, bornée), garde + carte histoire à Roulette Wheel, menu de la pioche « Défausser les 5 premières » ----
+    code26, token26 = creer("sa_fortune_and_folly_part_1")
+    print("room Fortune I", code26)
+    h26 = page_pour(browser, "Hôte", host=True, code=code26, token=token26)
+    h26.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h26.get_by_role("button", name="Choisir un enquêteur").click(); h26.wait_for_selector("dialog.dialogue-inv[open]")
+    h26.fill("dialog .recherche", "roland"); h26.wait_for_timeout(300); h26.locator("dialog .inv").first.click()
+    h26.wait_for_selector(".siege-lobby.moi .fiche")
+    j26 = page_pour(browser, "Bob", code=code26, token=None)
+    j26.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j26.get_by_role("button", name="Choisir un enquêteur").click(); j26.wait_for_selector("dialog.dialogue-inv[open]")
+    j26.fill("dialog .recherche", "daisy"); j26.wait_for_timeout(300); j26.locator("dialog .inv").first.click()
+    j26.wait_for_selector(".siege-lobby.moi .fiche")
+    h26.wait_for_timeout(400)
+    h26.locator("input[name='q-mode'][value='standalone']").check(); h26.wait_for_timeout(200)
+    h26.get_by_role("button", name="Lancer la mise en place").click()
+    h26.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h26.wait_for_load_state("networkidle"); h26.wait_for_timeout(1500)
+    assert h26.locator("#plateau .carte.kind-location").count() == 7, "sept lieux du hub public"
+    assert h26.locator("#plateau .carte.kind-enemy").count() == 2, "Abarran et un Casino Guard"
+    assert h26.locator("#plateau .carte.kind-story").count() == 1, "If the Uniform Fits… sur le garde"
+    assert h26.locator("#histoire .carte.kind-story").count() == 1, "The Stakeout dans la colonne Histoire"
+    assert h26.locator("#histoire .carte.kind-asset .chip-clue .chip-n").inner_text() == "14", "Wellspring : 7 indices × 2"
+    assert h26.locator("#aside .carte").count() == 4, "quatre Role de côté"
+    assert h26.locator("#sieges .siege").nth(0).locator(".chip-alarm .chip-n").inner_text() == "1", "niveau d'alerte 1"
+    h26.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h26.mouse.move(420, 520); h26.wait_for_timeout(300)
+    h26.screenshot(path=f"{OUT}/117_fortune1_tapis.png")
+    # Niveau d'alerte : « − » à 1 reste à 1 (borne), clic = 2.
+    h26.locator("#sieges .siege").nth(0).locator(".chip-alarm").hover(); h26.wait_for_timeout(150)
+    h26.locator("#sieges .siege").nth(0).locator(".chip-alarm .chip-moins").click(); h26.wait_for_timeout(300)
+    assert h26.locator("#sieges .siege").nth(0).locator(".chip-alarm .chip-n").inner_text() == "1", "jamais sous 1"
+    h26.locator("#sieges .siege").nth(0).locator(".chip-alarm .chip-n").click(); h26.wait_for_timeout(300)
+    assert h26.locator("#sieges .siege").nth(0).locator(".chip-alarm .chip-n").inner_text() == "2", "clic : niveau 2"
+    h26.locator("#sieges .siege").nth(0).screenshot(path=f"{OUT}/118_fortune1_siege_alerte.png")
+    h26.locator("#histoire").screenshot(path=f"{OUT}/119_fortune1_histoire.png")
+    # Menu de la pioche : Défausser les 5 premières (icônes de jeu) → aperçu des cinq cartes.
+    h26.locator("#pioches .pile[data-outil='pioche']").dispatch_event("contextmenu"); h26.wait_for_timeout(300)
+    h26.screenshot(path=f"{OUT}/120_fortune1_menu_pioche.png")
+    h26.locator(".menu-carte").get_by_role("button", name="Défausser les 5 premières (icônes de jeu)").click()
+    h26.wait_for_selector("dialog[open] .carte-peek", timeout=5000); h26.wait_for_timeout(800)
+    assert h26.locator("dialog[open] .carte-peek").count() == 5, "cinq cartes affichées"
+    h26.screenshot(path=f"{OUT}/121_fortune1_icones_de_jeu.png")
+    h26.locator("dialog[open]").get_by_role("button", name="Fermer").click(); h26.wait_for_timeout(300)
+    assert h26.locator("#pioches .pile[data-outil='defausse'] .badge").inner_text() == "5", "défausse : 5"
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

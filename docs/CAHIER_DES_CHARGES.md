@@ -577,6 +577,17 @@ au menu de la carte de scénario (contremesures) ; vie et indices
 négatifs du dump (X, ✱) sans maximum ni seuil ; `guide` par scénario
 dans `library.json`.
 
+**Fortune and Folly, Part I (2026-09-10).** Scénario en deux parties →
+deux rooms. `spawn` résout un slot de tirage nominal (« 1 copy of
+Casino Guard » parmi trois codes à lettre) ; `addTokens perInvestigator`
+(7 indices par enquêteur sur The Wellspring of Fortune, carte Key de The
+Scarlet Keys → kind `asset`) ; `seatCounters` avec `min` / `max`
+(niveau d'alerte 1‑10) et `icon` en chemin complet ; action
+**`discardTop {n}`** + champ racine `discardTop: [n…]` (menu de la
+pioche « Défausser les N premières (icônes de jeu) », aperçu au
+demandeur, remélange de la défausse hors cartes défaussées quand la
+pioche se vide).
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets

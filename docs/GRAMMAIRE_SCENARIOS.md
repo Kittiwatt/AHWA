@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-10 (The Blob That Ate Everything compris). Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-10 (Fortune and Folly, Part I compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -76,11 +76,11 @@ Le `.src.json` est la définition complète moins ce que le build ajoute
 | `questions` | oui (peut être `[]`) | Questions du lobby, §3. |
 | `setup` | oui | Suite d'ops, §5 — exécutées dans l'ordre. |
 | `reminders` | oui (peut être `[]`) | Rappels `{when, text}`, §6. |
-| `seatCounters` / `tableCounters` | oui (souvent `[]`) | `{key,label,icon?,initial}`. `seatCounters` : chips rendues (tapis + board joueur), icône `/img/chaos/<icon>.svg`, la clé `seal.counter` est routée vers le sac. `tableCounters` : état seulement, **sans rendu en v1**. |
+| `seatCounters` / `tableCounters` | oui (souvent `[]`) | `{key,label,icon?,initial,min?,max?}`. `seatCounters` : chips rendues (tapis + board joueur), icône `/img/chaos/<icon>.svg` ou chemin complet (`"/img/tokens/tok_doom.png"` : niveau d'alerte de Fortune and Folly), la clé `seal.counter` est routée vers le sac ; `min` / `max` bornent `setSeatCounter` (défaut 0 / sans limite — alerte 1‑10). `tableCounters` : état seulement, **sans rendu en v1**. |
 | `piles` | non | Piles supplémentaires, §6. |
 | `backPlacement` | non | `{code:{x,y}}` — où le verso-lieu d'un agenda/acte lié entre en jeu (défaut : centre 737 × 411). |
 | `storyBack` | non | `[codes]` à dos histoire — recensement manuel (les données ne les marquent pas uniformément). Le verso reste secret dans le journal. |
-| `swaps`, `mythosDoom`, `emptySpace`, `barriers`, `flood`, `agendaEffects`, `actEffects`, `actCycle`, `leads`, `seal`, `cardSeal`, `bury` | non | Comportements runtime, §6. |
+| `swaps`, `mythosDoom`, `emptySpace`, `barriers`, `flood`, `agendaEffects`, `actEffects`, `actCycle`, `discardTop`, `leads`, `seal`, `cardSeal`, `bury` | non | Comportements runtime, §6. |
 
 ## 3. Questions du lobby
 
@@ -155,7 +155,12 @@ donc pas ce qui est déjà posé.
   HQ, tiré avec `include` parmi l'anneau intérieur du Blob).
 - `{"op":"spawn","code","at","log"?}` — pose révélée sur la carte `at`
   (code ou slot) avec décalage automatique (36/46 px + 18 par carte déjà
-  présente). Pour les ennemis « mis en jeu à » un lieu.
+  présente). Pour les ennemis « mis en jeu à » un lieu. `code` peut être
+  le slot d'un **tirage nominal** (`pickRandom` sans zone, `rest:"keep"`) :
+  « spawn 1 copy of Casino Guard » parmi trois codes qui ne diffèrent que
+  par leur icône de jeu (88035a‑c) — jamais le slot d'une carte déjà
+  posée. Une carte histoire « attachée » à l'ennemi se `spawn` au même
+  lieu (elle se pose dessus ; rappel : la déplacer avec lui).
 - `{"op":"minis","code","log"?}` — pions de tous les enquêteurs sur la
   carte en jeu (rangée de 44 px à cheval sur le bord haut) : un lieu, ou
   un **véhicule** (Fishing Vessel : « chaque enquêteur commence dans le
@@ -285,9 +290,11 @@ donc pas ce qui est déjà posé.
 - `{"op":"addDoom","n"?|"nFrom"?,"log"?}` — doom sur l'agenda courant :
   **exige `story` avant** (erreur sinon). `nFrom` = id de question
   numérique ; 0 avec `nFrom` est loggé « aucun ».
-- `{"op":"addTokens","at","token","n"?|"nFrom"?,"log"?}` — jetons sur
+- `{"op":"addTokens","at","token","n"?|"nFrom"?,"perInvestigator"?,"log"?}` — jetons sur
   une carte en jeu (`at` = code ou slot). `token` : doom, clue, damage,
-  horror, resource, generic, **flood** (0–2).
+  horror, resource, generic, **flood** (0–2). `perInvestigator:true` :
+  `n` par enquêteur (« place 7 [per_investigator] clues on The
+  Wellspring of Fortune »).
 - `{"op":"addClues","code","n","log"?}` — indices fixes sur un lieu,
   révélé ou non (Desolate Coastline).
 - `{"op":"seatCounter","key","n","log"?}` — `n` de plus au compteur
@@ -381,6 +388,14 @@ rendus pendant la partie.
   règles l'emporte (journal « (texte du lieu) »). `flood: {}` suffit à
   activer menus « Inondation » et panneau Marée. Niveaux : 0 sec,
   1 partiellement, 2 totalement.
+- **`discardTop: [n…]`** — menu de la pioche de rencontre « Défausser les
+  N premières (icônes de jeu) » pour chaque `n` listé (action `discardTop
+  {n}`) : les cartes vont à la défausse face visible, s'affichent au
+  demandeur (aperçu « Défausse — n cartes ») et le journal les nomme ;
+  pioche vide en cours de route : les cartes déjà défaussées par ce geste
+  restent, le reste de la défausse est remélangé dans la pioche, puis on
+  continue (livret Fortune and Folly p. 6). Les icônes se lisent sur les
+  images des cartes.
 - **`actCycle: true`** — « Reset the act deck to act 1a » (The Blob That
   Ate Everything) : quand le dernier acte avance (deck d'acte vide), tous
   les actes du scénario encore dans la partie (de côté, dans l'histoire…
@@ -539,6 +554,15 @@ rendus pendant la partie.
   Geometry) n'a pas de côté b et entre révélé. `clues_fixed` des
   données → indices fixes ; sinon par enquêteur. Vérifier
   `health_per_investigator` sur la carte réelle en cas de doute.
+- **Cartes « Key » de The Scarlet Keys** (type `key` du dump, ex. The
+  Wellspring of Fortune 88045 ↔ 88045b) : kind `asset` au build (comme
+  le générateur) — soutien à deux faces (« Autre face (Unstable) »),
+  porteur de jetons, posé dans l'histoire ou sur un lieu.
+- **Codes à lettre pour des copies distinctes** (Fortune and Folly :
+  Casino Guard 88035a / b / c, traîtrises 88038a‑d…) : une carte par
+  code, `qty` 1, dos de rencontre ; elles ne diffèrent que par leur icône
+  de jeu — « 1 copy of X » se tire par `pickRandom` nominal + `spawn` par
+  slot.
 - **Valeurs négatives du dump** : vie `-2` = X (Cthulhu, Stalking
   Hybrid), `-3` = ✱ « voir les règles » (réserve globale de Subject 8L-08
   en Epic Multiplayer) → le build omet `health` (jauge de dégâts sans

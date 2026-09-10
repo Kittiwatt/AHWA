@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | Standalone — Fortune and Folly, Part I : The Stakeout | livret lu en entier : deux parties = **deux rooms** (bibliothèque scindée, Part II prévue) ; hub public en anneau, cartes liées Calm Night révélées, The Stakeout + Wellspring (Key → `asset`, `addTokens perInvestigator`) dans l'histoire, garde tiré par `spawn` sur slot, matériel de Part II retiré, **`seatCounters min/max` + icône en chemin** (niveau d'alerte 1‑10), **`discardTop`** (icônes de jeu, aperçu, remélange hors cartes défaussées) |
 | 2026-09-10 | Standalone — The Blob That Ate Everything | livret lu en entier (consigne standalone) ; question `mode` (Single / Epic / side-story), losange par `pickRandom include` + billets = pool + op `reveal`, Subject 8L-08 dans la colonne Histoire (`place zone:"story"`, jauge 0/15*), pile « Dévorées » (`menuFor`), contremesures = ressources sur la carte de scénario, **`actCycle`** (deck d'acte réinitialisé), `shuffleAside ifAside`, `addClues` par trait plafonnés, `drawAside`, vie/indices négatifs (✱, X) sans maximum ; livret par scénario dans library.json ; **premier scénario indépendant** |
 | 2026-09-10 | Générateur de cartes : board joueur + carte personnalisée en image | bouton dans `blocTour` du board ; `createCustomCard {name, image, imageBack?, kind?, health?, sanity?}` → `custom-card:<n>` dans `extraDefs` (`custom`, `image`, `imageBack`), `urlImage` étendu ; consigne du générateur sur une ligne (`.grille-cartes > .vide` sur toute la largeur) ; pas de téléversement |
 | 2026-09-10 | UX : chips — bouton maintenu déployé, agenda / acte | `garderChipsDeployees` (dom.js, classe `ouverte` reposée après re-rendu, clé jeton + carte / siège / entête) : plusieurs clics sur le « − » / « + » sans bouger ; chips de l'agenda et de l'acte à 30 px ; ressources et marqueur génériques au menu de l'agenda et de l'acte |
@@ -106,6 +107,67 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **Fortune and Folly, Part I : The Stakeout** (ahc71 v2,
+  pack arkham.build `fof`, 88001‑88053). Livret (32 p.) lu en entier :
+  un scénario en **deux parties**, « chacune un jeu à part entière avec
+  sa mise en place et sa résolution » (Checkpoint p. 17‑19 : reprise
+  directe ou reprise après pause avec journal) → **deux rooms**,
+  bibliothèque scindée (`sa_fortune_and_folly_part_1` disponible,
+  `…_part_2` prévu, même livret en lien). Modes : indépendant (sac p. 2,
+  deux niveaux comme le Blob) ou side-story (3 XP ; The Scarlet Keys :
+  intro et récompenses sans changement de mise en place) → question
+  `mode`. Sac lu à 600 dpi (crâne ×2, cultiste, tablette, ancien,
+  auto-fail, elder sign). Particularités du pack : des **codes à lettre
+  pour des copies distinctes** (trois Casino Guard 88035a‑c, traîtrises
+  88038a‑d…) qui ne diffèrent que par leur **icône de jeu** (couleur,
+  enseigne, rang) ; les lieux Casino Floor / Casino Lounge / High
+  Roller's Table sont des cartes liées Calm Night (a) ↔ Busy Night (b,
+  Part II) posées **révélées** (`reveal:true`) ; The Wellspring of
+  Fortune est une carte **Key** de The Scarlet Keys (type `key` du dump,
+  kind `asset` désormais au build, comme le générateur), au texte
+  considéré vide, attachée à l'acte avec **7 indices par enquêteur**
+  (`addTokens perInvestigator`, nouvelle option) dans la colonne
+  Histoire, à côté de The Stakeout (liste des tâches ; verso The Heist
+  = Part II → `storyBack`). Mise en place p. 13‑15 : agenda 1 et acte 1
+  seuls ; Isamara (Lounge Singer) à Baccarat Table et Abarran (a) à
+  High Roller's Table par `spawn` ; **1 Casino Guard** à Roulette Wheel
+  : `pickRandom` nominal sur les trois codes + **`spawn` par slot**
+  (le `spawn` résout maintenant un slot de tirage nominal), If the
+  Uniform Fits… posée dessus (verso Package Delivery = Part II →
+  `storyBack`) ; les quatre Role de côté face visible (choix des joueurs,
+  deux en solo, rappel) ; **matériel de Part II retiré** de cette table
+  avec une ligne de journal (agendas 2‑4, actes 2‑3, sept lieux
+  Restricted, sets Fortune's Chosen et Plan in Shambles, trois Fortune's
+  Disfavor, Cash Cart, Deck of Possibilities, Torch Singer — aucune
+  carte de Part I ne les cite ; sinon `buildEncounter` aurait versé les
+  deux sets dans la pioche) ; pioche 23. **Niveau d'alerte** (p. 4) :
+  `seatCounters` avec `min`/`max` (nouveau : `setSeatCounter` borne
+  1‑10) et `icon` en chemin complet (`/img/tokens/tok_doom.png`).
+  **Icônes de jeu** (p. 6‑7) : nouvelle action `discardTop {n}` et
+  champ racine `discardTop: [1, 2, 3, 5]` (menu de la pioche « Défausser
+  les N premières (icônes de jeu) ») — cartes à la défausse face visible,
+  aperçu au demandeur (dialogue « Défausse — n cartes »), journal ;
+  pioche vide en cours de lecture : remélange de la défausse **hors** les
+  cartes tout juste défaussées, comme le livret. Patrouilles (p. 5,
+  sens horaire de l'anneau) et effets d'alerte en rappels ; résignation
+  et « stash » en rappels. Versos de l'agenda 1 et de l'acte 1 lus dans
+  le dump : résolution seulement, rien à automatiser (pas de rappel sur
+  le seuil de ressources, spoiler). Tests : bloc `test_room.mjs`
+  (positions de l'anneau, faces et indices, Isamara / Abarran / garde +
+  histoire, Wellspring 14, Roles, 35 retirées, pioche 23, alerte bornée
+  1‑10 sans toucher aux autres compteurs, `discardTop` ×5 avec aperçu
+  puis pioche vide → remélange hors 5 défaussées ; side-story Expert
+  solo : sac Difficile, côté b, 7 indices, Key → asset) ; Playwright :
+  anneau, chip d'alerte (« − » à 1 reste 1, clic → 2), colonne Histoire,
+  menu de la pioche, dialogue des cinq cartes ; zéro erreur console ;
+  `npm run check` zéro erreur ; régression `test_room.mjs` (797
+  messages) OK. **Part II** (room suivante, après validation) : setup
+  « from Scratch » p. 23‑25 avec les mentions du journal en questions
+  (tâches de The Stakeout, rôles et Practiced, niveaux d'alerte, indices
+  restant sur le Wellspring, cartes stash, repos, ou Part I sautée),
+  deux hubs (restreint au-dessus du public), Vault Door, Cash Cart
+  selon « cleaned out the house », Isamara Crew selon la tâche, Abarran
+  Unleashed de côté, garde + patrouille sortis de la pioche.
 - 2026-09-10 : **The Blob That Ate Everything — premier scénario
   indépendant** (ahc45, pack arkham.build `blob`, 85001‑85053). Consigne
   de l'utilisateur pour tous les standalone : lire le livret **en
@@ -216,45 +278,21 @@ versement de son durable (format → grammaire, piège → §5, décision →
   sur un lien ftp ; zéro erreur console ; `npm run check` zéro erreur ;
   régression `test_room.mjs` (742 messages) OK. README, cahier
   (action).
-- 2026-09-10 : **Chips : bouton maintenu déployé, agenda et acte** —
-  trois retours de test de l'utilisateur. (1) Sur le « − » ou « + »
-  déployé d'une chip, un seul clic passait puis le bouton se repliait ;
-  voulu : cliquer plusieurs fois, le bouton ne se repliant que quand la
-  souris part ailleurs. Cause reproduite (Playwright, `mouse.down/up`
-  sans déplacement) : chaque clic re-rend le siège (`replaceChildren`),
-  la colonne « histoire » ou l'entête du board — la chip sous la souris
-  est un élément **neuf, plus étroit** (pas de `:hover` tant que la
-  souris ne bouge pas), le bouton n'y est plus ; sur le tapis, où
-  `majCarte` réutilise l'élément, ça marchait déjà. Correctif générique
-  `garderChipsDeployees()` (`dom.js`, appelé par `main.js` et
-  `joueur.js`) : `pointermove` en capture mémorise la chip survolée par
-  une **clé stable** (jeton @ id de carte / index de siège / entête,
-  + a/b des barrières) et lui pose la classe `ouverte` ; un
-  `MutationObserver` sur `body` repose la classe sur le remplaçant dès
-  qu'il apparaît (microtâche, avant le clic suivant) ; la classe tombe
-  quand la souris quitte la chip, appuie ailleurs ou quitte la page.
-  CSS : `.ouverte` rejoint `:hover` (`:is(:hover, .ouverte)`) pour
-  l'affichage du bouton et l'allongement à gauche des `.jauge-inv`.
-  Vérifié : siège 5 → 4, 3, 2 ; Study « + » 3, 4, 5 ; agenda 3 → 2, 1 ;
-  entête du board 5 → 4, 3, 2 ; soutien en jeu 4 → 3, 2, 1 ; souris
-  ailleurs → replié. (2) Les doom de l'agenda et de l'acte étaient trop
-  petits : chips de `.histoire .carte.kind-agenda / .kind-act` à la
-  taille des jauges d'un soutien (image 30 px, police 1 rem, comme les
-  uses). (3) Le menu de l'agenda et de l'acte propose aussi
-  **Ressource** et **Marqueur** (générique), en plus du doom / des
-  indices. `npm run check` zéro erreur ; régression `test_room.mjs`
-  (732 messages) OK ; survol des jauges des sièges toujours immobile ;
-  zéro erreur console.
-- **Prochaine étape** : validation par l'utilisateur de la room The Blob
-  That Ate Everything (question mode, colonne Histoire avec Subject 8L-08,
-  pile Dévorées, cycle des actes, cartes Mi-Go face visible), puis le
-  **scénario indépendant suivant à son choix** (même méthode : livret lu
-  en entier, découpage en rooms si plusieurs scénarios, un push par
-  room) — reste dans la liste : Curse of the Rougarou, Carnevale of
-  Horrors, The Labyrinths of Lunacy, Guardians of the Abyss (deux rooms
-  déjà prévues), Murder at the Excelsior Hotel, War of the Outer Gods,
-  Machinations Through Time, Fortune and Folly, The Midwinter Gala, Film
-  Fatale (pioche Reel, v2). Chantier connexe : rangement de la zone hors
+- **Prochaine étape** : validation par l'utilisateur de la room
+  **Fortune and Folly, Part I** (anneau, niveau d'alerte, icônes de jeu
+  par `discardTop`, Roles de côté, matériel de Part II retiré), puis la
+  room **Part II : The Heist** (setup « from Scratch » p. 23‑25 : questions
+  du journal — Part I sautée ou jouée, tâches cochées, rôles par
+  enquêteur et Practiced, niveaux d'alerte, indices du Wellspring, stash,
+  repos → 1 doom sur l'agenda 2 —, deux hubs, Vault Door, garde et
+  patrouille sortis de la pioche, Cash Cart / Isamara Crew / Abarran
+  Unleashed selon le journal, agendas 2‑4 et actes 2‑3). Reste dans la
+  liste des indépendants : Curse of the Rougarou, Carnevale of Horrors,
+  The Labyrinths of Lunacy, Guardians of the Abyss (deux rooms déjà
+  prévues), Murder at the Excelsior Hotel, War of the Outer Gods,
+  Machinations Through Time, The Midwinter Gala, Film Fatale (pioche
+  Reel, v2). Toujours en attente : validation de The Blob That Ate
+  Everything. Chantier connexe : rangement de la zone hors
   jeu (le Blob a 23 cartes de côté). Toujours en attente : retours de
   l'utilisateur sur le générateur
   (board joueur, carte personnalisée en image — téléversement via un
@@ -1117,7 +1155,7 @@ par phase (`reminders[]` du `*.src.json`).
   saisi (2026-09-08, p. 3 du guide lue sur l'image), COB saisi
   (2026-09-08, p. 5, jetons sang compris), BoA / Core 2026 saisi
   (2026-09-10, p. 2, icônes vérifiées par corrélation avec tokens.ttf),
-  The Blob saisi (2026-09-10, p. 2 à 600 dpi, deux niveaux : Facile joue
+  The Blob et Fortune and Folly saisis (2026-09-10, p. 2 à 600 dpi, deux niveaux : Facile joue
   Standard, Expert joue Difficile — le lobby propose toujours les quatre ;
   un champ `difficulties` qui masquerait Facile / Expert reste possible
   si l'utilisateur le demande) ; reste TDC, TDE‑A et Film Fatale (section

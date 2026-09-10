@@ -3628,5 +3628,107 @@ const HISTOIRES = ["85021", "85022", "85023", "85024"];
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Fortune and Folly, Part I (scénario indépendant en deux rooms) : anneau public, cartes liées Calm Night révélées, The Stakeout
+// et The Wellspring (7 indices par enquêteur, addTokens perInvestigator) dans l'histoire, Isamara / Abarran / garde tiré au hasard (spawn
+// par slot) + carte histoire attachée, Roles de côté, matériel de Part II retiré, niveau d'alerte (seatCounter min 1 max 10), discardTop ============
+async function tableFortune1({ joueurs = 2, difficulty, answers } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "sa_fortune_and_folly_part_1" }) });
+  assert.equal(r.status, 200, "Fortune and Folly I est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const GARDES = ["88035a", "88035b", "88035c"];
+{ // Indépendant, Standard, 2 joueurs.
+  const { h } = await tableFortune1({ joueurs: 2, answers: { mode: "standalone" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.deepEqual([...s.chaos.bag].sort(), ["+1", "0", "0", "-1", "-2", "-2", "-3", "-3", "-4", "-5", "skull", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"].sort(), "sac Standard p. 2");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a");
+  const L = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  assert.deepEqual(["88014", "88015", "88012", "88011", "88010", "88009", "88013"].map((c) => `${L(c).loc.x},${L(c).loc.y}`), ["551,173", "923,173", "551,411", "923,411", "551,649", "737,649", "923,649"], "anneau du hub public p. 15");
+  assert.ok(L("88014").faceUp && L("88014").side === "a" && L("88014").tokens.clue === 4, "High Roller's Table côté Calm Night, révélé, 2 indices × 2");
+  assert.ok(L("88015").faceUp && L("88015").tokens.clue === 4, "Casino Lounge révélé");
+  assert.ok(L("88009").faceUp && !L("88009").tokens.clue, "Casino Floor révélé sans indice");
+  assert.ok(["88012", "88011", "88010", "88013"].every((c) => !L(c).faceUp), "les quatre autres non révélés");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 737) < 130 && Math.abs(m.loc.y - 649) < 60), "pions à Casino Floor");
+  const isa = cartes.find((c) => c.code === "88032");
+  assert.ok(isa.loc.zone === "board" && isa.faceUp && isa.side === "a" && Math.abs(isa.loc.x - 587) < 20 && Math.abs(isa.loc.y - 457) < 20, "Isamara à Baccarat Table, côté Inconspicuous");
+  const aba = cartes.find((c) => c.code === "88034a");
+  assert.ok(aba.loc.zone === "board" && aba.side === "a" && Math.abs(aba.loc.x - 587) < 20 && Math.abs(aba.loc.y - 219) < 20, "Abarran à High Roller's Table, côté a");
+  const gardes = cartes.filter((c) => GARDES.includes(c.code) && c.loc.zone === "board");
+  assert.equal(gardes.length, 1, "un Casino Guard en jeu");
+  assert.ok(Math.abs(gardes[0].loc.x - 959) < 20 && Math.abs(gardes[0].loc.y - 457) < 20, "à Roulette Wheel");
+  assert.equal(cartes.filter((c) => GARDES.includes(c.code) && c.loc.pile === "encounter").length, 2, "les deux autres gardes dans la pioche");
+  const unif = cartes.find((c) => c.code === "88024");
+  assert.ok(unif.loc.zone === "board" && unif.faceUp && unif.storyBack && Math.abs(unif.loc.x - 977) < 20, "If the Uniform Fits… sur le garde, dos histoire");
+  const stake = cartes.find((c) => c.code === "88023");
+  assert.ok(stake.loc.zone === "story" && stake.faceUp && stake.side === "a" && stake.storyBack, "The Stakeout dans l'histoire, dos histoire (The Heist)");
+  const well = cartes.find((c) => c.code === "88045");
+  assert.ok(well.loc.zone === "story" && well.faceUp && well.side === "a" && well.kind === "asset" && well.tokens.clue === 14, "Wellspring (Key → soutien) dans l'histoire, 7 indices × 2");
+  assert.deepEqual(cartes.filter((c) => c.loc.zone === "aside").map((c) => c.code).sort(), ["88028", "88029", "88030", "88031"], "quatre Role de côté");
+  assert.ok(cartes.filter((c) => c.loc.zone === "aside").every((c) => c.faceUp));
+  assert.equal(cartes.filter((c) => c.loc.pile === "removed").length, 35, "matériel de Part II retiré (35 cartes)");
+  assert.ok(["88003", "88007", "88016", "88022", "88025", "88033", "88043", "88044", "88046a", "88048", "88053b"].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed"));
+  assert.equal(s.cards[s.agendaId].code, "88002"); assert.equal(s.piles.agendaDeck.length, 0, "agenda 1 seul");
+  assert.equal(s.cards[s.actId].code, "88006"); assert.equal(s.piles.actDeck.length, 0, "acte 1 seul");
+  assert.equal(s.piles.encounter.length, 23, "pioche : 2 gardes, 2 dealers, 3 patrouilles, 16 traîtrises");
+  assert.ok(s.seats.slice(0, 2).every((se) => se.counters.alarm === 1), "niveau d'alerte 1");
+  assert.ok(!s.log.some((e) => /Restricted|Vault|Relic/.test(e.text) && e.kind === "reminder"), "rappels sans la partie II");
+  // Niveau d'alerte borné 1-10.
+  await h.action({ t: "setSeatCounter", seat: 0, key: "alarm", delta: -1 });
+  assert.equal(h.state.seats[0].counters.alarm, 1, "jamais sous 1");
+  await h.action({ t: "setSeatCounter", seat: 0, key: "alarm", delta: 15 });
+  assert.equal(h.state.seats[0].counters.alarm, 10, "jamais au-dessus de 10");
+  await h.action({ t: "setSeatCounter", seat: 0, key: "clues", delta: 3 });
+  assert.equal(h.state.seats[0].counters.clues, 3, "les autres compteurs gardent leurs bornes par défaut");
+  // Icônes de jeu : discardTop 5 → cinq cartes face visible dans la défausse, aperçu au demandeur ; pioche vide → remélange hors cartes défaussées.
+  let d2 = await h.action({ t: "discardTop", n: 5 });
+  assert.equal(d2.t, "delta");
+  assert.equal(h.state.piles.encounterDiscard.length, 5); assert.equal(h.state.piles.encounter.length, 18);
+  assert.ok(h.state.piles.encounterDiscard.every((id) => h.state.cards[id].faceUp), "face visible");
+  assert.ok(h.recus.some((m) => m.t === "peek" && m.pile === "encounterDiscard" && m.cards.length === 5), "aperçu des cinq cartes");
+  assert.ok(h.state.log.some((e) => /défausse les 5 premières cartes de la pioche/.test(e.text)));
+  for (let i = 0; i < 3; i++) await h.action({ t: "discardTop", n: 5 });
+  assert.equal(h.state.piles.encounter.length, 3); assert.equal(h.state.piles.encounterDiscard.length, 20);
+  d2 = await h.action({ t: "discardTop", n: 5 });
+  assert.equal(d2.t, "delta");
+  assert.ok(h.state.log.some((e) => /Pioche vide en cours de lecture : les 20 autres cartes de la défausse sont remélangées/.test(e.text)), "remélange hors cartes tout juste défaussées");
+  assert.equal(h.state.piles.encounterDiscard.length, 5, "les cinq du geste restent en défausse");
+  assert.equal(h.state.piles.encounter.length, 18);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Side-story, Expert, 1 joueur : sac Difficile, côté b, rappel du sac de campagne, 7 indices sur le Wellspring, un pion.
+  const { h } = await tableFortune1({ joueurs: 1, difficulty: "expert", answers: { mode: "campaign" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.deepEqual([...s.chaos.bag].sort(), ["0", "0", "-1", "-1", "-2", "-2", "-3", "-3", "-6", "-7", "skull", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"].sort(), "Expert joue le sac Difficile");
+  assert.ok(s.log.some((e) => /Expert joue le sac Difficile/.test(e.text)));
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "b");
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /^Side-story/.test(e.text)));
+  assert.equal(cartes.find((c) => c.code === "88045").tokens.clue, 7);
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 1);
+  assert.equal(s.piles.encounter.length, 23);
+  const rr = await fetch(`${BASE}/scenarios/sa_fortune_and_folly_part_1.json`);
+  const def = await rr.json();
+  assert.equal(def.cards.find((c) => c.code === "88045").kind, "asset", "Key de The Scarlet Keys → soutien");
+  assert.deepEqual(def.discardTop, [1, 2, 3, 5]);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

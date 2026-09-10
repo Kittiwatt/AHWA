@@ -43,7 +43,10 @@ suspect secret de côté, pile « Sous l'acte ») et III — Queen of Ash
 **campagne complète** —, et le premier **scénario indépendant**, *The
 Blob That Ate Everything* (Single Group, Epic Multiplayer ou side-story
 au lobby ; Subject 8L-08 à côté de l'agenda, pile des cartes dévorées,
-deck d'acte qui se réinitialise, carte histoire tirée au hasard), avec
+deck d'acte qui se réinitialise, carte histoire tirée au hasard) et
+*Fortune and Folly — Part I : The Stakeout* (niveau d'alerte par
+enquêteur, icônes de jeu lues en défaussant la pioche par paquets,
+Wellspring et liste des tâches à côté de l'acte ; Part II à venir), avec
 les questions de journal au lobby, les tirages au hasard, les piles et
 les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » (n'importe quelle carte du jeu, ou une
 carte personnalisée à partir d'une image en lien) sur la table comme

@@ -45,7 +45,8 @@ export type SetupStep =
     // into play ») ; `slot` mémorise `slot:<slot>:<i>` (0 = première tirée) et `slot:<slot>` (la première)
   | { op: "pickRandomSet"; from: string[]; n?: number; log?: string }   // garde n sets dans la pioche, retire les autres (sans révéler lesquels)
   | { op: "addDoom"; n?: number; nFrom?: string; log?: string }         // doom sur l'agenda courant (après « story ») ; nFrom = réponse numérique
-  | { op: "addTokens"; at: string; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic" | "flood"; n?: number; nFrom?: string; log?: string }   // jetons sur une carte en jeu (code ou slot), ex. ressource = brasero allumé ; nFrom = réponse numérique
+  | { op: "addTokens"; at: string; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic" | "flood"; n?: number; nFrom?: string; perInvestigator?: boolean; log?: string }
+    // jetons sur une carte en jeu (code ou slot), ex. ressource = brasero allumé ; nFrom = réponse numérique ; perInvestigator : n par enquêteur (7 indices par enquêteur sur The Wellspring of Fortune)
   | { op: "emptySpace"; positions: { x: number; y: number }[]; log?: string }   // espaces vides posés au setup (dos de carte joueur)
   | { op: "chaosAdd"; byDifficulty: Record<Difficulty, Token[]>; log?: string }   // jeton(s) selon la difficulté (Interlude IV de TCU)
   | { op: "when"; cond: Cond; then: SetupStep[]; else?: SetupStep[] }     // condition composée sur les réponses
@@ -60,7 +61,7 @@ export type SetupStep =
   | { op: "branch"; on: string; cases: Record<string, SetupStep[]>; log?: string }   // on = id de question ou "players"
     | { op: "remove"; codes: string[]; n?: number; log?: string }   // retire de la partie — toutes les copies restantes de chaque code ; avec n (un seul code) : seulement n exemplaires (COB III : 2 des 6 Suspicious Guests)
   | { op: "toPile"; pile: string; set?: string; codes?: string[]; shuffle?: boolean; log?: string }
-  | { op: "spawn"; code: string; at: string; log?: string }
+  | { op: "spawn"; code: string; at: string; log?: string }   // code, ou slot d'un tirage nominal (« 1 copy of Casino Guard » tirée parmi trois codes)
   | { op: "setStart"; code: string; log?: string }
   | { op: "minis"; code: string; log?: string }   // pions de tous les enquêteurs sur une carte en jeu : un lieu, ou un véhicule (Fishing Vessel)
   | { op: "aside"; codes?: string[]; sets?: string[]; faceUp?: boolean; side?: "a" | "b"; log?: string }   // codes (répétés selon la quantité) ou sets entiers ; `side: "b"` = mise de côté sur son verso lié (Angry Mob)
@@ -201,6 +202,7 @@ export type ScenarioDef = {
   flood?: { byAgenda?: Record<string, { all?: "increase" | "full"; onReveal?: 0 | 1 | 2 }>; onRevealByCode?: Record<string, 1 | 2> };
     // `onRevealByCode[code]` : ce lieu monte d'un niveau (1) ou est totalement inondé (2) à sa révélation — texte imprimé du lieu
     // (Devil Reef), même sémantique que la règle de marée `onReveal`
+  discardTop?: number[];    // menu de la pioche de rencontre « Défausser les N premières (icônes de jeu) » pour ces N (action discardTop — lieux Game de Fortune and Folly)
   actCycle?: boolean;       // le deck d'acte se réinitialise quand le dernier acte avance (« Reset the act deck to act 1a », The Blob) : tous les
                             // actes reviennent dans le deck dans l'ordre, l'acte 1 redevient courant, effets `after:<dernier>` et `act:1` appliqués
   agendaEffects?: Record<string, StageEffects>;   // clé "<stage>" : quand l'agenda `stage` devient courant ; clé "after:<code>" : quand la carte
@@ -227,7 +229,9 @@ export type ScenarioDef = {
     // enfouissement en cours de partie (COB) : action `bury` sur la pioche de rencontre (les `withAny`
     // présentes en jeu/de côté + fromDeckTop cartes, réparties sous les lieux du trait) et action `buryAt`
     // sur une carte de `withAny` (elle + 1 carte de la pioche, sous son lieu) ; libellés des menus du front
-  seatCounters: { key: string; label: string; icon?: string; initial: number }[];
+  seatCounters: { key: string; label: string; icon?: string; initial: number; min?: number; max?: number }[];
+    // icon : nom d'un jeton du chaos (/img/chaos/<icon>.svg) ou chemin d'image complet (« /img/tokens/tok_doom.png ») ;
+    // min / max : bornes de setSeatCounter (niveau d'alerte de Fortune and Folly : 1 à 10), défaut 0 / sans limite
   tableCounters: { key: string; label: string; icon?: string; initial: number }[];
   reminders: Reminder[];
   cards: ScenarioCard[];

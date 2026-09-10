@@ -428,7 +428,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       }
       case "addTokens": {
         const c = enJeu(step.at);
-        const n = step.nFrom !== undefined ? Number(answers[step.nFrom]) : step.n ?? 0;
+        const n = (step.nFrom !== undefined ? Number(answers[step.nFrom]) : step.n ?? 0) * (step.perInvestigator ? state.playerCount : 1);
         if (n > 0) c.tokens[step.token] = (c.tokens[step.token] ?? 0) + n;
         if (n > 0 || step.nFrom !== undefined) addLog(state, "setup", `${step.log ?? `Jetons ${step.token} sur ${nomVisible(def, c)}`} : ${n}.`);
         break;
@@ -547,8 +547,10 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         const lx = (lieu.loc as { x: number }).x, ly = (lieu.loc as { y: number }).y;
         const deja = Object.values(state.cards).filter((k) => k.kind !== "mini" && k.kind !== "location" && "zone" in k.loc && k.loc.zone === "board"
           && Math.abs(k.loc.x - lx) < CARD_W && Math.abs(k.loc.y - ly) < CARD_H).length;
-        poser(step.code, "board", lx + 36 + deja * 18, ly + 46 + deja * 18, true, false,
-          step.log ?? `${pool.def(step.code).name} apparaît à ${nomDe(def, lieu.code)}.`);
+        // `code` peut être le slot d'un tirage nominal (sans zone : il vaut un code, encore au pool) — jamais d'une carte déjà posée.
+        const code = resoudre(step.code);
+        poser(code, "board", lx + 36 + deja * 18, ly + 46 + deja * 18, true, false,
+          step.log ?? `${pool.def(code).name} apparaît à ${nomDe(def, lieu.code)}.`);
         break;
       }
       case "setStart": {

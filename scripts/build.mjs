@@ -116,7 +116,8 @@ async function toutesCartes() { const d = await donnees(); return [...d.cartes, 
 // Correspondance type ArkhamDB → kind du modèle d'état (cahier des charges §3.2).
 const KIND = {
   location: "location", enemy: "enemy", treachery: "treachery", asset: "asset", story: "story",
-  agenda: "agenda", act: "act", scenario: "scenario", investigator: "investigator", key: "proxy",
+  // `key` (cartes Key de The Scarlet Keys, ex. The Wellspring of Fortune) : soutien à deux faces, porteur de jetons — comme KIND_INDEX du générateur.
+  agenda: "agenda", act: "act", scenario: "scenario", investigator: "investigator", key: "asset",
 };
 
 function carte(c, src) {

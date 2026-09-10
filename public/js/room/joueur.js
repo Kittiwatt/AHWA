@@ -314,7 +314,7 @@ async function demarrer() {
         // Compteurs propres au scénario (COB : jetons sang scellés — + scelle depuis le sac, − libère vers le sac).
         ...(ctx.scenario.seatCounters ?? []).map((sc) => chipJauge({
           token: sc.key, libelle: sc.label + (ctx.scenario.seal?.counter === sc.key ? " (+ : sceller depuis le sac, − : libérer vers le sac)" : ""), unite: sc.label.toLowerCase(),
-          img: sc.icon ? `/img/chaos/${sc.icon}.svg` : "/img/tokens/tok_ressources.png", texte: String(s.counters[sc.key] ?? 0), peut,
+          img: sc.icon ? (sc.icon.startsWith("/") ? sc.icon : `/img/chaos/${sc.icon}.svg`) : "/img/tokens/tok_ressources.png", texte: String(s.counters[sc.key] ?? 0), peut,
           onDelta: (d) => ctx.scenario.seal?.counter === sc.key
             ? ctx.envoyer({ t: d > 0 ? "chaosSeal" : "chaosRelease", seat: n })
             : compteur(sc.key, d),

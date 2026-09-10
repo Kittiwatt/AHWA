@@ -795,10 +795,18 @@
      "status": "planned"
     },
     {
-     "id": "sa_fortune_and_folly",
+     "id": "sa_fortune_and_folly_part_1",
      "num": "2023",
-     "title": "Fortune and Folly",
-     "status": "planned"
+     "title": "Fortune and Folly — Part I : The Stakeout",
+     "status": "available",
+     "guide": "https://images-cdn.fantasyflightgames.com/filer_public/51/57/5157fe87-df13-4508-aa54-aece3052f499/ahc71_rulebook_v2-compressed.pdf"
+    },
+    {
+     "id": "sa_fortune_and_folly_part_2",
+     "num": "2023",
+     "title": "Fortune and Folly — Part II : The Heist",
+     "status": "planned",
+     "guide": "https://images-cdn.fantasyflightgames.com/filer_public/51/57/5157fe87-df13-4508-aa54-aece3052f499/ahc71_rulebook_v2-compressed.pdf"
     },
     {
      "id": "sa_the_midwinter_gala",
