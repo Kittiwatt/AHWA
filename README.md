@@ -32,7 +32,11 @@ deck, voitures à deux faces, Road X) VI — A Light in the Fog
 (descente sous le phare mise en place par les agendas et les actes)
 VII — The Lair of Dagon (sac selon les souvenirs, versos d'agenda
 selon la version) et VIII — Into the Maelstrom (Act 2 Setup posé selon
-le nombre d'enquêteurs) — **campagne complète** —, avec
+le nombre d'enquêteurs) — **campagne complète** —, *Children of Blood*
+I — River of Blood, II — New Horizons et III — Blood Money (jetons
+sang scellés, cartes enfouies, codex — **campagne complète**) et
+*Brethren of Ash* I — Spreading Flames (nouvelle boîte de base 2026 :
+un seul lieu au départ, versos des actes appliqués par l'app), avec
 les questions de journal au lobby, les tirages au hasard, les piles et
 les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » et lien vers le livret de
 campagne dans chaque table. Lobby

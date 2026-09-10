@@ -1,0 +1,760 @@
+{
+ "id": "boa_spreading_flames",
+ "title": "Spreading Flames",
+ "campaign": "Brethren of Ash",
+ "campaignId": "boa",
+ "order": 1,
+ "packs": [
+  "core_2026"
+ ],
+ "encounterSets": [
+  "spreading_flames",
+  "miskatonic_university",
+  "ashen_pilgrims",
+  "bystanders",
+  "cosmic_evils",
+  "eldritch_lore",
+  "fire_ch2",
+  "hallucinations",
+  "mad_science"
+ ],
+ "scenarioCard": "12105",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "12106",
+  "12107",
+  "12108"
+ ],
+ "actDeck": [
+  "12109",
+  "12110",
+  "12111",
+  "12112"
+ ],
+ "startLocation": "12113",
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "layout": [
+  {
+   "code": "12113",
+   "x": 365,
+   "y": 411
+  },
+  {
+   "code": "12117",
+   "x": 551,
+   "y": 411
+  },
+  {
+   "code": "12116",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "code": "12118",
+   "x": 923,
+   "y": 173
+  },
+  {
+   "code": "12119",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "code": "12120",
+   "x": 923,
+   "y": 649
+  }
+ ],
+ "questions": [],
+ "setup": [
+  {
+   "op": "place",
+   "code": "12113",
+   "zone": "board",
+   "x": 365,
+   "y": 411,
+   "reveal": true,
+   "log": "Your Friend's Room est mis en jeu et révélé : chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "minis",
+   "code": "12113"
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "12117",
+    "12116",
+    "12118",
+    "12119",
+    "12120"
+   ],
+   "faceUp": false,
+   "log": "Les cinq autres lieux (Dormitories, Miskatonic Quad, Science Hall, Warren Observatory, Orne Library) sont mis de côté, hors jeu, face non révélée."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "12129",
+    "12129",
+    "12129",
+    "12129",
+    "12129"
+   ],
+   "faceUp": true,
+   "log": "Les 5 copies de Fire! sont mises de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "12115",
+    "12114"
+   ],
+   "faceUp": true,
+   "log": "Dr. Henry Armitage (soutien histoire) et le Servant of Flame (ennemi) sont mis de côté, hors jeu."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "actEffects": {
+  "2": {
+   "log": "Verso de l'acte 1 (acte 2)",
+   "discardEnemies": true,
+   "placeAt": [
+    {
+     "code": "12117",
+     "x": 551,
+     "y": 411,
+     "faceUp": false
+    },
+    {
+     "code": "12116",
+     "x": 737,
+     "y": 411,
+     "faceUp": false
+    }
+   ],
+   "spawnAside": [
+    {
+     "code": "12114",
+     "at": "12117"
+    },
+    {
+     "code": "12129",
+     "at": "12113"
+    }
+   ],
+   "discardAside": [
+    {
+     "code": "12129"
+    }
+   ]
+  },
+  "3": {
+   "log": "Verso de l'acte 2 (acte 3)",
+   "setAside": [
+    "12114"
+   ],
+   "discardEnemies": true,
+   "discardAt": [
+    "12113"
+   ],
+   "removeLocations": {
+    "codes": [
+     "12113"
+    ]
+   },
+   "placeAt": [
+    {
+     "code": "12120",
+     "x": 923,
+     "y": 649,
+     "faceUp": false
+    },
+    {
+     "code": "12118",
+     "x": 923,
+     "y": 173,
+     "faceUp": false
+    },
+    {
+     "code": "12119",
+     "x": 923,
+     "y": 411,
+     "faceUp": false
+    }
+   ]
+  },
+  "4": {
+   "log": "Verso de l'acte 3 (acte 4)",
+   "spawnAside": {
+    "code": "12114",
+    "at": "12116"
+   },
+   "addClues": [
+    {
+     "code": "12116",
+     "n": 3,
+     "perInvestigator": true
+    }
+   ]
+  }
+ },
+ "agendaEffects": {
+  "3": {
+   "log": "Verso de l'agenda 2 (agenda 3)",
+   "discardAside": [
+    {
+     "code": "12129",
+     "n": 4
+    }
+   ]
+  }
+ },
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Disposition : le guide ne donne pas de diagramme pour ce scénario. D'après les icônes de connexion des cartes, la chambre mène aux dortoirs, les dortoirs au quad, et le quad aux trois bâtiments. L'app pose les lieux de côté quand les actes l'exigent (dortoirs et quad à droite de la chambre, puis les bâtiments en colonne à droite du quad) ; tracez les chemins si vous le souhaitez (clic droit glissé d'un lieu à l'autre)."
+  },
+  {
+   "when": "setup",
+   "text": "De côté : les 5 Fire!, Dr. Henry Armitage et le Servant of Flame attendent que les actes et agendas les appellent — l'app s'en charge à chaque avancement (voir le journal) ; ce qui dépend d'un choix reste à glisser à la main. Fire! s'attache à un lieu : une copie posée sur un lieu le suit s'il est déplacé."
+  },
+  {
+   "when": "setup",
+   "text": "Mots-clés (guide p. 3) — Doomed : quand un ennemi qui a ce mot-clé est vaincu, ajoutez 1 doom sur l'agenda courant (chip doom de l'agenda), ce qui peut le faire avancer ; un ennemi seulement défaussé ne compte pas. Peril : celui qui résout la carte ne se concerte pas avec les autres. Prey : l'ennemi choisit sa cible d'après son texte. Retaliate : chaque test d'attaque raté contre lui déclenche une attaque de l'ennemi, engagé ou non. Surge : après avoir résolu la carte, piochez-en une autre."
+  },
+  {
+   "when": "act:2",
+   "text": "Verso de l'acte 1 appliqué par l'app (journal) : ennemis en jeu défaussés, Dormitories et Miskatonic Quad posés non révélés, Servant of Flame apparu aux dortoirs, une copie de Fire! attachée à Your Friend's Room (posée dessus), les autres Fire! dans la défausse de rencontre. Vérifiez, corrigez à la main au besoin."
+  },
+  {
+   "when": "act:3",
+   "text": "Verso de l'acte 2 appliqué par l'app (journal) : Servant of Flame remis de côté et soigné (où qu'il ait été), ennemis défaussés, Your Friend's Room retirée de la partie avec ce qui y était attaché, Orne Library, Science Hall et Warren Observatory posés non révélés à droite du quad. Si un pion était encore dans la chambre, déplacez-le."
+  },
+  {
+   "when": "act:4",
+   "text": "Verso de l'acte 3 : Dr. Henry Armitage entre en jeu sous le contrôle d'un enquêteur — glissez-le de la zone de côté sur le siège choisi (il n'occupe pas d'emplacement d'allié dans ce scénario). L'app a posé le Servant of Flame au quad et les indices demandés. Ensuite l'enquêteur principal cherche dans la pioche et la défausse 1 copie de Fire! par enquêteur et les pioche (menu de la pioche → « Rechercher », défausse consultable ; remélangez la pioche si elle a été fouillée) — résolvez-les à la main."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 : chaque enquêteur, dans l'ordre des joueurs, fait le test indiqué ; appliquez le résultat à la main sur son siège."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Verso de l'agenda 2 : si des Fire! étaient encore de côté, l'app en a placé 4 dans la défausse de rencontre (journal) ; puis chaque enquêteur, dans l'ordre des joueurs, fait le test indiqué. Tant que cet agenda est en cours : après chaque doom posé dessus (phase du mythe comprise), l'enquêteur principal pioche la première copie de Fire! de la défausse (effet Forcé de la carte)."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout. Lisez l'effet Forcé de l'agenda courant s'il en a un."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord (vers leur proie s'ils en ont une : mot-clé Prey), puis chaque ennemi engagé attaque son enquêteur."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-10",
+ "encounterSetNames": {
+  "spreading_flames": "Spreading Flames",
+  "miskatonic_university": "Miskatonic University",
+  "ashen_pilgrims": "Ashen Pilgrims",
+  "bystanders": "Bystanders",
+  "cosmic_evils": "Cosmic Evils",
+  "eldritch_lore": "Eldritch Lore",
+  "fire_ch2": "Fire!",
+  "hallucinations": "Hallucinations",
+  "mad_science": "Mad Science"
+ },
+ "cards": [
+  {
+   "code": "12105",
+   "name": "Spreading Flames",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "12106",
+   "name": "Past Curfew",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Smoke on the Wind",
+   "doom": 3,
+   "stage": 1
+  },
+  {
+   "code": "12107",
+   "name": "Lit Up",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Uncontrollable Fire",
+   "doom": 5,
+   "stage": 2
+  },
+  {
+   "code": "12108",
+   "name": "Wild Flames",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Up in Flames",
+   "doom": 10,
+   "stage": 3
+  },
+  {
+   "code": "12109",
+   "name": "Where There's Smoke...",
+   "kind": "act",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "backName": "...There's Fire",
+   "stage": 1
+  },
+  {
+   "code": "12110",
+   "name": "Escape the Dorms",
+   "kind": "act",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "In the Open",
+   "stage": 2
+  },
+  {
+   "code": "12111",
+   "name": "Searching for Dr. Armitage",
+   "kind": "act",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "backName": "The Servant Unleashed",
+   "stage": 3
+  },
+  {
+   "code": "12112",
+   "name": "Blaze of Glory",
+   "kind": "act",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "A Flame, Doused",
+   "stage": 4
+  },
+  {
+   "code": "12113",
+   "name": "Your Friend's Room",
+   "kind": "location",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Miskatonic"
+   ],
+   "backName": "Your Friend's Room"
+  },
+  {
+   "code": "12114",
+   "name": "Servant of Flame",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Raging Fury",
+   "traits": [
+    "Humanoid",
+    "Elite"
+   ],
+   "health": 5,
+   "healthPerInvestigator": true,
+   "victory": 2
+  },
+  {
+   "code": "12115",
+   "name": "Dr. Henry Armitage",
+   "kind": "asset",
+   "qty": 1,
+   "set": "spreading_flames",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Head Librarian",
+   "traits": [
+    "Ally",
+    "Miskatonic"
+   ],
+   "health": 3,
+   "sanity": 3
+  },
+  {
+   "code": "12116",
+   "name": "Miskatonic Quad",
+   "kind": "location",
+   "qty": 1,
+   "set": "miskatonic_university",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Miskatonic",
+    "Central"
+   ]
+  },
+  {
+   "code": "12117",
+   "name": "Dormitories",
+   "kind": "location",
+   "qty": 1,
+   "set": "miskatonic_university",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Miskatonic"
+   ]
+  },
+  {
+   "code": "12118",
+   "name": "Science Hall",
+   "kind": "location",
+   "qty": 1,
+   "set": "miskatonic_university",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Miskatonic"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "12119",
+   "name": "Warren Observatory",
+   "kind": "location",
+   "qty": 1,
+   "set": "miskatonic_university",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Miskatonic"
+   ]
+  },
+  {
+   "code": "12120",
+   "name": "Orne Library",
+   "kind": "location",
+   "qty": 1,
+   "set": "miskatonic_university",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Miskatonic"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "12121",
+   "name": "Cantor of Flame",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "ashen_pilgrims",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
+   "health": 2
+  },
+  {
+   "code": "12122",
+   "name": "Hellhound",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "ashen_pilgrims",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Creature",
+    "Monster"
+   ],
+   "health": 3
+  },
+  {
+   "code": "12123",
+   "name": "Bystander",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "bystanders",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Civilian"
+   ],
+   "health": 1
+  },
+  {
+   "code": "12124",
+   "name": "Cosmic Evils",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "cosmic_evils",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
+  },
+  {
+   "code": "12125",
+   "name": "Unspeakable Truths",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "eldritch_lore",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "12126",
+   "name": "Forbidden Secrets",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "eldritch_lore",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Pact"
+   ]
+  },
+  {
+   "code": "12127",
+   "name": "Extraplanar Visions",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "hallucinations",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power"
+   ]
+  },
+  {
+   "code": "12128",
+   "name": "Wild Compulsion",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "hallucinations",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Madness",
+    "Bane"
+   ]
+  },
+  {
+   "code": "12129",
+   "name": "Fire!",
+   "kind": "treachery",
+   "qty": 5,
+   "set": "fire_ch2",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "12130",
+   "name": "Noxious Smoke",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "fire_ch2",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "12131",
+   "name": "Mutated!",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "mad_science",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Mutation"
+   ]
+  },
+  {
+   "code": "12132",
+   "name": "Mutated Experiment",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "mad_science",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Creature",
+    "Mutated"
+   ],
+   "health": 3
+  }
+ ]
+}

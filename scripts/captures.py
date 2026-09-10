@@ -1150,6 +1150,49 @@ with sync_playwright() as p:
     h21.mouse.move(420, 520); h21.wait_for_timeout(300)
     h21.screenshot(path=f"{OUT}/99_maelstrom_acte2.png")
 
+    # ---- Spreading Flames (BoA I) : un seul lieu au setup, tout de côté ; versos des actes 1 et 2 (lieux posés, Servant, Fire! attachée, chambre retirée) ----
+    code22, token22 = creer("boa_spreading_flames")
+    print("room Spreading Flames", code22)
+    h22 = page_pour(browser, "Hôte", host=True, code=code22, token=token22)
+    h22.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h22.get_by_role("button", name="Choisir un enquêteur").click(); h22.wait_for_selector("dialog.dialogue-inv[open]")
+    h22.fill("dialog .recherche", "roland"); h22.wait_for_timeout(300); h22.locator("dialog .inv").first.click()
+    h22.wait_for_selector(".siege-lobby.moi .fiche")
+    j22 = page_pour(browser, "Bob", code=code22, token=None)
+    j22.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j22.get_by_role("button", name="Choisir un enquêteur").click(); j22.wait_for_selector("dialog.dialogue-inv[open]")
+    j22.fill("dialog .recherche", "daisy"); j22.wait_for_timeout(300); j22.locator("dialog .inv").first.click()
+    j22.wait_for_selector(".siege-lobby.moi .fiche")
+    h22.wait_for_timeout(400)
+    h22.get_by_role("button", name="Lancer la mise en place").click()
+    h22.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h22.wait_for_load_state("networkidle"); h22.wait_for_timeout(1500)
+    assert h22.locator("#plateau .carte.kind-location").count() == 1, "Your Friend's Room seule en jeu"
+    assert h22.locator("#aside .carte").count() == 12, "12 cartes de côté (5 lieux, 5 Fire!, Armitage, Servant)"
+    h22.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h22.mouse.move(420, 520); h22.wait_for_timeout(300)
+    h22.screenshot(path=f"{OUT}/100_flames_tapis.png")
+    # Acte 2 : dortoirs et quad posés, Servant aux dortoirs, une Fire! attachée à la chambre, les autres à la défausse.
+    h22.locator("#histoire").get_by_role("button", name="Avancer l'acte").click(); h22.wait_for_timeout(1200)
+    assert h22.locator("#plateau .carte.kind-location").count() == 3, "chambre + dortoirs + quad"
+    assert h22.locator("#plateau .carte.kind-enemy").count() == 1, "Servant of Flame aux dortoirs"
+    assert h22.locator("#plateau .carte.kind-treachery").count() == 1, "Fire! attachée à la chambre"
+    assert h22.locator("#aside .carte").count() == 5, "de côté : 3 lieux + Armitage + l'acte 1 sorti de l'histoire"
+    h22.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h22.get_by_role("button", name="Recentrer").click(); h22.wait_for_timeout(500)
+    h22.mouse.move(420, 520); h22.wait_for_timeout(300)
+    h22.screenshot(path=f"{OUT}/101_flames_acte2.png")
+    # Acte 3 : Servant de côté soigné, chambre retirée avec sa Fire!, les trois bâtiments à droite du quad.
+    h22.locator("#histoire").get_by_role("button", name="Avancer l'acte").click(); h22.wait_for_timeout(1200)
+    assert h22.locator("#plateau .carte.kind-location").count() == 5, "dortoirs + quad + trois bâtiments"
+    assert h22.locator("#plateau .carte.kind-enemy").count() == 0, "Servant remis de côté"
+    assert h22.locator("#plateau .carte.kind-treachery").count() == 0, "Fire! défaussée avec la chambre"
+    assert h22.locator("#aside .carte").count() == 4, "de côté : Armitage, Servant, actes 1 et 2"
+    h22.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h22.get_by_role("button", name="Recentrer").click(); h22.wait_for_timeout(500)
+    h22.mouse.move(420, 520); h22.wait_for_timeout(300)
+    h22.screenshot(path=f"{OUT}/102_flames_acte3.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

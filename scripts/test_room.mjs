@@ -3044,5 +3044,158 @@ async function tableBM({ joueurs = 2, difficulty, answers }) {
   await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Spreading Flames (BoA I) : un seul lieu en jeu, tout le reste de côté ; versos des actes et de l'agenda 2 appliqués
+// par les effets d'étape (discardEnemies, placeAt, spawnAside en liste, discardAside, setAside, discardAt, removeLocations codes, addClues) ============
+async function tableFlames({ joueurs = 2, difficulty } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "boa_spreading_flames" }) });
+  assert.equal(r.status, 200, "Spreading Flames est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers: {} });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const surTapisBoa = (s, code) => Object.values(s.cards).filter((c) => c.code === code && c.loc.zone === "board");
+const enPile = (s, code, pile) => Object.values(s.cards).filter((c) => c.code === code && c.loc.pile === pile);
+
+{ // Standard, 2 joueurs : mise en place, puis les trois versos d'acte dans l'ordre.
+  const { h } = await tableFlames({ joueurs: 2 });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 16, "sac Standard : 16 jetons");
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 1, "la tablette (p. 2, vérifiée sur l'image)");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 0, "aucun cultiste dans les sacs de base");
+  assert.equal(s.chaos.bag.filter((t) => t === "elder_thing").length, 1);
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a", "référence Easy/Standard au recto");
+  const chambre = cartes.find((c) => c.code === "12113");
+  assert.ok(chambre.loc.zone === "board" && chambre.loc.x === 365 && chambre.loc.y === 411 && chambre.faceUp, "Your Friend's Room posée à gauche, révélée");
+  assert.equal(chambre.tokens.clue, 4, "2 indices × 2 enquêteurs");
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 2, "deux pions");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 365) < 130 && Math.abs(m.loc.y - 411) < 60), "pions dans la chambre");
+  assert.equal(cartes.filter((c) => c.kind === "location" && c.loc.zone === "board").length, 1, "un seul lieu en jeu");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.equal(cote.length, 12, "de côté : 5 lieux + 5 Fire! + Armitage + Servant");
+  assert.ok(cote.filter((c) => c.kind === "location").every((c) => !c.faceUp) && cote.filter((c) => c.kind === "location").length === 5, "cinq lieux de côté, non révélés");
+  assert.equal(cote.filter((c) => c.code === "12129").length, 5, "les 5 Fire! de côté");
+  assert.ok(cote.filter((c) => c.kind !== "location").every((c) => c.faceUp), "Fire!, Armitage et Servant face visible");
+  assert.equal(s.piles.encounter.length, 24, "pioche : 24 cartes");
+  assert.equal(s.piles.removed.length, 0, "rien de retiré");
+  assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["12107", "12108"]);
+  assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["12110", "12111", "12112"]);
+  assert.equal(s.cards[s.agendaId].code, "12106"); assert.equal(s.cards[s.actId].code, "12109");
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /Doomed/.test(e.text)), "rappel des mots-clés du guide");
+
+  // Des ennemis en jeu (tapis et zone de menace), Armitage en jeu : le verso de l'acte 1 ne défausse que les ennemis.
+  const cantor = s.piles.encounter.map((id) => s.cards[id]).find((c) => c.code === "12121");
+  const bystander = s.piles.encounter.map((id) => s.cards[id]).find((c) => c.code === "12123");
+  const armitage = cartes.find((c) => c.code === "12115");
+  await h.action({ t: "moveCard", id: cantor.id, zone: "board", x: 401, y: 457 });
+  await h.action({ t: "moveCard", id: bystander.id, zone: "seat1", x: 200, y: 0 });
+  await h.action({ t: "moveCard", id: armitage.id, zone: "board", x: 420, y: 470 });
+  assert.equal(h.state.piles.encounter.length, 22);
+  let d2 = await h.action({ t: "advanceAct" });
+  assert.equal(d2.t, "delta"); assert.equal(h.state.cards[h.state.actId].code, "12110", "acte 2");
+  let S = h.state;
+  assert.ok(S.cards[cantor.id].loc.pile === "encounterDiscard" && S.cards[cantor.id].faceUp, "Cantor du tapis défaussé");
+  assert.ok(S.cards[bystander.id].loc.pile === "encounterDiscard", "Bystander de la zone de menace défaussé");
+  assert.equal(S.cards[armitage.id].loc.zone, "board", "Armitage (soutien) n'est pas un ennemi : il reste");
+  const dorms = surTapisBoa(S, "12117")[0], quad = surTapisBoa(S, "12116")[0];
+  assert.ok(dorms && dorms.loc.x === 551 && dorms.loc.y === 411 && !dorms.faceUp, "Dormitories posés non révélés à droite de la chambre");
+  assert.ok(quad && quad.loc.x === 737 && quad.loc.y === 411 && !quad.faceUp, "Miskatonic Quad posé non révélé au centre");
+  const servant = Object.values(S.cards).find((c) => c.code === "12114");
+  assert.ok(servant.loc.zone === "board" && servant.loc.x === 551 + 36 && servant.loc.y === 411 + 46 && servant.faceUp, "Servant of Flame apparu aux dortoirs");
+  const fireTapis = surTapisBoa(S, "12129");
+  assert.equal(fireTapis.length, 1, "une copie de Fire! attachée à la chambre");
+  assert.ok(fireTapis[0].loc.x === 365 + 36 && fireTapis[0].loc.y === 411 + 46 && fireTapis[0].faceUp, "posée sur Your Friend's Room");
+  assert.equal(enPile(S, "12129", "encounterDiscard").length, 4, "les 4 autres Fire! dans la défausse");
+  assert.equal(Object.values(S.cards).filter((c) => c.code === "12129" && c.loc.zone === "aside").length, 0, "plus de Fire! de côté");
+  assert.equal(S.piles.encounterDiscard.length, 6, "défausse : 2 ennemis + 4 Fire!");
+  assert.equal(Object.values(S.cards).filter((c) => c.kind === "location" && c.loc.zone === "aside").length, 3, "trois lieux encore de côté");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /Verso de l'acte 1 \(acte 2\) : 2 ennemis en jeu défaussés/.test(e.text)), "journal de l'effet d'étape");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'acte 1 appliqué/.test(e.text)), "rappel act:2");
+
+  // Acte 3 : le Servant (blessé, en zone de victoire) revient de côté soigné ; ennemis défaussés ; Fire! attachée défaussée ;
+  // la chambre retirée ; les trois bâtiments posés à droite du quad.
+  await h.action({ t: "addToken", id: servant.id, token: "damage", delta: 3 });
+  await h.action({ t: "moveCard", id: servant.id, zone: "victory", x: 0, y: 0 });
+  const hound = h.state.piles.encounter.map((id) => h.state.cards[id]).find((c) => c.code === "12122");
+  await h.action({ t: "moveCard", id: hound.id, zone: "board", x: 773, y: 457 });
+  await h.action({ t: "moveCard", id: armitage.id, zone: "aside", x: 2000, y: 0 });
+  d2 = await h.action({ t: "advanceAct" });
+  assert.equal(h.state.cards[h.state.actId].code, "12111", "acte 3");
+  S = h.state;
+  const servant2 = S.cards[servant.id];
+  assert.ok(servant2.loc.zone === "aside" && servant2.faceUp && !servant2.tokens.damage, "Servant of Flame remis de côté, soigné");
+  assert.equal(S.cards[hound.id].loc.pile, "encounterDiscard", "Hellhound défaussé");
+  assert.equal(surTapisBoa(S, "12129").length, 0, "la Fire! attachée n'est plus sur le tapis");
+  assert.equal(enPile(S, "12129", "encounterDiscard").length, 5, "cinq Fire! dans la défausse");
+  assert.equal(S.cards[chambre.id].loc.pile, "removed", "Your Friend's Room retirée de la partie (pas de Victory)");
+  assert.ok(!S.cards[chambre.id].tokens.clue, "sans jeton");
+  assert.equal(Object.values(S.cards).filter((c) => c.kind === "location" && c.loc.zone === "aside").length, 0, "plus aucun lieu de côté");
+  const sci = surTapisBoa(S, "12118")[0], obs = surTapisBoa(S, "12119")[0], lib = surTapisBoa(S, "12120")[0];
+  assert.ok(sci && sci.loc.x === 923 && sci.loc.y === 173 && !sci.faceUp, "Science Hall en haut à droite");
+  assert.ok(obs && obs.loc.x === 923 && obs.loc.y === 411 && !obs.faceUp, "Warren Observatory à droite du quad");
+  assert.ok(lib && lib.loc.x === 923 && lib.loc.y === 649 && !lib.faceUp, "Orne Library en bas à droite");
+  assert.equal(Object.values(S.cards).filter((c) => c.kind === "location" && c.loc.zone === "board").length, 5, "cinq lieux en jeu");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /Verso de l'acte 2 \(acte 3\) : Servant of Flame remis de côté/.test(e.text)), "journal de l'acte 3");
+
+  // Acte 4 : le Servant apparaît au quad, 3 indices par enquêteur dessus.
+  await h.action({ t: "revealLocation", id: quad.id });
+  assert.ok(h.state.cards[quad.id].faceUp && !h.state.cards[quad.id].tokens.clue, "le quad n'imprime aucun indice");
+  d2 = await h.action({ t: "advanceAct" });
+  assert.equal(h.state.cards[h.state.actId].code, "12112", "acte 4");
+  S = h.state;
+  assert.ok(S.cards[servant.id].loc.zone === "board" && S.cards[servant.id].loc.x === 737 + 36 && S.cards[servant.id].loc.y === 411 + 46, "Servant of Flame au quad");
+  assert.equal(S.cards[quad.id].tokens.clue, 6, "3 indices × 2 enquêteurs sur le quad");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'acte 3 : Dr\. Henry Armitage/.test(e.text)), "rappel act:4 (Armitage à glisser)");
+  assert.equal(S.piles.actDeck.length, 0);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // Expert, solo : l'agenda 2 avancé avant l'acte 1 — quatre Fire! à la défausse, la dernière s'attache ensuite (jamais une copie déjà défaussée).
+  const { h } = await tableFlames({ joueurs: 1, difficulty: "expert" });
+  let S = h.state;
+  assert.equal(S.chaos.bag.length, 18, "sac Expert : 18 jetons");
+  assert.equal(Object.values(S.cards).find((c) => c.kind === "scenario").side, "b", "référence Hard/Expert au verso");
+  assert.equal(Object.values(S.cards).find((c) => c.code === "12113").tokens.clue, 2, "2 indices en solo");
+  assert.equal(Object.values(S.cards).filter((c) => c.kind === "mini").length, 1);
+  let d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "12107", "agenda 2");
+  assert.equal(enPile(h.state, "12129", "encounterDiscard").length, 0, "le verso de l'agenda 1 ne touche pas aux Fire!");
+  assert.ok(h.state.log.some((e) => e.kind === "reminder" && /^Verso de l'agenda 1/.test(e.text)), "rappel agenda:2");
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "12108", "agenda 3");
+  S = h.state;
+  assert.equal(enPile(S, "12129", "encounterDiscard").length, 4, "verso de l'agenda 2 : 4 Fire! de côté dans la défausse");
+  assert.equal(Object.values(S.cards).filter((c) => c.code === "12129" && c.loc.zone === "aside").length, 1, "une Fire! reste de côté");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /Verso de l'agenda 2 \(agenda 3\) : 4 Fire! de côté placés dans la défausse/.test(e.text)), "journal de l'agenda 3");
+  d2 = await h.action({ t: "advanceAct" });
+  S = h.state;
+  assert.equal(surTapisBoa(S, "12129").length, 1, "la dernière Fire! s'attache à la chambre");
+  assert.equal(enPile(S, "12129", "encounterDiscard").length, 4, "les quatre défaussées n'ont pas bougé");
+  assert.equal(Object.values(S.cards).filter((c) => c.code === "12129" && c.loc.zone === "aside").length, 0);
+  assert.ok(!S.log.some((e) => /acte 2\) : .*0 /.test(e.text)), "pas de ligne vide pour un discardAside sans effet");
+  d2 = await h.action({ t: "advanceAct" }); d2 = await h.action({ t: "advanceAct" });
+  S = h.state;
+  assert.equal(S.cards[S.actId].code, "12112");
+  assert.equal(surTapisBoa(S, "12116")[0].tokens.clue, 3, "3 indices en solo sur le quad (non révélé : posés quand même)");
+  assert.equal(enPile(S, "12129", "encounterDiscard").length, 5, "la Fire! attachée rejoint la défausse avec la chambre");
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(S.piles.agendaDeck.length, 0);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

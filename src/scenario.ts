@@ -109,15 +109,21 @@ export type StageEffects = {
   fillRows?: { pile: string; anchors: string[]; columns: number[]; count: number };
     // rangée de chaque lieu-ancre complétée à `count` lieux avec les premières cartes de la pile, aux colonnes libres, non révélées
   removeTrait?: string;                                                 // les lieux de ce trait quittent la partie (victoire si Victory X sans indice)
-  removeLocations?: { trait?: string; except?: string[] };              // idem, par trait et/ou sauf ces codes (« chaque lieu autre que… »)
+  removeLocations?: { trait?: string; except?: string[]; codes?: string[] };   // idem, par trait et/ou sauf ces codes (« chaque lieu autre que… »), ou ces seuls codes
   spreadPile?: { pile: string; positions: { x: number; y: number }[]; flood?: 1 | 2 };   // les cartes d'une pile entrent en jeu non révélées aux positions données (une par position), inondées si demandé
   byPlayers?: Record<string, StageEffects>;                             // variante selon le nombre de joueurs ("1"…"4"), appliquée à sa place dans l'ordre
   placeAt?: { code: string; x: number; y: number; faceUp?: boolean; flood?: 1 | 2 }[];   // une carte de côté posée à une position (révélée ou non, inondée)
   chaosAdd?: Token[]; chaosRemove?: Token[];                            // jetons ajoutés au sac / retirés (un exemplaire chacun)
-  spawnAside?: { code: string; at: string; side?: "a" | "b" };          // une carte (de côté ou déjà en jeu) apparaît sur un lieu (code)
+  spawnAside?: SpawnAside | SpawnAside[];                               // une carte (de côté d'abord, sinon déjà en jeu) apparaît sur un lieu (code) — ou plusieurs
   randomKeyOn?: string;                                                 // une clé cachée au hasard posée sur cette carte
+  discardEnemies?: true;                                                // « chaque ennemi en jeu est défaussé » : ennemis de rencontre du tapis et des zones de menace → défausse
+  discardAside?: { code: string; n?: number }[];                        // copies de côté de ce code placées dans la défausse de rencontre (n au plus, toutes par défaut)
+  setAside?: string[];                                                  // ces cartes, où qu'elles soient (jeu, défausse, victoire), reviennent de côté soignées (« set aside, out of play »)
+  discardAt?: string[];                                                 // les cartes de rencontre posées sur ces lieux du tapis (attaches, traîtrises, ennemis) vont à la défausse — à écrire avant un removeLocations
+  addClues?: { code: string; n: number; perInvestigator?: boolean }[];   // indices posés sur un lieu du tapis (n, ou n par enquêteur)
   log?: string;
 };
+export type SpawnAside = { code: string; at: string; side?: "a" | "b" };
 
 export function evalCond(c: Cond, answers: Answers): boolean {
   if ("q" in c && "has" in c) { const r = answers[c.q]; return Array.isArray(r) && r.includes(c.has); }

@@ -224,7 +224,10 @@ async function buildScenario(fichierSrc) {
   for (const k of [...Object.keys(src.agendaEffects ?? {}), ...Object.keys(src.actEffects ?? {})]) if (k.startsWith("after:") && !codes.has(k.slice(6))) throw new Error(`${src.id} : effet after:${k.slice(6)} — code inconnu`);
   const citesSetup = src.setup.flatMap((s) => s.op === "leadsDeck" ? [...s.suspects, ...s.hideouts] : []);
   const citesBarrieres = src.setup.flatMap((s) => s.op === "barriers" ? s.pairs.flatMap((p) => [p.a, p.b]) : []);
-  const citesAgendaPlus = effets.flatMap((e) => [e.spawnAside?.code, e.spawnAside?.at, e.randomKeyOn].filter(Boolean));
+  const citesAgendaPlus = effets.flatMap((e) => [
+    ...(e.spawnAside ? (Array.isArray(e.spawnAside) ? e.spawnAside : [e.spawnAside]).flatMap((sa) => [sa.code, sa.at]) : []), e.randomKeyOn,
+    ...(e.discardAside ?? []).map((d) => d.code), ...(e.setAside ?? []), ...(e.discardAt ?? []), ...(e.addClues ?? []).map((a) => a.code), ...(e.removeLocations?.codes ?? []),
+  ].filter(Boolean));
   const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup), ...citesLeads, ...citesAgenda, ...citesSetup, ...citesBarrieres, ...citesAgendaPlus].filter(Boolean);
   for (const code of cites) if (!codes.has(code)) throw new Error(`${src.id} : code ${code} absent des sets de rencontre`);
 

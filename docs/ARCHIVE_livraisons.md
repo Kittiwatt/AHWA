@@ -8,6 +8,29 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Menu natif du navigateur neutralisé sur la table** —
+  retour UX : sur certains objets du tapis, « parfois et selon le
+  zoom », le clic droit ouvrait aussi le menu du navigateur. Reproduit
+  en bac à sable (Playwright) : seuls les **lieux** fuyaient, et
+  seulement sous Windows. Le menu d'un lieu s'ouvre au `pointerup`
+  (un clic droit glissé trace un chemin) ; Windows envoie ensuite le
+  `contextmenu` natif, dont le test de visée tombe — une fois sur deux,
+  selon l'arrondi du pixel — sur le coin du menu qui vient d'être posé
+  sous le curseur plutôt que sur la carte ; l'écouteur ne reconnaissait
+  ni carte ni outil et ne faisait pas `preventDefault`. Correctif :
+  `neutraliserMenuNatif(zone, sauf)` dans `dom.js` (menu natif
+  neutralisé sur tout `#tapis` et sur `.menu-carte`, sauf champs de
+  saisie, liens et `#journal` ; appelé aussi sur le board joueur avec
+  `#board-joueur`) — décision de l'utilisateur : « on bloque tout » ;
+  et le garde-fou des lieux devient adaptatif (`lien.menuVu` : la
+  fenêtre de 400 ms ne s'arme que si la plateforme envoie le
+  `contextmenu` après le relâchement, et ne vaut qu'une fois — un
+  second clic droit rapide sur un autre objet n'était plus pris).
+  Captures : bloc de régression qui rejoue l'ordre Windows par
+  événements synthétiques (`clic_droit_windows`, `contextmenu_natif` :
+  lieu, coin du menu, fond du tapis, pion, carte de côté, journal
+  permis, board joueur).
+
 - 2026-09-10 : **The Lair of Dagon (TIC VII) livré** — Setup + diagramme
   p. 31‑32 (pack `lod` ; sets The Lair of Dagon, Agents of Dagon,
   Flooded Caverns, Syzygy, **Dark Cult = code `pentagram`** sur

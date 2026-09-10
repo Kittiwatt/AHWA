@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-10. Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-10 (Spreading Flames compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -41,7 +41,8 @@ Commandes du cycle : `npm run build:data` · `npm run check`
 avant tout test) : tout code cité — `scenarioCard`, `startLocation`,
 `agendaDeck`, `actDeck`, `layout`, tout le `setup` (branches et `when`
 compris : `code`, `codes`, `from`, `at`, `atRandom`, `pool`), `leads`,
-`agendaEffects` (`shuffleAside`, `spawnAside`, `randomKeyOn`),
+`agendaEffects` / `actEffects` (`shuffleAside`, `spawnAside`, `randomKeyOn`,
+`discardAside`, `setAside`, `discardAt`, `addClues`, `removeLocations.codes`),
 `barriers.pairs` — doit exister dans les sets retenus (ou `extraCards`)
 des packs déclarés ; les sets cités par `pickRandomSet`, `aside`,
 `toPile` doivent être dans `encounterSets` ; `dealToSeats` exige des
@@ -368,10 +369,10 @@ rendus pendant la partie.
   libres, non révélés) ; `removeTrait` (les lieux du trait quittent le
   tapis : victoire si Victory X sans indice, retirés sinon — ce qui s'y
   trouvait est laissé, rappel) ; `spawnAside {code, at, side?}` (une
-  carte de côté **ou déjà en jeu** apparaît sur un lieu) ;
+  carte de côté **ou déjà en jeu** apparaît sur un lieu ; objet ou liste) ;
   `randomKeyOn` (clé cachée au hasard posée dessus) ;
-  `removeLocations {trait?, except?}` (comme `removeTrait`, ou « chaque
-  lieu autre que… ») ; `spreadPile {pile, positions, flood?}` (les
+  `removeLocations {trait?, except?, codes?}` (comme `removeTrait`, ou
+  « chaque lieu autre que… », ou ces seuls codes) ; `spreadPile {pile, positions, flood?}` (les
   cartes d'une pile entrent en jeu non révélées aux positions libres
   données, une par position, inondées si demandé — le reste de la pile
   reste de côté) ; `byPlayers {"1"…"4": StageEffects}` (variante selon
@@ -382,9 +383,35 @@ rendus pendant la partie.
   imbriquée) ;
   `placeAt [{code, x, y, faceUp?, flood?}]` (une carte de côté posée à
   une position, révélée par défaut, inondée si demandé) ; `chaosAdd` /
-  `chaosRemove` (jetons du sac, un exemplaire chacun). Cible introuvable
-  → rappel « à faire à la main », jamais d'erreur ; rien à faire → pas
-  de ligne.
+  `chaosRemove` (jetons du sac, un exemplaire chacun) ;
+  `discardEnemies: true` (« chaque ennemi en jeu est défaussé » : les
+  ennemis de rencontre du tapis et des zones de menace vont dans la
+  défausse de rencontre — un ennemi venu d'un deck joueur reste, sa
+  défausse est celle de son propriétaire) ; `discardAside [{code, n?}]`
+  (copies **de côté** de ce code placées dans la défausse de rencontre,
+  `n` au plus, toutes par défaut — Fire! de Spreading Flames) ;
+  `setAside [codes]` (ces cartes, où qu'elles soient — jeu, zone de
+  menace, défausse, victoire —, reviennent de côté face visible, sans
+  jeton ni chemin : « heal all damage… and set them aside ») ;
+  `discardAt [codes]` (les cartes de rencontre posées sur ces lieux du
+  tapis — attaches, traîtrises, ennemis, centre de la carte sur le lieu
+  comme pour le porteur d'un lieu déplacé — vont à la défausse : « discard
+  all attachments from X », à écrire **avant** le `removeLocations` du
+  même lieu) ; `addClues [{code, n, perInvestigator?}]` (indices posés
+  sur un lieu du tapis, révélé ou non, `n` ou `n` par enquêteur). Cible
+  introuvable → rappel « à faire à la main », jamais d'erreur ; rien à
+  faire → pas de ligne.
+  `spawnAside` accepte un objet **ou une liste** (deux apparitions dans
+  un même verso : Servant of Flame aux dortoirs et une Fire! attachée à
+  la chambre) ; il prend d'abord une copie **de côté**, sinon une copie
+  en jeu, jamais une copie de la pioche, de la défausse ou de la zone
+  de victoire — une carte à cinq exemplaires (Fire!) n'« apparaît »
+  donc jamais depuis la défausse. `removeLocations` accepte aussi
+  `{codes: [...]}` (ces seuls lieux, par code : « remove Your Friend's
+  Room from the game »). Une **attache** (traîtrise attachée à un lieu)
+  n'a pas de modèle propre : c'est une carte posée sur le lieu (elle le
+  suit s'il est déplacé) — `spawnAside` la pose, `discardAt` la
+  défausse.
 - **`leads`** : `{pile, secret, shown, reference, suspects, hideouts, spots, elina, square, act2, agenda3}`
   — toute la mécanique d'Elina Harper (actions `leadsReveal`,
   `leadsTake`, `leadsReturn`, `leadsToggle`, `accusation` ;
@@ -481,7 +508,10 @@ rendus pendant la partie.
 
 1. **Fiche scénario** : pages Setup + diagramme du guide (images),
    pack et sets, choix A/B, particularités — consignées dans
-   `_source`.
+   `_source`. Sans diagramme (Spreading Flames : un seul lieu en jeu,
+   les autres de côté), la disposition se déduit des icônes de
+   connexion des cartes (images CDN) et se note dans `_source` et un
+   rappel `setup`.
 2. **Écrire le `.src.json`** avec les ops de ce document. Une mécanique
    absente = concevoir la nouvelle op (question à l'utilisateur si
    choix structurel), l'implémenter, la contrôler au build, **puis la

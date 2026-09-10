@@ -205,23 +205,36 @@ function pileSecrete(def: ScenarioDef, pile: string): boolean {
   return Boolean(def.leads && pile === def.leads.secret);
 }
 
+/** Une carte de rencontre part sur la défausse de rencontre (face visible, sans jeton ni chemin ; ses jetons scellés retournent au sac). */
+function defausserRencontre(state: RoomState, k: CardState) {
+  retirerDesPiles(state, k.id);
+  state.links = state.links.filter((l) => l.a !== k.id && l.b !== k.id);
+  if (k.sealed?.length) { state.chaos.bag.push(...k.sealed); k.sealed = []; }
+  k.loc = { pile: "encounterDiscard" };
+  k.faceUp = true; k.exhausted = false; k.tokens = {}; k.side = "a";
+  delete k.ownerSeat; delete k.revealed;
+  state.piles.encounterDiscard.unshift(k.id);
+}
+
 /** Applique les effets déclarés d'une étape (StageEffects) ; renvoie les morceaux de journal. Chaque effet est idempotent. */
 function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects): string[] {
   const parties: string[] = [];
   const surTapis = (code: string) => Object.values(state.cards).find((c) => c.code === code && "zone" in c.loc && c.loc.zone === "board");
   const lieuLibre = (x: number, y: number) => !Object.values(state.cards).some((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board"
     && Math.abs(k.loc.x - x) < PAS_X / 2 && Math.abs(k.loc.y - y) < PAS_Y / 2);
-  const retirerLieux = (trait: string | undefined, except: string[] | undefined, libelle: string) => {
+  const retirerLieux = (trait: string | undefined, except: string[] | undefined, libelle: string, codes?: string[]) => {
     const lieux = Object.values(state.cards).filter((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board"
-      && (!trait || (def.cards.find((d) => d.code === k.code)?.traits ?? []).includes(trait)) && !(except ?? []).includes(k.code));
+      && (codes ? codes.includes(k.code) : (!trait || (def.cards.find((d) => d.code === k.code)?.traits ?? []).includes(trait)) && !(except ?? []).includes(k.code)));
     let victoire = 0, retires = 0;
     for (const l of lieux) {
       const d = def.cards.find((x) => x.code === l.code);
       if (d?.victory && !(l.tokens.clue ?? 0)) { l.loc = { zone: "victory", x: 0, y: 0, z: nextZ(state) }; victoire++; }
       else { l.loc = { pile: "removed" }; state.piles.removed.push(l.id); retires++; }
       l.tokens = {};
+      state.links = state.links.filter((k) => k.a !== l.id && k.b !== l.id);
     }
-    if (lieux.length) parties.push(`${libelle} : ${retires} retiré${retires > 1 ? "s" : ""} de la partie${victoire ? `, ${victoire} en zone de victoire` : ""} — déplacez ce qui s'y trouvait comme la carte l'indique`);
+    if (lieux.length === 1 && codes) parties.push(`${libelle} ${retires ? "retiré de la partie" : "en zone de victoire"} — déplacez ce qui s'y trouvait comme la carte l'indique`);
+    else if (lieux.length) parties.push(`${libelle} : ${retires} retiré${retires > 1 ? "s" : ""} de la partie${victoire ? `, ${victoire} en zone de victoire` : ""} — déplacez ce qui s'y trouvait comme la carte l'indique`);
   };
   // Les effets s'appliquent dans l'ordre d'écriture des champs de la déclaration (l'ordre du verso de la carte).
   const gestes: Record<string, () => void> = {
@@ -276,7 +289,10 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
       if (poses) parties.push(`${poses} lieu${poses > 1 ? "x" : ""} de ${nomPile(def, pile)} posé${poses > 1 ? "s" : ""} non révélé${poses > 1 ? "s" : ""} pour compléter les rangées à ${count} (reste ${state.piles[pile]?.length ?? 0})`);
     },
     removeTrait: () => retirerLieux(effet.removeTrait!, undefined, `lieux « ${effet.removeTrait} »`),
-    removeLocations: () => retirerLieux(effet.removeLocations!.trait, effet.removeLocations!.except, effet.removeLocations!.trait ? `lieux « ${effet.removeLocations!.trait} »` : "lieux"),
+    removeLocations: () => {
+      const rl = effet.removeLocations!;
+      retirerLieux(rl.trait, rl.except, rl.codes ? rl.codes.map((c) => def.cards.find((d) => d.code === c)?.name ?? c).join(", ") : rl.trait ? `lieux « ${rl.trait} »` : "lieux", rl.codes);
+    },
     spreadPile: () => {
       const { pile, positions, flood } = effet.spreadPile!;
       let n = 0, poses = 0;
@@ -312,16 +328,69 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
       parties.push(`jetons retirés du sac : ${retires.join(", ") || "aucun (absents)"}`);
     },
     spawnAside: () => {
-      const sa = effet.spawnAside!;
-      const k = Object.values(state.cards).find((c) => c.code === sa.code && !("pile" in c.loc && (c.loc.pile === "removed" || c.loc.pile === "encounter")) && !("zone" in c.loc && c.loc.zone === "victory"));
-      const lieu = Object.values(state.cards).find((c) => c.code === sa.at && c.kind === "location" && "zone" in c.loc && c.loc.zone === "board");
-      if (k && lieu) {
-        const { x: lx, y: ly } = lieu.loc as { x: number; y: number };
-        retirerDesPiles(state, k.id);
-        k.loc = { zone: "board", x: lx + 36, y: ly + 46, z: nextZ(state) };
-        k.faceUp = true; k.side = sa.side ?? k.side; k.exhausted = false;
-        parties.push(`${nomCarte(def, k)} apparaît à ${nomCarte(def, lieu)}`);
-      } else parties.push(`${sa.code} introuvable (ou lieu absent) : à faire à la main`);
+      for (const sa of Array.isArray(effet.spawnAside) ? effet.spawnAside : [effet.spawnAside!]) {
+        // La copie de côté d'abord (une copie déjà défaussée ou en jeu ne doit pas « apparaître » à sa place — Fire! ×5), sinon celle en jeu, sinon ailleurs.
+        const rang = (c: CardState) => ("zone" in c.loc ? (c.loc.zone === "aside" ? 0 : 1) : 2);
+        const k = Object.values(state.cards)
+          .filter((c) => c.code === sa.code && !("pile" in c.loc && (c.loc.pile === "removed" || c.loc.pile === "encounter")) && !("zone" in c.loc && c.loc.zone === "victory"))
+          .sort((a, b) => rang(a) - rang(b))[0];
+        const lieu = Object.values(state.cards).find((c) => c.code === sa.at && c.kind === "location" && "zone" in c.loc && c.loc.zone === "board");
+        if (k && lieu) {
+          const { x: lx, y: ly } = lieu.loc as { x: number; y: number };
+          retirerDesPiles(state, k.id);
+          k.loc = { zone: "board", x: lx + 36, y: ly + 46, z: nextZ(state) };
+          k.faceUp = true; k.side = sa.side ?? k.side; k.exhausted = false;
+          parties.push(`${nomCarte(def, k)} apparaît à ${nomCarte(def, lieu)}`);
+        } else parties.push(`${def.cards.find((d) => d.code === sa.code)?.name ?? sa.code} introuvable (ou lieu absent) : à faire à la main`);
+      }
+    },
+    discardEnemies: () => {
+      // « Discard each enemy in play » : les ennemis de rencontre du tapis et des zones de menace vont dans la défausse de rencontre ;
+      // un ennemi venu d'un deck joueur (faiblesse) reste : sa défausse est celle de son propriétaire.
+      const enJeu = Object.values(state.cards).filter((k) => k.kind === "enemy" && !k.player && "zone" in k.loc && (k.loc.zone === "board" || (SEAT_ZONES as string[]).includes(k.loc.zone)));
+      for (const k of enJeu) defausserRencontre(state, k);
+      if (enJeu.length) parties.push(`${enJeu.length} ennemi${enJeu.length > 1 ? "s" : ""} en jeu défaussé${enJeu.length > 1 ? "s" : ""} (${[...new Set(enJeu.map((k) => nomCarte(def, k)))].join(", ")})`);
+    },
+    discardAside: () => {
+      for (const da of effet.discardAside!) {
+        const copies = Object.values(state.cards).filter((c) => c.code === da.code && "zone" in c.loc && c.loc.zone === "aside").slice(0, da.n ?? Infinity);
+        for (const k of copies) defausserRencontre(state, k);
+        if (copies.length) parties.push(`${copies.length} ${nomCarte(def, copies[0])} de côté placé${copies.length > 1 ? "s" : ""} dans la défausse de rencontre`);
+      }
+    },
+    discardAt: () => {
+      // « Discard all attachments from X » : les cartes de rencontre dont le centre est sur le lieu (même test que le porteur d'un lieu déplacé).
+      for (const code of effet.discardAt!) {
+        const L = surTapis(code);
+        if (!L || L.kind !== "location") continue;
+        const { x: lx, y: ly } = L.loc as { x: number; y: number };
+        const dessus = Object.values(state.cards).filter((k) => k.id !== L.id && !k.player && "zone" in k.loc && k.loc.zone === "board"
+          && !["location", "mini", "key", "investigator", "proxy"].includes(k.kind)
+          && k.loc.x + CARD_W / 2 >= lx && k.loc.x + CARD_W / 2 <= lx + CARD_W && k.loc.y + CARD_H / 2 >= ly && k.loc.y + CARD_H / 2 <= ly + CARD_H);
+        for (const k of dessus) defausserRencontre(state, k);
+        if (dessus.length) parties.push(`${dessus.length} carte${dessus.length > 1 ? "s" : ""} posée${dessus.length > 1 ? "s" : ""} sur ${nomCarte(def, L)} défaussée${dessus.length > 1 ? "s" : ""} (${[...new Set(dessus.map((k) => nomCarte(def, k)))].join(", ")})`);
+      }
+    },
+    setAside: () => {
+      for (const code of effet.setAside!) {
+        const cartes = Object.values(state.cards).filter((c) => c.code === code && !("pile" in c.loc && c.loc.pile === "removed") && !("zone" in c.loc && c.loc.zone === "aside"));
+        for (const k of cartes) {
+          retirerDesPiles(state, k.id);
+          state.links = state.links.filter((l) => l.a !== k.id && l.b !== k.id);
+          k.loc = { zone: "aside", x: boutDeCote(state), y: 0, z: nextZ(state) };
+          k.faceUp = true; k.side = "a"; k.exhausted = false; k.tokens = {};
+        }
+        if (cartes.length) parties.push(`${nomCarte(def, cartes[0])} remis de côté, hors jeu, sans jeton (dégâts soignés)`);
+      }
+    },
+    addClues: () => {
+      for (const ac of effet.addClues!) {
+        const l = surTapis(ac.code);
+        if (!l || l.kind !== "location") { parties.push(`${def.cards.find((d) => d.code === ac.code)?.name ?? ac.code} absent du tapis : indices à poser à la main`); continue; }
+        const n = ac.n * (ac.perInvestigator ? state.playerCount : 1);
+        l.tokens.clue = (l.tokens.clue ?? 0) + n;
+        parties.push(`${n} indice${n > 1 ? "s" : ""}${ac.perInvestigator ? ` (${ac.n} par enquêteur)` : ""} posé${n > 1 ? "s" : ""} sur ${nomCarte(def, l)}`);
+      }
     },
     randomKeyOn: () => {
       const cible = surTapis(effet.randomKeyOn!);

@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | BoA I — Spreading Flames | pack `core_2026`, sacs 2026 (tablette, pas de cultiste), un seul lieu + tout de côté, disposition sans diagramme ; effets `discardEnemies` / `discardAside` / `setAside` / `discardAt` / `addClues`, `spawnAside` en liste, `removeLocations codes` ; **première table Brethren of Ash** |
 | 2026-09-10 | Bibliothèque : bandeaux de campagne + liens vers les guides | `banner {src, position}` dans library.json, `scripts/build_bandeaux.py` (art de la boîte, découpe par campagne, WebP), libellé de boîte = lien `guide` (renseigné pour toutes les campagnes) |
 | 2026-09-10 | TIC VIII — Into the Maelstrom | `keys fillAsideTo`, effets `byPlayers` + `spreadPile flood` (Act 2 Setup selon les joueurs) ; **campagne TIC complète** |
 | 2026-09-10 | UX : menu natif du navigateur neutralisé sur la table | `neutraliserMenuNatif`, ordre `contextmenu` Windows (après le `pointerup`), garde `lien.menuVu` |
@@ -96,6 +97,58 @@ versement de son durable (format → grammaire, piège → §5, décision →
 | 2026-09-03 | Étape 1 — première table (The Gathering) | pipeline de build, lobby, tapis, tests + captures |
 
 ### Derniers récits
+
+- 2026-09-10 : **Spreading Flames (BoA I) livré — première table de la
+  nouvelle boîte de base Brethren of Ash (ahc100, 2026)**. Guide : seules
+  les p. 2 (Campaign Setup) et 3 (Setup du I) ont été lues ; **aucun
+  diagramme de placement** pour ce scénario (un seul lieu en jeu, les
+  cinq autres de côté). Sac par difficulté lu sur l'image à 600 dpi et
+  **vérifié glyphe à glyphe contre tokens.ttf** (corrélation 0,985) :
+  2 crânes, tablette, elder thing, auto-fail, elder sign — aucun
+  cultiste, comme COB ; nombres du Core classique. Pack arkham.build
+  **`core_2026`** (cycle `core_ch2`), sets `spreading_flames`,
+  `miskatonic_university`, `ashen_pilgrims`, `bystanders`,
+  `cosmic_evils`, `eldritch_lore`, **`fire_ch2`** (Fire! ×5 + Noxious
+  Smoke ; le set `fire` est un autre set), `hallucinations`,
+  `mad_science` ; pioche 24 ; images recto/verso vérifiées sur la CDN.
+  Carte de scénario Easy/Standard au recto, Hard/Expert au verso
+  (`scenarioCardSide` comme COB). Setup : Your Friend's Room révélée
+  avec pions (365 × 411), cinq lieux de côté non révélés, Fire! ×5 +
+  Dr. Armitage + Servant of Flame de côté face visible, pas de question
+  (scénario I, sac de campagne). **Disposition déduite des icônes de
+  connexion des cartes** (images CDN) : chambre → Dortoirs (551) →
+  Quad (737, centre) → Science Hall / Warren Observatory / Orne Library
+  en colonne à 923 (rangées 173 / 411 / 649) ; notée dans `_source` et
+  un rappel. **Versos des actes 1‑3 et de l'agenda 2 appliqués par les
+  effets d'étape** (lus dans le dump, jamais recopiés) avec `placeAt`,
+  `spawnAside`, `removeLocations` et cinq effets génériques ajoutés :
+  `discardEnemies` (ennemis de rencontre du tapis et des zones de menace
+  → défausse, les ennemis de deck joueur restent), `discardAside {code,
+  n?}` (copies de côté → défausse ; 4 au verso de l'agenda 2, toutes au
+  verso de l'acte 1 après l'attache), `setAside` (le Servant revient de
+  côté soigné d'où qu'il soit, zone de victoire comprise), `discardAt`
+  (l'attache de la chambre défaussée avant son retrait), `addClues` par
+  enquêteur (3 par enquêteur au Quad, révélé ou non) ; `spawnAside`
+  accepte une **liste** et prend d'abord la copie **de côté** (jamais
+  une Fire! de la défausse) ; `removeLocations {codes}` (la chambre
+  seule, sans Victory → retirée) ; les liens d'un lieu retiré sont
+  effacés. L'attache Fire! = `spawnAside` sur le lieu (elle suit le
+  lieu). Reste manuel avec rappels : Armitage à glisser sur un siège
+  (sans slot d'allié), recherche de Fire! par l'enquêteur principal,
+  tests des versos d'agenda, effet Forcé de l'agenda 3, pions à sortir
+  de la chambre retirée, mots-clés du guide p. 3 (Doomed, Peril, Prey,
+  Retaliate, Surge). Tests : 705 messages (bloc Flames : sac 16 avec
+  tablette, 12 de côté, pioche 24, acte 2 avec ennemis du tapis et de
+  la zone de menace défaussés / Armitage épargné / lieux posés /
+  Servant / Fire! attachée / 4 à la défausse, acte 3 avec Servant
+  blessé en zone de victoire remis de côté soigné / attache défaussée /
+  chambre retirée / bâtiments posés, acte 4 avec 6 indices au Quad ;
+  solo Expert : sac 18, verso b, agenda 2 avancé d'abord → 4 Fire! à
+  la défausse, la dernière s'attache ensuite) ; captures 100‑102 (le
+  `captures.py` complet a tué `wrangler dev` : bloc rejoué en script
+  autonome avec Maelstrom en régression). Catalogue : `boa` disponible
+  avec lien guide ; README.
+
 
 - 2026-09-10 : **Bibliothèque : bandeaux de campagne et liens vers les
   guides** — demande de l'utilisateur : renforcer l'esthétique de la page
@@ -166,33 +219,19 @@ versement de son durable (format → grammaire, piège → §5, décision →
   agenda 2 ; autonome solo : quatre cachées, aucune combinaison, acte 2
   à un joueur ; quatre joueurs : sept Y'ha-nthlei, quatre combinaisons)
   ; captures 97‑99.
-- 2026-09-10 : **Menu natif du navigateur neutralisé sur la table** —
-  retour UX : sur certains objets du tapis, « parfois et selon le
-  zoom », le clic droit ouvrait aussi le menu du navigateur. Reproduit
-  en bac à sable (Playwright) : seuls les **lieux** fuyaient, et
-  seulement sous Windows. Le menu d'un lieu s'ouvre au `pointerup`
-  (un clic droit glissé trace un chemin) ; Windows envoie ensuite le
-  `contextmenu` natif, dont le test de visée tombe — une fois sur deux,
-  selon l'arrondi du pixel — sur le coin du menu qui vient d'être posé
-  sous le curseur plutôt que sur la carte ; l'écouteur ne reconnaissait
-  ni carte ni outil et ne faisait pas `preventDefault`. Correctif :
-  `neutraliserMenuNatif(zone, sauf)` dans `dom.js` (menu natif
-  neutralisé sur tout `#tapis` et sur `.menu-carte`, sauf champs de
-  saisie, liens et `#journal` ; appelé aussi sur le board joueur avec
-  `#board-joueur`) — décision de l'utilisateur : « on bloque tout » ;
-  et le garde-fou des lieux devient adaptatif (`lien.menuVu` : la
-  fenêtre de 400 ms ne s'arme que si la plateforme envoie le
-  `contextmenu` après le relâchement, et ne vaut qu'une fois — un
-  second clic droit rapide sur un autre objet n'était plus pris).
-  Captures : bloc de régression qui rejoue l'ordre Windows par
-  événements synthétiques (`clic_droit_windows`, `contextmenu_natif` :
-  lieu, coin du menu, fond du tapis, pion, carte de côté, journal
-  permis, board joueur).
-
-- **Prochaine étape** : retours de l'utilisateur sur la campagne TIC
-  complète (I‑VIII) ; prochaine campagne au choix de l'utilisateur
-  (Setup + diagramme seulement — si un report au lobby exige un extrait
-  d'interlude ou de résolution, le demander) ; visuels PNG des clés et du jeton d'inondation à générer
+- **Prochaine étape** : retours de l'utilisateur sur Spreading Flames
+  (première table Core 2026 : disposition sans diagramme, attache Fire!,
+  versos automatisés) ; puis **BoA II — Smoke and Mirrors** (Setup +
+  diagramme p. 6‑7, codex p. 8‑9 à ne pas lire hors instruction ; lieux
+  d'Arkham `arkham_ch2`, sets `people_of_arkham`, `arcane_lock`, `bad_weather`,
+  `dead_ends`, `flying_terrors`, `gangs_of_arkham`, `whippoorwills_ch2` selon le
+  Setup ; les « leads » — ressources sur les personnages — sont un
+  jeton ressource sur la carte) et BoA III — Queen of Ash (p. 12,
+  Elokoss à verso lié `12179b`, sets `arkham_sewers`, `cultists_ch2`,
+  `reeking_decay`, `torment`) ; les questions de journal de II et III
+  se conçoivent à partir du Setup seul (demander un extrait si un report
+  l'exige). Toujours en attente : retours sur la campagne TIC complète
+  (I‑VIII) ; visuels PNG des clés et du jeton d'inondation à générer
   dans le style des jetons du projet (choix B). En parallèle : la suite
   des retours de test du board joueur et les points ouverts du cahier
   §10.10 (customisations, decks annexes, attaches).
@@ -638,6 +677,30 @@ Commandes : `npm run dev`, `npm run check` (tsc + dry-run),
   révélés). Enquêteurs TIC 07001‑07005 présents dans
   `investigators.json`. Images recto/verso de tout le scénario I
   vérifiées sur la CDN (200).
+- **Core Set 2026 / Brethren of Ash** (vérifié le 2026-09-10) : pack
+  arkham.build **`core_2026`** (cycle `core_ch2`, `rcore` = Revised Core,
+  `core` = Core 2016), 92 entrées de rencontre 12105‑12195. Sets :
+  `spreading_flames` (12105‑15 : scénario, agendas 12106‑08, actes
+  12109‑12, Your Friend's Room 12113, Servant of Flame 12114 « Raging
+  Fury », Dr. Henry Armitage 12115 asset), `miskatonic_university`
+  (12116‑20), `ashen_pilgrims`, `bystanders`, `cosmic_evils`,
+  `eldritch_lore`, **`fire_ch2`** (12129 Fire! ×5, 12130 Noxious Smoke
+  ×2 — le set `fire` est un autre set), `hallucinations`,
+  `mad_science` ; II : `smoke_and_mirrors` (12133‑38 dont Mark of
+  Elokoss ×4 subtype weakness, Servant « On the Run » 12138),
+  `people_of_arkham` (six personnages Elite 12139‑44), `arkham_ch2`
+  (douze lieux d'Arkham 12145‑56, MU « In Flames » / « Quiet Campus »
+  en paire), `arcane_lock`, `bad_weather`, `dead_ends`, `flying_terrors`,
+  `gangs_of_arkham`, `whippoorwills_ch2` ; III : `queen_of_ash` (12168‑81,
+  **Elokoss 12179 à verso lié `12179b`** « Mother of Flame », Servant
+  « A Willing Sacrifice » 12180, Collector ×2 asset), `arkham_sewers`
+  (12182‑87), `cultists_ch2`, `reeking_decay`, `torment`. Aucun
+  `clues_fixed` sur ces lieux (tout par enquêteur ; Miskatonic Quad et
+  Sewer Culvert n'impriment aucun indice). Images recto/verso de tout
+  le scénario I vérifiées sur la CDN (200 ; les cartes à dos de
+  rencontre n'ont pas de `b`). Guide ahc100 : 16 pages, Campaign Setup
+  p. 2, Setup I p. 3 (sans diagramme), II p. 6‑7 (diagramme p. 7,
+  codex p. 8‑9), III p. 12 (codex p. 13), journal p. 15.
 
 ## 4. Savoir métier déjà encodé (voir `scenarios_data.json`)
 
@@ -673,6 +736,34 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
 - **Sacs COB (p. 5)** : aucun jeton tablette, à aucune difficulté — ne
   pas le supposer par habitude ; les jetons sang ne figurent qu'en
   Difficile (1) et Expert (2) et se conservent de scénario en scénario.
+- **Sacs Core 2026 / BoA (guide p. 2)** : crâne ×2, **tablette**, elder
+  thing, auto-fail, elder sign à toutes les difficultés — aucun cultiste ;
+  vérifié le 2026-09-10 par corrélation de pixels entre l'image à 600 dpi
+  et les glyphes `token_<x>_sealed` de tokens.ttf (recette : segmenter
+  la ligne par colonnes d'encre, normaliser chaque icône en 96 × 96 et
+  comparer aux six silhouettes — 0,985 pour la tablette contre 0,63 pour
+  le cultiste). Réutilisable pour tout nouveau guide.
+- **Icônes bénédiction / malédiction des guides** (The Lair of Dagon,
+  p. 31) : la croix ornée est la bénédiction, le crochet la
+  malédiction — lues sur l'image, jamais d'après le texte extrait.
+- **`pkill -f` tue la commande courante** si son motif apparaît dans la
+  ligne de commande du shell : `pkill -f "wrangler dev"` (connu) mais
+  aussi `pkill -f workerd` — écrire `worker[d]` / `wrangler d[e]v`, et
+  **ne jamais relancer `wrangler dev` dans la même commande que le
+  `pkill`** (le motif entre crochets matche alors la ligne qui contient
+  le vrai `wrangler dev`) : tuer dans une commande, relancer dans la
+  suivante.
+- **Le dépôt peut avancer pendant la session** (une autre session a
+  poussé f26eaf3 — bandeaux de la bibliothèque — entre le clone et le
+  push) : `git fetch` + `git rebase FETCH_HEAD` avant le push ; les
+  conflits du mémo se résolvent en gardant **les deux** lignes de
+  tableau et **les deux** récits (le plus récent en tête) et en
+  rejouant la rotation (un récit récent de plus → un de plus vers
+  l'archive) ; relancer build, check et tests après le rebase.
+- **Une carte d'agenda ou d'acte sortie de l'histoire va « de côté »** :
+  dans les captures, `#aside .carte` compte aussi les anciens actes /
+  agendas (Spreading Flames : 12 de côté au setup, 5 après l'acte 2 —
+  trois lieux, Armitage, l'acte 1).
 - **`retirer()` du setup instancie en pile `removed`** (via
   `pool.takeAll`) : les cartes « retirées de la partie » existent dans
   `state.cards` avec `loc.pile === "removed"` — les tests doivent
@@ -932,8 +1023,13 @@ par phase (`reminders[]` du `*.src.json`).
   le build).
 - **Composition du sac par difficulté** : TCU saisi (2026-09-04), TIC
   saisi (2026-09-08, p. 3 du guide lue sur l'image), COB saisi
-  (2026-09-08, p. 5, jetons sang compris) ; reste TDC, TDE‑A
-  et Film Fatale (section Setup / encart du guide).
+  (2026-09-08, p. 5, jetons sang compris), BoA / Core 2026 saisi
+  (2026-09-10, p. 2, icônes vérifiées par corrélation avec tokens.ttf) ;
+  reste TDC, TDE‑A et Film Fatale (section Setup / encart du guide).
+- **Brethren of Ash II‑III** : le journal du I (résolutions, non lues)
+  alimente le Setup du II — question(s) au lobby à concevoir d'après la
+  section Setup p. 6 seule ; demander un extrait à l'utilisateur si un
+  report l'exige.
 - **Jetons de campagne TIC** : les flashbacks retirent des jetons du sac
   « pour le reste de la campagne » (icônes p. 6, à lire sur l'image) et
   la résolution du I remplit « Memories Recovered » → questions au lobby

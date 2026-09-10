@@ -543,6 +543,14 @@ l'ordre d'écriture des champs, `removeLocations {trait?, except?}`,
 au hasard pour compléter les clés cachées de côté) ; effets d'étape
 `byPlayers` (variante par nombre de joueurs) et `spreadPile.flood`.
 
+**Spreading Flames (2026-09-10).** Effets d'étape `discardEnemies`
+(ennemis de rencontre en jeu → défausse), `discardAside {code, n?}`
+(copies de côté → défausse), `setAside` (retour de côté soigné, d'où
+que ce soit), `discardAt` (attaches d'un lieu → défausse), `addClues
+{code, n, perInvestigator?}` ; `spawnAside` en liste, copie de côté
+d'abord ; `removeLocations {codes}`. Une attache = carte posée sur le
+lieu.
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets
