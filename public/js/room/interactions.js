@@ -17,8 +17,10 @@ export function initInteractions(ctx) {
 
   const assis = () => ctx.etat.moi.seat !== null;
   const carteDe = (elem) => ctx.etat.state?.cards[elem?.dataset.id];
-  let lien = null;          // tracé en cours au clic droit glissé : { depuis, bouge }
-  let ignorerMenuAvant = 0; // le contextmenu qui suit un pointerup droit est déjà traité
+  let lien = null;          // tracé en cours au clic droit glissé : { depuis, bouge, menuVu }
+  // Le `contextmenu` natif arrive à l'enfoncement (Linux, Mac : `lien.menuVu`) ou au relâchement (Windows) ; dans ce
+  // second cas il suit le pointerup qui a déjà ouvert le menu ou tracé le chemin : on l'ignore, une seule fois.
+  let ignorerMenuAvant = 0;
   let modeLien = null;      // « Relier à un autre lieu… » (menu, tactile) : id du lieu de départ
 
   const lieuSous = (x, y) => {
@@ -33,7 +35,7 @@ export function initInteractions(ctx) {
     const carte = carteDe(elem);
     if (!carte) return;
     e.preventDefault();
-    lien = { depuis: carte, x0: e.clientX, y0: e.clientY, bouge: false };
+    lien = { depuis: carte, x0: e.clientX, y0: e.clientY, bouge: false, menuVu: false };
   });
   document.addEventListener("pointermove", (e) => {
     if (!lien) return;
@@ -45,7 +47,7 @@ export function initInteractions(ctx) {
     if (!lien || e.button !== 2) return;
     const l = lien; lien = null;
     cheminProvisoire(null);
-    ignorerMenuAvant = Date.now() + 400;
+    if (!l.menuVu) ignorerMenuAvant = Date.now() + 400;
     if (!l.bouge) { const elem = document.querySelector(`#plateau .carte[data-id="${l.depuis.id}"]`); if (elem) ouvrirMenu(elem, e.clientX, e.clientY); return; }
     const cible = lieuSous(e.clientX, e.clientY);
     if (cible && cible.id !== l.depuis.id) ctx.envoyer({ t: "linkLocations", a: l.depuis.id, b: cible.id });
@@ -209,14 +211,20 @@ export function initInteractions(ctx) {
   });
 
   // ---- Menu contextuel ----
+  // Le menu natif du navigateur est neutralisé sur toute la table par `neutraliserMenuNatif` (main.js) ; ici on ne
+  // décide que du menu de l'appli.
   document.addEventListener("contextmenu", (e) => {
+    // Clic droit sur un lieu : géré au pointerup (tracé ou menu). Sous Windows, le contextmenu arrive après ce
+    // pointerup, sur le lieu ou sur le coin du menu qu'il vient d'ouvrir : ignoré une fois, sans quoi il fermerait
+    // et rouvrirait le menu — ou, s'il visait le menu, laissait passer le menu natif.
+    if (lien) { lien.menuVu = true; e.preventDefault(); return; }
+    if (Date.now() < ignorerMenuAvant) { ignorerMenuAvant = 0; e.preventDefault(); return; }
     const elem = e.target.closest(".carte, .mini");
     // Une carte révélée sur une pile a son propre menu (défausser, mélanger…) ; ailleurs sur la pile, le menu de la pile.
     const outil = e.target.closest("[data-outil]");
     if (outil && !(elem && carteDe(elem))) { e.preventDefault(); ouvrirMenuOutil(outil.dataset.outil, e.clientX, e.clientY); return; }
     if (!elem || elem.closest("dialog, .loupe") || !carteDe(elem)) return;
     e.preventDefault();
-    if (lien || Date.now() < ignorerMenuAvant) return; // clic droit sur un lieu : géré au pointerup (tracé ou menu)
     ouvrirMenu(elem, e.clientX, e.clientY);
   });
   // Appui long (tactile) sur un outil de table.

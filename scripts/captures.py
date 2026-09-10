@@ -142,6 +142,42 @@ with sync_playwright() as p:
     assert alice.locator(".menu-carte").get_by_role("button", name="Effacer ses chemins").count() == 1
     alice.keyboard.press("Escape")
     alice.wait_for_timeout(200)
+    # Menu natif du navigateur : jamais sur la table (retour du 2026-09-10). Chromium Linux déclenche `contextmenu` à
+    # l'enfoncement ; sous Windows il arrive APRÈS le pointerup droit qui a ouvert le menu du lieu, et son test de visée
+    # tombe une fois sur deux sur le coin du menu lui-même. On rejoue cet ordre avec des événements synthétiques et on
+    # vérifie que le natif est neutralisé (dispatchEvent rend false) et que le menu de l'appli reste seul et ouvert.
+    def contextmenu_natif(page, x, y, sur=None):
+        return page.evaluate("""([x, y, sur]) => {
+          const opts = { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 2, buttons: 2, pointerId: 1, pointerType: 'mouse', isPrimary: true };
+          const cible = sur ? document.querySelector(sur) : document.elementFromPoint(x, y);
+          return cible.dispatchEvent(new MouseEvent('contextmenu', opts));
+        }""", [x, y, sur])
+    def clic_droit_windows(page, x, y):
+        page.evaluate("""([x, y]) => {
+          const opts = { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 2, buttons: 2, pointerId: 1, pointerType: 'mouse', isPrimary: true };
+          document.elementFromPoint(x, y).dispatchEvent(new PointerEvent('pointerdown', opts));
+          document.elementFromPoint(x, y).dispatchEvent(new PointerEvent('pointerup', { ...opts, buttons: 0 }));
+        }""", [x, y])
+    cx, cy = b1["x"] + b1["width"] / 2, b1["y"] + b1["height"] / 2
+    clic_droit_windows(alice, cx, cy)
+    assert alice.locator(".menu-carte").count() == 1, "ordre Windows : le menu du lieu s'ouvre au pointerup"
+    assert not contextmenu_natif(alice, cx, cy, sur=".menu-carte"), "ordre Windows : le contextmenu qui vise le coin du menu est neutralisé"
+    assert alice.locator(".menu-carte").count() == 1, "…et le menu de l'appli reste ouvert"
+    assert not contextmenu_natif(alice, cx, cy), "un second clic droit au même endroit n'ouvre pas non plus le menu natif"
+    assert alice.locator(".menu-carte").count() == 1
+    alice.keyboard.press("Escape")
+    # Fond du tapis, pion, carte de côté : neutralisé aussi ; le journal reste copiable (menu natif permis).
+    assert not contextmenu_natif(alice, board["x"] + board["width"] * 0.5, board["y"] + 12), "fond du tapis : pas de menu natif"
+    assert alice.locator(".menu-carte").count() == 0, "fond du tapis : pas de menu de l'appli non plus"
+    m = alice.locator("#plateau .mini").first.bounding_box()
+    assert not contextmenu_natif(alice, m["x"] + m["width"] / 2, m["y"] + m["height"] / 2), "pion : pas de menu natif"
+    assert alice.locator(".menu-carte").count() == 1, "pion : menu de l'appli"
+    alice.keyboard.press("Escape")
+    a = alice.locator("#aside .bande .carte").first.bounding_box()
+    assert not contextmenu_natif(alice, a["x"] + a["width"] / 2, a["y"] + a["height"] / 2), "carte de côté : pas de menu natif"
+    alice.keyboard.press("Escape")
+    assert contextmenu_natif(alice, 0, 0, sur="#journal .entree"), "journal : menu natif permis (copier le texte)"
+    alice.wait_for_timeout(200)
 
     # Piocher = retourner la première carte de la pioche ; la glisser en zone de menace ; la défausser par le menu.
     alice.locator("#pioches .pioche-rencontre .dos-bouton").click()
@@ -1198,6 +1234,10 @@ with sync_playwright() as p:
     assert a13.locator(".entete-joueur:not(.lecture)").count() == 1, "board actif pour son siège"
     assert a13.locator("#entete .jauges-inv .chip").count() == 4, "quatre jauges en chips (ressources, indices, dégâts, horreur)"
     assert a13.locator("#main .bouton-action").count() == 1 and a13.locator("#main #phase-suivante").count() == 1, "bouton d'action, tour et phase au-dessus de la main"
+    assert not contextmenu_natif(a13, 0, 0, sur="#jeu"), "board joueur : pas de menu natif sur la zone de jeu"
+    assert not contextmenu_natif(a13, 0, 0, sur="#piles-joueur .pile"), "board joueur : la pile ouvre son menu, pas le natif"
+    assert a13.locator(".menu-carte").count() == 1
+    a13.keyboard.press("Escape")
     assert a13.locator("#entete #phase-suivante").count() == 0, "plus de Phase suivante dans l'entête"
     assert a13.locator("#mon-lieu .lieu-carte .carte").count() == 1, "mon lieu : le lieu du pion"
     assert a13.locator("#mon-lieu .lieu-carte .pions-lieu .mini").count() == 2, "les deux pions sur le lieu, à cheval sur son bord haut"

@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | UX : menu natif du navigateur neutralisé sur la table | `neutraliserMenuNatif`, ordre `contextmenu` Windows (après le `pointerup`), garde `lien.menuVu` |
 | 2026-09-10 | TIC VII — The Lair of Dagon | effets `after:<code>`, ordre d'écriture des effets, `removeLocations` / `spreadPile` / `placeAt` / `chaosAdd` / `chaosRemove` ; set Core Dark Cult = `pentagram` |
 | 2026-09-10 | TIC VI — A Light in the Fog | `actEffects` + effets d'étape étendus (`revealCodes`, `placeBelow`, `fillRows`, `removeTrait`), Captured! histoire → lieu par `toggleSide` |
 | 2026-09-10 | TIC V — Horror in High Gear | `fromPile`, `pickRandom rest:"keep"`, `road` + `roadAhead` (ligne Road X), voitures à deux faces (`toggleSide` sur soutien lié) |
@@ -93,6 +94,29 @@ versement de son durable (format → grammaire, piège → §5, décision →
 | 2026-09-03 | Étape 1 — première table (The Gathering) | pipeline de build, lobby, tapis, tests + captures |
 
 ### Derniers récits
+
+- 2026-09-10 : **Menu natif du navigateur neutralisé sur la table** —
+  retour UX : sur certains objets du tapis, « parfois et selon le
+  zoom », le clic droit ouvrait aussi le menu du navigateur. Reproduit
+  en bac à sable (Playwright) : seuls les **lieux** fuyaient, et
+  seulement sous Windows. Le menu d'un lieu s'ouvre au `pointerup`
+  (un clic droit glissé trace un chemin) ; Windows envoie ensuite le
+  `contextmenu` natif, dont le test de visée tombe — une fois sur deux,
+  selon l'arrondi du pixel — sur le coin du menu qui vient d'être posé
+  sous le curseur plutôt que sur la carte ; l'écouteur ne reconnaissait
+  ni carte ni outil et ne faisait pas `preventDefault`. Correctif :
+  `neutraliserMenuNatif(zone, sauf)` dans `dom.js` (menu natif
+  neutralisé sur tout `#tapis` et sur `.menu-carte`, sauf champs de
+  saisie, liens et `#journal` ; appelé aussi sur le board joueur avec
+  `#board-joueur`) — décision de l'utilisateur : « on bloque tout » ;
+  et le garde-fou des lieux devient adaptatif (`lien.menuVu` : la
+  fenêtre de 400 ms ne s'arme que si la plateforme envoie le
+  `contextmenu` après le relâchement, et ne vaut qu'une fois — un
+  second clic droit rapide sur un autre objet n'était plus pris).
+  Captures : bloc de régression qui rejoue l'ordre Windows par
+  événements synthétiques (`clic_droit_windows`, `contextmenu_natif` :
+  lieu, coin du menu, fond du tapis, pion, carte de côté, journal
+  permis, board joueur).
 
 - 2026-09-10 : **The Lair of Dagon (TIC VII) livré** — Setup + diagramme
   p. 31‑32 (pack `lod` ; sets The Lair of Dagon, Agents of Dagon,
@@ -160,40 +184,6 @@ versement de son durable (format → grammaire, piège → §5, décision →
   et journal muet, acte 3 idempotent, agenda 4 : Oceiros et Falcon
   Point, autonome) ; captures 92‑93. Piège : un test qui pose une carte
   sur une rangée à compléter fausse `fillRows` — poser ailleurs.
-
-- 2026-09-10 : **Horror in High Gear (TIC V) livré** — choix pris seul
-  avec la consigne d'uniformisation. Setup + diagramme p. 24‑25 (pack
-  `hhg` ; sets Horror in High Gear, Fog over Innsmouth, Malfunction,
-  Shattered Memories, Ancient Evils ; pioche 28). Réutilisé : véhicule
-  porteur de pions (les deux voitures `spawn` sur le lieu de tête
-  `slot:route:2`, pions sur le lieu — la montée à bord, le conducteur
-  et la voiture vide à retirer restent aux joueurs : choix), verso
-  ennemi de l'agenda 1 v. I (07199 → 07199b), versions d'agenda par
-  `when … remove` sur « The Terror of Devil Reef is dead », ligne de
-  boutons du menu (« Road X (deck n, détours m) 1 2 3 », même forme
-  que Inondation / Tidal Tunnels). Nouveau mais générique : op
-  **`fromPile`** (les n premières cartes d'une pile construite en jeu
-  aux positions données, slots `slot:<nom>:<i>`) — le Road deck est un
-  `layeredPile` (fond = Falcon Point Approach + 2 au hasard, 12 au-
-  dessus) dont les trois premières partent en ligne ; **`pickRandom
-  rest:"keep"`** (les ennemis Vehicle non tirés restent au pool → pioche ;
-  `rest:"pile" restPile:"encounter"` aurait été écrasé par
-  `buildEncounter`) ; définition **`road {pile, longWay}`** + action
-  **`roadAhead {id, n}`** (Road deck + Long Way Around de côté,
-  mélangés, colonne devant le lieu, journal muet) ; **`toggleSide`
-  offert aux soutiens à verso lié** (menu « Autre face (Stopped) » :
-  le sous-titre du verso vient du build). Ennemis Vehicle : `branch
-  players` 2‑3 → 1, 4 → 2, tirés parmi Pursuing Motorcar / Hit Van /
-  Hybrid Assassin, posés à l'arrière (`positions` fixes 401 × 457).
-  Piège attrapé par les captures : `state` n'est pas défini dans le
-  menu des cartes d'`interactions.js` (passer par `ctx.etat.state`) ;
-  et un menu ouvert se ferme par un clic hors menu, pas par Escape dans
-  les captures. Tests : 619 messages (bloc Gear : sac, versions, Road
-  deck 12 avec Falcon Point au fond, ligne de trois non révélés et
-  journal muet, six Long Way Around de côté, voitures et pions, ennemi
-  Vehicle à l'arrière et pioche 27, toggleSide, Road 2 puis Road 3,
-  refus, verso ennemi, autonome v. I sans ennemi, quatre joueurs v. II
-  deux ennemis) ; captures 89‑91.
 
 - **Prochaine étape** : retours de l'utilisateur sur TIC I‑VII, puis
   **TIC VIII Into the Maelstrom** (pack `itm` ; Setup + diagramme
@@ -737,8 +727,22 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   broadcasts déjà reçus par les autres clients.
 - `contextmenu` se déclenche à l'enfoncement (Linux/Mac) ou au
   relâchement (Windows) : pour un clic droit glissé, ouvrir le menu au
-  `pointerup` sans mouvement et ignorer le `contextmenu` natif pendant
-  le tracé et 400 ms après.
+  `pointerup` sans mouvement. Sous Windows, le `contextmenu` arrive
+  alors **après** ce `pointerup` et son test de visée tombe une fois sur
+  deux sur le coin du menu tout juste posé sous le curseur (arrondi du
+  pixel, donc « parfois, selon le zoom ») : tout écouteur qui décide de
+  `preventDefault` d'après la cible laisse passer le menu natif. D'où
+  `neutraliserMenuNatif` (dom.js) : neutralisé sur toute la table et sur
+  `.menu-carte`, sauf saisie, liens et journal ; et le garde `lien.menuVu`
+  (fenêtre de 400 ms armée seulement si aucun `contextmenu` n'est venu
+  pendant l'appui, consommée une fois). Playwright/Chromium Linux ne
+  reproduit pas l'ordre Windows : le rejouer par événements synthétiques
+  (`captures.py`, `clic_droit_windows`).
+- `state` n'est pas défini dans le menu des cartes d'`interactions.js` :
+  passer par `ctx.etat.state`.
+- Constat du récit High Gear : dans les captures, un menu ouvert s'est
+  fermé par un clic hors menu, pas par Escape (Escape ferme pourtant le
+  menu ailleurs dans `captures.py` — en cas de doute, cliquer à côté).
 - Les cartes du tapis peuvent passer sous l'overlay pioche/sac (bas
   gauche) : elles restent accessibles en déplaçant la vue.
 - Une action qui mute l'état puis `refuser()` laisse une divergence

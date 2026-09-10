@@ -8,6 +8,40 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Horror in High Gear (TIC V) livré** — choix pris seul
+  avec la consigne d'uniformisation. Setup + diagramme p. 24‑25 (pack
+  `hhg` ; sets Horror in High Gear, Fog over Innsmouth, Malfunction,
+  Shattered Memories, Ancient Evils ; pioche 28). Réutilisé : véhicule
+  porteur de pions (les deux voitures `spawn` sur le lieu de tête
+  `slot:route:2`, pions sur le lieu — la montée à bord, le conducteur
+  et la voiture vide à retirer restent aux joueurs : choix), verso
+  ennemi de l'agenda 1 v. I (07199 → 07199b), versions d'agenda par
+  `when … remove` sur « The Terror of Devil Reef is dead », ligne de
+  boutons du menu (« Road X (deck n, détours m) 1 2 3 », même forme
+  que Inondation / Tidal Tunnels). Nouveau mais générique : op
+  **`fromPile`** (les n premières cartes d'une pile construite en jeu
+  aux positions données, slots `slot:<nom>:<i>`) — le Road deck est un
+  `layeredPile` (fond = Falcon Point Approach + 2 au hasard, 12 au-
+  dessus) dont les trois premières partent en ligne ; **`pickRandom
+  rest:"keep"`** (les ennemis Vehicle non tirés restent au pool → pioche ;
+  `rest:"pile" restPile:"encounter"` aurait été écrasé par
+  `buildEncounter`) ; définition **`road {pile, longWay}`** + action
+  **`roadAhead {id, n}`** (Road deck + Long Way Around de côté,
+  mélangés, colonne devant le lieu, journal muet) ; **`toggleSide`
+  offert aux soutiens à verso lié** (menu « Autre face (Stopped) » :
+  le sous-titre du verso vient du build). Ennemis Vehicle : `branch
+  players` 2‑3 → 1, 4 → 2, tirés parmi Pursuing Motorcar / Hit Van /
+  Hybrid Assassin, posés à l'arrière (`positions` fixes 401 × 457).
+  Piège attrapé par les captures : `state` n'est pas défini dans le
+  menu des cartes d'`interactions.js` (passer par `ctx.etat.state`) ;
+  et un menu ouvert se ferme par un clic hors menu, pas par Escape dans
+  les captures. Tests : 619 messages (bloc Gear : sac, versions, Road
+  deck 12 avec Falcon Point au fond, ligne de trois non révélés et
+  journal muet, six Long Way Around de côté, voitures et pions, ennemi
+  Vehicle à l'arrière et pioche 27, toggleSide, Road 2 puis Road 3,
+  refus, verso ennemi, autonome v. I sans ennemi, quatre joueurs v. II
+  deux ennemis) ; captures 89‑91.
+
 - 2026-09-10 : **Devil Reef (TIC IV) livré** — première room du nouveau
   circuit (dépôt source de vérité, grammaire lue à la place du code,
   Setup + diagramme seulement, un commit unique). Choix laissés à Claude

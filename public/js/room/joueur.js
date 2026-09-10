@@ -4,7 +4,7 @@
 // est en lecture seule, sa main masquée (dos + nombre, bouton « Regarder »).
 
 import { creerConnexion } from "./net.js";
-import { el, pluriel, surveillerPleinEcran } from "./dom.js";
+import { el, pluriel, surveillerPleinEcran, neutraliserMenuNatif } from "./dom.js";
 import { CDN, FACTIONS, totauxCompetences, elTotauxCompetences, chipJauge } from "./cartes.js";
 import { nomSiege } from "./lobby.js";
 import { blocDeck } from "./deck.js";
@@ -21,6 +21,7 @@ const SLOTS = [["hand", "Mains", 2], ["arcane", "Arcanes", 2], ["ally", "Allié"
 function remplir(parent, ...enfants) { parent.replaceChildren(...enfants.flat().filter((e) => e !== null && e !== undefined && e !== false)); }
 
 surveillerPleinEcran();
+neutraliserMenuNatif("#board-joueur");
 const parties = location.pathname.split("/").filter(Boolean);
 const code = parties[1]?.toUpperCase() ?? "";
 const siegeUrl = Number(parties[3]);
