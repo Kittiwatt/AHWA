@@ -475,6 +475,19 @@ body.mode-lien #plateau .carte.kind-location { outline: 2px dashed var(--dorure-
 .generateur .recherche.large { width: 100%; max-width: none; font-size: 1.05rem; padding: 0.5rem 0.8rem; background: var(--nuit-2); color: var(--papier); border: 1px solid var(--filet); border-radius: 2px; font: inherit; }
 .generateur .carte-peek figcaption { flex-direction: column; align-items: stretch; gap: 0.2rem; }
 .generateur .carte-peek .meta { display: block; color: var(--papier-2); font-size: 0.78rem; }
+.generateur .grille-cartes > .vide { grid-column: 1 / -1; }   /* consigne et messages sur toute la largeur, pas dans une case de 9 rem */
+/* Carte personnalisée (image en lien) sous la recherche */
+.carte-perso { border-top: 1px solid var(--filet); padding-top: 0.8rem; }
+.carte-perso h3 { margin: 0 0 0.6rem; font-size: 1.05rem; color: var(--papier-2); }
+.carte-perso-corps { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: start; }
+.carte-perso-champs { display: grid; gap: 0.5rem; }
+.carte-perso .champ-nom { width: 100%; max-width: none; font: inherit; padding: 0.4rem 0.7rem; background: var(--nuit-2); color: var(--papier); border: 1px solid var(--filet); border-radius: 2px; }
+.carte-perso select.champ-nom { width: auto; }
+.carte-perso .ligne-boutons { margin-top: 0; }
+.carte-perso input.nombre { width: 5rem; padding: 0.35rem 0.5rem; font: inherit; color: var(--papier); background: var(--nuit-2); border: 1px solid var(--filet); border-radius: 2px; }
+.carte-perso .aide { margin: 0; font-size: 0.85rem; color: var(--papier-2); }
+.carte-perso .erreur { color: var(--wip); font-style: normal; }
+.carte-perso .apercu { width: 9rem; border-radius: 6px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6); }
 
 /* Plein écran (F11) : la barre du haut s'efface pour gagner de la place (retour de test du 2026-09-09).
    Media query display-mode (Chrome, Firefox) doublée d'une classe posée par le script quand la fenêtre remplit l'écran. */

@@ -42,8 +42,10 @@ suspect secret de côté, pile « Sous l'acte ») et III — Queen of Ash
 (égouts mélangés, journal à cocher, Elokoss à deux faces) —
 **campagne complète** —, avec
 les questions de journal au lobby, les tirages au hasard, les piles et
-les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » et lien vers le livret de
-campagne dans chaque table. Lobby
+les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » (n'importe quelle carte du jeu, ou une
+carte personnalisée à partir d'une image en lien) sur la table comme
+sur le board joueur, et lien vers le livret de campagne dans chaque
+table. Lobby
 (sièges, enquêteurs, difficulté, enquêteur principal), mise en place
 automatique par l'hôte, tapis complet : glisser-déposer des cartes et des
 pions, révélation des lieux avec indices, phases et tours, doom et agenda,

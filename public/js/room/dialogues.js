@@ -115,10 +115,12 @@ async function chargerIndex() {
   return indexCartes;
 }
 
+/** Outil « Générer une carte » (table et board joueur) : une carte du jeu par nom, code ou lien arkham.build, ou une
+ *  carte personnalisée à partir d'une image en lien (recto, verso facultatif, nature, jauges) — 2026-09-10. */
 export function ouvrirGenerateur(ctx) {
   const champ = el("input", { type: "search", class: "recherche large", placeholder: "Nom de carte, code (01117) ou lien arkham.build/card/…", "aria-label": "Rechercher une carte", autofocus: true });
   const liste = el("div", { class: "grille-cartes" }, el("p", { class: "vide", text: "Chargement de l'index…" }));
-  const d = dialogue("Générer une carte", el("div", { class: "generateur" }, champ, liste),
+  const d = dialogue("Générer une carte", el("div", { class: "generateur" }, champ, liste, formulaireCartePerso(ctx, () => d.close())),
     [el("button", { class: "bouton secondaire", type: "button", onclick: () => d.close() }, "Fermer")]);
   const rendre = (cartes) => {
     const q = champ.value.trim();
@@ -151,4 +153,45 @@ export function ouvrirGenerateur(ctx) {
   };
   chargerIndex().then((cartes) => { rendre(cartes); champ.addEventListener("input", () => rendre(cartes)); champ.focus(); })
     .catch(() => liste.replaceChildren(el("p", { class: "vide", text: "L'index des cartes n'a pas pu être chargé." })));
+}
+
+/** Carte personnalisée : formulaire sous la recherche — nom, image du recto (lien https), verso facultatif, nature,
+ *  vie / santé mentale (soutien) ou vie (ennemi) ; aperçu de l'image dès que le lien répond. Pas de téléversement : les
+ *  images restent chez leur hébergeur, la table ne garde que le lien (comme l'enquêteur personnalisé). */
+function formulaireCartePerso(ctx, fermer) {
+  const nom = el("input", { type: "text", class: "champ-nom", maxlength: "40", placeholder: "Nom de la carte", "aria-label": "Nom de la carte personnalisée" });
+  const image = el("input", { type: "url", class: "champ-nom", maxlength: "600", placeholder: "Lien https de l'image du recto", "aria-label": "Image du recto" });
+  const verso = el("input", { type: "url", class: "champ-nom", maxlength: "600", placeholder: "Lien de l'image du verso (facultatif)", "aria-label": "Image du verso" });
+  const nature = el("select", { class: "champ-nom", "aria-label": "Nature de la carte" },
+    ...[["asset", "Soutien"], ["enemy", "Ennemi"], ["treachery", "Traîtrise"], ["location", "Lieu"], ["story", "Histoire"]].map(([v, l]) => el("option", { value: v, text: l })));
+  const vie = el("input", { type: "number", class: "nombre", min: "1", max: "99", placeholder: "vie", "aria-label": "Vie (facultatif)" });
+  const sante = el("input", { type: "number", class: "nombre", min: "1", max: "99", placeholder: "santé", "aria-label": "Santé mentale (facultatif)" });
+  const apercu = el("img", { class: "apercu", alt: "", hidden: true });
+  const erreur = el("p", { class: "vide erreur", hidden: true });
+  const majJauges = () => { vie.hidden = !["asset", "enemy"].includes(nature.value); sante.hidden = nature.value !== "asset"; };
+  nature.addEventListener("change", majJauges); majJauges();
+  image.addEventListener("input", () => {
+    const u = image.value.trim();
+    if (/^https?:\/\/\S+$/i.test(u)) { apercu.src = u; apercu.hidden = false; } else apercu.hidden = true;
+  });
+  apercu.addEventListener("error", () => { apercu.hidden = true; });
+  const generer = () => {
+    erreur.hidden = true;
+    if (!nom.value.trim()) { erreur.textContent = "Donnez un nom à la carte."; erreur.hidden = false; nom.focus(); return; }
+    if (!/^https?:\/\/\S+$/i.test(image.value.trim())) { erreur.textContent = "Le lien de l'image du recto doit commencer par https:// (ou http://)."; erreur.hidden = false; image.focus(); return; }
+    ctx.envoyer({ t: "createCustomCard", name: nom.value.trim(), image: image.value.trim(), imageBack: verso.value.trim() || undefined, kind: nature.value,
+      health: vie.hidden || !vie.value ? undefined : Number(vie.value), sanity: sante.hidden || !sante.value ? undefined : Number(sante.value) });
+    fermer();
+  };
+  for (const c of [nom, image, verso, vie, sante]) c.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); generer(); } });
+  return el("section", { class: "carte-perso" },
+    el("h3", { text: "Carte personnalisée (image en lien)" }),
+    el("div", { class: "carte-perso-corps" },
+      el("div", { class: "carte-perso-champs" },
+        nom, image, verso,
+        el("div", { class: "ligne-boutons" }, nature, vie, sante,
+          el("button", { class: "bouton petit", type: "button", onclick: generer, title: "Créer cette carte dans votre zone de menace" }, "Générer")),
+        el("p", { class: "aide", text: "Lien direct vers une image (png, jpg, webp) hébergée en https ; la table ne garde que le lien. Le verso sert au retournement, sinon un dos générique." }),
+        erreur),
+      apercu));
 }

@@ -8,6 +8,40 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Le « − » des jauges hors carte se déploie sans rien
+  déplacer** — retour de l'utilisateur : les jauges des cartes sont
+  « parfaites » (au survol la pastille s'allonge vers la gauche pour
+  loger le « − », l'icône et le nombre ne bougent pas), mais celles des
+  sièges du tapis et de l'entête du board « bougeaient pour laisser le
+  bouton se déployer », différence subtile et désagréable. Cause : sur
+  une carte la colonne `.chips` est ancrée à droite (`right: 3px`), la
+  pastille pousse donc vers la gauche ; hors carte les chips sont
+  ancrées à gauche, et le bouton inséré dans le flux décalait le contenu
+  vers la droite (et, en rangée, les chips suivantes). Correctif CSS
+  seul (`room.css` `.jauge-inv`, `joueur.css`) : la chip est `position:
+  relative`, `.chip-moins` est posé en absolu dans le retrait gauche
+  (`left: 2px`, centré verticalement), et au survol la pastille prend
+  une **marge gauche négative** égale au **retrait intérieur** qu'elle
+  gagne (1.1em + écart) — sa boîte s'allonge vers la gauche, sa boîte de
+  marge ne change pas, l'icône et le nombre restent en place, rien ne
+  bouge autour ; les chips `.inactive` (spectateur, siège d'un autre)
+  ne s'allongent pas. Conséquence : les gouttières à gauche de chaque
+  chip doivent mesurer au moins 1.1em + l'écart — siège : colonnes
+  `max-content` avec `column-gap: 1.4rem` (la grille `minmax` du matin
+  n'a plus lieu d'être) et `.jauges-col` décalé de 0.7rem du bord de
+  la carte d'enquêteur (colonne 181 → 154 px, la zone de menace y
+  gagne) ; entête du board : `gap` 0.7 → 1.6rem, marge gauche 0.5rem.
+  `.chip-n` des sièges à 1.75em : les quatre pastilles ont la même
+  largeur (66 px). Vérification par script Playwright (COB I, deck
+  importé) : survol de chacune des cinq jauges sur le siège et sur
+  l'entête — la pastille s'allonge de 20,6 px (siège) / 24,3 px
+  (board) vers la gauche, `img` et `.chip-n` aux mêmes coordonnées à
+  0,1 px près, aucune autre chip déplacée ; spectateur : rien ne bouge,
+  pas de « − » ; captures repos / survol ; `npm run check` zéro
+  erreur ; régression `test_room.mjs` (692 messages) OK. Piège
+  rencontré : `wrangler dev` mort trois fois (« Network connection
+  lost ») entre deux scripts de capture — relancé, rejoué, sans cause
+  dans le dépôt (§5).
 - 2026-09-10 : **Queen of Ash (BoA III) livré — campagne Brethren of
   Ash complète** (trois tables). Guide : consignes de mise en place de
   la p. 11 lues **par leurs encadrés seulement** (bbox de `pdftotext`

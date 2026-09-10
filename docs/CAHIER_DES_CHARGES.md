@@ -257,6 +257,7 @@ Format `{ t: string, ...args }`. Colonne « Qui » : H = hôte, J = joueur.
 | `randomPick {pile, n}` | J | nomme n cartes distinctes tirées au hasard dans une pile sans la modifier (journal + encart pour tous) — « choisir un lieu au hasard » |
 | `removeLocations {keep}` | J | retire de la partie tous les lieux du tapis sauf un (jetons et chemins effacés) |
 | `createCard {code}` | J | génère n'importe quelle carte du jeu (index `cards_index.json`) dans la zone de menace du demandeur ; définition dans `state.extraDefs` |
+| `createCustomCard {name, image, imageBack?, kind?, health?, sanity?}` | J | carte personnalisée à partir d'une image en lien https (recto ; verso facultatif → dos `b`), nature soutien / ennemi / traîtrise / lieu / histoire (soutien par défaut), vie (soutien, ennemi) et santé mentale (soutien) 1‑99 ; code `custom-card:<n>`, définition `{custom: true, image, imageBack?}` dans `state.extraDefs`, dans la zone de menace du demandeur ; pas de téléversement (la table ne garde que le lien) |
 | `searchEncounter {pile?}` | J | envoie la pioche (ou la défausse) au demandeur (`peek`) ; le client remélange à la fermeture (`shufflePile`) et permet de prendre une carte (`moveCard`) |
 | `shufflePile {pile}` | J | remélange |
 | `nextPhase` | J | enchaîne les phases (§6) |

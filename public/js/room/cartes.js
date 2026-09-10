@@ -23,7 +23,12 @@ export const JETONS_CHAOS = {
 /** URL de l'image à afficher pour une carte selon sa face et son côté. */
 export function urlImage(carte, def) {
   if (carte.kind === "proxy" && carte.code === "empty:space") return "/img/dos-joueur.svg"; // espace vide (Before the Black Throne)
-  if (def?.custom) return carte.faceUp && def.image ? def.image : "/img/dos-joueur.svg";   // enquêteur personnalisé : son image, dos joueur
+  if (def?.custom) {
+    // Enquêteur personnalisé (image, dos joueur) ou carte personnalisée (image du recto, verso en lien ou dos générique).
+    if (carte.faceUp) return carte.side === "b" && def.imageBack ? def.imageBack : (def.image ?? "/img/dos-joueur.svg");
+    if (def.imageBack && !carte.storyBack) return def.imageBack;
+    return def.back === "encounter" ? "/img/dos-rencontre.svg" : "/img/dos-joueur.svg";
+  }
   const dos = def?.back ?? "b";
   const verso = def?.backCode ? `${CDN}${def.backCode}.webp` : `${CDN}${carte.code}b.webp`;
   if (carte.faceUp) return carte.side === "b" ? verso : `${CDN}${carte.code}.webp`;

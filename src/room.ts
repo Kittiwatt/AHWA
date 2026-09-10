@@ -442,6 +442,34 @@ export class Room extends Server<Env> {
         return;
       }
 
+      // ---- Carte personnalisée : une image en lien (recto, verso facultatif), un nom, une nature et des jauges ;
+      //      même outil que « Générer une carte » (table et board), demande de l'utilisateur du 2026-09-10 ----
+      case "createCustomCard": {
+        const s = seated();
+        if (state.phase === "lobby") refuser("la partie n'est pas commencée");
+        const perso = carteCustomPropre(msg) ?? refuser("carte personnalisée incomplète : un nom (1 à 40 caractères) et l'image du recto en https ; vie et santé mentale entre 1 et 99");
+        const before = clone(state);
+        const numero = Object.keys(state.extraDefs).filter((c) => c.startsWith("custom-card:")).length + 1;
+        const code = `custom-card:${numero}`;
+        const rencontre = perso.kind === "enemy" || perso.kind === "treachery" || perso.kind === "location" || perso.kind === "story";
+        const def = {
+          code, name: perso.name, kind: perso.kind, qty: 1, set: "custom", back: perso.imageBack ? "b" : (rencontre ? "encounter" : "player"), storyBack: false,
+          custom: true, image: perso.image, ...(perso.imageBack ? { imageBack: perso.imageBack } : {}),
+          ...(perso.health !== null ? { health: perso.health } : {}), ...(perso.sanity !== null ? { sanity: perso.sanity } : {}),
+          ...(perso.kind === "location" ? { clue: { value: 0, perInvestigator: false } } : {}),
+        };
+        state.extraDefs[code] = def;
+        const n = Object.keys(state.cards).filter((id) => id.startsWith("gen-")).length + 1;
+        const id = `gen-${n}-${code}`;
+        const zone = SEAT_ZONES[s];
+        let x = 0;
+        for (const c of Object.values(state.cards)) if ("zone" in c.loc && c.loc.zone === zone && c.kind !== "investigator") x = Math.max(x, c.loc.x + 136);
+        state.cards[id] = { id, code, kind: perso.kind, storyBack: false, loc: { zone, x, y: 0, z: nextZ(state) }, faceUp: true, exhausted: false, side: "a", tokens: {}, ownerSeat: s };
+        addLog(state, "action", `${this.nomSiege(s)} génère la carte personnalisée « ${perso.name} » (${LIBELLES_KIND[perso.kind]}).`, s);
+        this.commit(before);
+        return;
+      }
+
       // ---- Actions de jeu (étape 2) : ouvertes à tout joueur assis ; actions `p:*` du board joueur :
       //      réservées aux connexions du siège visé (cahier §10.2, motif de refus « siege ») ----
       default: {
@@ -628,6 +656,34 @@ function customPropre(msg: Record<string, unknown>): CustomInvestigator | null {
     image = u;
   }
   return { name, image, health, sanity };
+}
+
+const KINDS_CUSTOM = new Set(["asset", "enemy", "treachery", "location", "story"]);
+const LIBELLES_KIND: Record<string, string> = { asset: "soutien", enemy: "ennemi", treachery: "traîtrise", location: "lieu", story: "histoire" };
+
+/** Carte personnalisée (`createCustomCard`) : nom, image du recto (https, ≤ 600 caractères), verso facultatif, nature
+ *  parmi soutien / ennemi / traîtrise / lieu / histoire (soutien par défaut), vie et santé mentale facultatives (1 à 99). */
+function carteCustomPropre(msg: Record<string, unknown>): { name: string; image: string; imageBack: string | null; kind: import("./state").CardKind; health: number | null; sanity: number | null } | null {
+  const name = nomPropre(msg.name);
+  if (!name) return null;
+  const url = (v: unknown): string | null => {
+    if (typeof v !== "string" || !v.trim()) return null;
+    const u = v.trim();
+    return u.length > 600 || /\s/.test(u) || !/^https?:\/\//i.test(u) ? null : u;
+  };
+  const image = url(msg.image);
+  if (!image) return null;
+  const imageBack = url(msg.imageBack);
+  if (typeof msg.imageBack === "string" && msg.imageBack.trim() && !imageBack) return null;
+  const kind = (typeof msg.kind === "string" && KINDS_CUSTOM.has(msg.kind) ? msg.kind : "asset") as import("./state").CardKind;
+  const jauge = (v: unknown): number | null | false => {
+    if (v === undefined || v === null || v === "") return null;
+    const n = Math.round(Number(v));
+    return Number.isFinite(n) && n >= 1 && n <= 99 ? n : false;
+  };
+  const health = jauge(msg.health), sanity = jauge(msg.sanity);
+  if (health === false || sanity === false) return null;
+  return { name, image, imageBack, kind, health: kind === "enemy" || kind === "asset" ? health : null, sanity: kind === "asset" ? sanity : null };
 }
 
 function nomPropre(v: unknown): string | null {

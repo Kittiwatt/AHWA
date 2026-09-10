@@ -86,6 +86,8 @@
 .mon-lieu .lieu-nom { margin: 0; font-size: 0.95rem; color: var(--papier-2); }
 /* Au-dessus de la main : bouton d'action (comme sur la page scénario), tour, phase — à droite de l'aide */
 .main-joueur header .tour-main { display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 0.4rem; align-self: center; }
+.main-joueur .tour-main .bouton.icone.petit { padding: 0.2rem 0.4rem; }
+.main-joueur .tour-main .bouton.icone.petit svg { width: 1.15rem; height: 1.15rem; }
 .mon-lieu .ligne-boutons { margin: 0; display: grid; gap: 0.3rem; }
 .mon-lieu .ligne-boutons .bouton { padding-left: 0.4rem; padding-right: 0.4rem; white-space: normal; }
 .mon-lieu .sur-le-lieu { display: grid; gap: 0.3rem; }

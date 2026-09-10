@@ -11,7 +11,9 @@ import { blocDeck } from "./deck.js";
 import { carteEl, PHASES, rendreChaos, initLoupe } from "./tapis.js";
 import { lireSiegeMemorise, memoriserSiege } from "./siege.js";
 import { initInteractionsJoueur, ouvrirDialogueBoard, titreAutoPay } from "./interactions-joueur.js";
+import { ouvrirGenerateur } from "./dialogues.js";
 
+const ICONE_GENERER = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const ICONE_ACTION = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5h9.5V3.5L21 12l-8.5 8.5v-5H3z" fill="currentColor"/></svg>';
 const ORDRE_PHASES = ["mythos", "investigation", "enemy", "upkeep"];
 // Slots d'un enquêteur (Grimoire p. 21 ; ArkhamDB nomme le slot de chaque carte) et leurs limites.
@@ -496,7 +498,10 @@ async function demarrer() {
       state.phase === "resolution" ? null : enTour
         ? el("button", { class: "bouton petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "endTurn", seat: n }) }, "Fin de mon tour")
         : el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "takeTurn", seat: n }) }, aJoue ? "Rejouer" : "Prendre mon tour"),
-      el("button", { class: "bouton secondaire petit", type: "button", id: "phase-suivante", disabled: !peut || state.phase === "resolution", title: "Passer à la phase suivante (automatisations de la table)", onclick: () => ctx.envoyer({ t: "nextPhase" }) }, "Phase suivante"));
+      el("button", { class: "bouton secondaire petit", type: "button", id: "phase-suivante", disabled: !peut || state.phase === "resolution", title: "Passer à la phase suivante (automatisations de la table)", onclick: () => ctx.envoyer({ t: "nextPhase" }) }, "Phase suivante"),
+      // Le même outil « Générer une carte » que sur la table (carte du jeu ou carte personnalisée en image) — demande du 2026-09-10.
+      el("button", { class: "bouton secondaire icone petit", type: "button", id: "generer-carte-board", disabled: !peut, title: "Générer n'importe quelle carte du jeu (nom, code ou lien arkham.build), ou une carte personnalisée à partir d'une image", "aria-label": "Générer une carte",
+        html: ICONE_GENERER, onclick: () => ouvrirGenerateur(ctx) }));
   }
 
   function rendreMain(state, s, mien) {

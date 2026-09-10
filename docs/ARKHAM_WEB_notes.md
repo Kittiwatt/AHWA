@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | Générateur de cartes : board joueur + carte personnalisée en image | bouton dans `blocTour` du board ; `createCustomCard {name, image, imageBack?, kind?, health?, sanity?}` → `custom-card:<n>` dans `extraDefs` (`custom`, `image`, `imageBack`), `urlImage` étendu ; consigne du générateur sur une ligne (`.grille-cartes > .vide` sur toute la largeur) ; pas de téléversement |
 | 2026-09-10 | UX : chips — bouton maintenu déployé, agenda / acte | `garderChipsDeployees` (dom.js, classe `ouverte` reposée après re-rendu, clé jeton + carte / siège / entête) : plusieurs clics sur le « − » / « + » sans bouger ; chips de l'agenda et de l'acte à 30 px ; ressources et marqueur génériques au menu de l'agenda et de l'acte |
 | 2026-09-10 | UX : tous les jetons des cartes en chips | plus de pions ronds : indices, doom, ressources, générique = chips empilées en bas à droite avec le « − » qui se déploie ; indices d'un lieu = chip inverse (clic = prendre, « + » au survol) ; `elChip` + `clicChip` dans cartes.js, `.pmj` / `.jetons` supprimés |
 | 2026-09-10 | UX : le « − » des jauges hors carte se déploie sans rien déplacer | pastille ancrée à gauche : marge négative + retrait au survol, `.chip-moins` en absolu (`.jauge-inv`, room.css) ; gouttières ≥ 1.1em + écart ; siège et entête du board |
@@ -104,6 +105,47 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **Générateur de cartes sur le board joueur, carte
+  personnalisée à partir d'une image** — deux demandes de l'utilisateur.
+  (1) Le bouton « Générer une carte » (même icône) est ajouté dans le
+  bloc tour de la main du board joueur (`blocTour`, à droite de « Phase
+  suivante », `#generer-carte-board`, inactif en lecture seule) ; la
+  fenêtre est la même (`ouvrirGenerateur`, `dialogues.js`), la carte
+  arrive dans la zone de menace du siège, visible sur le board. Au
+  passage, la consigne « Tapez au moins deux lettres… » s'affichait sur
+  quatre lignes parce que le `<p>` occupait une case de 9 rem de la
+  grille des résultats : `.generateur .grille-cartes > .vide
+  { grid-column: 1 / -1 }`. (2) Sous la recherche, une section « Carte
+  personnalisée (image en lien) » : nom, lien https du recto, lien du
+  verso (facultatif), nature (soutien / ennemi / traîtrise / lieu /
+  histoire), vie (soutien, ennemi) et santé mentale (soutien) ;
+  aperçu de l'image dès que le lien répond, contrôles côté client
+  (nom, lien http(s)), Entrée = Générer. Serveur : action
+  **`createCustomCard`** (`room.ts`, `carteCustomPropre` sur le modèle
+  de `customPropre` de l'enquêteur personnalisé : nom ≤ 40, liens ≤ 600
+  caractères en http(s) sans espace, jauges 1‑99 selon la nature) →
+  définition `custom-card:<n>` dans `state.extraDefs` avec `custom:
+  true, image, imageBack?`, `back` = `b` si verso en lien, sinon dos
+  joueur (soutien) ou rencontre (ennemi, traîtrise, lieu, histoire) ;
+  carte `gen-<n>-custom-card:<n>` dans la zone de menace du demandeur,
+  journal « génère la carte personnalisée « X » (ennemi) ». Client :
+  `urlImage` étend la branche `def.custom` — recto = `image`, verso
+  (« Retourner », ou `side b`) = `imageBack`, sinon dos générique selon
+  `back` ; `loupePermise` suit `back` (loupe sur le verso en lien).
+  Les chips suivent la nature (ennemi : dégâts 0/vie ; soutien : dégâts
+  / horreur). **Pas de téléversement** : une image dans l'état
+  (base64) partirait dans chaque snapshot SQLite et chaque `welcome`
+  (limites du plan gratuit) ; un bucket R2 serait la voie propre si le
+  besoin se confirme — décision de l'utilisateur (« si l'upload est
+  relou, abandonne »). Tests : bloc `test_room.mjs` (ennemi avec verso
+  et vie, soutien, lieu, refus image / lien / jauge / nom / spectateur,
+  définitions partagées, retournement) ; Playwright : consigne sur une
+  ligne (27 px), carte « Le Gardien du Seuil » générée depuis la table
+  (kind-enemy, jauge 0/3, recto puis verso au retournement, journal),
+  Flashlight et une carte personnalisée depuis le board, erreur client
+  sur un lien ftp ; zéro erreur console ; `npm run check` zéro erreur ;
+  régression `test_room.mjs` (742 messages) OK. README, cahier
+  (action).
 - 2026-09-10 : **Chips : bouton maintenu déployé, agenda et acte** —
   trois retours de test de l'utilisateur. (1) Sur le « − » ou « + »
   déployé d'une chip, un seul clic passait puis le bouton se repliait ;
@@ -171,43 +213,11 @@ versement de son durable (format → grammaire, piège → §5, décision →
   (716 messages) OK ; `captures.py` : blocs Gathering (clic sur la chip
   d'indices) et Devourer (`.chip-doom`) adaptés. `wrangler dev` mort
   deux fois entre deux scripts (piège §5), relancé.
-- 2026-09-10 : **Le « − » des jauges hors carte se déploie sans rien
-  déplacer** — retour de l'utilisateur : les jauges des cartes sont
-  « parfaites » (au survol la pastille s'allonge vers la gauche pour
-  loger le « − », l'icône et le nombre ne bougent pas), mais celles des
-  sièges du tapis et de l'entête du board « bougeaient pour laisser le
-  bouton se déployer », différence subtile et désagréable. Cause : sur
-  une carte la colonne `.chips` est ancrée à droite (`right: 3px`), la
-  pastille pousse donc vers la gauche ; hors carte les chips sont
-  ancrées à gauche, et le bouton inséré dans le flux décalait le contenu
-  vers la droite (et, en rangée, les chips suivantes). Correctif CSS
-  seul (`room.css` `.jauge-inv`, `joueur.css`) : la chip est `position:
-  relative`, `.chip-moins` est posé en absolu dans le retrait gauche
-  (`left: 2px`, centré verticalement), et au survol la pastille prend
-  une **marge gauche négative** égale au **retrait intérieur** qu'elle
-  gagne (1.1em + écart) — sa boîte s'allonge vers la gauche, sa boîte de
-  marge ne change pas, l'icône et le nombre restent en place, rien ne
-  bouge autour ; les chips `.inactive` (spectateur, siège d'un autre)
-  ne s'allongent pas. Conséquence : les gouttières à gauche de chaque
-  chip doivent mesurer au moins 1.1em + l'écart — siège : colonnes
-  `max-content` avec `column-gap: 1.4rem` (la grille `minmax` du matin
-  n'a plus lieu d'être) et `.jauges-col` décalé de 0.7rem du bord de
-  la carte d'enquêteur (colonne 181 → 154 px, la zone de menace y
-  gagne) ; entête du board : `gap` 0.7 → 1.6rem, marge gauche 0.5rem.
-  `.chip-n` des sièges à 1.75em : les quatre pastilles ont la même
-  largeur (66 px). Vérification par script Playwright (COB I, deck
-  importé) : survol de chacune des cinq jauges sur le siège et sur
-  l'entête — la pastille s'allonge de 20,6 px (siège) / 24,3 px
-  (board) vers la gauche, `img` et `.chip-n` aux mêmes coordonnées à
-  0,1 px près, aucune autre chip déplacée ; spectateur : rien ne bouge,
-  pas de « − » ; captures repos / survol ; `npm run check` zéro
-  erreur ; régression `test_room.mjs` (692 messages) OK. Piège
-  rencontré : `wrangler dev` mort trois fois (« Network connection
-  lost ») entre deux scripts de capture — relancé, rejoué, sans cause
-  dans le dépôt (§5).
-- **Prochaine étape** : retours de l'utilisateur sur les chips (tous
-  les jetons des cartes, bouton maintenu déployé, indices d'un lieu en
-  chip inverse, agenda / acte à 30 px), sur le bandeau des sièges (jauges sur
+- **Prochaine étape** : retours de l'utilisateur sur le générateur
+  (board joueur, carte personnalisée en image — téléversement via un
+  bucket R2 si le besoin se confirme), sur les chips (tous les jetons
+  des cartes, bouton maintenu déployé, indices d'un lieu en chip
+  inverse, agenda / acte à 30 px), sur le bandeau des sièges (jauges sur
   deux lignes, geste du « − », case Play compacte, ordre du board
   joueur) et sur la campagne **Brethren of Ash complète** (disposition
   sans diagramme, attache Fire!, versos automatisés, suspects enfouis,

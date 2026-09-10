@@ -302,6 +302,35 @@ assert.equal((await spec.attendre((m) => m.t === "nack")).t, "nack", "spectateur
 await bob.attendre((m) => m.t === "delta" && m.rev === hote.state.rev);
 assert.deepEqual(bob.state.extraDefs, hote.state.extraDefs, "définitions partagées");
 
+// Carte personnalisée (image en lien, 2026-09-10) : ennemi avec verso et vie, soutien sans verso, refus (nom, lien, jauge).
+d = await bob.action({ t: "createCustomCard", name: "  Le Gardien   du Seuil ", image: "https://exemple.test/gardien.png", imageBack: "https://exemple.test/gardien-verso.png", kind: "enemy", health: 3, sanity: 5 });
+assert.equal(d.t, "delta", `carte personnalisée (${d.reason ?? ""})`);
+const gardien = Object.values(bob.state.cards).find((c) => c.code === "custom-card:1");
+assert.ok(gardien && gardien.loc.zone === "seat1" && gardien.faceUp && gardien.kind === "enemy" && gardien.ownerSeat === 1, "carte personnalisée en zone de menace de Bob");
+let dp = bob.state.extraDefs["custom-card:1"];
+assert.deepEqual([dp.name, dp.kind, dp.custom, dp.image, dp.imageBack, dp.back, dp.health, dp.sanity], ["Le Gardien du Seuil", "enemy", true, "https://exemple.test/gardien.png", "https://exemple.test/gardien-verso.png", "b", 3, undefined], "définition : nom normalisé, verso = dos b, pas de santé mentale sur un ennemi");
+assert.match(bob.state.log.at(-1).text, /génère la carte personnalisée « Le Gardien du Seuil » \(ennemi\)/);
+d = await bob.action({ t: "createCustomCard", name: "Amulette", image: "https://exemple.test/amulette.png", kind: "asset", health: 2, sanity: 2 });
+dp = bob.state.extraDefs["custom-card:2"];
+assert.deepEqual([dp.kind, dp.back, dp.imageBack, dp.health, dp.sanity], ["asset", "player", undefined, 2, 2], "soutien sans verso : dos joueur, deux jauges");
+d = await bob.action({ t: "createCustomCard", name: "Lieu", image: "https://exemple.test/lieu.png", kind: "location", health: 4 });
+dp = bob.state.extraDefs["custom-card:3"];
+assert.deepEqual([dp.kind, dp.back, dp.health, dp.clue], ["location", "encounter", undefined, { value: 0, perInvestigator: false }], "lieu : dos rencontre, pas de vie, indices à 0");
+d = await bob.action({ t: "createCustomCard", name: "Sans image", kind: "asset" });
+assert.equal(d.t, "nack", "image obligatoire");
+d = await bob.action({ t: "createCustomCard", name: "Mauvais lien", image: "ftp://exemple.test/x.png" });
+assert.equal(d.t, "nack", "lien hors http(s) refusé");
+d = await bob.action({ t: "createCustomCard", name: "Mauvaise jauge", image: "https://exemple.test/x.png", health: 250 });
+assert.equal(d.t, "nack", "vie hors 1‑99 refusée");
+d = await bob.action({ t: "createCustomCard", name: "", image: "https://exemple.test/x.png" });
+assert.equal(d.t, "nack", "nom obligatoire");
+spec.envoyer({ t: "createCustomCard", name: "X", image: "https://exemple.test/x.png" });
+assert.equal((await spec.attendre((m) => m.t === "nack")).t, "nack", "spectateur : refusé");
+await hote.attendre((m) => m.t === "delta" && m.rev === bob.state.rev);
+assert.deepEqual(hote.state.extraDefs, bob.state.extraDefs, "définitions personnalisées partagées");
+d = await hote.action({ t: "flipCard", id: gardien.id });
+assert.equal(hote.state.cards[gardien.id].faceUp, false, "carte personnalisée retournable (le client montre le verso en lien)");
+
 // Un spectateur ne peut pas prendre un siège vide après la mise en place.
 spec.envoyer({ t: "takeSeat", seat: 2 });
 assert.equal((await spec.attendre((m) => m.t === "nack")).t, "nack");
