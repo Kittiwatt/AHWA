@@ -8,6 +8,24 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Mémo scindé — le dépôt devient la source de vérité.**
+  Le §0 passe au régime : un tableau (une ligne par livraison) + les
+  derniers récits ; les 54 récits antérieurs partent tels quels dans
+  `docs/ARCHIVE_livraisons.md`. Passe d'extraction faite avant
+  archivage : le durable était déjà logé (format → grammaire, pièges →
+  §5, décisions → §1, campagne et chantiers → §7) — rien à reloger.
+  `docs/INSTRUCTIONS_PROJET.md` créé : la méthode vit dans le dépôt,
+  les instructions du projet claude.ai se réduisent à une amorce
+  (clone + token — jamais commité, le dépôt est public). Nouveau
+  cycle : à chaque livraison, Claude met les docs à jour (récit +
+  ligne de tableau, rotation du plus ancien récit récent vers
+  l'archive après versement de son durable, grammaire si nouvelle op)
+  et pousse **un commit unique** sur `main`, SHA communiqué,
+  déploiement vérifié. Grammaire §9 alignée ; `appile_128/256.png`
+  (source du bouton Auto-pay) conservés dans `docs/assets/`. Le mémo
+  passe de 1908 à ~900 lignes et le §0 ne croît plus que d'une ligne
+  par livraison.
+
 - 2026-09-10 : **`docs/GRAMMAIRE_SCENARIOS.md` livré** — référence
   complète du format `*.src.json`, établie depuis le code (scenario.ts,
   setup.ts, actions.ts, build.mjs) : pipeline et contrôles du build,

@@ -455,7 +455,10 @@ export function initInteractions(ctx) {
       }
       // Carte dont les deux faces sont des faces de jeu (verso = lieu lié, ex. face Spectral ; ennemi à deux faces,
       // ex. Nathan Wick) : on bascule, on ne retourne pas.
-      const deuxFaces = !carte.storyBack && def?.backCode && def?.backKind === carte.kind && (carte.kind === "location" || carte.kind === "enemy" || carte.kind === "asset");
+      // Deux faces de jeu : même kind (lieu Spectral, Nathan Wick, voitures) ou carte histoire dont le dos est un lieu (Captured! →
+      // Holding Cells : la carte change de nature pour le moteur en basculant).
+      const deuxFaces = !carte.storyBack && def?.backCode && ((def?.backKind === carte.kind && (carte.kind === "location" || carte.kind === "enemy" || carte.kind === "asset"))
+        || (def?.kind === "story" && def?.backKind === "location"));
       if (deuxFaces && carte.faceUp) {
         const recto = def.subname ?? (carte.kind === "location" ? "normale" : "recto");
         const verso = def.backSubname ?? (def.backName === def.name ? (carte.kind === "location" ? "Spectral" : "verso") : def.backName);

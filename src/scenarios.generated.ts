@@ -14,11 +14,12 @@ import s10 from "../public/scenarios/tcu_secret_name.json";
 import s11 from "../public/scenarios/tcu_union_and_disillusion.json";
 import s12 from "../public/scenarios/tcu_wages_of_sin.json";
 import s13 from "../public/scenarios/tcu_witching_hour.json";
-import s14 from "../public/scenarios/tic_devil_reef.json";
-import s15 from "../public/scenarios/tic_horror_in_high_gear.json";
-import s16 from "../public/scenarios/tic_in_too_deep.json";
-import s17 from "../public/scenarios/tic_the_pit_of_despair.json";
-import s18 from "../public/scenarios/tic_the_vanishing_of_elina_harper.json";
+import s14 from "../public/scenarios/tic_a_light_in_the_fog.json";
+import s15 from "../public/scenarios/tic_devil_reef.json";
+import s16 from "../public/scenarios/tic_horror_in_high_gear.json";
+import s17 from "../public/scenarios/tic_in_too_deep.json";
+import s18 from "../public/scenarios/tic_the_pit_of_despair.json";
+import s19 from "../public/scenarios/tic_the_vanishing_of_elina_harper.json";
 
 export const SCENARIOS = {
   "cob_blood_money": s0,
@@ -35,11 +36,12 @@ export const SCENARIOS = {
   "tcu_union_and_disillusion": s11,
   "tcu_wages_of_sin": s12,
   "tcu_witching_hour": s13,
-  "tic_devil_reef": s14,
-  "tic_horror_in_high_gear": s15,
-  "tic_in_too_deep": s16,
-  "tic_the_pit_of_despair": s17,
-  "tic_the_vanishing_of_elina_harper": s18,
+  "tic_a_light_in_the_fog": s14,
+  "tic_devil_reef": s15,
+  "tic_horror_in_high_gear": s16,
+  "tic_in_too_deep": s17,
+  "tic_the_pit_of_despair": s18,
+  "tic_the_vanishing_of_elina_harper": s19,
 } as const;
 
 export type ScenarioId = keyof typeof SCENARIOS;

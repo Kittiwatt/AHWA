@@ -1,0 +1,1399 @@
+{
+ "id": "tic_a_light_in_the_fog",
+ "title": "A Light in the Fog",
+ "campaign": "The Innsmouth Conspiracy",
+ "campaignId": "tic",
+ "order": 6,
+ "packs": [
+  "lif",
+  "def",
+  "tic",
+  "core"
+ ],
+ "encounterSets": [
+  "a_light_in_the_fog",
+  "creatures_of_the_deep",
+  "flooded_caverns",
+  "rising_tide",
+  "syzygy",
+  "striking_fear"
+ ],
+ "extraCards": [
+  "07179",
+  "07180",
+  "07181"
+ ],
+ "scenarioCard": "07231",
+ "agendaDeck": [
+  "07232",
+  "07233",
+  "07234",
+  "07235"
+ ],
+ "actDeck": [
+  "07236",
+  "07237",
+  "07238"
+ ],
+ "startLocation": "07239",
+ "piles": [
+  {
+   "id": "tidal",
+   "label": "Tidal Tunnels",
+   "around": true
+  }
+ ],
+ "flood": {},
+ "agendaEffects": {
+  "2": {
+   "log": "Verso de l'agenda 1",
+   "shuffleAside": [
+    "07259"
+   ],
+   "placeBelow": [
+    {
+     "code": "07244",
+     "at": "07240"
+    }
+   ]
+  },
+  "3": {
+   "log": "Verso de l'agenda 2",
+   "shuffleAside": [
+    "07260"
+   ],
+   "revealCodes": [
+    "07244"
+   ],
+   "placeBelow": [
+    {
+     "code": "07245",
+     "at": "07244"
+    },
+    {
+     "code": "07246",
+     "at": "07245"
+    }
+   ],
+   "fillRows": {
+    "pile": "tidal",
+    "anchors": [
+     "07244",
+     "07245",
+     "07246"
+    ],
+    "columns": [
+     365,
+     551,
+     737,
+     923
+    ],
+    "count": 4
+   }
+  },
+  "4": {
+   "log": "Verso de l'agenda 3",
+   "spawnAside": {
+    "code": "07253",
+    "at": "07244"
+   },
+   "removeTrait": "Falcon Point"
+  }
+ },
+ "actEffects": {
+  "2": {
+   "log": "Verso de l'acte 1",
+   "shuffleAside": [
+    "07259"
+   ],
+   "placeBelow": [
+    {
+     "code": "07244",
+     "at": "07240"
+    }
+   ]
+  },
+  "3": {
+   "log": "Verso de l'acte 2",
+   "shuffleAside": [
+    "07260"
+   ],
+   "placeBelow": [
+    {
+     "code": "07245",
+     "at": "07244"
+    },
+    {
+     "code": "07246",
+     "at": "07245"
+    }
+   ],
+   "fillRows": {
+    "pile": "tidal",
+    "anchors": [
+     "07244",
+     "07245",
+     "07246"
+    ],
+    "columns": [
+     365,
+     551,
+     737,
+     923
+    ],
+    "count": 4
+   }
+  }
+ },
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "cultist",
+   "cultist",
+   "tablet",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "layout": [
+  {
+   "code": "07239",
+   "x": 365,
+   "y": 411
+  }
+ ],
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Campagne ou scénario seul ?",
+   "options": [
+    {
+     "id": "campaign",
+     "label": "Campagne : journal des scénarios précédents (questions suivantes)"
+    },
+    {
+     "id": "standalone",
+     "label": "Scénario seul (mode autonome) : sac de base, Falcon Point atteint avant l'aube, aucune relique apportée"
+    }
+   ]
+  },
+  {
+   "id": "relics",
+   "text": "Au journal (scénario V) — reliques apportées au phare :",
+   "type": "multi",
+   "options": [
+    {
+     "id": "07179",
+     "label": "« The idol was brought to the lighthouse »"
+    },
+    {
+     "id": "07180",
+     "label": "« The mantle was brought to the lighthouse »"
+    },
+    {
+     "id": "07181",
+     "label": "« The headdress was brought to the lighthouse »"
+    }
+   ]
+  },
+  {
+   "id": "log",
+   "text": "Au journal — mentions :",
+   "type": "multi",
+   "options": [
+    {
+     "id": "sunrise",
+     "label": "« The investigators reached Falcon Point after sunrise »"
+    },
+    {
+     "id": "tide",
+     "label": "« The tide has grown stronger »"
+    }
+   ]
+  },
+  {
+   "id": "tokens_out",
+   "text": "Jetons retirés du sac pour le reste de la campagne (scénario I) :",
+   "type": "multi",
+   "options": [
+    {
+     "id": "cultist",
+     "label": "Cultiste"
+    },
+    {
+     "id": "tablet",
+     "label": "Tablette"
+    },
+    {
+     "id": "elder_thing",
+     "label": "Ancien"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "tokens_out",
+      "has": "cultist"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "cultist"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "tokens_out",
+      "has": "tablet"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "tablet"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "tokens_out",
+      "has": "elder_thing"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "chaosRemove",
+     "tokens": [
+      "elder_thing"
+     ],
+     "log": "Jeton retiré du sac au scénario I (pour le reste de la campagne)"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "standalone"
+   },
+   "then": [
+    {
+     "op": "log",
+     "text": "Mode autonome : sac de base du guide (p. 27), aucun retrait ; Falcon Point atteint avant l'aube ; aucune relique apportée au phare."
+    }
+   ]
+  },
+  {
+   "op": "place",
+   "code": "07239",
+   "zone": "board",
+   "x": 365,
+   "y": 411,
+   "reveal": true,
+   "log": "Falcon Point Gatehouse est mis en jeu, révélé : chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "minis",
+   "code": "07239"
+  },
+  {
+   "op": "place",
+   "code": "07242",
+   "zone": "board",
+   "x": 551,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "07240",
+   "zone": "board",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "07243",
+   "zone": "board",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "op": "place",
+   "code": "07241",
+   "zone": "board",
+   "x": 737,
+   "y": 173,
+   "log": "Falcon Point Cliffside, Lighthouse Stairwell et Lighthouse Keeper's Cottage complètent la rangée, non révélés ; Lantern Room est juste au-dessus du Stairwell (diagramme de l'acte 1, p. 27)."
+  },
+  {
+   "op": "remove",
+   "codes": [
+    "07104"
+   ],
+   "log": "Les deux Underground River (Tidal Tunnels) sont retirés de la partie."
+  },
+  {
+   "op": "keys",
+   "colors": [
+    "white",
+    "black",
+    "blue",
+    "yellow",
+    "red"
+   ],
+   "faceUp": true,
+   "log": "Clés blanche, noire, bleue, jaune et rouge mises de côté, face visible."
+  },
+  {
+   "op": "keys",
+   "colors": [
+    "purple",
+    "green"
+   ],
+   "faceUp": false,
+   "log": "Clés violette et verte mises de côté face cachée et mélangées : personne ne sait laquelle est laquelle."
+  },
+  {
+   "op": "place",
+   "code": "07252",
+   "zone": "story",
+   "x": 0,
+   "y": 0,
+   "faceUp": true,
+   "log": "La carte histoire Captured! est en jeu à côté de la carte de scénario (colonne Agenda et acte), face histoire : son texte est actif. Son dos est le lieu Holding Cells (menu → « Autre face » quand une carte le demande)."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "07253",
+    "07259",
+    "07259",
+    "07260",
+    "07260"
+   ],
+   "faceUp": true,
+   "log": "Oceiros Marsh, Worth His Salt ×2 et Taken Captive ×2 sont mis de côté, hors jeu, face visible."
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "relics",
+      "has": "07179"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "aside",
+     "codes": [
+      "07179"
+     ],
+     "faceUp": true,
+     "log": "L'idole a été apportée au phare : Waveworn Idol est mis de côté, hors jeu."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "relics",
+      "has": "07180"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "aside",
+     "codes": [
+      "07180"
+     ],
+     "faceUp": true,
+     "log": "Le manteau a été apporté au phare : Awakened Mantle est mis de côté, hors jeu."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "relics",
+      "has": "07181"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "aside",
+     "codes": [
+      "07181"
+     ],
+     "faceUp": true,
+     "log": "La coiffe a été apportée au phare : Headdress of Y'ha-nthlei est mise de côté, hors jeu."
+    }
+   ]
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "07244",
+    "07245",
+    "07246"
+   ],
+   "faceUp": false,
+   "log": "Les trois Sunken Grotto (Upper, Lower et Final Depths) sont mis de côté, hors jeu, côté non révélé : les cartes du scénario les font entrer sous le Stairwell."
+  },
+  {
+   "op": "toPile",
+   "pile": "tidal",
+   "codes": [
+    "07247",
+    "07248",
+    "07249",
+    "07250",
+    "07251",
+    "07102",
+    "07103"
+   ],
+   "shuffle": true,
+   "log": "Les neuf Tidal Tunnels restants sont de côté en pile « Tidal Tunnels », mélangés, côté non révélé : les cartes du scénario les font entrer en jeu (menu d'un lieu → ligne Tidal Tunnels)."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "log",
+      "has": "sunrise"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "addDoom",
+     "n": 1,
+     "log": "« Reached Falcon Point after sunrise » : doom sur l'agenda 1"
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "all": [
+     {
+      "q": "mode",
+      "is": "campaign"
+     },
+     {
+      "q": "log",
+      "has": "tide"
+     }
+    ]
+   },
+   "then": [
+    {
+     "op": "addDoom",
+     "n": 1,
+     "log": "« The tide has grown stronger » : doom sur l'agenda 1"
+    }
+   ]
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Clés (guide) : blanche, noire, bleue, jaune et rouge de côté face visible — les cartes disent où elles se posent (glissez-les) ; violette et verte face cachée et mélangées (menu → « Poser ici une clé cachée au hasard » quand une carte le demande). Prendre le contrôle d'une clé = la glisser sur son siège (elle se retourne)."
+  },
+  {
+   "when": "setup",
+   "text": "Disposition (guide) : les lieux d'une même rangée sont connectés entre eux ; Lantern Room est au-dessus du Stairwell. Les Sunken Grotto entrent en jeu en colonne sous le Stairwell et les Tidal Tunnels complètent les rangées : l'app le fait à l'avancement des agendas et des actes (voir le journal) ; pour un tunnel ponctuel, menu d'un lieu → ligne « Tidal Tunnels » ↓ ← → ⟳. Captured! (colonne Agenda et acte) : « Autre face » la fait devenir le lieu Holding Cells — glissez-la sur le tapis."
+  },
+  {
+   "when": "setup",
+   "text": "Inondation (guide) : menu du lieu → Inondation, panneau Marée ; certains lieux imprimés ne peuvent pas être totalement inondés."
+  },
+  {
+   "when": "setup",
+   "text": "Bénédictions et malédictions (guide) : clic droit sur le sac → Ajuster (10 au plus de chaque) ; révélé, un tel jeton retourne à la réserve : « ↺ Tout remettre » l'écarte tout seul."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Agenda 2 : les gestes mécaniques du verso ont été appliqués (voir le journal). À la main : Oceiros Marsh entre en jeu là où la carte l'envoie (glissez-le de la zone de côté), la clé bleue (de côté) se pose sur lui, et ce que la carte retire aux enquêteurs."
+  },
+  {
+   "when": "act:2",
+   "text": "Acte 2 : les gestes mécaniques du verso ont été appliqués (voir le journal). À la main : Oceiros Marsh entre en jeu là où la carte l'envoie, épuisé (glissez-le de la zone de côté), la clé bleue (de côté) se pose sur lui ; l'agenda avance aussi (« Avancer l'agenda »)."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Agenda 3 : la descente a été mise en place (Lower et Final Depths sous Upper Depths, rangées complétées par des tunnels, Taken Captive dans la pioche — voir le journal). À la main : les enquêteurs capturés (leurs clés sur Holding Cells : « Autre face » de Captured!, sur le tapis), Oceiros Marsh de côté s'il est en jeu ; puis « Avancer l'acte » directement à l'acte 3 sans résoudre le verso de l'acte 2."
+  },
+  {
+   "when": "act:3",
+   "text": "Acte 3 : la descente a été mise en place (voir le journal). À la main : Oceiros Marsh en zone de victoire s'il est en jeu ; puis « Avancer l'agenda » directement à l'agenda 3 sans résoudre le verso de l'agenda 2."
+  },
+  {
+   "when": "agenda:4",
+   "text": "Agenda 4 : Oceiros Marsh est apparu à Upper Depths et les lieux Falcon Point ont quitté la partie (voir le journal) ; déplacez à Upper Depths les pions et ennemis qui s'y trouvaient (le reste est défaussé) ; puis inondez les quatre lieux les plus bas qui le peuvent (menu → Inondation)."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord, puis chaque ennemi engagé attaque son enquêteur."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-10",
+ "encounterSetNames": {
+  "a_light_in_the_fog": "A Light in the Fog",
+  "creatures_of_the_deep": "Creatures of the Deep",
+  "flooded_caverns": "Flooded Caverns",
+  "rising_tide": "Rising Tide",
+  "syzygy": "Syzygy",
+  "striking_fear": "Striking Fear"
+ },
+ "cards": [
+  {
+   "code": "01163",
+   "name": "Rotting Remains",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "striking_fear",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "01164",
+   "name": "Frozen in Fear",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "striking_fear",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "01165",
+   "name": "Dissonant Voices",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "striking_fear",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "07088",
+   "name": "Deep One Bull",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 5
+  },
+  {
+   "code": "07089",
+   "name": "Lurking Deep One",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 2
+  },
+  {
+   "code": "07090",
+   "name": "Deep One Assault",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "creatures_of_the_deep",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "07091",
+   "name": "Undertow",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07092",
+   "name": "Rising Tides",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07093",
+   "name": "Riptide",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "rising_tide",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07100",
+   "name": "Tidal Alignment",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "syzygy",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
+  },
+  {
+   "code": "07101",
+   "name": "Syzygy",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "syzygy",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
+  },
+  {
+   "code": "07102",
+   "name": "Underwater Cavern",
+   "kind": "location",
+   "qty": 2,
+   "set": "flooded_caverns",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07103",
+   "name": "Tidal Pool",
+   "kind": "location",
+   "qty": 2,
+   "set": "flooded_caverns",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07104",
+   "name": "Underground River",
+   "kind": "location",
+   "qty": 2,
+   "set": "flooded_caverns",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel",
+   "victory": 1
+  },
+  {
+   "code": "07179",
+   "name": "Waveworn Idol",
+   "kind": "asset",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Relic"
+   ],
+   "sanity": 2
+  },
+  {
+   "code": "07180",
+   "name": "Awakened Mantle",
+   "kind": "asset",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Relic",
+    "Clothing"
+   ],
+   "health": 2
+  },
+  {
+   "code": "07181",
+   "name": "Headdress of Y'ha-nthlei",
+   "kind": "asset",
+   "qty": 1,
+   "set": "devil_reef",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Relic"
+   ],
+   "health": 1,
+   "sanity": 1
+  },
+  {
+   "code": "07231",
+   "name": "A Light in the Fog",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "07232",
+   "name": "Fog on the Bay",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Ambushed!",
+   "doom": 4,
+   "stage": 1
+  },
+  {
+   "code": "07233",
+   "name": "Unchanging as the Sea",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Seized by Deep Ones",
+   "doom": 7,
+   "stage": 2
+  },
+  {
+   "code": "07234",
+   "name": "The Tide Rises",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Locked In",
+   "doom": 10,
+   "stage": 3
+  },
+  {
+   "code": "07235",
+   "name": "Terror at Falcon Point",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Full Tide",
+   "doom": 3,
+   "stage": 4
+  },
+  {
+   "code": "07236",
+   "name": "The Lighthouse",
+   "kind": "act",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "backName": "Eavesdropping on the Enemy",
+   "stage": 1
+  },
+  {
+   "code": "07237",
+   "name": "Finding the Path",
+   "kind": "act",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Exploring the Depths",
+   "stage": 2
+  },
+  {
+   "code": "07238",
+   "name": "Worshippers of the Deep",
+   "kind": "act",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Bound for Y'ha-nthlei",
+   "stage": 3
+  },
+  {
+   "code": "07239",
+   "name": "Falcon Point Gatehouse",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Falcon Point"
+   ]
+  },
+  {
+   "code": "07240",
+   "name": "Lighthouse Stairwell",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Falcon Point"
+   ]
+  },
+  {
+   "code": "07241",
+   "name": "Lantern Room",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Falcon Point"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07242",
+   "name": "Falcon Point Cliffside",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Falcon Point"
+   ]
+  },
+  {
+   "code": "07243",
+   "name": "Lighthouse Keeper's Cottage",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Falcon Point"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "07244",
+   "name": "Sunken Grotto",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "subname": "Upper Depths",
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Lighthouse Basement"
+  },
+  {
+   "code": "07245",
+   "name": "Sunken Grotto",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "subname": "Lower Depths",
+   "traits": [
+    "Cave"
+   ]
+  },
+  {
+   "code": "07246",
+   "name": "Sunken Grotto",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "subname": "Final Depths",
+   "traits": [
+    "Cave"
+   ]
+  },
+  {
+   "code": "07247",
+   "name": "Shrine to Hydra",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel",
+   "victory": 1
+  },
+  {
+   "code": "07248",
+   "name": "Deep One Nursery",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07249",
+   "name": "The Moon Room",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07250",
+   "name": "Sunken Archives",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel",
+   "victory": 1
+  },
+  {
+   "code": "07251",
+   "name": "Pump Room",
+   "kind": "location",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Cave"
+   ],
+   "backName": "Tidal Tunnel"
+  },
+  {
+   "code": "07252",
+   "name": "Captured!",
+   "kind": "story",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "b",
+   "storyBack": false,
+   "backClue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "backCode": "07252b",
+   "backKind": "location",
+   "backName": "Holding Cells",
+   "backVictory": 1
+  },
+  {
+   "code": "07253",
+   "name": "Oceiros Marsh",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "a_light_in_the_fog",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Keeper of the Lighthouse",
+   "traits": [
+    "Humanoid",
+    "Deep One",
+    "Hybrid",
+    "Elite"
+   ],
+   "health": 6,
+   "victory": 2
+  },
+  {
+   "code": "07254",
+   "name": "Deep One Nursemaid",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "a_light_in_the_fog",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Monster",
+    "Deep One"
+   ],
+   "health": 2
+  },
+  {
+   "code": "07255",
+   "name": "Deep One Hatchling",
+   "kind": "enemy",
+   "qty": 4,
+   "set": "a_light_in_the_fog",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Deep One"
+   ],
+   "health": 1
+  },
+  {
+   "code": "07256",
+   "name": "Hideous Lullaby",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "a_light_in_the_fog",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "07257",
+   "name": "Kiss of Brine",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "a_light_in_the_fog",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse",
+    "Hazard"
+   ]
+  },
+  {
+   "code": "07258",
+   "name": "Totality",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "a_light_in_the_fog",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen",
+    "Terror"
+   ]
+  },
+  {
+   "code": "07259",
+   "name": "Worth His Salt",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "a_light_in_the_fog",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "07260",
+   "name": "Taken Captive",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "a_light_in_the_fog",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  }
+ ]
+}

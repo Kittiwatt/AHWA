@@ -1942,6 +1942,108 @@ async function tableGear({ joueurs = 2, answers }) {
   g.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ A Light in the Fog (TIC VI) : rangée + Lantern Room, reliques et doom du journal, Captured! (histoire → lieu par
+// Autre face), effets d'étape agenda/acte (mélange, lieux dessous, rangées complétées, retrait par trait, apparition) ============
+async function tableFog({ joueurs = 2, answers }) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "tic_a_light_in_the_fog" }) });
+  assert.equal(r.status, 200, "A Light in the Fog est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "07001" });
+  const autres = [];
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["07001", "07002", "07003", "07004"][i] });
+    autres.push(c);
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  return { h, autres, d };
+}
+{
+  const { h, autres: [j2], d } = await tableFog({ joueurs: 2, answers: { mode: "campaign", relics: ["07179"], log: ["sunrise", "tide"], tokens_out: [] } });
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 20);
+  assert.equal(s.cards[s.agendaId].tokens.doom, 2, "deux doom sur l'agenda 1 (sunrise + tide)");
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.deepEqual(lieux.map((c) => `${c.code}@${c.loc.x},${c.loc.y}`).sort(), ["07239@365,411", "07240@737,411", "07241@737,173", "07242@551,411", "07243@923,411"], "rangée + Lantern Room au-dessus du Stairwell");
+  const gate = lieux.find((c) => c.code === "07239");
+  assert.ok(gate.faceUp && lieux.filter((c) => c.code !== "07239").every((c) => !c.faceUp), "Gatehouse révélé, les autres non");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => m.loc.y === 411 - 22 && m.loc.x >= 365 && m.loc.x < 491), "pions au Gatehouse");
+  assert.ok(cartes.filter((c) => c.code === "07104").every((c) => c.loc.pile === "removed") && cartes.filter((c) => c.code === "07104").length === 2, "Underground River ×2 retirés");
+  const cles = cartes.filter((c) => c.kind === "key");
+  assert.deepEqual(cles.filter((c) => c.faceUp).map((c) => c.code).sort(), ["key:black", "key:blue", "key:red", "key:white", "key:yellow"]);
+  assert.deepEqual(cles.filter((c) => !c.faceUp).map((c) => c.code).sort(), ["key:green", "key:purple"]);
+  const captured = cartes.find((c) => c.code === "07252");
+  assert.ok(captured.loc.zone === "story" && captured.kind === "story" && captured.faceUp && captured.side === "a", "Captured! dans l'histoire, face histoire");
+  const cote = cartes.filter((c) => c.loc.zone === "aside" && c.kind !== "key");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["07179", "07244", "07245", "07246", "07253", "07259", "07259", "07260", "07260"], "de côté : idole, trois grottes, Oceiros, Worth His Salt ×2, Taken Captive ×2");
+  assert.ok(cote.filter((c) => ["07244", "07245", "07246"].includes(c.code)).every((c) => !c.faceUp), "grottes côté non révélé");
+  assert.equal(s.piles.tidal.length, 9, "neuf Tidal Tunnels en pile");
+  assert.equal(s.piles.encounter.length, 36, "pioche : 36");
+  // Captured! bascule en lieu Holding Cells (indices de son verso) et revient.
+  let d2 = await h.action({ t: "moveCard", id: captured.id, zone: "board", x: 1295, y: 173 });   // hors des rangées à compléter
+  d2 = await h.action({ t: "toggleSide", id: captured.id });
+  assert.equal(d2.t, "delta");
+  const cellules = h.state.cards[captured.id];
+  assert.ok(cellules.kind === "location" && cellules.side === "b" && cellules.faceUp && cellules.tokens.clue === 2, "Holding Cells : lieu révélé, 1 indice par enquêteur");
+  d2 = await h.action({ t: "toggleSide", id: captured.id });
+  assert.ok(h.state.cards[captured.id].kind === "story" && h.state.cards[captured.id].side === "a", "retour à la carte histoire");
+  d2 = await h.action({ t: "toggleSide", id: captured.id });
+  // Agenda 2 : Worth His Salt ×2 dans la pioche, Lighthouse Basement (Upper Depths, non révélé) sous le Stairwell.
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07233");
+  assert.equal(h.state.piles.encounter.length, 38, "Worth His Salt ×2 dans la pioche");
+  const upper = h.state.cards[cote.find((c) => c.code === "07244").id];
+  assert.ok(upper.loc.zone === "board" && upper.loc.x === 737 && upper.loc.y === 649 && !upper.faceUp, "Upper Depths (Lighthouse Basement) sous le Stairwell, non révélé");
+  assert.ok(h.state.log.some((e) => e.kind === "reminder" && e.text.startsWith("Verso de l'agenda 1")));
+  // Acte 2 : mêmes gestes déjà faits → rien de nouveau, sans erreur.
+  const pioche2 = h.state.piles.encounter.length;
+  d2 = await h.action({ t: "advanceAct" });
+  assert.equal(h.state.cards[h.state.actId].code, "07237"); assert.equal(h.state.piles.encounter.length, pioche2, "acte 2 : idempotent");
+  assert.equal(Object.values(h.state.cards).filter((c) => c.code === "07244").length, 1);
+  // Agenda 3 : Taken Captive ×2, Basement révélé, Lower et Final Depths dessous, rangées complétées à 4 par les tunnels (9 posés).
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07234");
+  assert.equal(h.state.piles.encounter.length, pioche2 + 2, "Taken Captive ×2 dans la pioche");
+  assert.ok(h.state.cards[upper.id].faceUp, "Basement révélé");
+  const lower = Object.values(h.state.cards).find((c) => c.code === "07245"), final = Object.values(h.state.cards).find((c) => c.code === "07246");
+  assert.ok(lower.loc.zone === "board" && lower.loc.x === 737 && lower.loc.y === 887 && final.loc.x === 737 && final.loc.y === 1125, "Lower et Final Depths en colonne");
+  assert.equal(h.state.piles.tidal.length, 0, "les neuf tunnels posés");
+  for (const y of [649, 887, 1125]) assert.equal(Object.values(h.state.cards).filter((c) => c.kind === "location" && c.loc.zone === "board" && c.loc.y === y).length, 4, `rangée y=${y} : quatre lieux`);
+  assert.ok(!h.state.log.some((e) => /(Shrine to Hydra|Deep One Nursery|Moon Room|Sunken Archives|Pump Room)/.test(e.text)), "journal muet sur les tunnels posés");
+  // Acte 3 : idempotent.
+  d2 = await h.action({ t: "advanceAct" });
+  assert.equal(h.state.cards[h.state.actId].code, "07238"); assert.equal(h.state.piles.encounter.length, pioche2 + 2);
+  // Agenda 4 : Oceiros (de côté) apparaît à Upper Depths ; lieux Falcon Point retirés ou en victoire.
+  d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(h.state.cards[h.state.agendaId].code, "07235");
+  const oceiros = Object.values(h.state.cards).find((c) => c.code === "07253");
+  assert.ok(oceiros.loc.zone === "board" && Math.abs(oceiros.loc.x - 737) < 60 && Math.abs(oceiros.loc.y - 649) < 60 && oceiros.faceUp, "Oceiros Marsh à Upper Depths");
+  const falcon = ["07239", "07240", "07241", "07242", "07243"].map((code) => Object.values(h.state.cards).find((c) => c.code === code));
+  assert.ok(falcon.every((c) => c.loc.zone === "victory" || c.loc.pile === "removed"), "lieux Falcon Point hors du tapis");
+  assert.ok(falcon.filter((c) => c.loc.zone === "victory").length >= 1, "au moins un en zone de victoire (Victory X sans indice)");
+  await new Promise((r) => setTimeout(r, 300));
+  assert.deepEqual(j2.state.piles.tidal, h.state.piles.tidal, "les autres clients suivent");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{
+  // Autonome solo : sac de base, aucun doom, aucune relique de côté.
+  const { h, d } = await tableFog({ joueurs: 1, answers: { mode: "standalone", relics: ["07179", "07180"], log: ["tide"], tokens_out: ["cultist"] } });
+  assert.equal(d.t, "delta"); assert.equal(h.state.chaos.bag.length, 20);
+  assert.ok(!h.state.cards[h.state.agendaId].tokens.doom, "autonome : pas de doom");
+  assert.ok(!Object.values(h.state.cards).some((c) => ["07179", "07180", "07181"].includes(c.code) && c.loc.zone === "aside"), "autonome : aucune relique de côté");
+  assert.equal(h.state.piles.encounter.length, 36);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 // ============ Board joueur, étape 1 (cahier §10) : import du deck au lobby, faiblesse aléatoire, code de siège et
 // connexions multiples, decks créés à la mise en place, actions p:* réservées au siège ============
 {

@@ -993,6 +993,50 @@ with sync_playwright() as p:
     h18.mouse.move(420, 520); h18.wait_for_timeout(300)
     h18.screenshot(path=f"{OUT}/91_gear_road2.png")
 
+    # ---- A Light in the Fog (TIC VI) : rangée + Lantern Room, Captured! dans la colonne, descente automatique aux agendas 2-3 ----
+    code19, token19 = creer("tic_a_light_in_the_fog")
+    print("room Light in the Fog", code19)
+    h19 = page_pour(browser, "Hôte", host=True, code=code19, token=token19)
+    h19.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h19.get_by_role("button", name="Choisir un enquêteur").click(); h19.wait_for_selector("dialog.dialogue-inv[open]")
+    h19.fill("dialog .recherche", "amanda"); h19.wait_for_timeout(300); h19.locator("dialog .inv").first.click()
+    h19.wait_for_selector(".siege-lobby.moi .fiche")
+    j19 = page_pour(browser, "Bob", code=code19, token=None)
+    j19.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j19.get_by_role("button", name="Choisir un enquêteur").click(); j19.wait_for_selector("dialog.dialogue-inv[open]")
+    j19.fill("dialog .recherche", "sister mary"); j19.wait_for_timeout(300); j19.locator("dialog .inv").first.click()
+    j19.wait_for_selector(".siege-lobby.moi .fiche")
+    h19.wait_for_timeout(400)
+    h19.locator("input[name='q-mode'][value='campaign']").check()
+    h19.locator("input[name='q-relics'][value='07179']").check(); h19.wait_for_timeout(150)
+    h19.locator("input[name='q-log'][value='tide']").check(); h19.wait_for_timeout(200)
+    h19.get_by_role("button", name="Lancer la mise en place").click()
+    h19.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h19.wait_for_load_state("networkidle"); h19.wait_for_timeout(1500)
+    assert h19.locator("#plateau .carte.kind-location").count() == 5, "rangée de quatre + Lantern Room"
+    assert h19.locator("#histoire .bloc.reference .carte").count() == 1, "Captured! dans la colonne"
+    assert h19.locator("#pioches .pile[data-outil='pile:tidal'] .badge").inner_text() == "9", "Tidal Tunnels : 9"
+    assert h19.locator("#aside .mini.cle").count() == 7, "sept clés de côté"
+    assert "1" in h19.locator("#histoire").inner_text(), "doom sur l'agenda"
+    h19.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h19.mouse.move(420, 520); h19.wait_for_timeout(300)
+    h19.screenshot(path=f"{OUT}/92_fog_tapis.png")
+    # Agenda 2 puis 3 : Upper Depths sous le Stairwell, puis Lower/Final Depths et neuf tunnels en rangées.
+    h19.locator("#histoire").get_by_role("button", name="Avancer l'agenda").click(); h19.wait_for_timeout(800)
+    assert h19.locator("#plateau .carte.kind-location").count() == 6, "Upper Depths (Lighthouse Basement) en jeu"
+    h19.locator("#histoire").get_by_role("button", name="Avancer l'agenda").click(); h19.wait_for_timeout(1000)
+    assert h19.locator("#plateau .carte.kind-location").count() == 17, "descente : 5 + 3 grottes + 9 tunnels"
+    assert h19.locator("#pioches .pile[data-outil='pile:tidal'] .badge").inner_text() == "0"
+    h19.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h19.get_by_role("button", name="Recentrer").click(); h19.wait_for_timeout(500)
+    h19.mouse.move(420, 520); h19.wait_for_timeout(300)
+    h19.screenshot(path=f"{OUT}/93_fog_descente.png")
+    # Captured! : « Autre face (Holding Cells) » sur le tapis → devient un lieu.
+    ref = h19.locator("#histoire .bloc.reference .carte")
+    ref.dispatch_event("contextmenu"); h19.wait_for_selector(".menu-carte")
+    assert h19.locator(".menu-carte .item").filter(has_text="Autre face (Holding Cells)").count() == 1, "Captured! : Autre face (Holding Cells)"
+    h19.mouse.click(700, 600); h19.wait_for_timeout(300)
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

@@ -3,7 +3,7 @@
 // siège inconnus), jamais parce que « ce n'est pas le moment ».
 
 import type { CardState, LogEntry, Phase, RoomState, Token, ZoneId } from "./state";
-import type { ScenarioDef } from "./scenario";
+import type { StageEffects, ScenarioDef } from "./scenario";
 import { addLog, nextZ, nomVisible, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI, cleDeCouleur, LIBELLES_INONDATION, poserCleSur, texteMaree, enfouir } from "./setup";
 import { Refus, refuser } from "./refus";
 import { entretienJoueur, PILE_JOUEUR_RE } from "./joueur";
@@ -159,44 +159,12 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
   // Rappels déclarés par le scénario pour cette étape (« act:2 », « agenda:2 »…).
   const stage = def.cards.find((k) => k.code === c.code)?.stage;
   const reminders = stage ? rappels(state, def, `${agenda ? "agenda" : "act"}:${stage}`) : [];
-  // Effets déclarés par le scénario quand cet agenda devient courant (verso de l'agenda précédent) : des cartes de côté
-  // (et la défausse) rejoignent la pioche de rencontre, mélangée — The Vanishing of Elina Harper.
-  const effet = agenda && stage ? def.agendaEffects?.[String(stage)] : undefined;
+  // Effets déclarés par le scénario quand cette étape devient courante (verso de l'agenda ou de l'acte précédent) :
+  // inondation, mélange, révélation, lieux posés, rangées complétées, retrait par trait, apparition, clé — idempotents.
+  const effet = stage ? (agenda ? def.agendaEffects : def.actEffects)?.[String(stage)] : undefined;
   if (effet) {
-    const parties: string[] = [];
-    // Inondation des lieux (par trait, tous ou révélés seulement).
-    if (effet.flood) parties.push(inonderLieux(state, def, effet.flood.mode, effet.flood.trait, effet.flood.scope ?? "all"));
-    // Cartes de côté (et la défausse) mélangées dans la pioche de rencontre.
-    if (effet.shuffleAside?.length) {
-      const cartes = Object.values(state.cards).filter((k) => "zone" in k.loc && k.loc.zone === "aside" && effet.shuffleAside!.includes(k.code));
-      for (const k of cartes) { k.loc = { pile: "encounter" }; k.faceUp = false; k.tokens = {}; k.exhausted = false; state.piles.encounter.push(k.id); }
-      let defausse = 0;
-      if (effet.withDiscard) { defausse = state.piles.encounterDiscard.length; remelangerDefausse(state, Math.random); }
-      else shuffle(state.piles.encounter, Math.random);
-      for (const id of state.piles.encounter) state.cards[id].faceUp = false;
-      parties.push(`${cartes.length} carte${cartes.length > 1 ? "s" : ""} de côté (${[...new Set(cartes.map((k) => nomCarte(def, k)))].join(", ") || "aucune"})${effet.withDiscard ? ` et les ${defausse} de la défausse` : ""} mélangée${cartes.length + defausse > 1 ? "s" : ""} dans la pioche de rencontre`);
-    }
-    // Une carte de côté apparaît sur un lieu (Angry Mob à Innsmouth Square), puis une clé cachée au hasard dessus.
-    if (effet.spawnAside) {
-      const k = Object.values(state.cards).find((c) => c.code === effet.spawnAside!.code && "zone" in c.loc && c.loc.zone === "aside");
-      const lieu = Object.values(state.cards).find((c) => c.code === effet.spawnAside!.at && c.kind === "location" && "zone" in c.loc && c.loc.zone === "board");
-      if (k && lieu) {
-        const { x: lx, y: ly } = lieu.loc as { x: number; y: number };
-        k.loc = { zone: "board", x: lx + 36, y: ly + 46, z: nextZ(state) };
-        k.faceUp = true; k.side = effet.spawnAside.side ?? k.side; k.exhausted = false;
-        parties.push(`${nomCarte(def, k)} apparaît à ${nomCarte(def, lieu)}`);
-      } else parties.push(`${effet.spawnAside.code} introuvable de côté (ou lieu absent) : à faire à la main`);
-    }
-    if (effet.randomKeyOn) {
-      const cible = Object.values(state.cards).find((c) => c.code === effet.randomKeyOn && "zone" in c.loc && c.loc.zone === "board");
-      const cachees = Object.values(state.cards).filter((k) => k.kind === "key" && !k.faceUp && "zone" in k.loc && k.loc.zone === "aside");
-      if (cible && cachees.length) {
-        const cle = cachees[Math.floor(Math.random() * cachees.length)];
-        poserCleSur(state, cle, cible, nextZ(state));
-        parties.push(`une clé face cachée, tirée au hasard parmi les ${cachees.length} de côté, est posée sur ${nomCarte(def, cible)} sans être regardée`);
-      } else parties.push("aucune clé cachée de côté (ou cible absente) : clé à poser à la main");
-    }
-    if (parties.length) reminders.push(addLog(state, "reminder", `${effet.log ?? `Agenda ${stage}`} : ${parties.join(" ; ")}.`));
+    const parties = appliquerEffets(state, def, effet);
+    if (parties.length) reminders.push(addLog(state, "reminder", `${effet.log ?? `${agenda ? "Agenda" : "Acte"} ${stage}`} : ${parties.join(" ; ")}.`));
   }
   // Marée (TIC) : l'agenda qui devient courant inonde les lieux révélés et fixe la règle appliquée à chaque révélation.
   const maree = agenda && stage ? def.flood?.byAgenda?.[String(stage)] : undefined;
@@ -233,6 +201,93 @@ function emplacementLibre(state: RoomState, def: ScenarioDef): { x: number; y: n
 /** Pile qui ne se pioche, ne se consulte ni ne se mélange : les cartes cachées sous la carte de référence. */
 function pileSecrete(def: ScenarioDef, pile: string): boolean {
   return Boolean(def.leads && pile === def.leads.secret);
+}
+
+/** Applique les effets déclarés d'une étape (StageEffects) ; renvoie les morceaux de journal. Chaque effet est idempotent. */
+function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects): string[] {
+  const parties: string[] = [];
+  const surTapis = (code: string) => Object.values(state.cards).find((c) => c.code === code && "zone" in c.loc && c.loc.zone === "board");
+  const lieuLibre = (x: number, y: number) => !Object.values(state.cards).some((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board"
+    && Math.abs(k.loc.x - x) < PAS_X / 2 && Math.abs(k.loc.y - y) < PAS_Y / 2);
+  if (effet.flood) parties.push(inonderLieux(state, def, effet.flood.mode, effet.flood.trait, effet.flood.scope ?? "all"));
+  if (effet.shuffleAside?.length) {
+    const cartes = Object.values(state.cards).filter((k) => "zone" in k.loc && k.loc.zone === "aside" && effet.shuffleAside!.includes(k.code));
+    for (const k of cartes) { k.loc = { pile: "encounter" }; k.faceUp = false; k.tokens = {}; k.exhausted = false; state.piles.encounter.push(k.id); }
+    let defausse = 0;
+    if (effet.withDiscard) { defausse = state.piles.encounterDiscard.length; remelangerDefausse(state, Math.random); }
+    else shuffle(state.piles.encounter, Math.random);
+    for (const id of state.piles.encounter) state.cards[id].faceUp = false;
+    if (cartes.length || effet.withDiscard) parties.push(`${cartes.length} carte${cartes.length > 1 ? "s" : ""} de côté (${[...new Set(cartes.map((k) => nomCarte(def, k)))].join(", ") || "aucune"})${effet.withDiscard ? ` et les ${defausse} de la défausse` : ""} mélangée${cartes.length + defausse > 1 ? "s" : ""} dans la pioche de rencontre`);
+  }
+  for (const code of effet.revealCodes ?? []) {
+    const l = surTapis(code);
+    if (l && l.kind === "location" && !l.faceUp) { const n = revealLocation(state, def, l); parties.push(`${nomCarte(def, l)} révélé${n ? ` (${n} indice${n > 1 ? "s" : ""})` : ""}`); }
+  }
+  for (const pb of effet.placeBelow ?? []) {
+    if (surTapis(pb.code)) continue;   // déjà en jeu : rien (l'acte et l'agenda peuvent déclarer le même geste)
+    const k = Object.values(state.cards).find((c) => c.code === pb.code && ("pile" in c.loc ? c.loc.pile !== "removed" : c.loc.zone === "aside"));
+    const at = surTapis(pb.at);
+    if (!k || !at) { parties.push(`${def.cards.find((d) => d.code === pb.code)?.name ?? pb.code} ou ${def.cards.find((d) => d.code === pb.at)?.name ?? pb.at} introuvable : à poser à la main`); continue; }
+    const { x: ax, y: ay } = at.loc as { x: number; y: number };
+    let y = ay + PAS_Y;
+    while (!lieuLibre(ax, y)) y += PAS_Y;
+    retirerDesPiles(state, k.id);
+    k.loc = { zone: "board", x: ax, y, z: nextZ(state) }; k.faceUp = false; k.side = "a";
+    parties.push(`${nomCarte(def, k)} posé en dessous de ${nomCarte(def, at)}`);
+  }
+  if (effet.fillRows) {
+    const { pile, anchors, columns, count } = effet.fillRows;
+    let poses = 0;
+    for (const code of anchors) {
+      const a = surTapis(code);
+      if (!a) continue;
+      const ay = (a.loc as { y: number }).y;
+      for (const x of columns) {
+        const surRangee = Object.values(state.cards).filter((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board" && Math.abs(k.loc.y - ay) < PAS_Y / 2).length;
+        if (surRangee >= count) break;
+        if (!lieuLibre(x, ay)) continue;
+        const id = state.piles[pile]?.shift();
+        if (!id) break;
+        const k = state.cards[id];
+        k.loc = { zone: "board", x, y: ay, z: nextZ(state) }; k.faceUp = false; k.side = "a";
+        poses++;
+      }
+    }
+    if (poses) parties.push(`${poses} lieu${poses > 1 ? "x" : ""} de ${nomPile(def, pile)} posé${poses > 1 ? "s" : ""} non révélé${poses > 1 ? "s" : ""} pour compléter les rangées à ${count} (reste ${state.piles[pile]?.length ?? 0})`);
+  }
+  if (effet.removeTrait) {
+    const lieux = Object.values(state.cards).filter((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board"
+      && (def.cards.find((d) => d.code === k.code)?.traits ?? []).includes(effet.removeTrait!));
+    let victoire = 0, retires = 0;
+    for (const l of lieux) {
+      const d = def.cards.find((x) => x.code === l.code);
+      if (d?.victory && !(l.tokens.clue ?? 0)) { l.loc = { zone: "victory", x: 0, y: 0, z: nextZ(state) }; victoire++; }
+      else { l.loc = { pile: "removed" }; state.piles.removed.push(l.id); retires++; }
+      l.tokens = {};
+    }
+    if (lieux.length) parties.push(`lieux « ${effet.removeTrait} » : ${retires} retiré${retires > 1 ? "s" : ""} de la partie${victoire ? `, ${victoire} en zone de victoire` : ""} — déplacez ce qui s'y trouvait comme la carte l'indique`);
+  }
+  if (effet.spawnAside) {
+    const k = Object.values(state.cards).find((c) => c.code === effet.spawnAside!.code && !("pile" in c.loc && (c.loc.pile === "removed" || c.loc.pile === "encounter")) && !("zone" in c.loc && c.loc.zone === "victory"));
+    const lieu = Object.values(state.cards).find((c) => c.code === effet.spawnAside!.at && c.kind === "location" && "zone" in c.loc && c.loc.zone === "board");
+    if (k && lieu) {
+      const { x: lx, y: ly } = lieu.loc as { x: number; y: number };
+      retirerDesPiles(state, k.id);
+      k.loc = { zone: "board", x: lx + 36, y: ly + 46, z: nextZ(state) };
+      k.faceUp = true; k.side = effet.spawnAside.side ?? k.side; k.exhausted = false;
+      parties.push(`${nomCarte(def, k)} apparaît à ${nomCarte(def, lieu)}`);
+    } else parties.push(`${effet.spawnAside.code} introuvable (ou lieu absent) : à faire à la main`);
+  }
+  if (effet.randomKeyOn) {
+    const cible = surTapis(effet.randomKeyOn);
+    const cachees = Object.values(state.cards).filter((k) => k.kind === "key" && !k.faceUp && "zone" in k.loc && k.loc.zone === "aside");
+    if (cible && cachees.length) {
+      const cle = cachees[Math.floor(Math.random() * cachees.length)];
+      poserCleSur(state, cle, cible, nextZ(state));
+      parties.push(`une clé face cachée, tirée au hasard parmi les ${cachees.length} de côté, est posée sur ${nomCarte(def, cible)} sans être regardée`);
+    } else parties.push("aucune clé cachée de côté (ou cible absente) : clé à poser à la main");
+  }
+  return parties;
 }
 
 /** Inonde les lieux du tapis d'un trait donné (ou tous), révélés ou non selon `scope` : « increase » (+1, plafond 2) ou « full ». */
@@ -533,6 +588,18 @@ export function jouer(state: RoomState, def: ScenarioDef, msg: { t: string; [k: 
     case "toggleSide": {
       const c = carte(state, msg.id);
       c.side = c.side === "a" ? "b" : "a";
+      // Verso d'une autre nature (carte histoire dont le dos est un lieu : Captured! → Holding Cells) : la carte change de
+      // kind pour le moteur, comme un verso-lieu qui avance ; le lieu prend les indices de son verso la première fois.
+      const d = def.cards.find((k) => k.code === c.code);
+      if (d?.backCode && d.backKind && d.backKind !== d.kind && (d.kind === "story" || d.backKind === "story")) {
+        c.kind = c.side === "b" ? d.backKind : d.kind;
+        c.faceUp = true;
+        if (c.side === "b" && d.backKind === "location" && d.backClue && !(c.tokens.clue ?? 0)) {
+          const n = d.backClue.perInvestigator ? d.backClue.value * state.playerCount : d.backClue.value;
+          if (n > 0) c.tokens.clue = n;
+        }
+        addLog(state, "action", `${nomCarte(def, c)} : ${c.side === "b" ? `verso — devient ${d.backKind === "location" ? "un lieu" : d.backKind}` : "recto"}${c.side === "b" && c.tokens.clue ? ` (${c.tokens.clue} indice${c.tokens.clue > 1 ? "s" : ""})` : ""}.`);
+      }
       return {};
     }
     case "exhaust": {

@@ -528,6 +528,12 @@ Way Around mélangés dans une colonne devant le lieu) ; « Autre face »
 (`toggleSide`) offert aux soutiens à verso lié de même kind (voitures
 Running / Stopped).
 
+**A Light in the Fog (2026-09-10).** Effets d'étape partagés
+(`StageEffects`) par `agendaEffects` et `actEffects`, idempotents,
+avec `revealCodes`, `placeBelow`, `fillRows`, `removeTrait` en plus ;
+`spawnAside` accepte une carte déjà en jeu. `toggleSide` change la
+nature d'une carte histoire à verso-lieu (Captured! → Holding Cells).
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets

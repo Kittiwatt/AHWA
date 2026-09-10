@@ -218,10 +218,11 @@ async function buildScenario(fichierSrc) {
   }
   // Leads deck (TIC II) et effets d'agenda : les codes cités doivent exister dans les sets.
   const citesLeads = src.leads ? [src.leads.reference, ...src.leads.suspects, ...src.leads.hideouts, src.leads.elina, src.leads.square, src.leads.act2, src.leads.agenda3] : [];
-  const citesAgenda = Object.values(src.agendaEffects ?? {}).flatMap((e) => e.shuffleAside ?? []);
+  const effets = [...Object.values(src.agendaEffects ?? {}), ...Object.values(src.actEffects ?? {})];
+  const citesAgenda = effets.flatMap((e) => [...(e.shuffleAside ?? []), ...(e.revealCodes ?? []), ...(e.placeBelow ?? []).flatMap((p) => [p.code, p.at]), ...(e.fillRows?.anchors ?? [])]);
   const citesSetup = src.setup.flatMap((s) => s.op === "leadsDeck" ? [...s.suspects, ...s.hideouts] : []);
   const citesBarrieres = src.setup.flatMap((s) => s.op === "barriers" ? s.pairs.flatMap((p) => [p.a, p.b]) : []);
-  const citesAgendaPlus = Object.values(src.agendaEffects ?? {}).flatMap((e) => [e.spawnAside?.code, e.spawnAside?.at, e.randomKeyOn].filter(Boolean));
+  const citesAgendaPlus = effets.flatMap((e) => [e.spawnAside?.code, e.spawnAside?.at, e.randomKeyOn].filter(Boolean));
   const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup), ...citesLeads, ...citesAgenda, ...citesSetup, ...citesBarrieres, ...citesAgendaPlus].filter(Boolean);
   for (const code of cites) if (!codes.has(code)) throw new Error(`${src.id} : code ${code} absent des sets de rencontre`);
 

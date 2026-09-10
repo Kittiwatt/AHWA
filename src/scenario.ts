@@ -98,6 +98,21 @@ export type Cond =
 
 export type Answers = Record<string, string | string[]>;
 
+/** Effets mécaniques déclarés d'un changement d'étape (agenda ou acte), appliqués dans l'ordre des champs ci-dessous ;
+ *  chaque effet est idempotent (une carte déjà en jeu n'est pas reposée) — la part qui dépend d'un choix reste un rappel. */
+export type StageEffects = {
+  flood?: { trait?: string; mode: "increase" | "full"; scope?: "all" | "revealed" };   // inondation des lieux (du trait, tous ou révélés)
+  shuffleAside?: string[]; withDiscard?: boolean;                       // cartes de côté (et la défausse) mélangées dans la pioche
+  revealCodes?: string[];                                               // lieux du tapis révélés (indices, marée)
+  placeBelow?: { code: string; at: string }[];                          // une carte de côté posée non révélée juste en dessous d'un lieu du tapis
+  fillRows?: { pile: string; anchors: string[]; columns: number[]; count: number };
+    // rangée de chaque lieu-ancre complétée à `count` lieux avec les premières cartes de la pile, aux colonnes libres, non révélées
+  removeTrait?: string;                                                 // les lieux de ce trait quittent la partie (victoire si Victory X sans indice)
+  spawnAside?: { code: string; at: string; side?: "a" | "b" };          // une carte (de côté ou déjà en jeu) apparaît sur un lieu (code)
+  randomKeyOn?: string;                                                 // une clé cachée au hasard posée sur cette carte
+  log?: string;
+};
+
 export function evalCond(c: Cond, answers: Answers): boolean {
   if ("q" in c && "has" in c) { const r = answers[c.q]; return Array.isArray(r) && r.includes(c.has); }
   if ("q" in c) return String(answers[c.q]) === c.is;
@@ -165,15 +180,8 @@ export type ScenarioDef = {
   flood?: { byAgenda?: Record<string, { all?: "increase" | "full"; onReveal?: 0 | 1 | 2 }>; onRevealByCode?: Record<string, 1 | 2> };
     // `onRevealByCode[code]` : ce lieu monte d'un niveau (1) ou est totalement inondé (2) à sa révélation — texte imprimé du lieu
     // (Devil Reef), même sémantique que la règle de marée `onReveal`
-  agendaEffects?: Record<string, {
-    shuffleAside?: string[]; withDiscard?: boolean;                       // cartes de côté (et la défausse) mélangées dans la pioche
-    flood?: { trait?: string; mode: "increase" | "full"; scope?: "all" | "revealed" };   // inondation des lieux (du trait, tous ou révélés)
-    spawnAside?: { code: string; at: string; side?: "a" | "b" };          // une carte de côté apparaît sur un lieu (code)
-    randomKeyOn?: string;                                                 // une clé cachée au hasard posée sur cette carte
-    log?: string;
-  }>;
-    // quand l'agenda `stage` devient courant (verso de l'agenda précédent) : effets mécaniques appliqués dans l'ordre
-    // inondation, mélange, apparition, clé — The Vanishing of Elina Harper (mélange), In Too Deep (tout)
+  agendaEffects?: Record<string, StageEffects>;   // quand l'agenda `stage` devient courant (verso de l'agenda précédent)
+  actEffects?: Record<string, StageEffects>;      // quand l'acte `stage` devient courant (verso de l'acte précédent) — mêmes effets
   leads?: {
     pile: string; secret: string; shown: string;   // piles : Leads deck, cartes cachées sous la référence, pistes révélées par le Parley
     reference: string;                              // carte de référence (story) : Finding Agent Harper

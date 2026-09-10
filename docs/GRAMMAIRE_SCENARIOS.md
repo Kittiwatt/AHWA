@@ -342,15 +342,26 @@ rendus pendant la partie.
   règles l'emporte (journal « (texte du lieu) »). `flood: {}` suffit à
   activer menus « Inondation » et panneau Marée. Niveaux : 0 sec,
   1 partiellement, 2 totalement.
-- **`agendaEffects`** : `{"<stage>":{flood?, shuffleAside?, withDiscard?, spawnAside?, randomKeyOn?, log?}}`
-  — appliqués quand l'agenda `stage` devient courant, **dans l'ordre** :
+- **`agendaEffects`** / **`actEffects`** : `{"<stage>": StageEffects}`
+  — appliqués quand l'agenda (ou l'acte) `stage` devient courant,
+  **dans l'ordre** et **idempotents** (une carte déjà en jeu n'est pas
+  reposée : l'acte et l'agenda peuvent déclarer les mêmes gestes quand
+  les deux versos convergent — A Light in the Fog) :
   `flood {mode, trait?, scope?:"all"|"revealed"}` (inonde les lieux du
-  trait, tous ou révélés — révélés ou non pour `all`) ; `shuffleAside`
-  (ces codes de côté rejoignent la pioche, `withDiscard:true` remélange
-  aussi la défausse) ; `spawnAside {code, at, side?}` (une carte de
-  côté apparaît sur un lieu) ; `randomKeyOn` (une clé cachée au hasard
-  posée sur cette carte). Cible introuvable → rappel « à faire à la
-  main », jamais d'erreur.
+  trait, tous ou révélés) ; `shuffleAside` (ces codes de côté rejoignent
+  la pioche, `withDiscard:true` remélange aussi la défausse) ;
+  `revealCodes` (lieux du tapis révélés, indices et marée) ;
+  `placeBelow [{code, at}]` (une carte de côté posée non révélée juste
+  sous un lieu, case prise → plus bas) ; `fillRows {pile, anchors,
+  columns, count}` (la rangée de chaque lieu-ancre est complétée à
+  `count` lieux avec les premières cartes de la pile, aux colonnes
+  libres, non révélés) ; `removeTrait` (les lieux du trait quittent le
+  tapis : victoire si Victory X sans indice, retirés sinon — ce qui s'y
+  trouvait est laissé, rappel) ; `spawnAside {code, at, side?}` (une
+  carte de côté **ou déjà en jeu** apparaît sur un lieu) ;
+  `randomKeyOn` (clé cachée au hasard posée dessus). Cible introuvable
+  → rappel « à faire à la main », jamais d'erreur ; rien à faire → pas
+  de ligne.
 - **`leads`** : `{pile, secret, shown, reference, suspects, hideouts, spots, elina, square, act2, agenda3}`
   — toute la mécanique d'Elina Harper (actions `leadsReveal`,
   `leadsTake`, `leadsReturn`, `leadsToggle`, `accusation` ;
@@ -402,7 +413,12 @@ rendus pendant la partie.
   sur le lieu il n'y est pas. Un soutien à verso lié de même kind
   (voitures : `07211a` → `07211b` « Stopped ») se bascule par « Autre
   face (<sous-titre du verso>) » (`toggleSide`), comme un lieu Spectral
-  ou Nathan Wick.
+  ou Nathan Wick. Une **carte histoire dont le dos est un lieu**
+  (Captured! → Holding Cells, posée par `place` dans la zone `story`)
+  se bascule aussi par « Autre face (<nom du verso>) » : elle **change
+  de nature** pour le moteur (kind `location` côté b, indices de son
+  verso la première fois ; retour à `story` côté a) — à glisser sur le
+  tapis d'abord.
 - **Zones** : `board` (tapis), `story` (agenda/acte/scénario), `aside`
   (de côté), `victory`, `seat0–3` (postes), zones du board joueur
   (`pplay/pevent/pcommit/paside` + n° de siège) — le setup n'écrit

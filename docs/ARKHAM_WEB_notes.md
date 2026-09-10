@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | TIC VI — A Light in the Fog | `actEffects` + effets d'étape étendus (`revealCodes`, `placeBelow`, `fillRows`, `removeTrait`), Captured! histoire → lieu par `toggleSide` |
 | 2026-09-10 | TIC V — Horror in High Gear | `fromPile`, `pickRandom rest:"keep"`, `road` + `roadAhead` (ligne Road X), voitures à deux faces (`toggleSide` sur soutien lié) |
 | 2026-09-10 | TIC IV — Devil Reef | véhicule porteur de pions, `placeAround dir`, `flood.onRevealByCode`, verso-ennemi d'agenda, piles Tidal Tunnels / Unfathomable Depths |
 | 2026-09-10 | Mémo scindé, dépôt source de vérité | tableau + archive, instructions dans docs/, cycle « un commit » |
@@ -91,6 +92,41 @@ versement de son durable (format → grammaire, piège → §5, décision →
 | 2026-09-03 | Étape 1 — première table (The Gathering) | pipeline de build, lobby, tapis, tests + captures |
 
 ### Derniers récits
+
+- 2026-09-10 : **A Light in the Fog (TIC VI) livré** — Setup + les deux
+  diagrammes p. 27‑28 (pack `lif` ; sets A Light in the Fog, Creatures
+  of the Deep, Flooded Caverns, Rising Tide, Syzygy, Striking Fear ;
+  pioche 36). Lobby : campagne / autonome, reliques apportées au phare
+  (cases → `aside` des trois relics du pack `def` en `extraCards`),
+  mentions « after sunrise » / « tide has grown stronger » (cases →
+  `addDoom` après `story`), jetons retirés. Réutilisé : clés visibles /
+  cachées, `remove` des Underground River, carte histoire dans la zone
+  `story` (Captured!, comme Finding Agent Harper), pile « Tidal
+  Tunnels » `around` (comme au IV), grottes de côté non révélées (le dos
+  d'Upper Depths s'appelle Lighthouse Basement). Généralisé : les
+  **effets d'étape** deviennent un type `StageEffects` partagé par
+  `agendaEffects` et le nouveau **`actEffects`** (fonction
+  `appliquerEffets`, idempotente : l'acte 1 et l'agenda 1 ont des versos
+  qui convergent, de même l'acte 2 et l'agenda 2 — chacun déclare les
+  mêmes gestes, le second ne fait rien de plus), avec quatre effets de
+  plus : `revealCodes`, `placeBelow` (Basement sous le Stairwell, Lower
+  et Final Depths en colonne), `fillRows` (rangées complétées à quatre
+  par les tunnels : diagramme de l'acte 3 obtenu d'un clic), `removeTrait`
+  (lieux Falcon Point → victoire ou retrait à l'agenda 4) ; `spawnAside`
+  accepte une carte déjà en jeu (Oceiros remonte à Upper Depths). Et
+  **`toggleSide` change de nature** pour une carte histoire dont le dos
+  est un lieu (Captured! → Holding Cells : kind `location`, indices de
+  son verso la première fois ; menu « Autre face (Holding Cells) »
+  ouvert aux cartes `story` à verso-lieu). Reste manuel (choix ou
+  position selon le déclencheur) : Oceiros et la clé bleue au 2,
+  capturés et clés sur Holding Cells au 3, pions et ennemis déplacés au
+  4, inondation des quatre lieux les plus bas — rappels `agenda:2‑4`,
+  `act:2‑3`. Tests : 642 messages (bloc Fog : doom du journal, rangée
+  et Lantern Room, retraits, clés, Captured! bascule en lieu avec indices
+  et retour, agenda 2, acte 2 idempotent, agenda 3 : descente complète
+  et journal muet, acte 3 idempotent, agenda 4 : Oceiros et Falcon
+  Point, autonome) ; captures 92‑93. Piège : un test qui pose une carte
+  sur une rangée à compléter fausse `fillRows` — poser ailleurs.
 
 - 2026-09-10 : **Horror in High Gear (TIC V) livré** — choix pris seul
   avec la consigne d'uniformisation. Setup + diagramme p. 24‑25 (pack
@@ -164,29 +200,11 @@ versement de son durable (format → grammaire, piège → §5, décision →
   sans regarder et journal muet, placeAround `dir` et refus, inondation
   par lieu, verso ennemi, autonome) ; captures 85‑88.
 
-- 2026-09-10 : **Mémo scindé — le dépôt devient la source de vérité.**
-  Le §0 passe au régime : un tableau (une ligne par livraison) + les
-  derniers récits ; les 54 récits antérieurs partent tels quels dans
-  `docs/ARCHIVE_livraisons.md`. Passe d'extraction faite avant
-  archivage : le durable était déjà logé (format → grammaire, pièges →
-  §5, décisions → §1, campagne et chantiers → §7) — rien à reloger.
-  `docs/INSTRUCTIONS_PROJET.md` créé : la méthode vit dans le dépôt,
-  les instructions du projet claude.ai se réduisent à une amorce
-  (clone + token — jamais commité, le dépôt est public). Nouveau
-  cycle : à chaque livraison, Claude met les docs à jour (récit +
-  ligne de tableau, rotation du plus ancien récit récent vers
-  l'archive après versement de son durable, grammaire si nouvelle op)
-  et pousse **un commit unique** sur `main`, SHA communiqué,
-  déploiement vérifié. Grammaire §9 alignée ; `appile_128/256.png`
-  (source du bouton Auto-pay) conservés dans `docs/assets/`. Le mémo
-  passe de 1908 à ~900 lignes et le §0 ne croît plus que d'une ligne
-  par livraison.
-
-- **Prochaine étape** : retours de l'utilisateur sur TIC I‑V, puis
-  **TIC VI A Light in the Fog** (pack `lif` ; Setup + diagramme
+- **Prochaine étape** : retours de l'utilisateur sur TIC I‑VI, puis
+  **TIC VII The Lair of Dagon** (pack `lod` ; Setup + diagramme
   seulement — si un report au lobby exige un extrait d'interlude ou de
-  résolution, le demander à l'utilisateur), puis VII The Lair of Dagon
-  (`lod`) et VIII Into the Maelstrom (`itm`) ; visuels PNG des clés et du jeton d'inondation à générer
+  résolution, le demander à l'utilisateur), puis VIII Into the
+  Maelstrom (`itm`) ; visuels PNG des clés et du jeton d'inondation à générer
   dans le style des jetons du projet (choix B). En parallèle : la suite
   des retours de test du board joueur et les points ouverts du cahier
   §10.10 (customisations, decks annexes, attaches).
