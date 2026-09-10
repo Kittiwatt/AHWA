@@ -53,10 +53,18 @@ function ligneScenario(s) {
 function sectionCampagne(c) {
   const liste = el("ol");
   for (const s of c.scenarios) liste.append(ligneScenario(s));
-  return el("section", { class: "campagne", "aria-labelledby": `c-${c.id}` },
-    el("header", {}, el("h2", { id: `c-${c.id}` }, c.title), el("span", { class: "boite" }, c.box)),
-    liste,
-  );
+  // Le libellé de boîte pointe vers le guide de campagne FFG (PDF) quand on le connaît.
+  const boite = c.guide
+    ? el("a", { class: "boite", href: c.guide, target: "_blank", rel: "noopener", title: "Guide de campagne (PDF, Fantasy Flight Games)" }, c.box)
+    : el("span", { class: "boite" }, c.box);
+  const entete = el("header", {}, el("h2", { id: `c-${c.id}` }, c.title), boite);
+  // Bandeau : une image du guide de campagne derrière le titre (public/img/campagnes/, scripts/build_bandeaux.py).
+  if (c.banner?.src) {
+    entete.classList.add("bandeau");
+    entete.style.setProperty("--bandeau", `url("${c.banner.src}")`);
+    if (c.banner.position) entete.style.setProperty("--bandeau-pos", c.banner.position);
+  }
+  return el("section", { class: "campagne", "aria-labelledby": `c-${c.id}` }, entete, liste);
 }
 
 (async () => {

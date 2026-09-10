@@ -1,6 +1,6 @@
 {
  "_meta": {
-  "description": "Catalogue de la bibliothèque : campagnes dans l'ordre de sortie, scénarios dans l'ordre du guide. Statuts : available (jouable : une définition existe dans public/scenarios/), wip (en cours), planned (prévu). Les id des scénarios importés correspondent aux clés de data/scenarios_data.json. Le statut est informatif : le Worker n'accepte que les scénarios du registre src/scenarios.generated.ts. `guide` (par campagne) : adresse du livret de campagne FFG, affichée en lien discret dans la table.",
+  "description": "Catalogue de la bibliothèque : campagnes dans l'ordre de sortie, scénarios dans l'ordre du guide. Statuts : available (jouable : une définition existe dans public/scenarios/), wip (en cours), planned (prévu). Les id des scénarios importés correspondent aux clés de data/scenarios_data.json. Le statut est informatif : le Worker n'accepte que les scénarios du registre src/scenarios.generated.ts. `guide` (par campagne) : adresse du livret de campagne FFG, affichée en lien discret dans la table. `banner` (par campagne) : bandeau d'en‑tête de la bibliothèque — `src` (public/img/campagnes/<id>.webp, généré par scripts/build_bandeaux.py à partir du guide) et `position` (background-position CSS, zone visible du bandeau).",
   "statuts": [
    "available",
    "wip",
@@ -15,6 +15,10 @@
    "box": "Boîte de base (2016)",
    "kind": "campaign",
    "guide": "https://images-cdn.fantasyflightgames.com/filer_public/8d/30/8d308b73-92f1-4b1e-aa7f-ce39e8d79786/night_of_the_zealot_campaign_guide.pdf",
+   "banner": {
+    "src": "/img/campagnes/notz.webp",
+    "position": "center 45%"
+   },
    "scenarios": [
     {
      "id": "notz_the_gathering",
@@ -42,6 +46,11 @@
    "title": "The Dunwich Legacy",
    "box": "Cycle 1 (2016‑2017)",
    "kind": "campaign",
+   "guide": "https://images-cdn.fantasyflightgames.com/filer_public/2e/2e/2e2e9b07-e5e4-4538-8d04-b009e20efb50/ahc66_campaign_guide_v6-compressed.pdf",
+   "banner": {
+    "src": "/img/campagnes/tdl.webp",
+    "position": "center 22%"
+   },
    "scenarios": [
     {
      "id": "tdl_extracurricular_activity",
@@ -98,6 +107,11 @@
    "title": "The Path to Carcosa",
    "box": "Cycle 2 (2017‑2018)",
    "kind": "campaign",
+   "guide": "https://images-cdn.fantasyflightgames.com/filer_public/58/cd/58cd918c-fdd0-4cee-99df-eb9b5fd43c13/ahc68_campaign_guide_v4-compressed.pdf",
+   "banner": {
+    "src": "/img/campagnes/tptc.webp",
+    "position": "center 35%"
+   },
    "scenarios": [
     {
      "id": "tptc_curtain_call",
@@ -154,6 +168,11 @@
    "title": "The Forgotten Age",
    "box": "Cycle 3 (2018)",
    "kind": "campaign",
+   "guide": "https://images-cdn.fantasyflightgames.com/filer_public/2c/08/2c081137-f89f-4c53-b432-a513eecc466e/ahc73_campaign_guide_v2-compressed.pdf",
+   "banner": {
+    "src": "/img/campagnes/tfa.webp",
+    "position": "center 45%"
+   },
    "scenarios": [
     {
      "id": "tfa_the_untamed_wilds",
@@ -218,6 +237,10 @@
    "box": "Cycle 4 (2019)",
    "kind": "campaign",
    "guide": "https://images-cdn.fantasyflightgames.com/filer_public/7f/d8/7fd88e9d-a98d-42f9-9d15-56d4de0ac811/ahc75_campaign_guide-compressed.pdf",
+   "banner": {
+    "src": "/img/campagnes/tcu.webp",
+    "position": "center 30%"
+   },
    "scenarios": [
     {
      "id": "tcu_prologue",
@@ -281,6 +304,11 @@
    "title": "The Dream‑Eaters",
    "box": "Cycle 5 (2019‑2020)",
    "kind": "campaign",
+   "guide": "https://images-cdn.fantasyflightgames.com/filer_public/32/db/32db52a4-73af-41c7-9a2c-56351115148e/ahc79_campaign_guide_a-web.pdf",
+   "banner": {
+    "src": "/img/campagnes/tde.webp",
+    "position": "center 30%"
+   },
    "scenarios": [
     {
      "id": "tde_gates_of_sleep",
@@ -339,6 +367,10 @@
    "box": "Cycle 6 (2020‑2021)",
    "kind": "campaign",
    "guide": "https://images-cdn.fantasyflightgames.com/filer_public/9d/71/9d71f59e-6ca6-469c-b00a-0a7c6d27b148/ahc82_campaign_guide-web_1.pdf",
+   "banner": {
+    "src": "/img/campagnes/tic.webp",
+    "position": "center 50%"
+   },
    "scenarios": [
     {
      "id": "tic_the_pit_of_despair",
@@ -395,6 +427,11 @@
    "title": "Edge of the Earth",
    "box": "Campagne (2021)",
    "kind": "campaign",
+   "guide": "https://images-cdn.fantasyflightgames.com/filer_public/3f/b5/3fb51dbf-2508-4a28-bf7d-fed5fea4905e/ahc64_edge_of_the_earth_campaign_guide-compressed.pdf",
+   "banner": {
+    "src": "/img/campagnes/eote.webp",
+    "position": "center 50%"
+   },
    "scenarios": [
     {
      "id": "eote_ice_and_death",
@@ -433,6 +470,11 @@
    "title": "The Scarlet Keys",
    "box": "Campagne (2022)",
    "kind": "campaign",
+   "guide": "https://images-cdn.fantasyflightgames.com/filer_public/f0/f9/f0f98966-1063-420c-8e31-4d95f0142aa2/ahc70_the_scarlet_keys_campaign_guide-compressed.pdf",
+   "banner": {
+    "src": "/img/campagnes/tsk.webp",
+    "position": "center 45%"
+   },
    "scenarios": [
     {
      "id": "tsk_riddles_and_rain",
@@ -501,6 +543,11 @@
    "title": "The Feast of Hemlock Vale",
    "box": "Campagne (2024)",
    "kind": "campaign",
+   "guide": "https://images-cdn.fantasyflightgames.com/filer_public/5e/db/5edb4588-8583-4dc8-941c-26e1b7cfba56/ahc77_campaign_guide_web-compressed.pdf",
+   "banner": {
+    "src": "/img/campagnes/fhv.webp",
+    "position": "center 50%"
+   },
    "scenarios": [
     {
      "id": "fhv_written_in_rock",
@@ -557,6 +604,11 @@
    "title": "The Drowned City",
    "box": "Campagne (2025)",
    "kind": "campaign",
+   "guide": "https://images-cdn.fantasyflightgames.com/filer_public/c1/3b/c13b0e74-62bb-49bc-bc85-036ab9d1ef10/ahc84_campaign_guide-web_1.pdf",
+   "banner": {
+    "src": "/img/campagnes/tdc.webp",
+    "position": "center 25%"
+   },
    "scenarios": [
     {
      "id": "tdc_prologue",
@@ -620,6 +672,11 @@
    "title": "Brethren of Ash",
    "box": "Boîte de base « Chapitre 2 » (2026)",
    "kind": "campaign",
+   "guide": "https://images-cdn.fantasyflightgames.com/filer_public/f0/22/f022ac7c-9c30-4521-ac16-1f74f00e1d31/ahc100_campaign_guide-web.pdf",
+   "banner": {
+    "src": "/img/campagnes/boa.webp",
+    "position": "center 35%"
+   },
    "scenarios": [
     {
      "id": "boa_spreading_flames",
@@ -647,6 +704,10 @@
    "box": "Extension Chapitre 2 (2026) — nécessite le Core Set (2026)",
    "kind": "campaign",
    "guide": "https://images-cdn.fantasyflightgames.com/filer_public/a8/9c/a89c98b9-9de4-4b6c-8110-80fedbdcdb60/ahc106_campaign_guide-web.pdf",
+   "banner": {
+    "src": "/img/campagnes/cob.webp",
+    "position": "center 45%"
+   },
    "scenarios": [
     {
      "id": "cob_river_of_blood",
@@ -673,6 +734,10 @@
    "title": "Scénarios indépendants",
    "box": "Dans l'ordre de sortie",
    "kind": "standalone",
+   "banner": {
+    "src": "/img/campagnes/standalone.webp",
+    "position": "center 100%"
+   },
    "scenarios": [
     {
      "id": "sa_curse_of_the_rougarou",

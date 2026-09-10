@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | Bibliothèque : bandeaux de campagne + liens vers les guides | `banner {src, position}` dans library.json, `scripts/build_bandeaux.py` (art de la boîte, découpe par campagne, WebP), libellé de boîte = lien `guide` (renseigné pour toutes les campagnes) |
 | 2026-09-10 | TIC VIII — Into the Maelstrom | `keys fillAsideTo`, effets `byPlayers` + `spreadPile flood` (Act 2 Setup selon les joueurs) ; **campagne TIC complète** |
 | 2026-09-10 | UX : menu natif du navigateur neutralisé sur la table | `neutraliserMenuNatif`, ordre `contextmenu` Windows (après le `pointerup`), garde `lien.menuVu` |
 | 2026-09-10 | TIC VII — The Lair of Dagon | effets `after:<code>`, ordre d'écriture des effets, `removeLocations` / `spreadPile` / `placeAt` / `chaosAdd` / `chaosRemove` ; set Core Dark Cult = `pentagram` |
@@ -96,6 +97,40 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **Bibliothèque : bandeaux de campagne et liens vers les
+  guides** — demande de l'utilisateur : renforcer l'esthétique de la page
+  en découpant des images des guides FFG. Chaque en‑tête de campagne
+  devient un bandeau (`.campagne header.bandeau`, `site.css`) : image en
+  `cover` derrière le titre, dégradé nuit en bas pour la lisibilité,
+  ombre portée sur le titre, filet doré conservé ; déborde de 1,5 rem de
+  chaque côté de la colonne, bords gauche / droit / haut fondus dans la
+  nuit (masque CSS) comme les illustrations à bords déchirés des guides ;
+  hauteur 8,5 rem partout ; bord à bord sur mobile. Données :
+  `library.json` → `banner {src, position}` par campagne (`position` =
+  `background-position`, cadre la zone visible sans redécouper) et
+  `guide` désormais renseigné pour toutes les campagnes (URL FFG de
+  `docs/AHLCG_livrets_regles_FFG.md`) ; le libellé de boîte devient le
+  lien vers le guide (pointillé, ↗, doré au survol) ; « Scénarios
+  indépendants » sans guide. Images : `scripts/build_bandeaux.py`
+  (pymupdf + Pillow) télécharge le livret dans `data/cache/guides/`,
+  extrait l'image de la page (la plus grande, ou par xref), découpe une
+  bande (table `BANDEAUX` : page, xref, crop) et écrit
+  `public/img/campagnes/<id>.webp` (14 fichiers, 636 Ko). Découpes prises
+  dans l'art de la boîte (panneau peint de la couverture du guide) —
+  validé par l'utilisateur : lisible, sans spoiler pour les campagnes
+  encore « prévues ». Exceptions : NotZ, dont le guide n'a **aucune
+  illustration** (le premier essai, bande de ciel étoilé de la
+  couverture, « ressemblait à un dos de carte » — refusé) → couverture du
+  Learn to Play de la boîte révisée (ahc60 : Roland Banks, lune,
+  nightgaunts ; choisi par l'utilisateur entre deux cadrages) ; boa et
+  cob, couvertures « Chapitre 2 » dans un losange → bande à la largeur
+  maximale du losange (cob : bras et griffes, pas le visage) ;
+  standalone → vue d'Arkham la nuit, illustration p. 11 du même Learn to
+  Play. TDE : seul le guide A est lié (le B n'a pas de champ).
+  Vérification : servi en statique puis par `wrangler dev`, captures
+  desktop / mobile / planche des quatorze bandeaux, zéro erreur console ;
+  régression `test_room.mjs` (669 messages) OK ; index des cartes
+  rafraîchi au passage par le build (arkham.build).
 - 2026-09-10 : **Into the Maelstrom (TIC VIII) livré — campagne The
   Innsmouth Conspiracy complète** (huit tables). Setup + diagrammes
   p. 36‑38 (pack `itm` ; sets Into the Maelstrom, Agents of Hydra,
@@ -153,38 +188,6 @@ versement de son durable (format → grammaire, piège → §5, décision →
   événements synthétiques (`clic_droit_windows`, `contextmenu_natif` :
   lieu, coin du menu, fond du tapis, pion, carte de côté, journal
   permis, board joueur).
-
-- 2026-09-10 : **The Lair of Dagon (TIC VII) livré** — Setup + diagramme
-  p. 31‑32 (pack `lod` ; sets The Lair of Dagon, Agents of Dagon,
-  Flooded Caverns, Syzygy, **Dark Cult = code `pentagram`** sur
-  arkham.build, Locked Doors ; pioche 27). Lobby : campagne / autonome,
-  nombre de souvenirs en trois tranches (≤ 4 → 5 bénédictions, 5‑7 →
-  2 malédictions, ≥ 8 → 5 malédictions — icônes lues sur l'image : la
-  croix ornée est la bénédiction, le crochet la malédiction), trois
-  souvenirs à cocher (secte → agenda 1 v. I, « stick together » →
-  agenda 2 v. I + Dawson à prendre en main, « jailbreak » → suspect
-  entouré de côté, choix parmi six + aucun), jetons retirés. Réutilisé :
-  `when … remove` pour les versions, `pickRandom n:2 positions` pour
-  les deux halls jumeaux de chaque étage (journal muet), clés visibles /
-  cachées, pile « Tidal Tunnels », `aside` du recto pour Dagon et la
-  statue (deux faces liées : « Autre face »), suspects et Dawson en
-  `extraCards` retirés s'ils ne servent pas. Généralisé : **clés
-  `after:<code>`** des effets d'étape (les versos des deux versions
-  d'agenda diffèrent : + ou − 2 puis 4 malédictions), **ordre
-  d'écriture des champs** = ordre d'application (le verso de l'acte 1
-  retire les lieux, pose les tunnels, inonde tout, mélange — écrit dans
-  cet ordre ; l'ancien ordre fixe aurait inondé avant de poser),
-  effets `removeLocations {except}`, `spreadPile` (sept tunnels aux
-  sept positions), `placeAt` (Lair of Dagon totalement inondé, révélé
-  avec 3 indices par enquêteur), `chaosAdd` / `chaosRemove`. Reste
-  manuel avec rappels : suspect en jeu au verso de l'agenda 1 (position
-  et clé selon la version), Dawson au verso de l'agenda 2 v. II, retrait
-  du suspect à l'acte 2, malédictions selon l'agenda courant à l'acte 3,
-  clés dépensées (glissées de côté). Tests : 663 messages (bloc Lair :
-  sac 22, versions, mises de côté, halls mélangés, clés, after:07275 →
-  +2 malédictions, acte 2 complet dans l'ordre, acte 3, Dagon autre
-  face ; autonome v. II sans suspect et retrait à vide ; ≤ 4 souvenirs
-  → 5 bénédictions) ; captures 94‑96.
 
 - **Prochaine étape** : retours de l'utilisateur sur la campagne TIC
   complète (I‑VIII) ; prochaine campagne au choix de l'utilisateur
@@ -361,7 +364,11 @@ et disposition précise à trancher sur maquette.
 « rejoindre une room par code »), puis la bibliothèque : tous les
 scénarios du jeu, groupés par campagne dans l'ordre de sortie,
 scénarios dans l'ordre, chacun avec un état disponible / en cours /
-prévu. Pas de liste publique des rooms actives.
+prévu. Pas de liste publique des rooms actives. En‑tête de campagne =
+bandeau (décision du 2026-09-10) : l'art de la boîte (couverture du
+guide FFG, à défaut du livret de règles) découpé par
+`scripts/build_bandeaux.py`, titre par‑dessus, bords fondus ; le libellé
+de boîte est le lien vers le guide (`guide` de `library.json`).
 
 ### Board joueur (questionnaire du 2026-09-07, réponses de l'utilisateur)
 

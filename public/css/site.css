@@ -189,6 +189,52 @@ main {
 .campagne h2 { font-size: 1.9rem; }
 .campagne .boite { color: var(--papier-2); font-size: 0.95rem; }
 
+/* Libellé de boîte cliquable → guide de campagne FFG (PDF). */
+.campagne a.boite {
+  text-decoration: underline dotted;
+  text-decoration-color: rgba(185, 174, 149, 0.6);
+  text-underline-offset: 0.22em;
+}
+.campagne a.boite::after { content: " \2197"; font-size: 0.85em; opacity: 0.75; }
+.campagne a.boite:hover { color: var(--dorure-2); text-decoration-color: currentColor; }
+
+/* Bandeau : une image du guide de campagne derrière le titre (library.json → banner).
+   Déborde de la colonne de texte sur la marge de <main>, bords fondus dans la nuit
+   comme les illustrations à bords déchirés des guides ; le titre reste aligné sur la liste. */
+.campagne header.bandeau {
+  position: relative;
+  isolation: isolate;
+  align-content: flex-end;
+  min-height: 8.5rem;
+  margin: 0 -1.5rem;
+  padding: 0.75rem 1.5rem 0.55rem;
+  border-bottom: 0;
+}
+.campagne header.bandeau::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(30, 45, 51, 0.96) 0, rgba(30, 45, 51, 0.7) 32%, rgba(30, 45, 51, 0.22) 62%, rgba(30, 45, 51, 0.06) 100%),
+    var(--bandeau) var(--bandeau-pos, center) / cover no-repeat var(--nuit-2);
+  border-bottom: 1px solid var(--dorure);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 5%, #000 95%, transparent),
+    linear-gradient(to bottom, transparent, #000 28%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 5%, #000 95%, transparent),
+    linear-gradient(to bottom, transparent, #000 28%);
+  mask-composite: intersect;
+}
+.campagne header.bandeau h2 {
+  font-size: 2.2rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7), 0 0 14px rgba(0, 0, 0, 0.55);
+}
+.campagne header.bandeau .boite { text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); }
+
 .campagne ol { list-style: none; margin: 0; padding: 0; }
 
 .scenario {

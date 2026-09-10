@@ -8,6 +8,38 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **The Lair of Dagon (TIC VII) livré** — Setup + diagramme
+  p. 31‑32 (pack `lod` ; sets The Lair of Dagon, Agents of Dagon,
+  Flooded Caverns, Syzygy, **Dark Cult = code `pentagram`** sur
+  arkham.build, Locked Doors ; pioche 27). Lobby : campagne / autonome,
+  nombre de souvenirs en trois tranches (≤ 4 → 5 bénédictions, 5‑7 →
+  2 malédictions, ≥ 8 → 5 malédictions — icônes lues sur l'image : la
+  croix ornée est la bénédiction, le crochet la malédiction), trois
+  souvenirs à cocher (secte → agenda 1 v. I, « stick together » →
+  agenda 2 v. I + Dawson à prendre en main, « jailbreak » → suspect
+  entouré de côté, choix parmi six + aucun), jetons retirés. Réutilisé :
+  `when … remove` pour les versions, `pickRandom n:2 positions` pour
+  les deux halls jumeaux de chaque étage (journal muet), clés visibles /
+  cachées, pile « Tidal Tunnels », `aside` du recto pour Dagon et la
+  statue (deux faces liées : « Autre face »), suspects et Dawson en
+  `extraCards` retirés s'ils ne servent pas. Généralisé : **clés
+  `after:<code>`** des effets d'étape (les versos des deux versions
+  d'agenda diffèrent : + ou − 2 puis 4 malédictions), **ordre
+  d'écriture des champs** = ordre d'application (le verso de l'acte 1
+  retire les lieux, pose les tunnels, inonde tout, mélange — écrit dans
+  cet ordre ; l'ancien ordre fixe aurait inondé avant de poser),
+  effets `removeLocations {except}`, `spreadPile` (sept tunnels aux
+  sept positions), `placeAt` (Lair of Dagon totalement inondé, révélé
+  avec 3 indices par enquêteur), `chaosAdd` / `chaosRemove`. Reste
+  manuel avec rappels : suspect en jeu au verso de l'agenda 1 (position
+  et clé selon la version), Dawson au verso de l'agenda 2 v. II, retrait
+  du suspect à l'acte 2, malédictions selon l'agenda courant à l'acte 3,
+  clés dépensées (glissées de côté). Tests : 663 messages (bloc Lair :
+  sac 22, versions, mises de côté, halls mélangés, clés, after:07275 →
+  +2 malédictions, acte 2 complet dans l'ordre, acte 3, Dagon autre
+  face ; autonome v. II sans suspect et retrait à vide ; ≤ 4 souvenirs
+  → 5 bénédictions) ; captures 94‑96.
+
 - 2026-09-10 : **A Light in the Fog (TIC VI) livré** — Setup + les deux
   diagrammes p. 27‑28 (pack `lif` ; sets A Light in the Fog, Creatures
   of the Deep, Flooded Caverns, Rising Tide, Syzygy, Striking Fear ;
