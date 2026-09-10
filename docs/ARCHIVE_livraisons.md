@@ -8,6 +8,57 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Spreading Flames (BoA I) livré — première table de la
+  nouvelle boîte de base Brethren of Ash (ahc100, 2026)**. Guide : seules
+  les p. 2 (Campaign Setup) et 3 (Setup du I) ont été lues ; **aucun
+  diagramme de placement** pour ce scénario (un seul lieu en jeu, les
+  cinq autres de côté). Sac par difficulté lu sur l'image à 600 dpi et
+  **vérifié glyphe à glyphe contre tokens.ttf** (corrélation 0,985) :
+  2 crânes, tablette, elder thing, auto-fail, elder sign — aucun
+  cultiste, comme COB ; nombres du Core classique. Pack arkham.build
+  **`core_2026`** (cycle `core_ch2`), sets `spreading_flames`,
+  `miskatonic_university`, `ashen_pilgrims`, `bystanders`,
+  `cosmic_evils`, `eldritch_lore`, **`fire_ch2`** (Fire! ×5 + Noxious
+  Smoke ; le set `fire` est un autre set), `hallucinations`,
+  `mad_science` ; pioche 24 ; images recto/verso vérifiées sur la CDN.
+  Carte de scénario Easy/Standard au recto, Hard/Expert au verso
+  (`scenarioCardSide` comme COB). Setup : Your Friend's Room révélée
+  avec pions (365 × 411), cinq lieux de côté non révélés, Fire! ×5 +
+  Dr. Armitage + Servant of Flame de côté face visible, pas de question
+  (scénario I, sac de campagne). **Disposition déduite des icônes de
+  connexion des cartes** (images CDN) : chambre → Dortoirs (551) →
+  Quad (737, centre) → Science Hall / Warren Observatory / Orne Library
+  en colonne à 923 (rangées 173 / 411 / 649) ; notée dans `_source` et
+  un rappel. **Versos des actes 1‑3 et de l'agenda 2 appliqués par les
+  effets d'étape** (lus dans le dump, jamais recopiés) avec `placeAt`,
+  `spawnAside`, `removeLocations` et cinq effets génériques ajoutés :
+  `discardEnemies` (ennemis de rencontre du tapis et des zones de menace
+  → défausse, les ennemis de deck joueur restent), `discardAside {code,
+  n?}` (copies de côté → défausse ; 4 au verso de l'agenda 2, toutes au
+  verso de l'acte 1 après l'attache), `setAside` (le Servant revient de
+  côté soigné d'où qu'il soit, zone de victoire comprise), `discardAt`
+  (l'attache de la chambre défaussée avant son retrait), `addClues` par
+  enquêteur (3 par enquêteur au Quad, révélé ou non) ; `spawnAside`
+  accepte une **liste** et prend d'abord la copie **de côté** (jamais
+  une Fire! de la défausse) ; `removeLocations {codes}` (la chambre
+  seule, sans Victory → retirée) ; les liens d'un lieu retiré sont
+  effacés. L'attache Fire! = `spawnAside` sur le lieu (elle suit le
+  lieu). Reste manuel avec rappels : Armitage à glisser sur un siège
+  (sans slot d'allié), recherche de Fire! par l'enquêteur principal,
+  tests des versos d'agenda, effet Forcé de l'agenda 3, pions à sortir
+  de la chambre retirée, mots-clés du guide p. 3 (Doomed, Peril, Prey,
+  Retaliate, Surge). Tests : 705 messages (bloc Flames : sac 16 avec
+  tablette, 12 de côté, pioche 24, acte 2 avec ennemis du tapis et de
+  la zone de menace défaussés / Armitage épargné / lieux posés /
+  Servant / Fire! attachée / 4 à la défausse, acte 3 avec Servant
+  blessé en zone de victoire remis de côté soigné / attache défaussée /
+  chambre retirée / bâtiments posés, acte 4 avec 6 indices au Quad ;
+  solo Expert : sac 18, verso b, agenda 2 avancé d'abord → 4 Fire! à
+  la défausse, la dernière s'attache ensuite) ; captures 100‑102 (le
+  `captures.py` complet a tué `wrangler dev` : bloc rejoué en script
+  autonome avec Maelstrom en régression). Catalogue : `boa` disponible
+  avec lien guide ; README.
+
 - 2026-09-10 : **Bibliothèque : bandeaux de campagne et liens vers les
   guides** — demande de l'utilisateur : renforcer l'esthétique de la page
   en découpant des images des guides FFG. Chaque en‑tête de campagne

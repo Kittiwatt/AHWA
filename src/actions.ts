@@ -240,7 +240,11 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
   const gestes: Record<string, () => void> = {
     flood: () => { const f = effet.flood!; parties.push(inonderLieux(state, def, f.mode, f.trait, f.scope ?? "all")); },
     shuffleAside: () => {
-      const cartes = Object.values(state.cards).filter((k) => "zone" in k.loc && k.loc.zone === "aside" && effet.shuffleAside!.includes(k.code));
+      const cartes: CardState[] = [];
+      for (const e of effet.shuffleAside!) {
+        const code = typeof e === "string" ? e : e.code, n = typeof e === "string" ? Infinity : e.n;
+        cartes.push(...Object.values(state.cards).filter((k) => "zone" in k.loc && k.loc.zone === "aside" && k.code === code).slice(0, n));
+      }
       for (const k of cartes) { k.loc = { pile: "encounter" }; k.faceUp = false; k.tokens = {}; k.exhausted = false; state.piles.encounter.push(k.id); }
       let defausse = 0;
       if (effet.withDiscard) { defausse = state.piles.encounterDiscard.length; remelangerDefausse(state, Math.random); }
@@ -334,6 +338,7 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
         const k = Object.values(state.cards)
           .filter((c) => c.code === sa.code && !("pile" in c.loc && (c.loc.pile === "removed" || c.loc.pile === "encounter")) && !("zone" in c.loc && c.loc.zone === "victory"))
           .sort((a, b) => rang(a) - rang(b))[0];
+        if (sa.ifAside && !(k && "zone" in k.loc && k.loc.zone === "aside")) continue;   // rien à faire, en silence
         const lieu = Object.values(state.cards).find((c) => c.code === sa.at && c.kind === "location" && "zone" in c.loc && c.loc.zone === "board");
         if (k && lieu) {
           const { x: lx, y: ly } = lieu.loc as { x: number; y: number };

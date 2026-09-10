@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-10 (Smoke and Mirrors compris). Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-10 (Queen of Ash compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -270,6 +270,9 @@ donc pas ce qui est déjà posé.
   horror, resource, generic, **flood** (0–2).
 - `{"op":"addClues","code","n","log"?}` — indices fixes sur un lieu,
   révélé ou non (Desolate Coastline).
+- `{"op":"seatCounter","key","n","log"?}` — `n` de plus au compteur
+  `key` (`clues`, `resources`…) de chaque siège occupé (« each
+  investigator begins the game with 1 clue », Queen of Ash).
 - `{"op":"removeClues","from":[refs],"n"?|"nFrom"?,"log"?}` — retire n
   indices « aussi également que possible » : un à la fois, à tour de
   rôle, dans l'ordre donné.
@@ -369,7 +372,9 @@ rendus pendant la partie.
   versos convergent — A Light in the Fog) :
   `flood {mode, trait?, scope?:"all"|"revealed"}` (inonde les lieux du
   trait, tous ou révélés) ; `shuffleAside` (ces codes de côté rejoignent
-  la pioche, `withDiscard:true` remélange aussi la défausse) ;
+  la pioche — une entrée `{code, n}` n'en prend que `n` copies : « each
+  other copy of Fire! » —, `withDiscard:true` remélange aussi la
+  défausse) ;
   `revealCodes` (lieux du tapis révélés, indices et marée) ;
   `placeBelow [{code, at}]` (une carte de côté posée non révélée juste
   sous un lieu, case prise → plus bas) ; `fillRows {pile, anchors,
@@ -377,8 +382,11 @@ rendus pendant la partie.
   `count` lieux avec les premières cartes de la pile, aux colonnes
   libres, non révélés) ; `removeTrait` (les lieux du trait quittent le
   tapis : victoire si Victory X sans indice, retirés sinon — ce qui s'y
-  trouvait est laissé, rappel) ; `spawnAside {code, at, side?}` (une
-  carte de côté **ou déjà en jeu** apparaît sur un lieu ; objet ou liste) ;
+  trouvait est laissé, rappel) ; `spawnAside {code, at, side?, ifAside?}`
+  (une carte de côté **ou déjà en jeu** apparaît sur un lieu ; objet ou
+  liste ; `ifAside:true` = seulement si une copie est de côté, sinon
+  rien ni rappel — « if the Servant is set aside, spawn it » quand il a
+  pu être retiré au setup) ;
   `randomKeyOn` (clé cachée au hasard posée dessus) ;
   `removeLocations {trait?, except?, codes?}` (comme `removeTrait`, ou
   « chaque lieu autre que… », ou ces seuls codes) ; `spreadPile {pile, positions, flood?}` (les

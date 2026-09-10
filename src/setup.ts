@@ -396,6 +396,13 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         } else if (step.nFrom !== undefined) addLog(state, "setup", `${step.log ?? "Doom selon le journal :"} aucun.`);
         break;
       }
+      case "seatCounter": {
+        // « Each investigator begins the game with 1 clue (from the token pool) » : n de plus au compteur `key` de chaque siège occupé.
+        const sieges = state.seats.filter((se) => se.investigatorCode);
+        for (const se of sieges) se.counters[step.key] = (se.counters[step.key] ?? 0) + step.n;
+        addLog(state, "setup", step.log ?? `Chaque enquêteur commence avec ${step.n} ${step.key} de plus (${sieges.length} siège${sieges.length > 1 ? "s" : ""}).`);
+        break;
+      }
       case "randomTokens": {
         // Brèches et semblables : à chaque manche, des lieux distincts du tapis tirés au hasard reçoivent des jetons.
         const idx = Math.min(Math.max(state.playerCount, 1), 4) - 1;

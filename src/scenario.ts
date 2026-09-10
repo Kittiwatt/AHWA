@@ -80,6 +80,7 @@ export type SetupStep =
     // `fillAsideTo: n` : parmi `colors`, tirées au hasard, juste assez pour que n clés face cachée soient de côté (les autres ne servent pas)
   | { op: "randomKey"; at: string; log?: string }   // une clé de côté face cachée, tirée au hasard, posée sur une carte en jeu sans être regardée (journal muet sur sa couleur)
   | { op: "addClues"; code: string; n: number; log?: string }                  // indices fixes sur un lieu en jeu (révélé ou non)
+  | { op: "seatCounter"; key: string; n: number; log?: string }                // n de plus au compteur `key` (clues, resources…) de chaque enquêteur (Queen of Ash : 1 indice chacun)
   | { op: "removeClues"; from: string[]; n?: number; nFrom?: string; log?: string }   // retire n indices (ou la réponse numérique nFrom) aussi également que possible
   | { op: "bury"; fromDeckTop?: number; with?: string[]; fromPool?: string[]; trait?: string; under?: string[]; dy?: number; log?: string }
     // cartes enfouies face cachée sous les lieux du trait donné (« Lair ») ou sous les lieux `under` (codes ou slots) :
@@ -104,7 +105,7 @@ export type Answers = Record<string, string | string[]>;
  *  chaque effet est idempotent (une carte déjà en jeu n'est pas reposée) — la part qui dépend d'un choix reste un rappel. */
 export type StageEffects = {
   flood?: { trait?: string; mode: "increase" | "full"; scope?: "all" | "revealed" };   // inondation des lieux (du trait, tous ou révélés)
-  shuffleAside?: string[]; withDiscard?: boolean;                       // cartes de côté (et la défausse) mélangées dans la pioche
+  shuffleAside?: (string | { code: string; n: number })[]; withDiscard?: boolean;   // cartes de côté (et la défausse) mélangées dans la pioche ; {code, n} = n copies au plus (« each other copy »)
   revealCodes?: string[];                                               // lieux du tapis révélés (indices, marée)
   placeBelow?: { code: string; at: string }[];                          // une carte de côté posée non révélée juste en dessous d'un lieu du tapis
   fillRows?: { pile: string; anchors: string[]; columns: number[]; count: number };
@@ -124,7 +125,7 @@ export type StageEffects = {
   addClues?: { code: string; n: number; perInvestigator?: boolean }[];   // indices posés sur un lieu du tapis (n, ou n par enquêteur)
   log?: string;
 };
-export type SpawnAside = { code: string; at: string; side?: "a" | "b" };
+export type SpawnAside = { code: string; at: string; side?: "a" | "b"; ifAside?: true };   // ifAside : seulement si une copie est de côté (sinon rien, sans rappel — « if the Servant is set aside, spawn it »)
 
 export function evalCond(c: Cond, answers: Answers): boolean {
   if ("q" in c && "has" in c) { const r = answers[c.q]; return Array.isArray(r) && r.includes(c.has); }

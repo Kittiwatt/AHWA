@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | BoA III — Queen of Ash | jetons p. 11 selon la difficulté (icônes vérifiées) + cultistes du II en campagne, tunnels mélangés, journal `multi` (doom, `seatCounter` indices, cultistes aux tunnels, Servant retiré / de côté), Elokoss à deux faces, `shuffleAside {code, n}`, `spawnAside ifAside` ; **campagne BoA complète** |
 | 2026-09-10 | BoA II — Smoke and Mirrors | 2 cultistes au sac (icône vérifiée), versions Downtown / Uptown au hasard, suspect secret (`pickRandom zone:"aside"`), `bury fromPool` + `under` (cinq suspects + Servant sous six quartiers), pile « Sous l'acte », journal (université) et porteur d'Armitage au lobby |
 | 2026-09-10 | UX : jauges des sièges sur deux lignes, case Play compacte | dégâts + horreur / ressources + indices, actions dessous ; case Play en `outline` + badge « Main N » ; même ordre de jauges sur le board joueur ; siège = hauteur de la carte, bandeau du bas 245 → 190 px (deck : 216 → 182), tapis central +55 px |
 | 2026-09-10 | BoA I — Spreading Flames | pack `core_2026`, sacs 2026 (tablette, pas de cultiste), un seul lieu + tout de côté, disposition sans diagramme ; effets `discardEnemies` / `discardAside` / `setAside` / `discardAt` / `addClues`, `spawnAside` en liste, `removeLocations codes` ; **première table Brethren of Ash** |
@@ -99,6 +100,50 @@ versement de son durable (format → grammaire, piège → §5, décision →
 | 2026-09-03 | Étape 1 — première table (The Gathering) | pipeline de build, lobby, tapis, tests + captures |
 
 ### Derniers récits
+
+- 2026-09-10 : **Queen of Ash (BoA III) livré — campagne Brethren of
+  Ash complète** (trois tables). Guide : consignes de mise en place de
+  la p. 11 lues **par leurs encadrés seulement** (bbox de `pdftotext`
+  pour ne recadrer que les puces, intros narratives non lues) : jetons
+  ajoutés « pour le reste de la campagne » selon la difficulté, glyphes
+  identifiés par corrélation avec tokens.ttf (≥ 0,96 ; composantes
+  connexes dilatées, seuil clair, sinon l'elder thing et la tablette,
+  plus pâles, passent sous le seuil) — Facile elder thing ; Standard
+  + tablette ; Difficile + crâne ; Expert + cultiste + crâne — et « 1
+  doom au setup » si le repaire de la secte n'a pas été découvert ;
+  Setup + diagramme p. 12 ; codex p. 13 et résolutions non lus. Sets
+  `queen_of_ash`, `ashen_pilgrims`, `cosmic_evils`, `cultists_ch2`,
+  `fire_ch2`, `hallucinations`, `reeking_decay`, `arkham_sewers`,
+  `torment` ; pioche 31 (moins les cultistes en jeu). Lobby : `mode`
+  (campagne = les 2 cultistes du II au sac / isolé) et **une question
+  `multi`** avec les quatre mentions du journal citées par les consignes
+  (repaire découvert → sinon +1 doom ; Arkham fouillée → **nouvelle op
+  `seatCounter`** : 1 indice par enquêteur ; troubles → 1 cultiste par
+  enquêteur tiré parmi Cantor ×2, Zealot ×3, Dark Magician — `pickRandom`
+  pondéré par les copies, `rest:"keep"`, posés chacun sur un tunnel
+  différent ; Servant tué → retiré, sinon de côté). Réutilisé :
+  `pickRandom n:5 positions` pour les cinq Sewer Tunnels (dos
+  identiques, journal muet), citerne non révélée en haut, Culvert révélé
+  en bas avec pions, `branch players` (+1 doom à 3‑4), `aside` de Fire!
+  ×5, Collector ×2, Elokoss (verso lié Mother of Flame : « Autre
+  face »), Queen's Knight, Herald, Sluice Control non révélée. Effets
+  d'étape : acte 2 = `spawnAside` Elokoss côté a + **`shuffleAside
+  {code:"12129", n:4}`** (une Fire! reste de côté pour l'enquêteur de la
+  citerne) + Knight + Herald + `placeAt` Sluice Control à droite de la
+  citerne ; agenda 2 = **`spawnAside ifAside`** du Servant (silence s'il
+  a été retiré) ; agenda 3a = `revealCodes` citerne + `spawnAside`
+  Elokoss côté b (dégâts conservés — une carte déjà en jeu est
+  retournée sur place). L'agenda 3a est la troisième carte du deck
+  d'agenda et remplace aussi l'acte : rappel « glissez l'acte de
+  côté », doom → dégâts directs. Tests : 724 messages (bloc Queen : sac
+  20 = 16 + 2 + 2, tunnels en ligne journal muet, Culvert sans indice,
+  1 indice par siège occupé, 2 cultistes à deux tunnels, mises de côté
+  exactes, pioche 29, doom 1 ; acte 2 : Elokoss, une Fire! de côté,
+  pioche + 6, Sluice Control ; agenda 2 : Servant à la citerne ; agenda
+  3a : citerne révélée 4 indices, Elokoss côté b avec 2 dégâts ; isolé
+  Expert 3 joueurs : sac 22 sans les cultistes du II, Servant retiré,
+  aucun indice, doom 1, agenda 2 silencieux) ; captures 105‑107
+  (autonome + Smoke en régression). Catalogue, README.
 
 - 2026-09-10 : **Smoke and Mirrors (BoA II) livré** — Setup p. 6 +
   diagramme p. 7 (grille 3 × 3 : Northside, Downtown, Easttown /
@@ -175,76 +220,20 @@ versement de son durable (format → grammaire, piège → §5, décision →
   check` zéro erreur ; captures par script autonome (avant / après,
   survol, COB, deck avant / après mise en place — badge « Main 5 »,
   entête du board, 1366 × 768), zéro erreur console.
-- 2026-09-10 : **Spreading Flames (BoA I) livré — première table de la
-  nouvelle boîte de base Brethren of Ash (ahc100, 2026)**. Guide : seules
-  les p. 2 (Campaign Setup) et 3 (Setup du I) ont été lues ; **aucun
-  diagramme de placement** pour ce scénario (un seul lieu en jeu, les
-  cinq autres de côté). Sac par difficulté lu sur l'image à 600 dpi et
-  **vérifié glyphe à glyphe contre tokens.ttf** (corrélation 0,985) :
-  2 crânes, tablette, elder thing, auto-fail, elder sign — aucun
-  cultiste, comme COB ; nombres du Core classique. Pack arkham.build
-  **`core_2026`** (cycle `core_ch2`), sets `spreading_flames`,
-  `miskatonic_university`, `ashen_pilgrims`, `bystanders`,
-  `cosmic_evils`, `eldritch_lore`, **`fire_ch2`** (Fire! ×5 + Noxious
-  Smoke ; le set `fire` est un autre set), `hallucinations`,
-  `mad_science` ; pioche 24 ; images recto/verso vérifiées sur la CDN.
-  Carte de scénario Easy/Standard au recto, Hard/Expert au verso
-  (`scenarioCardSide` comme COB). Setup : Your Friend's Room révélée
-  avec pions (365 × 411), cinq lieux de côté non révélés, Fire! ×5 +
-  Dr. Armitage + Servant of Flame de côté face visible, pas de question
-  (scénario I, sac de campagne). **Disposition déduite des icônes de
-  connexion des cartes** (images CDN) : chambre → Dortoirs (551) →
-  Quad (737, centre) → Science Hall / Warren Observatory / Orne Library
-  en colonne à 923 (rangées 173 / 411 / 649) ; notée dans `_source` et
-  un rappel. **Versos des actes 1‑3 et de l'agenda 2 appliqués par les
-  effets d'étape** (lus dans le dump, jamais recopiés) avec `placeAt`,
-  `spawnAside`, `removeLocations` et cinq effets génériques ajoutés :
-  `discardEnemies` (ennemis de rencontre du tapis et des zones de menace
-  → défausse, les ennemis de deck joueur restent), `discardAside {code,
-  n?}` (copies de côté → défausse ; 4 au verso de l'agenda 2, toutes au
-  verso de l'acte 1 après l'attache), `setAside` (le Servant revient de
-  côté soigné d'où qu'il soit, zone de victoire comprise), `discardAt`
-  (l'attache de la chambre défaussée avant son retrait), `addClues` par
-  enquêteur (3 par enquêteur au Quad, révélé ou non) ; `spawnAside`
-  accepte une **liste** et prend d'abord la copie **de côté** (jamais
-  une Fire! de la défausse) ; `removeLocations {codes}` (la chambre
-  seule, sans Victory → retirée) ; les liens d'un lieu retiré sont
-  effacés. L'attache Fire! = `spawnAside` sur le lieu (elle suit le
-  lieu). Reste manuel avec rappels : Armitage à glisser sur un siège
-  (sans slot d'allié), recherche de Fire! par l'enquêteur principal,
-  tests des versos d'agenda, effet Forcé de l'agenda 3, pions à sortir
-  de la chambre retirée, mots-clés du guide p. 3 (Doomed, Peril, Prey,
-  Retaliate, Surge). Tests : 705 messages (bloc Flames : sac 16 avec
-  tablette, 12 de côté, pioche 24, acte 2 avec ennemis du tapis et de
-  la zone de menace défaussés / Armitage épargné / lieux posés /
-  Servant / Fire! attachée / 4 à la défausse, acte 3 avec Servant
-  blessé en zone de victoire remis de côté soigné / attache défaussée /
-  chambre retirée / bâtiments posés, acte 4 avec 6 indices au Quad ;
-  solo Expert : sac 18, verso b, agenda 2 avancé d'abord → 4 Fire! à
-  la défausse, la dernière s'attache ensuite) ; captures 100‑102 (le
-  `captures.py` complet a tué `wrangler dev` : bloc rejoué en script
-  autonome avec Maelstrom en régression). Catalogue : `boa` disponible
-  avec lien guide ; README.
-
-
 - **Prochaine étape** : retours de l'utilisateur sur le bandeau des
   sièges (jauges sur deux lignes, case Play compacte, ordre du board
-  joueur) et sur Spreading Flames et Smoke and Mirrors (première
-  campagne Core 2026 : disposition sans diagramme, attache Fire!, versos
-  automatisés, suspects enfouis, pile « Sous l'acte ») ; **question ouverte** : le journal du I modifie-t-il
-  le sac (résolutions non lues — l'utilisateur peut fournir un extrait,
-  sinon le rappel « ajustez le sac » suffit). Puis **BoA III — Queen of
-  Ash** (Setup p. 12, codex p. 13 à ne pas lire hors instruction ;
-  Elokoss 12179 à verso lié `12179b`, sets `queen_of_ash`,
-  `arkham_sewers`, `cultists_ch2`, `reeking_decay`, `torment`, Servant
-  « A Willing Sacrifice » 12180 ; les 2 cultistes du II restent au
-  sac ; questions de journal d'après le Setup seul — demander un extrait
-  si un report l'exige ; **campagne BoA complète** ensuite). Toujours
-  en attente : retours sur la campagne TIC complète (I‑VIII) ; visuels
-  PNG des clés et du jeton d'inondation à générer dans le style des
-  jetons du projet (choix B). En parallèle : la suite des retours de
-  test du board joueur et les points ouverts du cahier §10.10
-  (customisations, decks annexes, attaches).
+  joueur) et sur la campagne **Brethren of Ash complète** (disposition
+  sans diagramme, attache Fire!, versos automatisés, suspects enfouis,
+  pile « Sous l'acte », tunnels mélangés, Elokoss à deux faces) ;
+  **question ouverte** : les journaux du I et du II modifient-ils le sac
+  au-delà des jetons lus dans les consignes (résolutions non lues —
+  extrait de l'utilisateur, sinon le rappel « ajustez le sac » suffit).
+  Prochaine campagne au choix de l'utilisateur (Setup + diagramme
+  seulement). Toujours en attente : retours sur la campagne TIC
+  complète (I‑VIII) ; visuels PNG des clés et du jeton d'inondation à
+  générer dans le style des jetons du projet (choix B). En parallèle :
+  la suite des retours de test du board joueur et les points ouverts du
+  cahier §10.10 (customisations, decks annexes, attaches).
   Ensuite le prologue
   Disappearance at the Twilight Estate (pack `tcu`, set
   `disappearance_at_the_twilight_estate` : choix des enquêteurs neutres
@@ -776,6 +765,13 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
   tableau et **les deux** récits (le plus récent en tête) et en
   rejouant la rotation (un récit récent de plus → un de plus vers
   l'archive) ; relancer build, check et tests après le rebase.
+- **Consignes de mise en place hors section « Setup »** (BoA : jetons
+  « pour le reste de la campagne » et doom conditionnel dans les intros
+  p. 6 et p. 11) : `pdftotext -bbox` donne les coordonnées des puces ; ne
+  recadrer que la zone des puces (`Æ` / `=`) pour lire les icônes, sans
+  rendre les paragraphes narratifs. Les glyphes pâles (elder thing,
+  tablette) demandent un seuil clair et une dilatation des composantes
+  avant corrélation.
 - **Une carte d'agenda ou d'acte sortie de l'histoire va « de côté »** :
   dans les captures, `#aside .carte` compte aussi les anciens actes /
   agendas (Spreading Flames : 12 de côté au setup, 5 après l'acte 2 —
@@ -1042,12 +1038,14 @@ par phase (`reminders[]` du `*.src.json`).
   (2026-09-08, p. 5, jetons sang compris), BoA / Core 2026 saisi
   (2026-09-10, p. 2, icônes vérifiées par corrélation avec tokens.ttf) ;
   reste TDC, TDE‑A et Film Fatale (section Setup / encart du guide).
-- **Brethren of Ash** : le II reporte le journal du I par deux questions
-  (université, porteur d'Armitage) tirées du Setup p. 6 seul, et ajoute
-  les 2 cultistes du guide ; les résolutions du I n'ont pas été lues —
-  si elles modifient le sac, l'utilisateur fournit l'extrait (sinon
-  rappel « ajustez le sac »). Le III devra reporter les 2 cultistes
-  (sac du II) et ce que sa section Setup p. 12 demande.
+- **Brethren of Ash** (campagne complète) : le II reporte le journal du
+  I par deux questions (université, porteur d'Armitage) tirées du Setup
+  p. 6 seul et ajoute les 2 cultistes du guide ; le III reporte ces
+  cultistes par la question `mode` (campagne / isolé), ajoute les jetons
+  de la p. 11 selon la difficulté et lit le journal par une question
+  `multi` (quatre mentions). Les résolutions n'ont pas été lues — si
+  elles modifient le sac ou le journal au-delà de ces mentions,
+  l'utilisateur fournit l'extrait (sinon rappel « ajustez le sac »).
 - **Jetons de campagne TIC** : les flashbacks retirent des jetons du sac
   « pour le reste de la campagne » (icônes p. 6, à lire sur l'image) et
   la résolution du I remplit « Memories Recovered » → questions au lobby

@@ -1221,6 +1221,41 @@ with sync_playwright() as p:
     h23.mouse.move(420, 520); h23.wait_for_timeout(300)
     h23.screenshot(path=f"{OUT}/104_smoke_tapis.png")
 
+    # ---- Queen of Ash (BoA III) : mode + journal à cocher, citerne / tunnels / culvert, cultistes aux tunnels, acte 2 (Elokoss, Sluice Control) ----
+    code24, token24 = creer("boa_queen_of_ash")
+    print("room Queen of Ash", code24)
+    h24 = page_pour(browser, "Hôte", host=True, code=code24, token=token24)
+    h24.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h24.get_by_role("button", name="Choisir un enquêteur").click(); h24.wait_for_selector("dialog.dialogue-inv[open]")
+    h24.fill("dialog .recherche", "roland"); h24.wait_for_timeout(300); h24.locator("dialog .inv").first.click()
+    h24.wait_for_selector(".siege-lobby.moi .fiche")
+    j24 = page_pour(browser, "Bob", code=code24, token=None)
+    j24.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j24.get_by_role("button", name="Choisir un enquêteur").click(); j24.wait_for_selector("dialog.dialogue-inv[open]")
+    j24.fill("dialog .recherche", "daisy"); j24.wait_for_timeout(300); j24.locator("dialog .inv").first.click()
+    j24.wait_for_selector(".siege-lobby.moi .fiche")
+    h24.wait_for_timeout(400)
+    h24.locator("input[name='q-mode'][value='campaign']").check(); h24.wait_for_timeout(150)
+    h24.locator("input[name='q-log'][value='scoured']").check(); h24.wait_for_timeout(150)
+    h24.locator("input[name='q-log'][value='trouble']").check(); h24.wait_for_timeout(200)
+    h24.locator(".reglage.questions").screenshot(path=f"{OUT}/105_queen_lobby_questions.png")
+    h24.get_by_role("button", name="Lancer la mise en place").click()
+    h24.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h24.wait_for_load_state("networkidle"); h24.wait_for_timeout(1500)
+    assert h24.locator("#plateau .carte.kind-location").count() == 7, "citerne + cinq tunnels + culvert"
+    assert h24.locator("#plateau .carte.kind-enemy").count() == 2, "deux cultistes aux tunnels"
+    assert h24.locator("#aside .carte").count() == 12, "de côté : 5 Fire!, Sluice Control, Knight, Herald, Elokoss, Servant, 2 Collector"
+    h24.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h24.mouse.move(420, 520); h24.wait_for_timeout(300)
+    h24.screenshot(path=f"{OUT}/106_queen_tapis.png")
+    h24.locator("#histoire").get_by_role("button", name="Avancer l'acte").click(); h24.wait_for_timeout(1200)
+    assert h24.locator("#plateau .carte.kind-location").count() == 8, "Sluice Control posée"
+    assert h24.locator("#plateau .carte.kind-enemy").count() == 3, "Elokoss à la citerne"
+    h24.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h24.get_by_role("button", name="Recentrer").click(); h24.wait_for_timeout(500)
+    h24.mouse.move(420, 520); h24.wait_for_timeout(300)
+    h24.screenshot(path=f"{OUT}/107_queen_acte2.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

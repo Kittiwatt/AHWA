@@ -36,9 +36,11 @@ le nombre d'enquêteurs) — **campagne complète** —, *Children of Blood*
 I — River of Blood, II — New Horizons et III — Blood Money (jetons
 sang scellés, cartes enfouies, codex — **campagne complète**) et
 *Brethren of Ash* I — Spreading Flames (nouvelle boîte de base 2026 :
-un seul lieu au départ, versos des actes appliqués par l'app) et II —
+un seul lieu au départ, versos des actes appliqués par l'app), II —
 Smoke and Mirrors (suspects enfouis sous les quartiers d'Arkham,
-suspect secret de côté, pile « Sous l'acte »), avec
+suspect secret de côté, pile « Sous l'acte ») et III — Queen of Ash
+(égouts mélangés, journal à cocher, Elokoss à deux faces) —
+**campagne complète** —, avec
 les questions de journal au lobby, les tirages au hasard, les piles et
 les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » et lien vers le livret de
 campagne dans chaque table. Lobby

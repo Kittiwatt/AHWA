@@ -3303,5 +3303,114 @@ const enfouieSous = (s, L) => Object.values(s.cards).filter((c) => c.kind !== "l
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Queen of Ash (BoA III) : jetons selon la difficulté + cultistes du II en campagne, citerne non révélée, cinq tunnels
+// mélangés, journal à cocher (doom, indice par enquêteur = seatCounter, cultistes aux tunnels, Servant retiré ou de côté),
+// mises de côté, versos de l'acte 1 (Elokoss, shuffleAside {code, n}, Sluice Control) et des agendas (ifAside, Mother of Flame) ============
+async function tableQueen({ joueurs = 2, difficulty, answers } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "boa_queen_of_ash" }) });
+  assert.equal(r.status, 200, "Queen of Ash est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const TUNNELS = ["12183", "12184", "12185", "12186", "12187"];
+const CULTISTES = ["12121", "12188", "12189"];
+
+{ // Campagne, Standard, 2 joueurs : journal complet sauf le repaire (→ +1 doom) ; Servant en vie ; puis acte 2, agendas 2 et 3a.
+  const { h } = await tableQueen({ joueurs: 2, answers: { mode: "campaign", log: ["scoured", "trouble"] } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 20, "sac Standard 16 + 2 cultistes (II) + elder thing + tablette (p. 11)");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 2);
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 2, "tablette de base + tablette de la p. 11");
+  assert.equal(s.chaos.bag.filter((t) => t === "elder_thing").length, 2);
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a");
+  const L = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  const cist = L("12174");
+  assert.ok(cist && cist.loc.x === 737 && cist.loc.y === 173 && !cist.faceUp, "citerne en haut, non révélée");
+  const tunnels = cartes.filter((c) => TUNNELS.includes(c.code) && c.loc.zone === "board");
+  assert.equal(tunnels.length, 5, "cinq tunnels en jeu");
+  assert.deepEqual(tunnels.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["1109,411", "365,411", "551,411", "737,411", "923,411"], "en ligne");
+  assert.ok(tunnels.every((c) => !c.faceUp), "tunnels non révélés");
+  assert.ok(!s.log.some((e) => /(Infested Pipes|Overgrown|Flooded Crypt|Smuggler|Toxic Waste)/.test(e.text)), "journal muet sur l'ordre des tunnels");
+  const culvert = L("12182");
+  assert.ok(culvert && culvert.loc.x === 737 && culvert.loc.y === 649 && culvert.faceUp && !culvert.tokens.clue, "Sewer Culvert révélé en bas, sans indice");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 737) < 130 && Math.abs(m.loc.y - 649) < 60), "pions au Culvert");
+  assert.equal(s.seats[0].counters.clues, 1); assert.equal(s.seats[1].counters.clues, 1, "1 indice par enquêteur (journal : Arkham fouillée)");
+  assert.equal(s.seats[2].counters.clues, 0, "siège vide : rien");
+  const cult = cartes.filter((c) => CULTISTES.includes(c.code) && c.loc.zone === "board");
+  assert.equal(cult.length, 2, "2 cultistes en jeu (1 par enquêteur)");
+  assert.deepEqual(cult.map((c) => `${c.loc.x},${c.loc.y}`).sort(), ["401,457", "587,457"], "chacun à un tunnel différent");
+  assert.ok(cult.every((c) => c.faceUp));
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.deepEqual(cote.map((c) => c.code).sort(), ["12129", "12129", "12129", "12129", "12129", "12175", "12177", "12178", "12179", "12180", "12181", "12181"].sort(), "de côté : 5 Fire!, Sluice Control, Knight, Herald, Elokoss, Servant, 2 Collector");
+  assert.ok(cote.find((c) => c.code === "12175").faceUp === false, "Sluice Control non révélée");
+  assert.ok(cote.find((c) => c.code === "12179").faceUp && cote.find((c) => c.code === "12179").side === "a", "Elokoss côté Faint Embers");
+  assert.equal(s.piles.encounter.length, 29, "pioche : 40 − 5 Fire! − 4 (Elokoss, Knight, Herald, Servant) − 2 cultistes en jeu");
+  assert.equal(s.cards[s.agendaId].code, "12169"); assert.equal(s.cards[s.agendaId].tokens.doom, 1, "repaire non découvert : 1 doom (2 joueurs : rien de plus)");
+  assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["12170", "12171"], "agenda 2 puis 3a");
+  assert.equal(s.cards[s.actId].code, "12172");
+  // Acte 2 : Elokoss (Faint Embers) à la citerne, 4 Fire! + Knight + Herald dans la pioche, une Fire! reste de côté, Sluice Control posée.
+  let d2 = await h.action({ t: "advanceAct" });
+  let S = h.state;
+  assert.equal(S.cards[S.actId].code, "12173");
+  const elok = Object.values(S.cards).find((c) => c.code === "12179");
+  assert.ok(elok.loc.zone === "board" && elok.side === "a" && elok.loc.x === 737 + 36 && elok.loc.y === 173 + 46, "Elokoss à la citerne, côté a");
+  assert.equal(Object.values(S.cards).filter((c) => c.code === "12129" && c.loc.zone === "aside").length, 1, "une Fire! reste de côté pour l'enquêteur de la citerne");
+  assert.equal(S.piles.encounter.length, 29 + 4 + 2, "4 Fire! + Knight + Herald mélangés dans la pioche");
+  assert.ok(["12177", "12178"].every((c) => Object.values(S.cards).find((k) => k.code === c).loc.pile === "encounter"));
+  const sluice = Object.values(S.cards).find((c) => c.code === "12175");
+  assert.ok(sluice.loc.zone === "board" && sluice.loc.x === 923 && sluice.loc.y === 173 && !sluice.faceUp, "Sluice Control à droite de la citerne, non révélée");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'acte 1 appliqué/.test(e.text)), "rappel act:2");
+  // Agenda 2 : le Servant de côté apparaît à la citerne. Agenda 3a : citerne révélée, Elokoss côté b (dégâts conservés).
+  d2 = await h.action({ t: "advanceAgenda" });
+  S = h.state;
+  const serv = Object.values(S.cards).find((c) => c.code === "12180");
+  assert.ok(serv.loc.zone === "board" && Math.abs(serv.loc.x - 773) < 60 && serv.faceUp, "Servant of Flame apparu à la citerne");
+  await h.action({ t: "addToken", id: elok.id, token: "damage", delta: 2 });
+  d2 = await h.action({ t: "advanceAgenda" });
+  S = h.state;
+  assert.equal(S.cards[S.agendaId].code, "12171", "agenda 3a");
+  assert.ok(S.cards[cist.id].faceUp && S.cards[cist.id].tokens.clue === 4, "citerne révélée par l'agenda (2 indices × 2)");
+  assert.ok(S.cards[elok.id].side === "b" && S.cards[elok.id].tokens.damage === 2, "Elokoss côté Mother of Flame, dégâts conservés");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /agenda 3a « Brethren of Ash » est à la fois/.test(e.text)), "rappel agenda:3");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // Scénario isolé, Expert, 3 joueurs : repaire découvert, Servant tué (retiré), pas de troubles ; agenda 2 sans Servant (silence).
+  const { h } = await tableQueen({ joueurs: 3, difficulty: "expert", answers: { mode: "standalone", log: ["whereabouts", "killed"] } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 22, "sac Expert 18 + elder thing, tablette, cultiste, crâne (p. 11), sans les cultistes du II");
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 1);
+  assert.equal(s.chaos.bag.filter((t) => t === "skull").length, 3);
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "b");
+  assert.ok(cartes.some((c) => c.code === "12180" && c.loc.pile === "removed"), "Servant tué : retiré de la partie");
+  assert.equal(cartes.filter((c) => CULTISTES.includes(c.code) && c.loc.zone === "board").length, 0, "pas de cultiste en jeu");
+  assert.ok(s.seats.slice(0, 3).every((se) => se.counters.clues === 0), "aucun indice de départ");
+  assert.equal(s.cards[s.agendaId].tokens.doom, 1, "repaire découvert : rien ; 3 joueurs : 1 doom");
+  assert.equal(s.piles.encounter.length, 31, "pioche : 40 − 5 Fire! − 4 mises de côté / retrait");
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 3);
+  let d2 = await h.action({ t: "advanceAgenda" });
+  assert.equal(d2.t, "delta");
+  assert.ok(!h.state.log.some((e) => /12180 introuvable|Servant of Flame introuvable/.test(e.text)), "Servant retiré : l'agenda 2 ne signale rien");
+  assert.ok(!Object.values(h.state.cards).some((c) => c.code === "12180" && c.loc.zone === "board"), "aucun Servant en jeu");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

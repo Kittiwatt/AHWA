@@ -1,0 +1,1166 @@
+{
+ "id": "boa_queen_of_ash",
+ "title": "Queen of Ash",
+ "campaign": "Brethren of Ash",
+ "campaignId": "boa",
+ "order": 3,
+ "packs": [
+  "core_2026"
+ ],
+ "encounterSets": [
+  "queen_of_ash",
+  "ashen_pilgrims",
+  "cosmic_evils",
+  "cultists_ch2",
+  "fire_ch2",
+  "hallucinations",
+  "reeking_decay",
+  "arkham_sewers",
+  "torment"
+ ],
+ "scenarioCard": "12168",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "12169",
+  "12170",
+  "12171"
+ ],
+ "actDeck": [
+  "12172",
+  "12173"
+ ],
+ "startLocation": "12182",
+ "layout": [
+  {
+   "code": "12174",
+   "x": 737,
+   "y": 173
+  },
+  {
+   "code": "12175",
+   "x": 923,
+   "y": 173
+  },
+  {
+   "code": "12183",
+   "x": 365,
+   "y": 411
+  },
+  {
+   "code": "12184",
+   "x": 551,
+   "y": 411
+  },
+  {
+   "code": "12185",
+   "x": 737,
+   "y": 411
+  },
+  {
+   "code": "12186",
+   "x": 923,
+   "y": 411
+  },
+  {
+   "code": "12187",
+   "x": 1109,
+   "y": 411
+  },
+  {
+   "code": "12182",
+   "x": 737,
+   "y": 649
+  }
+ ],
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-3",
+   "-4",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Comment jouez-vous ce scénario ?",
+   "options": [
+    {
+     "id": "campaign",
+     "label": "Campagne (journal des scénarios I et II ; les 2 Cultistes ajoutés au II sont dans le sac)"
+    },
+    {
+     "id": "standalone",
+     "label": "Scénario isolé (sans journal : sac de base + jetons de ce scénario ; mentions au choix)"
+    }
+   ]
+  },
+  {
+   "id": "log",
+   "type": "multi",
+   "text": "Journal de campagne : cochez les mentions présentes (en scénario isolé, au choix).",
+   "options": [
+    {
+     "id": "whereabouts",
+     "label": "« The investigators discovered the cult's whereabouts »"
+    },
+    {
+     "id": "scoured",
+     "label": "« The investigators scoured Arkham for answers »"
+    },
+    {
+     "id": "trouble",
+     "label": "« The investigators stirred up trouble »"
+    },
+    {
+     "id": "killed",
+     "label": "« The investigators killed the Servant of Flame »"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "campaign"
+   },
+   "then": [
+    {
+     "op": "chaosAdd",
+     "tokens": [
+      "cultist",
+      "cultist"
+     ],
+     "log": "Campagne : les deux jetons Cultiste ajoutés au scénario II sont dans le sac."
+    }
+   ]
+  },
+  {
+   "op": "chaosAdd",
+   "byDifficulty": {
+    "easy": [
+     "elder_thing"
+    ],
+    "standard": [
+     "elder_thing",
+     "tablet"
+    ],
+    "hard": [
+     "elder_thing",
+     "tablet",
+     "skull"
+    ],
+    "expert": [
+     "elder_thing",
+     "tablet",
+     "cultist",
+     "skull"
+    ]
+   },
+   "log": "Jetons ajoutés au sac selon la difficulté, pour le reste de la campagne (guide p. 11 — à noter au journal)"
+  },
+  {
+   "op": "place",
+   "code": "12174",
+   "zone": "board",
+   "x": 737,
+   "y": 173,
+   "log": "Underground Cistern est mise en jeu, non révélée (diagramme p. 12)."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "12183",
+    "12184",
+    "12185",
+    "12186",
+    "12187"
+   ],
+   "n": 5,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 365,
+     "y": 411
+    },
+    {
+     "x": 551,
+     "y": 411
+    },
+    {
+     "x": 737,
+     "y": 411
+    },
+    {
+     "x": 923,
+     "y": 411
+    },
+    {
+     "x": 1109,
+     "y": 411
+    }
+   ],
+   "faceUp": false,
+   "log": "Les cinq Sewer Tunnels sont mélangés et posés en ligne, non révélés — personne ne sait lequel est lequel."
+  },
+  {
+   "op": "place",
+   "code": "12182",
+   "zone": "board",
+   "x": 737,
+   "y": 649,
+   "reveal": true,
+   "log": "Sewer Culvert est mis en jeu et révélé : chaque enquêteur y commence la partie (il est connecté à chaque Sewer Tunnels)."
+  },
+  {
+   "op": "minis",
+   "code": "12182"
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "12175"
+   ],
+   "faceUp": false,
+   "log": "Sluice Control est mise de côté, hors jeu, non révélée."
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "log",
+    "has": "scoured"
+   },
+   "then": [
+    {
+     "op": "seatCounter",
+     "key": "clues",
+     "n": 1,
+     "log": "Journal : Arkham a été fouillée — chaque enquêteur commence avec 1 indice (compteur d'indices du siège)."
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "log",
+    "has": "trouble"
+   },
+   "then": [
+    {
+     "op": "branch",
+     "on": "players",
+     "cases": {
+      "1": [
+       {
+        "op": "pickRandom",
+        "from": [
+         "12121",
+         "12121",
+         "12188",
+         "12188",
+         "12188",
+         "12189"
+        ],
+        "n": 1,
+        "zone": "board",
+        "positions": [
+         {
+          "x": 401,
+          "y": 457
+         }
+        ],
+        "faceUp": true,
+        "rest": "keep",
+        "log": "Journal : troubles à Arkham — 1 cultiste (1 par enquêteur), tiré au hasard parmi les Cultistes des sets Ashen Pilgrims et Cultists, entre en jeu à un Sewer Tunnels ; les autres restent dans la pioche."
+       }
+      ],
+      "2": [
+       {
+        "op": "pickRandom",
+        "from": [
+         "12121",
+         "12121",
+         "12188",
+         "12188",
+         "12188",
+         "12189"
+        ],
+        "n": 2,
+        "zone": "board",
+        "positions": [
+         {
+          "x": 401,
+          "y": 457
+         },
+         {
+          "x": 587,
+          "y": 457
+         }
+        ],
+        "faceUp": true,
+        "rest": "keep",
+        "log": "Journal : troubles à Arkham — 2 cultistes (1 par enquêteur), tirés au hasard parmi les Cultistes des sets Ashen Pilgrims et Cultists, entrent en jeu chacun à un Sewer Tunnels différent ; les autres restent dans la pioche."
+       }
+      ],
+      "3": [
+       {
+        "op": "pickRandom",
+        "from": [
+         "12121",
+         "12121",
+         "12188",
+         "12188",
+         "12188",
+         "12189"
+        ],
+        "n": 3,
+        "zone": "board",
+        "positions": [
+         {
+          "x": 401,
+          "y": 457
+         },
+         {
+          "x": 587,
+          "y": 457
+         },
+         {
+          "x": 773,
+          "y": 457
+         }
+        ],
+        "faceUp": true,
+        "rest": "keep",
+        "log": "Journal : troubles à Arkham — 3 cultistes (1 par enquêteur), tirés au hasard parmi les Cultistes des sets Ashen Pilgrims et Cultists, entrent en jeu chacun à un Sewer Tunnels différent ; les autres restent dans la pioche."
+       }
+      ],
+      "4": [
+       {
+        "op": "pickRandom",
+        "from": [
+         "12121",
+         "12121",
+         "12188",
+         "12188",
+         "12188",
+         "12189"
+        ],
+        "n": 4,
+        "zone": "board",
+        "positions": [
+         {
+          "x": 401,
+          "y": 457
+         },
+         {
+          "x": 587,
+          "y": 457
+         },
+         {
+          "x": 773,
+          "y": 457
+         },
+         {
+          "x": 959,
+          "y": 457
+         }
+        ],
+        "faceUp": true,
+        "rest": "keep",
+        "log": "Journal : troubles à Arkham — 4 cultistes (1 par enquêteur), tirés au hasard parmi les Cultistes des sets Ashen Pilgrims et Cultists, entrent en jeu chacun à un Sewer Tunnels différent ; les autres restent dans la pioche."
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "log",
+    "has": "killed"
+   },
+   "then": [
+    {
+     "op": "remove",
+     "codes": [
+      "12180"
+     ],
+     "log": "Journal : le Servant of Flame a été tué — il est retiré de la partie."
+    }
+   ],
+   "else": [
+    {
+     "op": "aside",
+     "codes": [
+      "12180"
+     ],
+     "faceUp": true,
+     "log": "Le Servant of Flame est mis de côté, hors jeu."
+    }
+   ]
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "12129",
+    "12129",
+    "12129",
+    "12129",
+    "12129"
+   ],
+   "faceUp": true,
+   "log": "Les 5 copies de Fire! sont mises de côté, hors jeu (Noxious Smoke reste dans la pioche)."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "12181",
+    "12181"
+   ],
+   "faceUp": true,
+   "log": "Les deux Collector (soutiens récompense) sont mis de côté, hors jeu."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "12179",
+    "12177",
+    "12178"
+   ],
+   "faceUp": true,
+   "log": "Elokoss (côté Faint Embers), Queen's Knight et Herald of Flame sont mis de côté, hors jeu."
+  },
+  {
+   "op": "story"
+  },
+  {
+   "op": "when",
+   "cond": {
+    "not": {
+     "q": "log",
+     "has": "whereabouts"
+    }
+   },
+   "then": [
+    {
+     "op": "addDoom",
+     "n": 1,
+     "log": "Journal : le repaire de la secte n'a pas été découvert (guide p. 11) —"
+    }
+   ]
+  },
+  {
+   "op": "branch",
+   "on": "players",
+   "cases": {
+    "3": [
+     {
+      "op": "addDoom",
+      "n": 1,
+      "log": "À 3 ou 4 joueurs —"
+     }
+    ],
+    "4": [
+     {
+      "op": "addDoom",
+      "n": 1,
+      "log": "À 3 ou 4 joueurs —"
+     }
+    ]
+   }
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "agendaEffects": {
+  "2": {
+   "log": "Verso de l'agenda 1 (agenda 2)",
+   "spawnAside": {
+    "code": "12180",
+    "at": "12174",
+    "ifAside": true
+   }
+  },
+  "3": {
+   "log": "Verso de l'agenda 2 (agenda 3a)",
+   "revealCodes": [
+    "12174"
+   ],
+   "spawnAside": {
+    "code": "12179",
+    "at": "12174",
+    "side": "b"
+   }
+  }
+ },
+ "actEffects": {
+  "2": {
+   "log": "Verso de l'acte 1 (acte 2)",
+   "spawnAside": {
+    "code": "12179",
+    "at": "12174",
+    "side": "a"
+   },
+   "shuffleAside": [
+    {
+     "code": "12129",
+     "n": 4
+    },
+    "12177",
+    "12178"
+   ],
+   "placeAt": [
+    {
+     "code": "12175",
+     "x": 923,
+     "y": 173,
+     "faceUp": false
+    }
+   ]
+  }
+ },
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Sac du chaos : les jetons de ce scénario (selon la difficulté, guide p. 11) et, en campagne, les deux Cultistes du II sont déjà dedans. Si votre journal demande d'autres ajouts ou retraits, ajustez le sac (clic droit sur le sac → Ajuster)."
+  },
+  {
+   "when": "setup",
+   "text": "Égouts : Sewer Culvert est connecté à chacun des cinq Sewer Tunnels (et inversement) ; les faces révélées portent d'autres icônes de connexion (note du guide p. 12) — relisez-les à la révélation. Underground Cistern (en haut) impose un coût d'entrée en indices, à payer à la main ; Sluice Control attend de côté qu'une carte la fasse entrer en jeu (l'app la posera à droite de la citerne)."
+  },
+  {
+   "when": "setup",
+   "text": "Fire! s'attache à un lieu : glissez la carte sur le lieu (elle le suit). Tant que les agendas 1 et 2 sont en cours, les ennemis d'un lieu où une Fire! est attachée ne peuvent pas être blessés (texte des agendas)."
+  },
+  {
+   "when": "setup",
+   "text": "Codex (guide p. 7) : les cartes qui portent le symbole codex renvoient à une entrée du guide (lien « Guide » dans la barre, p. 13) — résolvez ce qui la déclenche, lisez l'entrée et appliquez-la. Elokoss a deux faces (Faint Embers / Mother of Flame) : menu → « Autre face » quand une carte le demande, en gardant ses dégâts."
+  },
+  {
+   "when": "act:2",
+   "text": "Verso de l'acte 1 appliqué par l'app (journal) : Elokoss est entrée en jeu à la citerne côté Faint Embers, quatre Fire! ainsi que Queen's Knight et Herald of Flame ont été mélangés dans la pioche, Sluice Control est posée à droite de la citerne. Reste à faire : l'enquêteur qui est à la citerne pioche la dernière Fire! de côté (glissez-la, résolvez-la). L'acte 2 offre une action rapide de groupe pour défausser une Fire! à votre lieu ; en fin de manche, chaque ennemi Cultist avance d'un lieu vers la citerne (déplacez-les)."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 : si le Servant of Flame était de côté, l'app l'a fait apparaître à la citerne (journal). Puis chaque enquêteur fait le test indiqué ; appliquez le résultat à la main."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Verso de l'agenda 2 : l'app a révélé la citerne et fait apparaître (ou retourné) Elokoss côté Mother of Flame, avec ses dégâts (journal). L'agenda 3a « Brethren of Ash » est à la fois l'agenda et l'acte : glissez l'acte courant de côté. Tant qu'il est en cours, tout doom qui devrait être posé se change en 1 dégât direct par enquêteur ; si Elokoss est vaincue, lisez la résolution indiquée dans le guide."
+  },
+  {
+   "when": "mythos",
+   "text": "Un doom a été ajouté sur l'agenda. Chaque enquêteur pioche ensuite une carte rencontre et la résout. Sous l'agenda 3a, remplacez ce doom par 1 dégât direct à chaque enquêteur (retirez le doom : menu de l'agenda)."
+  },
+  {
+   "when": "investigation",
+   "text": "Chaque enquêteur joue un tour complet (3 actions) dans l'ordre choisi par le groupe ; un joueur annonce qu'il prend son tour. À la fin de cette phase, la citerne révélée applique son effet Forcé (relisez la carte)."
+  },
+  {
+   "when": "enemy",
+   "text": "Les ennemis chasseurs se déplacent d'abord (Queen's Knight, Herald of Flame, Elokoss côté Mother of Flame, Servant), puis chaque ennemi engagé attaque son enquêteur. Elokoss est Massive : elle est engagée avec tous les enquêteurs de son lieu."
+  },
+  {
+   "when": "upkeep",
+   "text": "Les cartes sont redressées et les actions remises à 3. Hors application : défaussez jusqu'à 8 cartes, piochez 1 carte et gagnez 1 ressource."
+  }
+ ],
+ "builtAt": "2026-09-10",
+ "encounterSetNames": {
+  "queen_of_ash": "Queen of Ash",
+  "ashen_pilgrims": "Ashen Pilgrims",
+  "cosmic_evils": "Cosmic Evils",
+  "cultists_ch2": "Cultists",
+  "fire_ch2": "Fire!",
+  "hallucinations": "Hallucinations",
+  "reeking_decay": "Reeking Decay",
+  "arkham_sewers": "Sewers",
+  "torment": "Torment"
+ },
+ "cards": [
+  {
+   "code": "12121",
+   "name": "Cantor of Flame",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "ashen_pilgrims",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
+   "health": 2
+  },
+  {
+   "code": "12122",
+   "name": "Hellhound",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "ashen_pilgrims",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Creature",
+    "Monster"
+   ],
+   "health": 3
+  },
+  {
+   "code": "12124",
+   "name": "Cosmic Evils",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "cosmic_evils",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Omen"
+   ]
+  },
+  {
+   "code": "12127",
+   "name": "Extraplanar Visions",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "hallucinations",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power"
+   ]
+  },
+  {
+   "code": "12128",
+   "name": "Wild Compulsion",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "hallucinations",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Madness",
+    "Bane"
+   ]
+  },
+  {
+   "code": "12129",
+   "name": "Fire!",
+   "kind": "treachery",
+   "qty": 5,
+   "set": "fire_ch2",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "12130",
+   "name": "Noxious Smoke",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "fire_ch2",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "12168",
+   "name": "Queen of Ash",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "12169",
+   "name": "A Gathering",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Flame in the Dark",
+   "doom": 6,
+   "stage": 1
+  },
+  {
+   "code": "12170",
+   "name": "A Ritual",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "b",
+   "storyBack": false,
+   "backName": "The Mother Arrives",
+   "doom": 10,
+   "stage": 2
+  },
+  {
+   "code": "12171",
+   "name": "Brethren of Ash",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Out Like a Light",
+   "doom": null,
+   "stage": 3
+  },
+  {
+   "code": "12172",
+   "name": "Search the Sewers",
+   "kind": "act",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "The Ritual Site",
+   "stage": 1
+  },
+  {
+   "code": "12173",
+   "name": "Stop the Rite",
+   "kind": "act",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Crisis Averted",
+   "stage": 2
+  },
+  {
+   "code": "12174",
+   "name": "Underground Cistern",
+   "kind": "location",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Ritual Site"
+   ],
+   "backName": "Underground Cistern"
+  },
+  {
+   "code": "12175",
+   "name": "Sluice Control",
+   "kind": "location",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Sewer"
+   ],
+   "backName": "Sluice Control"
+  },
+  {
+   "code": "12176",
+   "name": "Ashen Rebirth",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "queen_of_ash",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power"
+   ]
+  },
+  {
+   "code": "12177",
+   "name": "Queen's Knight",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
+   "health": 5,
+   "victory": 1
+  },
+  {
+   "code": "12178",
+   "name": "Herald of Flame",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster"
+   ],
+   "health": 5,
+   "victory": 1
+  },
+  {
+   "code": "12179",
+   "name": "Elokoss",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Faint Embers",
+   "traits": [
+    "Ancient One",
+    "Flora",
+    "Elite"
+   ],
+   "backCode": "12179b",
+   "backKind": "enemy",
+   "backName": "Elokoss",
+   "backSubname": "Mother of Flame",
+   "backHealth": 5,
+   "backVictory": 5,
+   "health": 5,
+   "victory": 5
+  },
+  {
+   "code": "12180",
+   "name": "Servant of Flame",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "queen_of_ash",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "A Willing Sacrifice",
+   "traits": [
+    "Humanoid",
+    "Cultist",
+    "Elite"
+   ],
+   "health": 5,
+   "healthPerInvestigator": true,
+   "victory": 2
+  },
+  {
+   "code": "12181",
+   "name": "Collector",
+   "kind": "asset",
+   "qty": 2,
+   "set": "queen_of_ash",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Talent"
+   ]
+  },
+  {
+   "code": "12182",
+   "name": "Sewer Culvert",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_sewers",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Sewer",
+    "Central"
+   ]
+  },
+  {
+   "code": "12183",
+   "name": "Sewer Tunnels",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_sewers",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "Infested Pipes",
+   "traits": [
+    "Sewer"
+   ]
+  },
+  {
+   "code": "12184",
+   "name": "Sewer Tunnels",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_sewers",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "Overgrown Tunnels",
+   "traits": [
+    "Sewer"
+   ]
+  },
+  {
+   "code": "12185",
+   "name": "Sewer Tunnels",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_sewers",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "Flooded Crypt",
+   "traits": [
+    "Sewer"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "12186",
+   "name": "Sewer Tunnels",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_sewers",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "subname": "Smuggler's Cache",
+   "traits": [
+    "Sewer"
+   ]
+  },
+  {
+   "code": "12187",
+   "name": "Sewer Tunnels",
+   "kind": "location",
+   "qty": 1,
+   "set": "arkham_sewers",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "subname": "Toxic Waste Pit",
+   "traits": [
+    "Sewer"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "12188",
+   "name": "Zealot",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "cultists_ch2",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
+   "health": 1
+  },
+  {
+   "code": "12189",
+   "name": "Dark Magician",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "cultists_ch2",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "12190",
+   "name": "Blasphemous Invocation",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "cultists_ch2",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  },
+  {
+   "code": "12191",
+   "name": "Unnatural Decay",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "reeking_decay",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse"
+   ]
+  },
+  {
+   "code": "12192",
+   "name": "Putrid Vapors",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "reeking_decay",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "12193",
+   "name": "Langour",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "torment",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex",
+    "Bane"
+   ]
+  },
+  {
+   "code": "12194",
+   "name": "Dissonance",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "torment",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Curse",
+    "Bane"
+   ]
+  },
+  {
+   "code": "12195",
+   "name": "Torment",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "torment",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power",
+    "Bane"
+   ]
+  }
+ ]
+}

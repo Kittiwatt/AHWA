@@ -557,6 +557,11 @@ mis de côté sans être regardé, en fin de rangée) ; `bury fromPool`
 cibles par code ou slot) ; pile déclarée `menuFor` réutilisée pour
 « Sous l'acte ».
 
+**Queen of Ash (2026-09-10).** Op `seatCounter {key, n}` (compteur de
+chaque enquêteur au setup) ; effets d'étape : `shuffleAside` accepte
+`{code, n}`, `spawnAside.ifAside` (silence si la carte n'est pas de
+côté). Campagne Brethren of Ash complète.
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets
