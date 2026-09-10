@@ -128,7 +128,8 @@ export function initInteractions(ctx) {
     const r = cible.getBoundingClientRect();
     let x, y;
     if (drop === "story") {
-      if (!["agenda", "act", "scenario"].includes(carte.kind)) return;
+      // Agenda, acte, carte de scénario — et les cartes de rencontre qui vivent « à côté de l'agenda » (Subject 8L-08, cartes histoire).
+      if (!["agenda", "act", "scenario", "story", "enemy", "asset", "treachery"].includes(carte.kind)) return;
       x = 0; y = 0;
     } else if (drop === "board") {
       x = (e.clientX - d.dx - r.left - vue.tx) / vue.k;
@@ -477,6 +478,7 @@ export function initInteractions(ctx) {
       const jetons = carte.kind === "investigator" ? ["damage", "horror", "resource"]
         : carte.kind === "location" ? ["clue", "doom", "generic"]
         : carte.kind === "enemy" ? ["damage", "doom", "clue", "generic"]
+        : carte.kind === "scenario" ? ["resource", "clue", "doom", "generic"]   // ressources = contremesures du Blob (« on the scenario reference card »)
         : ["damage", "horror", "doom", "clue", "generic"];
       for (const t of jetons) items.push(jeton(t));
       if (rencontre) {

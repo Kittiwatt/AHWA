@@ -42,6 +42,8 @@ function ligneScenario(s) {
   }
   const titre = el("span", { class: "titre" }, s.title);
   if (s.note) titre.append(el("span", { class: "note" }, s.note));
+  // Scénario indépendant : son propre livret FFG (PDF), en lien discret après le titre.
+  if (s.guide) titre.append(el("a", { class: "note livret", href: s.guide, target: "_blank", rel: "noopener", title: "Livret du scénario (PDF, Fantasy Flight Games)" }, "livret"));
   return el("li", { class: `scenario ${s.status}` },
     el("span", { class: "num" }, s.num),
     titre,

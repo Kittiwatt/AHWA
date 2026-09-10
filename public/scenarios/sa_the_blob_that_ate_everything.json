@@ -1,0 +1,1372 @@
+{
+ "id": "sa_the_blob_that_ate_everything",
+ "title": "The Blob That Ate Everything",
+ "campaign": "Scénarios indépendants",
+ "campaignId": "standalone",
+ "order": 7,
+ "packs": [
+  "blob"
+ ],
+ "encounterSets": [
+  "blob",
+  "blob_single_group",
+  "blob_epic_multiplayer",
+  "migo_incursion"
+ ],
+ "extraCards": [],
+ "scenarioCard": "85001",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "85002",
+  "85003",
+  "85004"
+ ],
+ "actDeck": [
+  "85005",
+  "85006",
+  "85007",
+  "85008",
+  "85009"
+ ],
+ "actCycle": true,
+ "startLocation": "85012",
+ "layout": [
+  {
+   "code": "85010",
+   "x": 737,
+   "y": 649
+  }
+ ],
+ "storyBack": [
+  "85021",
+  "85022",
+  "85023",
+  "85024"
+ ],
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "-5",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-3",
+   "-4",
+   "-5",
+   "-6",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-3",
+   "-4",
+   "-5",
+   "-6",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "piles": [
+  {
+   "id": "devoured",
+   "label": "Dévorées",
+   "menuFor": [
+    "location",
+    "enemy",
+    "treachery",
+    "asset",
+    "story"
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Comment jouez-vous ce scénario ? (livret p. 2-3)",
+   "options": [
+    {
+     "id": "single",
+     "label": "Single Group — scénario indépendant, une seule table (1-4 enquêteurs) : set Single Group, contremesures sur la carte de scénario"
+    },
+    {
+     "id": "epic",
+     "label": "Epic Multiplayer — cette table est un groupe parmi d'autres : set Epic Multiplayer ; vie de Subject 8L-08, seuil de l'acte 1 et contremesures tenus par l'organisateur"
+    },
+    {
+     "id": "campaign",
+     "label": "Side-story dans une campagne (2 XP par enquêteur) : mise en place Single Group, sac du chaos de votre campagne à reconstituer"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "branch",
+   "on": "difficulty",
+   "cases": {
+    "easy": [
+     {
+      "op": "log",
+      "text": "Ce scénario n'a que deux niveaux de difficulté (livret p. 2) : Facile joue le sac Standard."
+     }
+    ],
+    "expert": [
+     {
+      "op": "log",
+      "text": "Ce scénario n'a que deux niveaux de difficulté (livret p. 2) : Expert joue le sac Difficile."
+     }
+    ]
+   }
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "campaign"
+   },
+   "then": [
+    {
+     "op": "reminder",
+     "text": "Side-story (livret p. 3) : jouez avec le sac du chaos de votre campagne — celui du livret sert de point de départ, ajustez-le (clic droit sur le sac → Ajuster) ; faiblesses, traumatismes et soutiens d'histoire de la campagne suivent vos decks. Ce scénario coûte 2 XP par enquêteur."
+    }
+   ]
+  },
+  {
+   "op": "branch",
+   "on": "mode",
+   "cases": {
+    "epic": [
+     {
+      "op": "remove",
+      "codes": [
+       "85006",
+       "85009",
+       "85038"
+      ],
+      "log": "Epic Multiplayer : les trois cartes du set Single Group (acte 1, acte 3, Subject 8L-08) sont retirées de la partie."
+     }
+    ],
+    "default": [
+     {
+      "op": "remove",
+      "codes": [
+       "85005",
+       "85008",
+       "85037"
+      ],
+      "log": "Single Group : les trois cartes du set Epic Multiplayer (acte 1, acte 3, Subject 8L-08) sont retirées de la partie."
+     }
+    ]
+   }
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "85021",
+    "85022",
+    "85023",
+    "85024"
+   ],
+   "faceUp": false,
+   "log": "Les quatre cartes histoire de Mi-Go Incursion sont mises de côté face cachée, sans être lues : l'une d'elles est tirée au verso de l'acte 3."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "85025",
+    "85026",
+    "85027",
+    "85028",
+    "85029",
+    "85030",
+    "85031",
+    "85032",
+    "85033",
+    "85033",
+    "85033",
+    "85034",
+    "85035",
+    "85036"
+   ],
+   "faceUp": true,
+   "log": "Le reste du set Mi-Go Incursion est mis de côté, hors jeu : ses cartes entrent en jeu quand une carte histoire ou un acte le demande."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "85043",
+    "85040",
+    "85041",
+    "85042",
+    "85042"
+   ],
+   "faceUp": true,
+   "log": "Vulnerable Heart, 1 Grasping Ooze, 1 Cubic Ooze et les deux Oozewraith sont mis de côté, hors jeu (l'acte 1 fait apparaître le cœur, les agendas mélangent les autres dans la pioche)."
+  },
+  {
+   "op": "branch",
+   "on": "mode",
+   "cases": {
+    "epic": [
+     {
+      "op": "place",
+      "code": "85037",
+      "zone": "story",
+      "x": 0,
+      "y": 0,
+      "faceUp": true,
+      "log": "Subject 8L-08 (Epic Multiplayer) est mis en jeu à côté de l'agenda (colonne Histoire) : il n'est à aucun lieu. Sa réserve de vie est globale (15 par enquêteur, tous groupes confondus), tenue par l'organisateur : la jauge compte les dégâts de cette table, à lui déclarer puis à retirer."
+     }
+    ],
+    "default": [
+     {
+      "op": "place",
+      "code": "85038",
+      "zone": "story",
+      "x": 0,
+      "y": 0,
+      "faceUp": true,
+      "log": "Subject 8L-08 est mis en jeu à côté de l'agenda (colonne Histoire) : il n'est à aucun lieu. 15 vie par enquêteur : ses dégâts se comptent sur sa jauge."
+     }
+    ]
+   }
+  },
+  {
+   "op": "place",
+   "code": "85010",
+   "zone": "board",
+   "x": 737,
+   "y": 649,
+   "log": "The Crater est mis en jeu au centre du losange, non révélé."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "85014",
+    "85015",
+    "85016",
+    "85017",
+    "85018",
+    "85019",
+    "85020"
+   ],
+   "n": 2,
+   "include": [
+    "85011",
+    "85012"
+   ],
+   "zone": "board",
+   "positions": [
+    {
+     "x": 737,
+     "y": 411
+    },
+    {
+     "x": 551,
+     "y": 649
+    },
+    {
+     "x": 923,
+     "y": 649
+    },
+    {
+     "x": 737,
+     "y": 887
+    }
+   ],
+   "faceUp": false,
+   "rest": "keep",
+   "log": "Research Site, Temporary HQ et deux Quarantine Zones tirées au hasard, mélangés, sont posés non révélés aux quatre cases connectées au Crater, dans un ordre aléatoire."
+  },
+  {
+   "op": "reveal",
+   "code": "85012",
+   "log": "Temporary HQ est révélé : chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "minis",
+   "code": "85012"
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "85014",
+    "85015",
+    "85016",
+    "85017",
+    "85018",
+    "85019",
+    "85020"
+   ],
+   "n": 3,
+   "include": [
+    "85013"
+   ],
+   "zone": "board",
+   "positions": [
+    {
+     "x": 737,
+     "y": 173
+    },
+    {
+     "x": 365,
+     "y": 649
+    },
+    {
+     "x": 1109,
+     "y": 649
+    },
+    {
+     "x": 737,
+     "y": 1125
+    }
+   ],
+   "faceUp": false,
+   "rest": "keep",
+   "log": "Fungus Mound et trois Quarantine Zones tirées au hasard, mélangés, sont posés non révélés aux quatre pointes du losange, les plus éloignées du Crater."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "85014",
+    "85015",
+    "85016",
+    "85017",
+    "85018",
+    "85019",
+    "85020"
+   ],
+   "n": 4,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 551,
+     "y": 411
+    },
+    {
+     "x": 923,
+     "y": 411
+    },
+    {
+     "x": 551,
+     "y": 887
+    },
+    {
+     "x": 923,
+     "y": 887
+    }
+   ],
+   "faceUp": false,
+   "log": "Quatre des cinq Quarantine Zones restantes sont posées non révélées aux quatre diagonales ; la dernière est retirée de la partie sans être regardée."
+  },
+  {
+   "op": "story",
+   "log": "Agenda 1 et acte 1 sont en place ; la carte de scénario montre la référence de votre difficulté (recto Easy/Standard, verso Hard/Expert)."
+  },
+  {
+   "op": "branch",
+   "on": "mode",
+   "cases": {
+    "epic": [
+     {
+      "op": "reminder",
+      "text": "Epic Multiplayer (livret p. 6-9) : cette table est un groupe. L'organisateur annonce la vie de Subject 8L-08 (15 par enquêteur, tous groupes), le seuil d'indices de l'acte 1 (2 par enquêteur, tous groupes) et les contremesures disponibles (moitié des enquêteurs, arrondie au-dessus). Déclarez-lui régulièrement les dégâts sur votre Subject 8L-08 (jauge de la colonne Histoire), les indices posés sur votre acte 1 (menu de l'acte → Indice, 3 au plus par manche par enquêteur) et les contremesures dépensées ou gagnées, puis retirez-les de votre table. Quand le seuil global est atteint, avancez l'acte au début de la manche suivante. Limite de temps par défaut : 180 min, après quoi on passe à l'agenda 3b."
+     }
+    ],
+    "default": [
+     {
+      "op": "branch",
+      "on": "players",
+      "cases": {
+       "1": [
+        {
+         "op": "addTokens",
+         "at": "85001",
+         "token": "resource",
+         "n": 1,
+         "log": "Contremesures (1 à 1-2 enquêteurs) : ressources posées sur la carte de scénario"
+        }
+       ],
+       "2": [
+        {
+         "op": "addTokens",
+         "at": "85001",
+         "token": "resource",
+         "n": 1,
+         "log": "Contremesures (1 à 1-2 enquêteurs) : ressources posées sur la carte de scénario"
+        }
+       ],
+       "3": [
+        {
+         "op": "addTokens",
+         "at": "85001",
+         "token": "resource",
+         "n": 2,
+         "log": "Contremesures (2 à 3-4 enquêteurs) : ressources posées sur la carte de scénario"
+        }
+       ],
+       "4": [
+        {
+         "op": "addTokens",
+         "at": "85001",
+         "token": "resource",
+         "n": 2,
+         "log": "Contremesures (2 à 3-4 enquêteurs) : ressources posées sur la carte de scénario"
+        }
+       ]
+      }
+     },
+     {
+      "op": "reminder",
+      "text": "Contremesures (livret p. 4) : les ressources sur la carte de scénario (colonne Histoire ; menu → Ressource) se dépensent par les capacités qui le demandent (The Crater, Temporary HQ…) ; en gagner est rare."
+     }
+    ]
+   }
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "agendaEffects": {
+  "2": {
+   "log": "Verso de l'agenda 1 (agenda 2)",
+   "shuffleAside": [
+    {
+     "code": "85041",
+     "n": 1
+    },
+    {
+     "code": "85040",
+     "n": 1
+    }
+   ],
+   "withDiscard": true
+  },
+  "3": {
+   "log": "Verso de l'agenda 2 (agenda 3)",
+   "shuffleAside": [
+    "85042"
+   ],
+   "withDiscard": true
+  }
+ },
+ "actEffects": {
+  "after:85007": {
+   "log": "Verso de l'acte 2 (acte 3)",
+   "setAside": [
+    "85043"
+   ]
+  },
+  "after:85009": {
+   "log": "Verso de l'acte 3 (retour à l'acte 1)",
+   "shuffleAside": [
+    "85033"
+   ],
+   "withDiscard": true,
+   "ifAside": true,
+   "addClues": [
+    {
+     "trait": "Oozified",
+     "revealed": true,
+     "n": 1,
+     "perInvestigator": true,
+     "max": "printed"
+    }
+   ],
+   "drawAside": {
+    "codes": [
+     "85021",
+     "85022",
+     "85023",
+     "85024"
+    ]
+   }
+  },
+  "after:85008": {
+   "log": "Verso de l'acte 3 (retour à l'acte 1 — Epic Multiplayer : l'organisateur désigne la carte histoire à révéler, la même pour tous les groupes ; menu de la carte de côté → Révéler)",
+   "shuffleAside": [
+    "85033"
+   ],
+   "withDiscard": true,
+   "ifAside": true,
+   "addClues": [
+    {
+     "trait": "Oozified",
+     "revealed": true,
+     "n": 1,
+     "perInvestigator": true,
+     "max": "printed"
+    }
+   ]
+  }
+ },
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Connexions (agenda) : les lieux n'ont aucune icône de connexion — chaque lieu est connecté à ceux qui le touchent orthogonalement sur la grille, jamais en diagonale. Les Quarantine Zones sont indistinguables tant qu'elles ne sont pas révélées ; Research Site, Fungus Mound et The Crater se lisent sur leur dos."
+  },
+  {
+   "when": "setup",
+   "text": "Dévorer (livret p. 4) : une carte dévorée est placée sous Subject 8L-08, hors jeu — menu de la carte → « Placer dans Dévorées » (pile à côté de la pioche ; son compte sert au jeton crâne de la carte de scénario) ; une carte de votre deck dévorée va hors jeu sur votre board ; un jeton dévoré retourne à la réserve ; un lieu ne peut pas être dévoré s'il laisserait un autre lieu sans connexion ; un enquêteur dévoré est tué. En fin de partie, chaque carte dévorée revient au deck de son propriétaire."
+  },
+  {
+   "when": "setup",
+   "text": "Blob X (livret p. 5) : quand un ennemi Blob X est vaincu, infligez X dégâts à Subject 8L-08 (jauge de la colonne Histoire) ; ces ennemis ne vont en zone de victoire que s'ils ont aussi Victory X. Subject 8L-08 n'a ni combat, ni évasion, ni dégâts, ni horreur ; s'il est vaincu, le scénario est gagné."
+  },
+  {
+   "when": "mythos",
+   "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche)."
+  },
+  {
+   "when": "enemy",
+   "text": "Ennemis chasseurs : déplacez-les à la main. Relisez les capacités des ennemis prêts en fin de phase."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 : choisissez 2 lieux Oozified, autres que The Crater et sans Vulnerable Heart — Subject 8L-08 les dévore avec les cartes non-Ooze qui s'y trouvent (menu → « Placer dans Dévorées » ; les ennemis Ooze sont défaussés). L'app a mélangé 1 Cubic Ooze et 1 Grasping Ooze de côté dans la pioche avec la défausse (journal)."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Verso de l'agenda 2 : choisissez de nouveau 2 lieux Oozified (autres que The Crater, sans Vulnerable Heart) que Subject 8L-08 dévore avec leurs cartes non-Ooze (menu → « Placer dans Dévorées » ; ennemis Ooze défaussés). L'app a mélangé les deux Oozewraith de côté dans la pioche avec la défausse (journal). L'agenda 3 est le dernier."
+  },
+  {
+   "when": "act:2",
+   "text": "Verso de l'acte 1 : choisissez un lieu Oozified et faites-y apparaître Vulnerable Heart (glissez-le depuis la zone de côté). Pendant l'acte 2, les dégâts posés sur le cœur se doublent sur Subject 8L-08 (jauge de la colonne Histoire) et un indice dépensé donne +2 combat contre lui ; en fin de manche, l'acte avance."
+  },
+  {
+   "when": "act:3",
+   "text": "Verso de l'acte 2 : si Vulnerable Heart était en jeu, l'app l'a soigné et remis de côté — X = les dégâts retirés (journal). Si X ≥ 1 : remélangez la défausse dans la pioche (menu de la défausse), puis défaussez depuis le dessus jusqu'à ce que des ennemis Manifold totalisant au moins X de vie soient sortis, et faites-les apparaître un par un, dans un ordre aléatoire, à des lieux Oozified différents. Pendant l'acte 3, les ennemis Ooze ont Riposte et perdent Blob X ; en fin de manche, l'acte avance (la partie continue)."
+  },
+  {
+   "when": "act:1",
+   "text": "Retour à l'acte 1 (verso de l'acte 3) : l'app a mélangé les trois Mi-Go Drone de côté dans la pioche avec la défausse (première fois seulement), posé 1 indice par enquêteur sur chaque lieu Oozified révélé sans dépasser sa valeur imprimée, et tiré une carte histoire de côté (colonne Histoire, côté Part 1 — lisez-la et appliquez-la, « Autre face » quand elle vous dit de la retourner ; en Epic Multiplayer, l'organisateur la désigne : menu de la carte de côté → Révéler). Il faut de nouveau réunir les indices de l'acte 1."
+  }
+ ],
+ "builtAt": "2026-09-10",
+ "encounterSetNames": {
+  "blob": "The Blob That Ate Everything",
+  "blob_single_group": "Single Group",
+  "blob_epic_multiplayer": "Epic Multiplayer",
+  "migo_incursion": "Mi-Go Incursion"
+ },
+ "cards": [
+  {
+   "code": "85001",
+   "name": "The Blob That Ate Everything",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "85002",
+   "name": "The Anomaly Spreads",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Cracks in the Earth",
+   "doom": 6,
+   "stage": 1
+  },
+  {
+   "code": "85003",
+   "name": "The Anomaly Swells",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Unfettered Growth",
+   "doom": 6,
+   "stage": 2
+  },
+  {
+   "code": "85004",
+   "name": "The Anomaly Consumes",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "backName": "The Blob Ate Everything",
+   "doom": 8,
+   "stage": 3
+  },
+  {
+   "code": "85005",
+   "name": "Expose the Anomaly",
+   "kind": "act",
+   "qty": 1,
+   "set": "blob_epic_multiplayer",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "It Is Exposed!",
+   "stage": 1
+  },
+  {
+   "code": "85006",
+   "name": "Expose the Anomaly",
+   "kind": "act",
+   "qty": 1,
+   "set": "blob_single_group",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "backName": "It Is Exposed!",
+   "stage": 1
+  },
+  {
+   "code": "85007",
+   "name": "Extraterrestrial Physiology",
+   "kind": "act",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Rain of Ooze",
+   "stage": 2
+  },
+  {
+   "code": "85008",
+   "name": "Blackwater's Bane",
+   "kind": "act",
+   "qty": 1,
+   "set": "blob_epic_multiplayer",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "A Moment of Respite",
+   "stage": 3
+  },
+  {
+   "code": "85009",
+   "name": "Blackwater's Bane",
+   "kind": "act",
+   "qty": 1,
+   "set": "blob_single_group",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "A Moment of Respite",
+   "stage": 3
+  },
+  {
+   "code": "85010",
+   "name": "The Crater",
+   "kind": "location",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Oozified"
+   ]
+  },
+  {
+   "code": "85011",
+   "name": "Research Site",
+   "kind": "location",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "85012",
+   "name": "Temporary HQ",
+   "kind": "location",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "85013",
+   "name": "Fungus Mound",
+   "kind": "location",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   }
+  },
+  {
+   "code": "85014",
+   "name": "Sewer",
+   "kind": "location",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Oozified"
+   ],
+   "backName": "Quarantine Zone"
+  },
+  {
+   "code": "85015",
+   "name": "Bridge",
+   "kind": "location",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Oozified"
+   ],
+   "backName": "Quarantine Zone"
+  },
+  {
+   "code": "85016",
+   "name": "Water Tower",
+   "kind": "location",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Oozified"
+   ],
+   "backName": "Quarantine Zone"
+  },
+  {
+   "code": "85017",
+   "name": "Church",
+   "kind": "location",
+   "qty": 1,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Oozified"
+   ],
+   "backName": "Quarantine Zone"
+  },
+  {
+   "code": "85018",
+   "name": "Oozy Lakebed",
+   "kind": "location",
+   "qty": 2,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Oozified"
+   ],
+   "backName": "Quarantine Zone"
+  },
+  {
+   "code": "85019",
+   "name": "Slimy Streets",
+   "kind": "location",
+   "qty": 2,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Oozified"
+   ],
+   "backName": "Quarantine Zone"
+  },
+  {
+   "code": "85020",
+   "name": "Desiccated Farmland",
+   "kind": "location",
+   "qty": 2,
+   "set": "blob",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Oozified"
+   ],
+   "backName": "Quarantine Zone"
+  },
+  {
+   "code": "85021",
+   "name": "Rescue the Chemist",
+   "kind": "story",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Part 1"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "85022",
+   "name": "Recover the Sample",
+   "kind": "story",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Part 1"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "85023",
+   "name": "Drive Off the Mi-Go",
+   "kind": "story",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Part 1"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "85024",
+   "name": "Defuse the Explosives",
+   "kind": "story",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Part 1"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "85025",
+   "name": "University Chemist",
+   "kind": "asset",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Bystander",
+    "Miskatonic"
+   ],
+   "health": 3,
+   "sanity": 1
+  },
+  {
+   "code": "85026",
+   "name": "Meteorite Sample",
+   "kind": "asset",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item"
+   ]
+  },
+  {
+   "code": "85027",
+   "name": "Mi-Go General",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Servitor",
+    "Mi-Go",
+    "Elite"
+   ],
+   "health": 4,
+   "healthPerInvestigator": true
+  },
+  {
+   "code": "85028",
+   "name": "The Military's Plan",
+   "kind": "asset",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false
+  },
+  {
+   "code": "85029",
+   "name": "Universal Solvent",
+   "kind": "asset",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Science"
+   ]
+  },
+  {
+   "code": "85030",
+   "name": "Pet Oozeling",
+   "kind": "asset",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Ally",
+    "Monster",
+    "Ooze"
+   ],
+   "health": 3
+  },
+  {
+   "code": "85031",
+   "name": "Mi-Go Weapon",
+   "kind": "asset",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Weapon",
+    "Science"
+   ]
+  },
+  {
+   "code": "85032",
+   "name": "Lt. Wilson Stewart",
+   "kind": "asset",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Logistical Genius",
+   "traits": [
+    "Ally",
+    "Agency",
+    "Veteran"
+   ],
+   "health": 2,
+   "sanity": 2
+  },
+  {
+   "code": "85033",
+   "name": "Mi-Go Drone",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Mi-Go"
+   ],
+   "health": 1
+  },
+  {
+   "code": "85034",
+   "name": "Mi-Go Harvester",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Mi-Go",
+    "Elite"
+   ],
+   "health": 2,
+   "healthPerInvestigator": true,
+   "victory": 1
+  },
+  {
+   "code": "85035",
+   "name": "Mi-Go Meddler",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Mi-Go",
+    "Elite"
+   ],
+   "health": 2,
+   "healthPerInvestigator": true,
+   "victory": 1
+  },
+  {
+   "code": "85036",
+   "name": "Mi-Go Abductor",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "migo_incursion",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Mi-Go",
+    "Elite"
+   ],
+   "health": 2,
+   "healthPerInvestigator": true,
+   "victory": 1
+  },
+  {
+   "code": "85037",
+   "name": "Subject 8L-08",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "blob_epic_multiplayer",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Extraspacial Anomaly",
+   "traits": [
+    "Monster",
+    "Ooze",
+    "Elite"
+   ]
+  },
+  {
+   "code": "85038",
+   "name": "Subject 8L-08",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "blob_single_group",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Extraspacial Anomaly",
+   "traits": [
+    "Monster",
+    "Ooze",
+    "Elite"
+   ],
+   "health": 15,
+   "healthPerInvestigator": true
+  },
+  {
+   "code": "85039",
+   "name": "Oozeling",
+   "kind": "enemy",
+   "qty": 4,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Ooze",
+    "Manifold"
+   ],
+   "health": 3
+  },
+  {
+   "code": "85040",
+   "name": "Grasping Ooze",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Ooze",
+    "Manifold"
+   ],
+   "health": 5
+  },
+  {
+   "code": "85041",
+   "name": "Cubic Ooze",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Ooze",
+    "Manifold"
+   ],
+   "health": 4
+  },
+  {
+   "code": "85042",
+   "name": "Oozewraith",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Ooze",
+    "Manifold"
+   ],
+   "health": 7,
+   "victory": 1
+  },
+  {
+   "code": "85043",
+   "name": "Vulnerable Heart",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Ooze",
+    "Elite"
+   ]
+  },
+  {
+   "code": "85044",
+   "name": "Reality Acid",
+   "kind": "treachery",
+   "qty": 4,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power"
+   ]
+  },
+  {
+   "code": "85045",
+   "name": "Devouring Ooze",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Attack"
+   ]
+  },
+  {
+   "code": "85046",
+   "name": "Corrosive Slime",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Attack"
+   ]
+  },
+  {
+   "code": "85047",
+   "name": "Consuming Maw",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Attack"
+   ]
+  },
+  {
+   "code": "85048",
+   "name": "Wave of Ooze",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Attack"
+   ]
+  },
+  {
+   "code": "85049",
+   "name": "Caustic Dissemination",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Ooze",
+    "Hazard"
+   ]
+  },
+  {
+   "code": "85050",
+   "name": "Sticky Feet",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Ooze",
+    "Obstacle"
+   ]
+  },
+  {
+   "code": "85051",
+   "name": "Replication",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power"
+   ]
+  },
+  {
+   "code": "85052",
+   "name": "\"It's got me!\"",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "85053",
+   "name": "Alien Food Chain",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "blob",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Ooze",
+    "Power"
+   ]
+  }
+ ]
+}

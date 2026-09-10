@@ -1256,6 +1256,66 @@ with sync_playwright() as p:
     h24.mouse.move(420, 520); h24.wait_for_timeout(300)
     h24.screenshot(path=f"{OUT}/107_queen_acte2.png")
 
+    # ---- The Blob That Ate Everything (scénario indépendant) : bibliothèque (livret), question mode, losange, Subject 8L-08 dans la colonne
+    # Histoire (jauge 0/15*), pile Dévorées, cycle des actes (carte histoire tirée dans la colonne Histoire), zone de côté ----
+    bib = browser.new_context(viewport={"width": 1600, "height": 1000}, locale="fr-FR", ignore_https_errors=True).new_page()
+    bib.goto(f"{BASE}/scenarios"); bib.wait_for_selector("#catalogue .campagne"); bib.wait_for_timeout(500)
+    sec = bib.locator("section.campagne").last
+    sec.scroll_into_view_if_needed(); bib.wait_for_timeout(300)
+    sec.screenshot(path=f"{OUT}/108_blob_bibliotheque.png")
+    assert bib.locator(".scenario.available", has_text="The Blob That Ate Everything").count() == 1, "Blob disponible dans la bibliothèque"
+    assert bib.locator(".scenario a.livret").count() == 1, "lien livret du scénario"
+    code25, token25 = creer("sa_the_blob_that_ate_everything")
+    print("room Blob", code25)
+    h25 = page_pour(browser, "Hôte", host=True, code=code25, token=token25)
+    h25.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h25.get_by_role("button", name="Choisir un enquêteur").click(); h25.wait_for_selector("dialog.dialogue-inv[open]")
+    h25.fill("dialog .recherche", "roland"); h25.wait_for_timeout(300); h25.locator("dialog .inv").first.click()
+    h25.wait_for_selector(".siege-lobby.moi .fiche")
+    j25 = page_pour(browser, "Bob", code=code25, token=None)
+    j25.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j25.get_by_role("button", name="Choisir un enquêteur").click(); j25.wait_for_selector("dialog.dialogue-inv[open]")
+    j25.fill("dialog .recherche", "daisy"); j25.wait_for_timeout(300); j25.locator("dialog .inv").first.click()
+    j25.wait_for_selector(".siege-lobby.moi .fiche")
+    h25.wait_for_timeout(400)
+    h25.locator("input[name='q-mode'][value='single']").check(); h25.wait_for_timeout(200)
+    h25.locator(".reglage.questions").screenshot(path=f"{OUT}/109_blob_lobby_question.png")
+    assert h25.locator("#lien-guide").is_visible(), "lien Guide = livret du scénario"
+    h25.get_by_role("button", name="Lancer la mise en place").click()
+    h25.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h25.wait_for_load_state("networkidle"); h25.wait_for_timeout(1500)
+    assert h25.locator("#plateau .carte.kind-location").count() == 13, "losange : 13 lieux"
+    assert h25.locator("#histoire .carte.kind-enemy").count() == 1, "Subject 8L-08 dans la colonne Histoire"
+    assert h25.locator("#aside .carte").count() == 23, "de côté : Mi-Go Incursion (18), cœur, Grasping, Cubic, 2 Oozewraith"
+    h25.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h25.mouse.move(420, 520); h25.wait_for_timeout(300)
+    h25.screenshot(path=f"{OUT}/110_blob_tapis.png")
+    # Jauge de Subject 8L-08 (15 par enquêteur) : clic sur la chip = +1 dégât.
+    assert h25.locator("#histoire .carte.kind-enemy .chip-damage .chip-n").inner_text() == "0/15*", "jauge 0/15 par enquêteur"
+    h25.locator("#histoire .carte.kind-enemy .chip-damage .chip-n").click(); h25.wait_for_timeout(300)
+    assert h25.locator("#histoire .carte.kind-enemy .chip-damage .chip-n").inner_text() == "1/15*", "clic sur la chip : 1 dégât"
+    h25.locator("#histoire").screenshot(path=f"{OUT}/111_blob_histoire.png")
+    # Pile Dévorées : menu d'un lieu → « Placer dans Dévorées ».
+    lieu = h25.locator("#plateau .carte.kind-location").nth(3)
+    lieu.dispatch_event("contextmenu"); h25.wait_for_timeout(300)
+    if h25.locator(".menu-carte").count() == 0:
+        lieu.click(button="right"); h25.wait_for_timeout(300)
+    h25.screenshot(path=f"{OUT}/112_blob_menu_lieu.png")
+    h25.locator(".menu-carte").get_by_role("button", name="Placer dans Dévorées").click(); h25.wait_for_timeout(500)
+    assert h25.locator("#plateau .carte.kind-location").count() == 12, "un lieu dévoré"
+    assert h25.locator("#pioches .pile[data-outil='pile:devoured'] .badge").inner_text() == "1", "pile Dévorées : 1"
+    h25.locator("#pioches").screenshot(path=f"{OUT}/113_blob_pioches.png")
+    # Actes 1 → 2 → 3 → retour à l'acte 1 : une carte histoire tirée au hasard entre dans la colonne Histoire.
+    for _ in range(3):
+        h25.locator("#histoire").get_by_role("button", name="Avancer l'acte").click(); h25.wait_for_timeout(900)
+    h25.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    assert h25.locator("#histoire .carte.kind-story").count() == 1, "carte histoire tirée dans la colonne Histoire"
+    h25.locator("#histoire").screenshot(path=f"{OUT}/114_blob_histoire_boucle.png")
+    h25.mouse.move(420, 520); h25.wait_for_timeout(300)
+    h25.screenshot(path=f"{OUT}/115_blob_tapis_boucle.png")
+    h25.locator("#aside").hover(); h25.wait_for_timeout(500)
+    h25.locator("#aside").screenshot(path=f"{OUT}/116_blob_aside.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

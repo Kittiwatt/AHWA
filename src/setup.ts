@@ -135,6 +135,9 @@ class Pool {
   has(code: string): boolean {
     return (this.byCode.get(code)?.length ?? 0) > 0;
   }
+  count(code: string): number {
+    return this.byCode.get(code)?.length ?? 0;
+  }
   takeAll(code: string): CardId[] {
     const ids = this.byCode.get(code) ?? [];
     this.byCode.set(code, []);
@@ -318,13 +321,18 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
           const v = slots.get(ref.slice(5)) ?? "";
           return state.cards[v]?.code ?? v;
         };
-        const candidats = step.from.map(codeDe);
-        const choix = shuffle([...candidats], rng).slice(0, n);
+        const candidats = [...new Set(step.from.map(codeDe))];
+        // Un billet par exemplaire encore au pool de chaque code candidat : un code en plusieurs exemplaires peut sortir plusieurs
+        // fois, et des tirages successifs sur les mêmes codes (anneaux du Blob) ne demandent jamais un exemplaire qui n'existe plus.
+        const billets = candidats.flatMap((code) => Array.from({ length: pool.count(code) }, () => code));
+        if (billets.length < n) throw new Error(`setup : pickRandom — ${n} carte${n > 1 ? "s" : ""} demandée${n > 1 ? "s" : ""}, ${billets.length} exemplaire${billets.length > 1 ? "s" : ""} au pool parmi ${candidats.join(", ")}`);
+        // `include` : cartes imposées, mélangées avec les n tirées (« Research Site, Temporary HQ et 2 Quarantine Zones, mélangées »).
+        const choix = shuffle([...(step.include ?? []).map(codeDe), ...shuffle(billets, rng).slice(0, n)], rng);
         const noms = choix.map((c) => pool.def(c).name);
-        // Les cartes tirées sont prises dans le pool d'abord (un code en plusieurs exemplaires peut sortir plusieurs fois) ;
-        // tout ce qui reste des codes candidats — non tirés, ou copies restantes d'un code tiré — suit le sort `rest`.
+        // Les cartes tirées sont prises dans le pool d'abord ; tout ce qui reste des codes candidats — non tirés, ou copies
+        // restantes d'un code tiré — suit le sort `rest` (les cartes `include` n'en font pas partie).
         const tires = choix.map((code) => ({ code, id: pool.take(code) }));
-        const restes = [...new Set(candidats)];
+        const restes = candidats.filter((code) => !(step.include ?? []).map(codeDe).includes(code));
         if (step.rest === "pile") {
           // Les cartes non tirées forment (ou rejoignent) une pile, ex. lieux pour « choisir un lieu au hasard ».
           const pile = step.restPile ?? "rest";
@@ -642,6 +650,14 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         const lieu = enJeu(step.code);
         lieu.tokens.clue = (lieu.tokens.clue ?? 0) + step.n;
         addLog(state, "setup", step.log ?? `${step.n} indice${step.n > 1 ? "s" : ""} posé${step.n > 1 ? "s" : ""} sur ${nomDe(def, lieu.code)}.`);
+        break;
+      }
+      case "reveal": {
+        // Révèle un lieu déjà en jeu (posé non révélé par un tirage, ex. Temporary HQ du Blob) : indices selon les enquêteurs, marée.
+        const lieu = enJeu(step.code);
+        if (lieu.kind !== "location") throw new Error(`setup : reveal ${step.code} n'est pas un lieu`);
+        const n = lieu.faceUp ? 0 : revealLocation(state, def, lieu);
+        addLog(state, "setup", `${step.log ?? `${nomDe(def, lieu.code)} est révélé.`}${n > 0 ? ` ${n} indice${n > 1 ? "s" : ""} posé${n > 1 ? "s" : ""}.` : ""}`);
         break;
       }
       case "removeClues": {

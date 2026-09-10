@@ -134,8 +134,9 @@ function carte(c, src) {
     storyBack: (src.storyBack ?? []).includes(c.code),
   };
   if (kind === "location" || kind === "act") {
-    // clues_fixed absent/false = valeur « par enquêteur » ; true = valeur fixe.
-    out.clue = { value: c.clues ?? 0, perInvestigator: !c.clues_fixed };
+    // clues_fixed absent/false = valeur « par enquêteur » ; true = valeur fixe. Valeur négative du dump = X (−2) ou ✱ (−3,
+    // « voir les règles » : seuil global de l'acte 1 du Blob en Epic Multiplayer) → aucun seuil ni indice automatique.
+    out.clue = { value: Math.max(0, c.clues ?? 0), perInvestigator: !c.clues_fixed };
   }
   // Verso = lieu (ex. acte dont le dos est un lieu) : ses indices, posés quand l'acte avance.
   if (c.linked_card?.type_code === "location") {
@@ -154,12 +155,14 @@ function carte(c, src) {
     out.backKind = KIND[c.linked_card.type_code] ?? "story";
     out.backName = c.linked_card.name;
     if (c.linked_card.subname) out.backSubname = c.linked_card.subname;
-    if (c.linked_card.health !== undefined && c.linked_card.health !== null) out.backHealth = c.linked_card.health;
+    if (c.linked_card.health !== undefined && c.linked_card.health !== null && c.linked_card.health >= 0) out.backHealth = c.linked_card.health;
     if (c.linked_card.health_per_investigator) out.backHealthPerInvestigator = true;
     if (c.linked_card.victory) out.backVictory = c.linked_card.victory;
   }
   if (kind === "enemy" || kind === "asset") {
-    if (c.health !== undefined && c.health !== null) out.health = c.health;
+    // Vie négative du dump = X (−2 : Cthulhu, Stalking Hybrid) ou ✱ (−3 : réserve de vie globale de Subject 8L-08 en Epic
+    // Multiplayer) : pas de maximum, la jauge compte seulement les dégâts.
+    if (c.health !== undefined && c.health !== null && c.health >= 0) out.health = c.health;
     if (c.sanity !== undefined && c.sanity !== null) out.sanity = c.sanity;
     if (c.health_per_investigator) out.healthPerInvestigator = true;
   }
@@ -193,7 +196,7 @@ async function buildScenario(fichierSrc) {
 
   // Contrôles de cohérence entre la source et ArkhamDB.
   const codes = new Set(cards.map((c) => c.code));
-  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), s.at, ...(s.atRandom ?? []), ...(s.pool ?? []),
+  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), ...(s.include ?? []), s.at, ...(s.atRandom ?? []), ...(s.pool ?? []),
     ...(s.op === "bury" ? [...(s.with ?? []), ...(s.fromPool ?? []), ...(s.under ?? [])] : []),
     ...(s.cases ? Object.values(s.cases).flatMap(citesDe) : []), ...citesDe(s.then ?? []), ...citesDe(s.else ?? [])]).filter((c) => c && !String(c).startsWith("slot:"));
   for (const s of src.setup.flatMap(function aplat(x) { return [x, ...(x.cases ? Object.values(x.cases).flat().flatMap(aplat) : []), ...(x.then ?? []).flatMap(aplat), ...(x.else ?? []).flatMap(aplat)]; })) {
@@ -229,7 +232,10 @@ async function buildScenario(fichierSrc) {
   const citesAgendaPlus = effets.flatMap((e) => [
     ...(e.spawnAside ? (Array.isArray(e.spawnAside) ? e.spawnAside : [e.spawnAside]).flatMap((sa) => [sa.code, sa.at]) : []), e.randomKeyOn,
     ...(e.discardAside ?? []).map((d) => d.code), ...(e.setAside ?? []), ...(e.discardAt ?? []), ...(e.addClues ?? []).map((a) => a.code), ...(e.removeLocations?.codes ?? []),
+    ...(e.drawAside?.codes ?? []),
   ].filter(Boolean));
+  for (const e of effets) for (const a of e.addClues ?? []) if (!a.code && !a.trait) throw new Error(`${src.id} : addClues sans code ni trait`);
+  if (src.actCycle && !src.actDeck.length) throw new Error(`${src.id} : actCycle sans actDeck`);
   const cites = [src.scenarioCard, src.startLocation, ...src.agendaDeck, ...src.actDeck, ...(src.layout ?? []).map((l) => l.code), ...citesDe(src.setup), ...citesLeads, ...citesAgenda, ...citesSetup, ...citesBarrieres, ...citesAgendaPlus].filter(Boolean);
   for (const code of cites) if (!codes.has(code)) throw new Error(`${src.id} : code ${code} absent des sets de rencontre`);
 

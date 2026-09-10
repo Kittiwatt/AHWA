@@ -21,8 +21,12 @@ qu'au besoin — le tableau du mémo §0 l'indexe.
 - Tout en français. **Jamais de spoiler** : d'un guide de campagne, ne
   lire que la section Setup et le diagramme de placement — ni
   résolutions ni interludes, sauf instruction explicite de
-  l'utilisateur quand un report au lobby l'exige. Ne jamais reproduire
-  le texte des cartes (ni dans les `log`, ni dans `_source`).
+  l'utilisateur quand un report au lobby l'exige. **Scénarios
+  indépendants** (consigne du 2026-09-10) : lire le livret **en
+  entier** avant de commencer ; s'il contient plusieurs scénarios, une
+  room par scénario et la bibliothèque adaptée ; une room par push, la
+  suivante après validation de l'utilisateur (mémo §1). Ne jamais
+  reproduire le texte des cartes (ni dans les `log`, ni dans `_source`).
 - Ce qui dépend du journal de campagne ou d'un choix reste manuel :
   question au lobby ou rappel au bon moment.
 - Poser ses questions avant de coder quand un choix structurel se

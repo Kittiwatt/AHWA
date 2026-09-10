@@ -249,6 +249,9 @@ main {
 .scenario .num { font-family: var(--serif); color: var(--papier-2); }
 .scenario .titre { font-weight: 500; }
 .scenario .note { display: block; color: var(--papier-2); font-size: 0.9rem; font-weight: 400; }
+/* Livret propre à un scénario indépendant (PDF FFG) : lien discret sous le titre, comme une note. */
+.scenario a.livret { text-decoration: underline; text-underline-offset: 0.15em; text-decoration-color: var(--filet); }
+.scenario a.livret:hover { color: var(--papier); }
 
 .statut {
   display: inline-flex;

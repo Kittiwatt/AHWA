@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-10 | Standalone — The Blob That Ate Everything | livret lu en entier (consigne standalone) ; question `mode` (Single / Epic / side-story), losange par `pickRandom include` + billets = pool + op `reveal`, Subject 8L-08 dans la colonne Histoire (`place zone:"story"`, jauge 0/15*), pile « Dévorées » (`menuFor`), contremesures = ressources sur la carte de scénario, **`actCycle`** (deck d'acte réinitialisé), `shuffleAside ifAside`, `addClues` par trait plafonnés, `drawAside`, vie/indices négatifs (✱, X) sans maximum ; livret par scénario dans library.json ; **premier scénario indépendant** |
 | 2026-09-10 | Générateur de cartes : board joueur + carte personnalisée en image | bouton dans `blocTour` du board ; `createCustomCard {name, image, imageBack?, kind?, health?, sanity?}` → `custom-card:<n>` dans `extraDefs` (`custom`, `image`, `imageBack`), `urlImage` étendu ; consigne du générateur sur une ligne (`.grille-cartes > .vide` sur toute la largeur) ; pas de téléversement |
 | 2026-09-10 | UX : chips — bouton maintenu déployé, agenda / acte | `garderChipsDeployees` (dom.js, classe `ouverte` reposée après re-rendu, clé jeton + carte / siège / entête) : plusieurs clics sur le « − » / « + » sans bouger ; chips de l'agenda et de l'acte à 30 px ; ressources et marqueur génériques au menu de l'agenda et de l'acte |
 | 2026-09-10 | UX : tous les jetons des cartes en chips | plus de pions ronds : indices, doom, ressources, générique = chips empilées en bas à droite avec le « − » qui se déploie ; indices d'un lieu = chip inverse (clic = prendre, « + » au survol) ; `elChip` + `clicChip` dans cartes.js, `.pmj` / `.jetons` supprimés |
@@ -105,6 +106,75 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-10 : **The Blob That Ate Everything — premier scénario
+  indépendant** (ahc45, pack arkham.build `blob`, 85001‑85053). Consigne
+  de l'utilisateur pour tous les standalone : lire le livret **en
+  entier**, découper en plusieurs rooms si le livret contient plusieurs
+  scénarios (et adapter la bibliothèque), une room par push, validation
+  avant la suivante. Ici un seul scénario, trois façons de jouer (p. 2‑3)
+  → une room, question `mode` : Single Group / Epic Multiplayer (cette
+  table = un groupe, l'organisateur tient vie globale, seuil d'indices de
+  l'acte 1 et contremesures, p. 6‑9) / side-story de campagne (sac de la
+  campagne à reconstituer, 2 XP). Sets : `blob`, `blob_single_group`
+  (85006, 85009, 85038), `blob_epic_multiplayer` (85005, 85008, 85037),
+  `migo_incursion` (85021‑36) — le set non joué est retiré avant `story`,
+  qui saute les codes absents ; sac p. 2 (icônes à 600 dpi : crâne ×2,
+  cultiste, tablette, ancien, auto-fail, elder sign, deux niveaux
+  seulement → Facile = Standard, Expert = Difficile, ligne de journal par
+  `branch on:"difficulty"`) ; carte de scénario recto Easy/Standard,
+  verso Hard/Expert (`scenarioCardSide`). Mise en place (p. 13‑15) :
+  Mi-Go Incursion de côté (les quatre cartes histoire face cachée avec
+  `storyBack` — leur verso est la Part 2 —, le reste face visible, choix
+  de l'utilisateur), Vulnerable Heart + 1 Grasping + 1 Cubic + 2
+  Oozewraith de côté ; **Subject 8L-08 « à côté de l'agenda, à aucun
+  lieu »** = `place zone:"story"` face visible, et la colonne Histoire
+  rend désormais toute carte de la zone hors agenda / acte / scénario
+  (`.bloc.reference`, chips et menu, dépôt élargi aux ennemis / soutiens
+  / traîtrises / histoire) ; losange p. 15 (1‑3‑5‑3‑1, Crater 737 × 649,
+  lignes 173‑1125) : anneau intérieur = `pickRandom n:2 include:[RS,
+  HQ]` (nouvelle option : cartes imposées mélangées avec les tirées),
+  pointes = `n:3 include:[Fungus Mound]`, diagonales = `n:4`, la dernière
+  QZ retirée par le `rest` par défaut ; les **billets** de `pickRandom`
+  sont désormais les exemplaires restants au pool (tirages successifs sur
+  les mêmes sept codes sans crash ; les 25 scénarios livrés listaient
+  déjà chaque code autant que sa quantité : sémantique inchangée pour
+  eux) ; HQ révélé par la nouvelle op **`reveal`** puis `minis` ;
+  contremesures = `addTokens resource` sur la carte de scénario (1, ou 2
+  à 3‑4 joueurs ; aucune en Epic), « Ressource » ajouté au menu de la
+  carte de scénario ; pile déclarée **« Dévorées »** (`menuFor` lieux,
+  ennemis, traîtrises, soutiens, histoire — son badge sert au crâne « −1
+  par 5 cartes dévorées »). Runtime : agendas 2 et 3 = `shuffleAside`
+  {Cubic, Grasping} puis Oozewraith ×2 `withDiscard` (dévorer 2 lieux =
+  rappel) ; `after:85007` = `setAside` du cœur, qui dit maintenant le
+  total de dégâts retirés (X du verso) ; `after:85009` / `after:85008` =
+  drones Mi-Go `shuffleAside ifAside` (nouvelle option : tout le geste
+  seulement si une copie est encore de côté — « the first time this act
+  has advanced »), `addClues {trait:"Oozified", revealed, n:1,
+  perInvestigator, max:"printed"}` (nouvelle forme : chaque lieu du
+  trait, plafonné à sa valeur imprimée) et, en Single Group, `drawAside`
+  (nouveau : une carte histoire de côté tirée au hasard entre dans
+  l'histoire recto ; en Epic l'organisateur la désigne, texte du `log`
+  de l'effet) ; **`actCycle: true`** (nouveau, racine) : quand l'acte 3
+  avance, `avancer()` remet tous les actes dans le deck dans l'ordre et
+  l'acte 1 redevient courant avec ses effets `after:` et `act:1`
+  (`state.counters.actCycles`). Build : vie négative du dump (`-2` = X,
+  `-3` = ✱ réserve globale) → `health` omis, jauge sans maximum (idem
+  `room.ts` pour le générateur, `cartes.js` teste `max > 0`) ; indices
+  négatifs d'un acte → seuil 0. Bibliothèque : `guide` par scénario
+  (lien « livret » sous le titre, lien Guide de la table). Tests :
+  bloc `test_room.mjs` (Single 2 j. : sac, positions par anneau, QZ
+  retirée, journal muet, mises de côté, pioche 30, pile Dévorées,
+  agendas 2‑3, cœur soigné X = 4, retour à l'acte 1 avec drones +
+  défausse + indices plafonnés + carte histoire, second tour sans
+  remélange ; Epic 3 j. Expert : sac Difficile, côté b, Subject ✱ sans
+  `health`, seuil 0, pas de carte histoire tirée ; side-story 1 j.
+  Facile) ; Playwright : bibliothèque, lobby, losange, jauge 0/15* →
+  1/15*, lieu dévoré (badge 1), carte histoire dans la colonne après la
+  boucle, zone de côté (23) ; zéro erreur console ; `npm run check` zéro
+  erreur ; régression `test_room.mjs` (781 messages) OK. Non automatisé
+  (rappels) : lieux dévorés au choix, cœur au lieu choisi, ennemis
+  Manifold sortis de la pioche selon X, tableau Reality Acid (livret en
+  lien).
 - 2026-09-10 : **Générateur de cartes sur le board joueur, carte
   personnalisée à partir d'une image** — deux demandes de l'utilisateur.
   (1) Le bouton « Générer une carte » (même icône) est ajouté dans le
@@ -175,45 +245,18 @@ versement de son durable (format → grammaire, piège → §5, décision →
   indices. `npm run check` zéro erreur ; régression `test_room.mjs`
   (732 messages) OK ; survol des jauges des sièges toujours immobile ;
   zéro erreur console.
-- 2026-09-10 : **Tous les jetons des cartes en chips** — demande de
-  l'utilisateur : « chaque jeton posé quelque part sur un objet (doom
-  sur agenda, indice sur lieu…) doit avoir ce type de bouton qui se
-  déploie ». Jusqu'ici deux rendus coexistaient : les **chips** (jauges
-  des ennemis / soutiens / uses, `.chips` en bas à droite) et les
-  **pions ronds** `.jeton` (indices, doom, ressources, générique ;
-  pastille + `.pmj` ± au survol sur les cartes joueur, rien sur les
-  autres — le menu ou le double-clic « prendre un indice »). Désormais
-  une seule fabrique `elChip` (`cartes.js`) rend tout jeton d'une carte
-  en chip, dans une pile unique `.chips` ancrée en bas à droite : les
-  jetons posés (`ORDRE_JETONS` : indices, doom, ressources, générique,
-  puis dégâts / horreur / uses hors jauge) au-dessus, les jauges
-  toujours visibles en dessous (elles gardent leur place quand un pion
-  arrive). Le jeton **générique** est un disque doré (`.chip-disque`)
-  sans image. `chipJauge` (sièges, board) s'appuie sur la même fabrique.
-  Sémantique : clic = +1, « − » au survol, sauf chips **inverses**
-  (`data-inverse`) — uses (déjà) et **indices d'un lieu**
-  (`data-prendre="clue"` : clic = `takeClue`, l'ancien double-clic ;
-  « + » au survol = en poser un). Gestes : `clicChip(ctx, carte, chip,
-  bouton)` partagé par `interactions.js` et `interactions-joueur.js`,
-  branche `.pmj` et double-clic sur `.jeton-clue` retirés ; le fantôme
-  du glisser cache `.chips`. CSS : règles `.jetons` / `.jeton` /
-  `.pmj` / pastille `.n` supprimées (`room.css`, `joueur.css`) — le
-  doom de l'agenda passe donc du bas gauche au bas droit, les jetons
-  des cartes de rencontre du haut gauche au bas droit (décision §1
-  révisée). Vérification (scripts autonomes, The Gathering + deck
-  Harrigan) : Study à 4 indices (chip inverse avec « + »), clic → 3 et
-  Alice à 1, survol → la pastille s'allonge à gauche, icône et nombre
-  fixes, « + » → 4 ; doom / ressource / générique sur le Study, doom 2
-  sur l'agenda (« − » → 1, clic → 2, « Doom en jeu » à jour), dégâts +
-  horreur en chips sur la carte d'enquêteur du siège, ennemi avec
-  indice + doom + dégâts ; board joueur : Venturer en jeu avec doom,
-  ressources, dégâts 0/2, horreur 0/2 et uses 3 empilés ; survol des
-  jauges des sièges et de l'entête toujours immobile ; zéro erreur
-  console ; `npm run check` zéro erreur ; régression `test_room.mjs`
-  (716 messages) OK ; `captures.py` : blocs Gathering (clic sur la chip
-  d'indices) et Devourer (`.chip-doom`) adaptés. `wrangler dev` mort
-  deux fois entre deux scripts (piège §5), relancé.
-- **Prochaine étape** : retours de l'utilisateur sur le générateur
+- **Prochaine étape** : validation par l'utilisateur de la room The Blob
+  That Ate Everything (question mode, colonne Histoire avec Subject 8L-08,
+  pile Dévorées, cycle des actes, cartes Mi-Go face visible), puis le
+  **scénario indépendant suivant à son choix** (même méthode : livret lu
+  en entier, découpage en rooms si plusieurs scénarios, un push par
+  room) — reste dans la liste : Curse of the Rougarou, Carnevale of
+  Horrors, The Labyrinths of Lunacy, Guardians of the Abyss (deux rooms
+  déjà prévues), Murder at the Excelsior Hotel, War of the Outer Gods,
+  Machinations Through Time, Fortune and Folly, The Midwinter Gala, Film
+  Fatale (pioche Reel, v2). Chantier connexe : rangement de la zone hors
+  jeu (le Blob a 23 cartes de côté). Toujours en attente : retours de
+  l'utilisateur sur le générateur
   (board joueur, carte personnalisée en image — téléversement via un
   bucket R2 si le besoin se confirme), sur les chips (tous les jetons
   des cartes, bouton maintenu déployé, indices d'un lieu en chip
@@ -321,6 +364,23 @@ navigateurs).
   contexte. Claude prévient quand un résultat d'outil contient le texte
   du guide. Le texte des cartes n'est jamais reproduit dans le code
   (images seulement).
+
+### Scénarios indépendants (consigne de l'utilisateur, 2026-09-10)
+
+Pour chaque standalone : lire le **livret en entier** avant de commencer
+(la règle « Setup + diagramme seulement » des campagnes ne s'applique
+pas ; le spoiler à éviter reste celui de l'utilisateur et de l'app) ;
+si le livret contient en fait plusieurs scénarios, **une room par
+scénario** et la bibliothèque adaptée (Guardians of the Abyss est déjà
+scindé) ; les rooms se créent **une par une, un push par room**, et la
+suivante attend la validation de l'utilisateur. Un scénario à plusieurs
+modes (Single Group / Epic Multiplayer / side-story du Blob) reste une
+seule room avec une question `mode` ; en Epic, une table de l'app est
+un groupe et l'organisateur tient les valeurs globales (rappel). Chaque
+scénario a son propre livret : champ `guide` du scénario dans
+`library.json` (lien « livret », lien Guide de la table). Les cartes
+mises de côté sont face visible sauf celles dont une face est à ne pas
+lire (cartes histoire à Part 2 au verso → `storyBack`, face cachée).
 
 ### Fonctionnalités décidées (questionnaire du 2026-09-03)
 
@@ -1056,8 +1116,12 @@ par phase (`reminders[]` du `*.src.json`).
 - **Composition du sac par difficulté** : TCU saisi (2026-09-04), TIC
   saisi (2026-09-08, p. 3 du guide lue sur l'image), COB saisi
   (2026-09-08, p. 5, jetons sang compris), BoA / Core 2026 saisi
-  (2026-09-10, p. 2, icônes vérifiées par corrélation avec tokens.ttf) ;
-  reste TDC, TDE‑A et Film Fatale (section Setup / encart du guide).
+  (2026-09-10, p. 2, icônes vérifiées par corrélation avec tokens.ttf),
+  The Blob saisi (2026-09-10, p. 2 à 600 dpi, deux niveaux : Facile joue
+  Standard, Expert joue Difficile — le lobby propose toujours les quatre ;
+  un champ `difficulties` qui masquerait Facile / Expert reste possible
+  si l'utilisateur le demande) ; reste TDC, TDE‑A et Film Fatale (section
+  Setup / encart du guide).
 - **Brethren of Ash** (campagne complète) : le II reporte le journal du
   I par deux questions (université, porteur d'Armitage) tirées du Setup
   p. 6 seul et ajoute les 2 cultistes du guide ; le III reporte ces

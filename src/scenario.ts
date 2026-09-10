@@ -34,8 +34,10 @@ export type ScenarioCard = {
 // Les références « slot:<nom> » désignent une carte choisie plus tôt (pickRandom, setStart).
 export type SetupStep =
   | { op: "place"; code: string; zone: ZoneId; x: number; y: number; reveal?: boolean; faceUp?: boolean; log?: string }
-  | { op: "pickRandom"; from: string[]; n?: number; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; rest?: "remove" | "aside" | "pile" | "keep"; restPile?: string; log?: string }
-    // slot : « slot:<nom> » = première carte tirée, « slot:<nom>:<i> » = i-ème ; rest : sort des cartes non tirées (retirées par défaut, de côté, ou dans la pile restPile)
+  | { op: "pickRandom"; from: string[]; n?: number; include?: string[]; slot?: string; zone?: ZoneId; x?: number; y?: number; positions?: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; rest?: "remove" | "aside" | "pile" | "keep"; restPile?: string; log?: string }
+    // slot : « slot:<nom> » = première carte tirée, « slot:<nom>:<i> » = i-ème ; rest : sort des cartes non tirées (retirées par défaut, de côté, ou dans la pile restPile) ;
+    // les billets du tirage sont les exemplaires encore au pool de chaque code de `from` ; `include` : cartes imposées, mélangées avec les
+    // n tirées avant la pose (« Research Site, Temporary HQ et 2 Quarantine Zones au hasard, mélangées, dans un ordre aléatoire »)
   | { op: "randomTokens"; token: "doom" | "clue" | "damage" | "horror" | "resource" | "generic"; n?: number; picks: number[]; rounds: number[]; log?: string }
     // jetons posés au hasard sur des lieux du tapis : à chaque manche (rounds[joueurs-1]), picks[joueurs-1] lieux distincts reçoivent n jetons (brèches d'In the Clutches of Chaos)
   | { op: "fromPile"; pile: string; n: number; zone: ZoneId; positions: { x: number; y: number }[]; faceUp?: boolean; reveal?: boolean; slot?: string; log?: string }
@@ -80,6 +82,7 @@ export type SetupStep =
     // `fillAsideTo: n` : parmi `colors`, tirées au hasard, juste assez pour que n clés face cachée soient de côté (les autres ne servent pas)
   | { op: "randomKey"; at: string; log?: string }   // une clé de côté face cachée, tirée au hasard, posée sur une carte en jeu sans être regardée (journal muet sur sa couleur)
   | { op: "addClues"; code: string; n: number; log?: string }                  // indices fixes sur un lieu en jeu (révélé ou non)
+  | { op: "reveal"; code: string; log?: string }                               // révèle un lieu déjà en jeu (code ou slot) : indices selon les enquêteurs — lieu de départ posé par un tirage (Temporary HQ)
   | { op: "seatCounter"; key: string; n: number; log?: string }                // n de plus au compteur `key` (clues, resources…) de chaque enquêteur (Queen of Ash : 1 indice chacun)
   | { op: "removeClues"; from: string[]; n?: number; nFrom?: string; log?: string }   // retire n indices (ou la réponse numérique nFrom) aussi également que possible
   | { op: "bury"; fromDeckTop?: number; with?: string[]; fromPool?: string[]; trait?: string; under?: string[]; dy?: number; log?: string }
@@ -105,7 +108,8 @@ export type Answers = Record<string, string | string[]>;
  *  chaque effet est idempotent (une carte déjà en jeu n'est pas reposée) — la part qui dépend d'un choix reste un rappel. */
 export type StageEffects = {
   flood?: { trait?: string; mode: "increase" | "full"; scope?: "all" | "revealed" };   // inondation des lieux (du trait, tous ou révélés)
-  shuffleAside?: (string | { code: string; n: number })[]; withDiscard?: boolean;   // cartes de côté (et la défausse) mélangées dans la pioche ; {code, n} = n copies au plus (« each other copy »)
+  shuffleAside?: (string | { code: string; n: number })[]; withDiscard?: boolean; ifAside?: true;   // cartes de côté (et la défausse) mélangées dans la pioche ; {code, n} = n copies au plus (« each other copy ») ;
+    // ifAside : tout le geste (défausse comprise) seulement si au moins une copie listée est encore de côté (« the first time this act has advanced » — drones du Blob)
   revealCodes?: string[];                                               // lieux du tapis révélés (indices, marée)
   placeBelow?: { code: string; at: string }[];                          // une carte de côté posée non révélée juste en dessous d'un lieu du tapis
   fillRows?: { pile: string; anchors: string[]; columns: number[]; count: number };
@@ -122,7 +126,10 @@ export type StageEffects = {
   discardAside?: { code: string; n?: number }[];                        // copies de côté de ce code placées dans la défausse de rencontre (n au plus, toutes par défaut)
   setAside?: string[];                                                  // ces cartes, où qu'elles soient (jeu, défausse, victoire), reviennent de côté soignées (« set aside, out of play »)
   discardAt?: string[];                                                 // les cartes de rencontre posées sur ces lieux du tapis (attaches, traîtrises, ennemis) vont à la défausse — à écrire avant un removeLocations
-  addClues?: { code: string; n: number; perInvestigator?: boolean }[];   // indices posés sur un lieu du tapis (n, ou n par enquêteur)
+  addClues?: { code?: string; trait?: string; revealed?: boolean; n: number; perInvestigator?: boolean; max?: "printed" }[];
+    // indices posés sur un lieu du tapis (code), ou sur chaque lieu du tapis portant `trait` (révélés seulement si `revealed`) ;
+    // n, ou n par enquêteur ; `max: "printed"` : sans dépasser la valeur d'indices imprimée du lieu (« to a maximum of its clue value »)
+  drawAside?: { codes: string[]; n?: number };                          // n (1) cartes tirées au hasard parmi celles de côté de ces codes entrent dans l'histoire, face visible recto (« draw a random set-aside story card »)
   log?: string;
 };
 export type SpawnAside = { code: string; at: string; side?: "a" | "b"; ifAside?: true };   // ifAside : seulement si une copie est de côté (sinon rien, sans rappel — « if the Servant is set aside, spawn it »)
@@ -194,6 +201,8 @@ export type ScenarioDef = {
   flood?: { byAgenda?: Record<string, { all?: "increase" | "full"; onReveal?: 0 | 1 | 2 }>; onRevealByCode?: Record<string, 1 | 2> };
     // `onRevealByCode[code]` : ce lieu monte d'un niveau (1) ou est totalement inondé (2) à sa révélation — texte imprimé du lieu
     // (Devil Reef), même sémantique que la règle de marée `onReveal`
+  actCycle?: boolean;       // le deck d'acte se réinitialise quand le dernier acte avance (« Reset the act deck to act 1a », The Blob) : tous les
+                            // actes reviennent dans le deck dans l'ordre, l'acte 1 redevient courant, effets `after:<dernier>` et `act:1` appliqués
   agendaEffects?: Record<string, StageEffects>;   // clé "<stage>" : quand l'agenda `stage` devient courant ; clé "after:<code>" : quand la carte
   actEffects?: Record<string, StageEffects>;      // <code> quitte l'histoire (son verso résolu) — utile quand deux versions d'un agenda diffèrent
   leads?: {

@@ -334,8 +334,10 @@ function rendreHistoire(ctx) {
           el("button", { class: "bouton secondaire petit", type: "button", disabled: !peut || (!acte && !state.piles.actDeck.length), title: "L'acte courant part de côté (hors jeu), l'acte suivant est révélé", onclick: () => ctx.envoyer({ t: "advanceAct" }) }, "Avancer l'acte"),
           el("span", { class: "sous", text: `${state.piles.actDeck.length} à venir` }))),
       scenario ? el("div", { class: "bloc scenario" }, scenario.loc.zone === "story" ? carteEl(scenario, ctx) : el("div", { class: "carte absente" }), el("p", { class: "sous", text: "Carte de scénario — clic droit : autre face. Retourner un agenda ou un acte (clic droit) pour lire son verso, puis « Hors jeu » : le suivant sort tout seul." })) : null,
-      // Cartes de référence du scénario posées « à côté de la carte de scénario » (kind story dans la zone histoire, ex. Finding Agent Harper).
-      ...cartes.filter((c) => c.kind === "story").map((c) => el("div", { class: "bloc reference" }, carteEl(c, ctx))),
+      // Cartes de référence du scénario posées « à côté de la carte de scénario » (kind story dans la zone histoire, ex. Finding Agent
+      // Harper), et toute autre carte mise dans l'histoire par le setup ou par un dépôt : un ennemi « à côté de l'agenda, à aucun lieu »
+      // (Subject 8L-08 du Blob, avec sa jauge de dégâts), une carte histoire tirée au verso de l'acte 3.
+      ...cartes.filter((c) => !["agenda", "act", "scenario"].includes(c.kind)).map((c) => el("div", { class: "bloc reference" }, carteEl(c, ctx))),
       ctx.scenario.leads ? blocPistes(ctx, peut) : null,
       ctx.scenario.flood ? blocMaree(ctx, peut) : null,
     ),

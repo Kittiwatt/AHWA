@@ -184,7 +184,8 @@ export function majCarte(el, carte, ctx) {
     for (const t of liste) {
       const n = carte.tokens[t] ?? 0;
       const max = jauges.includes(t) ? (t === "damage" ? face.health : t === "horror" ? face.sanity : 0) : 0;
-      chips.querySelector(`.chip-${t} .chip-n`).textContent = max ? `${n}/${max}${face.healthPerInvestigator && t === "damage" ? "*" : ""}` : String(n);
+      // Pas de maximum (vie X ou ✱ — réserve globale de Subject 8L-08) : la chip compte seulement les dégâts.
+      chips.querySelector(`.chip-${t} .chip-n`).textContent = max > 0 ? `${n}/${max}${face.healthPerInvestigator && t === "damage" ? "*" : ""}` : String(n);
     }
   } else if (chips) chips.remove();
   // Jetons du chaos scellés sur la carte (COB III, codex des invités) : pastilles en haut à droite,

@@ -3441,5 +3441,192 @@ const CULTISTES = ["12121", "12188", "12189"];
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ The Blob That Ate Everything (scénario indépendant) : question mode (Single Group / Epic / side-story), set non joué
+// retiré, Mi-Go Incursion de côté (cartes histoire face cachée), cœur et oozes de côté, Subject 8L-08 dans l'histoire, losange
+// (pickRandom include + reveal), contremesures sur la carte de scénario, pile Dévorées, sac à deux niveaux, effets d'agenda
+// (oozes remélangés avec la défausse), cycle des actes (actCycle, drones ifAside, addClues par trait plafonnés, drawAside) ============
+async function tableBlob({ joueurs = 2, difficulty, answers } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "sa_the_blob_that_ate_everything" }) });
+  assert.equal(r.status, 200, "The Blob est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const QZ = ["85014", "85015", "85016", "85017", "85018", "85019", "85020"];
+const INTERIEUR = ["737,411", "551,649", "923,649", "737,887"], POINTES = ["737,173", "365,649", "1109,649", "737,1125"], DIAGONALES = ["551,411", "923,411", "551,887", "923,887"];
+const MIGO_VISIBLES = ["85025", "85026", "85027", "85028", "85029", "85030", "85031", "85032", "85033", "85033", "85033", "85034", "85035", "85036"];
+const HISTOIRES = ["85021", "85022", "85023", "85024"];
+
+{ // Single Group, Standard, 2 joueurs : losange, HQ révélé, contremesure, Subject 15 par enquêteur ; puis agendas 2-3 et le cycle des actes.
+  const { h } = await tableBlob({ joueurs: 2, answers: { mode: "single" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 17, "sac Standard : 10 nombres + 7 icônes");
+  assert.deepEqual([...s.chaos.bag].sort(), ["+1", "0", "0", "0", "-1", "-2", "-2", "-3", "-4", "-5", "skull", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"].sort(), "sac Standard p. 2");
+  const scen = cartes.find((c) => c.kind === "scenario");
+  assert.equal(scen.side, "a", "carte de scénario côté Easy/Standard");
+  assert.equal(scen.tokens.resource, 1, "1 contremesure (ressource) à 2 enquêteurs");
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux.length, 13, "13 lieux : Crater + 3 nommés + 9 Quarantine Zones");
+  const pos = (code) => lieux.filter((c) => c.code === code).map((c) => `${c.loc.x},${c.loc.y}`);
+  assert.deepEqual(pos("85010"), ["737,649"], "The Crater au centre");
+  assert.ok(!lieux.find((c) => c.code === "85010").faceUp, "Crater non révélé");
+  assert.ok(INTERIEUR.includes(pos("85011")[0]) && INTERIEUR.includes(pos("85012")[0]), "Research Site et Temporary HQ connectés au Crater");
+  assert.ok(POINTES.includes(pos("85013")[0]), "Fungus Mound à une pointe");
+  const qz = lieux.filter((c) => QZ.includes(c.code));
+  assert.equal(qz.length, 9, "9 Quarantine Zones en jeu");
+  assert.equal(qz.filter((c) => INTERIEUR.includes(`${c.loc.x},${c.loc.y}`)).length, 2, "2 QZ dans l'anneau intérieur");
+  assert.equal(qz.filter((c) => POINTES.includes(`${c.loc.x},${c.loc.y}`)).length, 3, "3 QZ aux pointes");
+  assert.equal(qz.filter((c) => DIAGONALES.includes(`${c.loc.x},${c.loc.y}`)).length, 4, "4 QZ aux diagonales");
+  assert.ok(qz.every((c) => !c.faceUp), "QZ non révélées");
+  assert.equal(cartes.filter((c) => QZ.includes(c.code) && c.loc.pile === "removed").length, 1, "1 QZ retirée de la partie");
+  const hq = lieux.find((c) => c.code === "85012");
+  assert.ok(hq.faceUp && !hq.tokens.clue, "Temporary HQ révélé, sans indice (0 imprimé)");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - hq.loc.x) < 130 && Math.abs(m.loc.y - hq.loc.y) < 60), "pions à Temporary HQ");
+  assert.ok(!s.log.some((e) => /Bridge|Sewer|Water Tower|Church|Lakebed|Slimy|Farmland/.test(e.text)), "journal muet sur les QZ (ordre, retirée)");
+  const subject = cartes.find((c) => c.code === "85038");
+  assert.ok(subject && subject.loc.zone === "story" && subject.faceUp && subject.kind === "enemy", "Subject 8L-08 (Single Group) dans l'histoire");
+  assert.ok(cartes.some((c) => c.code === "85037" && c.loc.pile === "removed"), "Subject Epic retiré");
+  assert.deepEqual(["85005", "85008"].map((c) => cartes.find((k) => k.code === c).loc.pile), ["removed", "removed"], "actes Epic retirés");
+  assert.equal(s.cards[s.actId].code, "85006"); assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["85007", "85009"], "acte 1 Single, puis 2 et 3 Single");
+  assert.equal(s.cards[s.agendaId].code, "85002"); assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["85003", "85004"]);
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.deepEqual(cote.map((c) => c.code).sort(), [...HISTOIRES, ...MIGO_VISIBLES, "85043", "85040", "85041", "85042", "85042"].sort(), "de côté : Mi-Go Incursion, cœur, 1 Grasping, 1 Cubic, 2 Oozewraith");
+  assert.ok(cote.filter((c) => HISTOIRES.includes(c.code)).every((c) => !c.faceUp && c.storyBack), "cartes histoire face cachée, dos histoire");
+  assert.ok(cote.filter((c) => !HISTOIRES.includes(c.code)).every((c) => c.faceUp), "le reste de côté face visible");
+  assert.equal(s.piles.encounter.length, 30, "pioche : 4 Oozeling, 1 Grasping, 1 Cubic, 24 traîtrises");
+  assert.ok("devoured" in s.piles && !s.piles.devoured.length, "pile Dévorées vide");
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /^Contremesures/.test(e.text)) && !s.log.some((e) => /^Epic Multiplayer \(livret/.test(e.text)), "rappels Single Group");
+  // Dévorer un lieu : menu → pile Dévorées (face cachée, hors jeu).
+  const victime = qz.find((c) => DIAGONALES.includes(`${c.loc.x},${c.loc.y}`));
+  await h.action({ t: "toPile", id: victime.id, pile: "devoured" });
+  assert.equal(h.state.piles.devoured.length, 1, "lieu dévoré dans la pile");
+  // Agenda 2 : 1 Cubic + 1 Grasping de côté dans la pioche avec la défausse ; agenda 3 : les deux Oozewraith.
+  await h.action({ t: "drawEncounter" });
+  const tiree = h.state.cards[h.state.piles.encounter[0]];
+  await h.action({ t: "toPile", id: tiree.id, pile: "encounterDiscard" });
+  assert.equal(h.state.piles.encounterDiscard.length, 1);
+  await h.action({ t: "advanceAgenda" });
+  let S = h.state;
+  assert.equal(S.cards[S.agendaId].code, "85003");
+  assert.equal(S.piles.encounter.length, 29 + 2 + 1, "défausse remélangée + Cubic + Grasping");
+  assert.equal(Object.values(S.cards).filter((c) => (c.code === "85040" || c.code === "85041") && c.loc.zone === "aside").length, 0, "plus d'ooze de côté");
+  assert.equal(Object.values(S.cards).filter((c) => c.code === "85042" && c.loc.zone === "aside").length, 2, "Oozewraith encore de côté");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'agenda 1 : choisissez 2 lieux/.test(e.text)), "rappel agenda:2");
+  await h.action({ t: "advanceAgenda" });
+  S = h.state;
+  assert.equal(S.cards[S.agendaId].code, "85004");
+  assert.equal(S.piles.encounter.length, 32 + 2, "les deux Oozewraith mélangés dans la pioche");
+  assert.equal(Object.values(S.cards).filter((c) => c.code === "85042" && c.loc.zone === "aside").length, 0);
+  // Acte 2 : rappel (cœur au choix) ; on le fait apparaître à la main et on le blesse. Acte 3 : soigné, remis de côté, X dans le journal.
+  await h.action({ t: "advanceAct" });
+  S = h.state;
+  assert.equal(S.cards[S.actId].code, "85007");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'acte 1 : choisissez un lieu Oozified/.test(e.text)), "rappel act:2");
+  const coeur = Object.values(S.cards).find((c) => c.code === "85043");
+  const crater = Object.values(S.cards).find((c) => c.code === "85010");
+  await h.action({ t: "moveCard", id: coeur.id, zone: "board", x: crater.loc.x + 36, y: crater.loc.y + 46 });
+  await h.action({ t: "addToken", id: coeur.id, token: "damage", delta: 4 });
+  await h.action({ t: "revealLocation", id: crater.id });
+  S = h.state;
+  assert.equal(S.cards[crater.id].tokens.clue, 4, "Crater révélé : 2 indices × 2");
+  await h.action({ t: "advanceAct" });
+  S = h.state;
+  assert.equal(S.cards[S.actId].code, "85009", "acte 3 Single");
+  assert.ok(S.cards[coeur.id].loc.zone === "aside" && !S.cards[coeur.id].tokens.damage, "Vulnerable Heart soigné, de côté");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /Verso de l'acte 2 \(acte 3\) : Vulnerable Heart remis de côté.*4 dégâts retirés/.test(e.text)), "X = 4 dans le journal");
+  // Acte 3 avance : deck d'acte réinitialisé (acte 1 courant, 2 et 3 dans le deck), drones + défausse dans la pioche, indices plafonnés, carte histoire tirée.
+  await h.action({ t: "addToken", id: crater.id, token: "clue", delta: -3 });
+  await h.action({ t: "drawEncounter" });
+  await h.action({ t: "toPile", id: h.state.cards[h.state.piles.encounter[0]].id, pile: "encounterDiscard" });
+  const pioche = h.state.piles.encounter.length;
+  await h.action({ t: "advanceAct" });
+  S = h.state;
+  assert.equal(S.cards[S.actId].code, "85006", "retour à l'acte 1a");
+  assert.deepEqual(S.piles.actDeck.map((id) => S.cards[id].code), ["85007", "85009"], "actes 2 et 3 de retour dans le deck");
+  assert.equal(S.counters.actCycles, 1, "un tour d'actes compté");
+  assert.equal(S.piles.encounter.length, pioche + 1 + 3, "défausse + 3 Mi-Go Drone mélangés dans la pioche");
+  assert.equal(Object.values(S.cards).filter((c) => c.code === "85033" && c.loc.zone === "aside").length, 0, "plus de drone de côté");
+  assert.equal(S.cards[crater.id].tokens.clue, 3, "Crater 1 → 3 (1 par enquêteur, plafond 4)");
+  assert.ok(!S.cards[hq.id].tokens.clue, "Temporary HQ (non Oozified) : rien");
+  const histoire = Object.values(S.cards).filter((c) => HISTOIRES.includes(c.code));
+  assert.equal(histoire.filter((c) => c.loc.zone === "story").length, 1, "une carte histoire tirée dans l'histoire");
+  assert.ok(histoire.find((c) => c.loc.zone === "story").faceUp && histoire.find((c) => c.loc.zone === "story").side === "a", "face visible, recto (Part 1)");
+  assert.equal(histoire.filter((c) => c.loc.zone === "aside" && !c.faceUp).length, 3, "les trois autres restent de côté face cachée");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Retour à l'acte 1/.test(e.text)), "rappel act:1 au retour");
+  // Second tour : plus de drone de côté → rien n'est remélangé (ifAside), indices plafonnés (Crater reste à 4), autre carte histoire.
+  await h.action({ t: "addToken", id: crater.id, token: "clue", delta: 1 });
+  await h.action({ t: "advanceAct" }); await h.action({ t: "advanceAct" });
+  await h.action({ t: "drawEncounter" });
+  await h.action({ t: "toPile", id: h.state.cards[h.state.piles.encounter[0]].id, pile: "encounterDiscard" });
+  const pioche2 = h.state.piles.encounter.length;
+  await h.action({ t: "advanceAct" });
+  S = h.state;
+  assert.equal(S.cards[S.actId].code, "85006"); assert.equal(S.counters.actCycles, 2);
+  assert.equal(S.piles.encounter.length, pioche2, "seconde fois : ni drone ni défausse remélangés");
+  assert.equal(S.piles.encounterDiscard.length, 1);
+  assert.equal(S.cards[crater.id].tokens.clue, 4, "plafond imprimé (2 par enquêteur) respecté");
+  assert.equal(Object.values(S.cards).filter((c) => HISTOIRES.includes(c.code) && c.loc.zone === "story").length, 2, "seconde carte histoire tirée");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // Epic Multiplayer, Expert, 3 joueurs : sac Difficile, carte côté Hard/Expert, set Single retiré, Subject ✱ sans maximum, pas de contremesure, acte 1 sans seuil ; retour à l'acte 1 sans tirage de carte histoire.
+  const { h } = await tableBlob({ joueurs: 3, difficulty: "expert", answers: { mode: "epic" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.deepEqual([...s.chaos.bag].sort(), ["0", "0", "0", "-1", "-1", "-2", "-3", "-4", "-5", "-6", "skull", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"].sort(), "Expert joue le sac Difficile (p. 2)");
+  assert.ok(s.log.some((e) => /Expert joue le sac Difficile/.test(e.text)), "journal : deux niveaux seulement");
+  const scen = cartes.find((c) => c.kind === "scenario");
+  assert.equal(scen.side, "b", "carte de scénario côté Hard/Expert");
+  assert.ok(!scen.tokens.resource, "pas de contremesure sur la carte (organisateur)");
+  const subject = cartes.find((c) => c.code === "85037");
+  assert.ok(subject && subject.loc.zone === "story" && subject.faceUp, "Subject 8L-08 (Epic) dans l'histoire");
+  assert.ok(cartes.some((c) => c.code === "85038" && c.loc.pile === "removed"), "Subject Single retiré");
+  assert.equal(s.cards[s.actId].code, "85005"); assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["85007", "85008"], "actes Epic");
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /^Epic Multiplayer \(livret/.test(e.text)), "rappel Epic");
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 3);
+  assert.equal(cartes.filter((c) => c.kind === "location" && c.loc.zone === "board").length, 13);
+  assert.equal(s.piles.encounter.length, 30);
+  const r = await fetch(`${BASE}/scenarios/sa_the_blob_that_ate_everything.json`);
+  const def = await r.json();
+  assert.equal(def.cards.find((c) => c.code === "85037").health, undefined, "vie ✱ : pas de maximum");
+  assert.equal(def.cards.find((c) => c.code === "85038").health, 15);
+  assert.deepEqual(def.cards.find((c) => c.code === "85005").clue, { value: 0, perInvestigator: true }, "seuil global de l'acte 1 Epic : aucun seuil dans l'app");
+  assert.equal(def.cards.find((c) => c.code === "85006").clue.value, 2);
+  await h.action({ t: "advanceAct" }); await h.action({ t: "advanceAct" }); await h.action({ t: "advanceAct" });
+  const S = h.state;
+  assert.equal(S.cards[S.actId].code, "85005", "retour à l'acte 1a (Epic)");
+  assert.equal(Object.values(S.cards).filter((c) => HISTOIRES.includes(c.code) && c.loc.zone === "aside").length, 4, "Epic : aucune carte histoire tirée (organisateur)");
+  assert.equal(Object.values(S.cards).filter((c) => c.code === "85033" && c.loc.pile === "encounter").length, 3, "drones dans la pioche");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
+{ // Side-story de campagne, Facile, 1 joueur : mise en place Single Group, sac Standard (Facile), rappel du sac de campagne, 1 contremesure.
+  const { h } = await tableBlob({ joueurs: 1, difficulty: "easy", answers: { mode: "campaign" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 17); assert.ok(s.chaos.bag.includes("+1") && s.chaos.bag.includes("-5") && !s.chaos.bag.includes("-6"), "Facile joue le sac Standard");
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /^Side-story/.test(e.text)), "rappel side-story (sac de campagne, 2 XP)");
+  assert.ok(cartes.some((c) => c.code === "85038" && c.loc.zone === "story"), "Subject Single Group");
+  assert.equal(cartes.find((c) => c.kind === "scenario").tokens.resource, 1, "1 contremesure à 1 enquêteur");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a");
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 1);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

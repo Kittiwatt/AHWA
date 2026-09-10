@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-10 (Queen of Ash compris). Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-10 (The Blob That Ate Everything compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -42,7 +42,8 @@ avant tout test) : tout code cité — `scenarioCard`, `startLocation`,
 `agendaDeck`, `actDeck`, `layout`, tout le `setup` (branches et `when`
 compris : `code`, `codes`, `from`, `at`, `atRandom`, `pool`), `leads`,
 `agendaEffects` / `actEffects` (`shuffleAside`, `spawnAside`, `randomKeyOn`,
-`discardAside`, `setAside`, `discardAt`, `addClues`, `removeLocations.codes`),
+`discardAside`, `setAside`, `discardAt`, `addClues.code`, `drawAside.codes`,
+`removeLocations.codes`), `pickRandom.include`,
 `barriers.pairs` — doit exister dans les sets retenus (ou `extraCards`)
 des packs déclarés ; les sets cités par `pickRandomSet`, `aside`,
 `toPile` doivent être dans `encounterSets` ; `dealToSeats` exige des
@@ -50,7 +51,8 @@ des packs déclarés ; les sets cités par `pickRandomSet`, `aside`,
 `pool` ; chaque `piles[].discard` doit désigner une pile déclarée
 `isDiscard` ; `backPlacement` seulement sur une carte liée ; `swaps` :
 paires et libellés par deux ; question `number` : `min` et `max`
-entiers, sinon `options` non vide.
+entiers, sinon `options` non vide ; une entrée `addClues` d'effet a un
+`code` ou un `trait` ; `actCycle` exige un `actDeck`.
 
 ## 2. Champs racine du `*.src.json`
 
@@ -78,7 +80,7 @@ Le `.src.json` est la définition complète moins ce que le build ajoute
 | `piles` | non | Piles supplémentaires, §6. |
 | `backPlacement` | non | `{code:{x,y}}` — où le verso-lieu d'un agenda/acte lié entre en jeu (défaut : centre 737 × 411). |
 | `storyBack` | non | `[codes]` à dos histoire — recensement manuel (les données ne les marquent pas uniformément). Le verso reste secret dans le journal. |
-| `swaps`, `mythosDoom`, `emptySpace`, `barriers`, `flood`, `agendaEffects`, `leads`, `seal`, `cardSeal`, `bury` | non | Comportements runtime, §6. |
+| `swaps`, `mythosDoom`, `emptySpace`, `barriers`, `flood`, `agendaEffects`, `actEffects`, `actCycle`, `leads`, `seal`, `cardSeal`, `bury` | non | Comportements runtime, §6. |
 
 ## 3. Questions du lobby
 
@@ -141,7 +143,16 @@ donc pas ce qui est déjà posé.
   visible + indices selon le nombre d'enquêteurs (`clue.perInvestigator`
   lu des données, `clues_fixed` → valeur fixe) + marée en cours (TIC).
   Le journal nomme la **face visible** : un lieu non révélé garde son
-  secret (`backName`, ex. « Decrepit Door »).
+  secret (`backName`, ex. « Decrepit Door »). `zone:"story"` avec
+  `faceUp:true` pour une carte qui vit « à côté de l'agenda, à aucun
+  lieu » (Subject 8L-08 du Blob, Captured!) : la colonne Histoire rend
+  toute carte de cette zone hors agenda / acte / scénario, avec ses chips
+  (jauge de dégâts d'un ennemi) et son menu ; elle s'y redépose par
+  glisser.
+- `{"op":"reveal","code","log"?}` — révèle un **lieu déjà en jeu** (code
+  ou slot) : indices selon les enquêteurs, marée ; sans effet s'il l'est
+  déjà. Pour le lieu de départ posé non révélé par un tirage (Temporary
+  HQ, tiré avec `include` parmi l'anneau intérieur du Blob).
 - `{"op":"spawn","code","at","log"?}` — pose révélée sur la carte `at`
   (code ou slot) avec décalage automatique (36/46 px + 18 par carte déjà
   présente). Pour les ennemis « mis en jeu à » un lieu.
@@ -181,9 +192,18 @@ donc pas ce qui est déjà posé.
 
 ### Tirages au hasard
 
-- `{"op":"pickRandom","from":[codes],"n"?,"slot"?,"zone"?,"x","y"|"positions":[{x,y}…],"faceUp"?,"reveal"?,"rest"?,"restPile"?,"log"?}`
-  — tire `n` (défaut 1) parmi `from` (un code présent en plusieurs
-  exemplaires peut sortir plusieurs fois). Avec `zone` + position(s) :
+- `{"op":"pickRandom","from":[codes],"n"?,"include"?:[codes],"slot"?,"zone"?,"x","y"|"positions":[{x,y}…],"faceUp"?,"reveal"?,"rest"?,"restPile"?,"log"?}`
+  — tire `n` (défaut 1) parmi `from` : les **billets** sont les
+  exemplaires encore au pool de chaque code listé (un code en plusieurs
+  exemplaires peut sortir plusieurs fois ; le répéter dans `from` est
+  inoffensif, mais plus nécessaire) — des tirages successifs sur les
+  mêmes codes ne demandent donc jamais une copie déjà posée (anneaux du
+  Blob : 2 QZ, puis 3, puis 4 sur les mêmes sept codes) ; moins de
+  billets que `n` = erreur de setup. `include` : cartes **imposées**,
+  prises au pool et mélangées avec les `n` tirées avant la pose
+  (« Research Site, Temporary HQ et 2 Quarantine Zones au hasard,
+  mélangés, dans un ordre aléatoire ») ; elles ne comptent pas dans `n`
+  ni dans les restes. Avec `zone` + position(s) :
   les tirées sont posées (`positions[i % len]`, ou `x + i·158`) ; avec
   `log`, une seule ligne de journal pour tout le tirage, sinon une par
   carte. `zone:"aside"` sans coordonnées : les tirées vont en fin de
@@ -361,6 +381,14 @@ rendus pendant la partie.
   règles l'emporte (journal « (texte du lieu) »). `flood: {}` suffit à
   activer menus « Inondation » et panneau Marée. Niveaux : 0 sec,
   1 partiellement, 2 totalement.
+- **`actCycle: true`** — « Reset the act deck to act 1a » (The Blob That
+  Ate Everything) : quand le dernier acte avance (deck d'acte vide), tous
+  les actes du scénario encore dans la partie (de côté, dans l'histoire…
+  les versions retirées exclues) reviennent dans le deck dans l'ordre
+  d'`actDeck`, sans jeton ; le premier redevient courant, les effets
+  `after:<dernier acte>` puis `"1"` s'appliquent, les rappels `act:1`
+  aussi (ils ne se déclenchent donc qu'au retour, jamais au setup) ;
+  `state.counters.actCycles` compte les tours, la ligne de journal aussi.
 - **`agendaEffects`** / **`actEffects`** : `{"<stage>" | "after:<code>": StageEffects}`
   — clé `"<stage>"` : appliqués quand l'agenda (ou l'acte) `stage`
   devient courant ; clé `"after:<code>"` : quand la carte `code` quitte
@@ -374,7 +402,9 @@ rendus pendant la partie.
   trait, tous ou révélés) ; `shuffleAside` (ces codes de côté rejoignent
   la pioche — une entrée `{code, n}` n'en prend que `n` copies : « each
   other copy of Fire! » —, `withDiscard:true` remélange aussi la
-  défausse) ;
+  défausse ; `ifAside:true` : tout le geste, défausse comprise,
+  seulement si une copie listée est encore de côté, sinon rien ni ligne
+  — « the first time this act has advanced », drones Mi-Go du Blob) ;
   `revealCodes` (lieux du tapis révélés, indices et marée) ;
   `placeBelow [{code, at}]` (une carte de côté posée non révélée juste
   sous un lieu, case prise → plus bas) ; `fillRows {pile, anchors,
@@ -415,9 +445,19 @@ rendus pendant la partie.
   comme pour le porteur d'un lieu déplacé — vont à la défausse : « discard
   all attachments from X », à écrire **avant** le `removeLocations` du
   même lieu) ; `addClues [{code, n, perInvestigator?}]` (indices posés
-  sur un lieu du tapis, révélé ou non, `n` ou `n` par enquêteur). Cible
-  introuvable → rappel « à faire à la main », jamais d'erreur ; rien à
-  faire → pas de ligne.
+  sur un lieu du tapis, révélé ou non, `n` ou `n` par enquêteur) — ou
+  `{trait, revealed?, n, perInvestigator?, max?:"printed"}` (sur
+  **chaque** lieu du tapis portant le trait, révélé si `revealed`, sans
+  dépasser sa valeur d'indices imprimée par enquêteur si `max` :
+  « place 1 [per_investigator] clues on each revealed Oozified location,
+  to a maximum of its clue value » ; la ligne détaille avant → après) ;
+  `drawAside {codes, n?}` (`n` (1) cartes tirées au hasard parmi celles
+  de côté de ces codes entrent dans l'histoire face visible recto —
+  « draw a random set-aside story card » ; les autres restent de côté
+  sans être regardées ; plus rien de côté → « à faire à la main ») ;
+  `setAside` dit le total de dégâts retirés (« X is the amount of damage
+  removed »). Cible introuvable → rappel « à faire à la main », jamais
+  d'erreur ; rien à faire → pas de ligne.
   `spawnAside` accepte un objet **ou une liste** (deux apparitions dans
   un même verso : Servant of Flame aux dortoirs et une Fire! attachée à
   la chambre) ; il prend d'abord une copie **de côté**, sinon une copie
@@ -499,6 +539,11 @@ rendus pendant la partie.
   Geometry) n'a pas de côté b et entre révélé. `clues_fixed` des
   données → indices fixes ; sinon par enquêteur. Vérifier
   `health_per_investigator` sur la carte réelle en cas de doute.
+- **Valeurs négatives du dump** : vie `-2` = X (Cthulhu, Stalking
+  Hybrid), `-3` = ✱ « voir les règles » (réserve globale de Subject 8L-08
+  en Epic Multiplayer) → le build omet `health` (jauge de dégâts sans
+  maximum) ; indices `-3` sur un acte (seuil global) → `clue.value` 0
+  (aucun seuil affiché, les indices se posent sur l'acte par son menu).
 - **Journal** : toujours la face visible (`nomVisible`) — dos histoire,
   versos non révélés et clés cachées gardent leur secret ; les tests le
   vérifient (aucune couleur de clé cachée citée).

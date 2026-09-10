@@ -4,7 +4,7 @@
 
 import type { CardState, LogEntry, Phase, RoomState, Token, ZoneId } from "./state";
 import type { StageEffects, ScenarioDef } from "./scenario";
-import { addLog, nextZ, nomVisible, revealLocation, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI, cleDeCouleur, LIBELLES_INONDATION, poserCleSur, texteMaree, enfouir } from "./setup";
+import { addLog, nextZ, nomVisible, revealLocation, clueValue, shuffle, type Rng, SEAT_ZONES, CARD_W, CARD_H, MINI, cleDeCouleur, LIBELLES_INONDATION, poserCleSur, texteMaree, enfouir } from "./setup";
 import { Refus, refuser } from "./refus";
 import { entretienJoueur, PILE_JOUEUR_RE } from "./joueur";
 
@@ -139,6 +139,19 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
     }
   }
   if (agenda) for (const k of Object.values(state.cards)) if (k.id !== courantId) delete k.tokens.doom;
+  if (!pile.length && !agenda && def.actCycle) {
+    // « Reset the act deck to act 1a » (The Blob That Ate Everything) : tous les actes du scénario encore dans la partie
+    // (de côté, dans l'histoire, sur le tapis…) reviennent dans le deck dans l'ordre déclaré ; le premier redevient courant
+    // ci-dessous, avec les effets `after:<dernier acte>` et `act:1` — le tour est compté (state.counters.actCycles).
+    const actes = def.actDeck.map((code) => Object.values(state.cards).find((k) => k.code === code && k.kind === "act" && !("pile" in k.loc && k.loc.pile === "removed"))).filter((k): k is CardState => Boolean(k));
+    for (const k of actes) {
+      retirerDesPiles(state, k.id);
+      k.loc = { pile: "actDeck" }; k.faceUp = false; k.side = "a"; k.tokens = {}; k.exhausted = false;
+      state.piles.actDeck.push(k.id);
+    }
+    state.counters.actCycles = (state.counters.actCycles ?? 0) + 1;
+    addLog(state, "action", `Le deck d'acte est réinitialisé (${actes.length} acte${actes.length > 1 ? "s" : ""}, tour ${state.counters.actCycles + 1}) : l'acte 1 redevient courant.`);
+  }
   if (!pile.length) {
     if (agenda) state.agendaId = null; else state.actId = null;
     addLog(state, "action", agenda ? "Dernier agenda sorti de l'histoire." : "Dernier acte sorti de l'histoire.");
@@ -245,6 +258,7 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
         const code = typeof e === "string" ? e : e.code, n = typeof e === "string" ? Infinity : e.n;
         cartes.push(...Object.values(state.cards).filter((k) => "zone" in k.loc && k.loc.zone === "aside" && k.code === code).slice(0, n));
       }
+      if (effet.ifAside && !cartes.length) return;   // « la première fois que cet acte avance » : plus rien de côté, rien à faire (défausse comprise), en silence
       for (const k of cartes) { k.loc = { pile: "encounter" }; k.faceUp = false; k.tokens = {}; k.exhausted = false; state.piles.encounter.push(k.id); }
       let defausse = 0;
       if (effet.withDiscard) { defausse = state.piles.encounterDiscard.length; remelangerDefausse(state, Math.random); }
@@ -379,23 +393,58 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
     setAside: () => {
       for (const code of effet.setAside!) {
         const cartes = Object.values(state.cards).filter((c) => c.code === code && !("pile" in c.loc && c.loc.pile === "removed") && !("zone" in c.loc && c.loc.zone === "aside"));
+        let degats = 0;
         for (const k of cartes) {
           retirerDesPiles(state, k.id);
           state.links = state.links.filter((l) => l.a !== k.id && l.b !== k.id);
+          degats += k.tokens.damage ?? 0;
           k.loc = { zone: "aside", x: boutDeCote(state), y: 0, z: nextZ(state) };
           k.faceUp = true; k.side = "a"; k.exhausted = false; k.tokens = {};
         }
-        if (cartes.length) parties.push(`${nomCarte(def, cartes[0])} remis de côté, hors jeu, sans jeton (dégâts soignés)`);
+        // Le total de dégâts retirés est dit : certains versos en font un X (« the amount of damage removed in this way is X »).
+        if (cartes.length) parties.push(`${nomCarte(def, cartes[0])} remis de côté, hors jeu, sans jeton (${degats} dégât${degats > 1 ? "s" : ""} retiré${degats > 1 ? "s" : ""})`);
       }
     },
     addClues: () => {
       for (const ac of effet.addClues!) {
-        const l = surTapis(ac.code);
-        if (!l || l.kind !== "location") { parties.push(`${def.cards.find((d) => d.code === ac.code)?.name ?? ac.code} absent du tapis : indices à poser à la main`); continue; }
         const n = ac.n * (ac.perInvestigator ? state.playerCount : 1);
+        if (ac.trait) {
+          // « Place 1 [per_investigator] clues on each revealed Oozified location, to a maximum of its clue value » : chaque lieu du tapis
+          // portant le trait (révélé si demandé), plafonné à sa valeur imprimée (par enquêteur) quand `max` le demande.
+          const lieux = Object.values(state.cards).filter((k) => k.kind === "location" && "zone" in k.loc && k.loc.zone === "board" && (!ac.revealed || k.faceUp)
+            && (def.cards.find((d) => d.code === k.code)?.traits ?? []).includes(ac.trait!));
+          const details: string[] = [];
+          for (const l of lieux) {
+            const avant = l.tokens.clue ?? 0;
+            const plafond = ac.max === "printed" ? clueValue(def.cards.find((d) => d.code === l.code), state.playerCount) : Infinity;
+            const apres = Math.max(avant, Math.min(plafond, avant + n));
+            if (apres > 0) l.tokens.clue = apres;
+            details.push(`${nomCarte(def, l)} ${avant} → ${apres}`);
+          }
+          parties.push(lieux.length
+            ? `${ac.n} indice${ac.n > 1 ? "s" : ""}${ac.perInvestigator ? " par enquêteur" : ""} sur chaque lieu « ${ac.trait} »${ac.revealed ? " révélé" : ""}${ac.max === "printed" ? ", sans dépasser sa valeur imprimée" : ""} : ${details.join(", ")}`
+            : `aucun lieu « ${ac.trait} »${ac.revealed ? " révélé" : ""} sur le tapis : pas d'indice à poser`);
+          continue;
+        }
+        const l = ac.code ? surTapis(ac.code) : undefined;
+        if (!l || l.kind !== "location") { parties.push(`${def.cards.find((d) => d.code === ac.code)?.name ?? ac.code} absent du tapis : indices à poser à la main`); continue; }
         l.tokens.clue = (l.tokens.clue ?? 0) + n;
         parties.push(`${n} indice${n > 1 ? "s" : ""}${ac.perInvestigator ? ` (${ac.n} par enquêteur)` : ""} posé${n > 1 ? "s" : ""} sur ${nomCarte(def, l)}`);
       }
+    },
+    drawAside: () => {
+      // « The lead investigator chooses a random set-aside story card and draws it » : n cartes tirées au hasard parmi celles de côté
+      // (codes listés) entrent dans l'histoire face visible, côté recto ; les autres restent de côté sans être regardées.
+      const { codes, n = 1 } = effet.drawAside!;
+      const deCote = Object.values(state.cards).filter((k) => codes.includes(k.code) && "zone" in k.loc && k.loc.zone === "aside");
+      const tirees = shuffle([...deCote], Math.random).slice(0, n);
+      for (const k of tirees) {
+        k.loc = { zone: "story", x: 0, y: 0, z: nextZ(state) };
+        k.faceUp = true; k.side = "a"; k.exhausted = false; k.tokens = {};
+      }
+      parties.push(tirees.length
+        ? `${tirees.length > 1 ? `${tirees.length} cartes tirées` : "carte tirée"} au hasard parmi les ${deCote.length} de côté : ${tirees.map((k) => nomCarte(def, k)).join(", ")} (colonne Histoire, recto)`
+        : "plus aucune carte de côté à tirer : à faire à la main");
     },
     randomKeyOn: () => {
       const cible = surTapis(effet.randomKeyOn!);

@@ -67,7 +67,9 @@ async function demarrer() {
       const camp = data.campaigns.find((c) => c.id === ctx.scenario.campaignId);
       ctx.campagneBoite = camp?.box ?? "";
       const lienGuide = document.getElementById("lien-guide");
-      if (camp?.guide) { lienGuide.href = camp.guide; lienGuide.hidden = false; }
+      // Livret du scénario (scénarios indépendants), sinon guide de la campagne.
+      const guide = camp?.scenarios?.find((s) => s.id === ctx.scenario.id)?.guide ?? camp?.guide;
+      if (guide) { lienGuide.href = guide; lienGuide.hidden = false; }
     } catch { /* étiquette facultative */ }
     scenarioCharge = id;
     $titre.textContent = ctx.scenario.title;

@@ -1,6 +1,6 @@
 {
  "_meta": {
-  "description": "Catalogue de la bibliothèque : campagnes dans l'ordre de sortie, scénarios dans l'ordre du guide. Statuts : available (jouable : une définition existe dans public/scenarios/), wip (en cours), planned (prévu). Les id des scénarios importés correspondent aux clés de data/scenarios_data.json. Le statut est informatif : le Worker n'accepte que les scénarios du registre src/scenarios.generated.ts. `guide` (par campagne) : adresse du livret de campagne FFG, affichée en lien discret dans la table. `banner` (par campagne) : bandeau d'en‑tête de la bibliothèque — `src` (public/img/campagnes/<id>.webp, généré par scripts/build_bandeaux.py à partir du guide) et `position` (background-position CSS, zone visible du bandeau).",
+  "description": "Catalogue de la bibliothèque : campagnes dans l'ordre de sortie, scénarios dans l'ordre du guide. Statuts : available (jouable : une définition existe dans public/scenarios/), wip (en cours), planned (prévu). Les id des scénarios importés correspondent aux clés de data/scenarios_data.json. Le statut est informatif : le Worker n'accepte que les scénarios du registre src/scenarios.generated.ts. `guide` (par campagne) : adresse du livret de campagne FFG, affichée en lien discret dans la table. `banner` (par campagne) : bandeau d'en‑tête de la bibliothèque — `src` (public/img/campagnes/<id>.webp, généré par scripts/build_bandeaux.py à partir du guide) et `position` (background-position CSS, zone visible du bandeau). `guide` (par scénario, scénarios indépendants) : livret propre au scénario, lien « livret » sous le titre et lien Guide de la table (prime sur le guide de la campagne).",
   "statuts": [
    "available",
    "wip",
@@ -779,7 +779,8 @@
      "id": "sa_the_blob_that_ate_everything",
      "num": "2019",
      "title": "The Blob That Ate Everything",
-     "status": "planned"
+     "status": "available",
+     "guide": "https://images-cdn.fantasyflightgames.com/filer_public/48/a4/48a43b7f-85c5-415d-8f84-5143d904d62c/ahc45_rulebook.pdf"
     },
     {
      "id": "sa_war_of_the_outer_gods",

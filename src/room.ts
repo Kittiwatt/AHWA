@@ -428,8 +428,9 @@ export class Room extends Server<Env> {
         const id = `gen-${n}-${code}`;
         const def = {
           code, name: fiche.n, kind, qty: 1, set: fiche.e ? "encounter" : "player", back: fiche.d ? "b" : (fiche.e ? "encounter" : "player"), storyBack: false,
-          ...(fiche.h !== null && fiche.h !== undefined ? { health: fiche.h } : {}), ...(fiche.m !== null && fiche.m !== undefined ? { sanity: fiche.m } : {}),
-          ...(fiche.lc ? { backCode: fiche.lc, backKind: KIND_INDEX[fiche.lt ?? ""] ?? "story", backName: fiche.ln, ...(fiche.lh !== null && fiche.lh !== undefined ? { backHealth: fiche.lh } : {}) } : {}),
+          // Vie négative de l'index = X ou ✱ (réserve globale) : jauge sans maximum.
+          ...(fiche.h !== null && fiche.h !== undefined && fiche.h >= 0 ? { health: fiche.h } : {}), ...(fiche.m !== null && fiche.m !== undefined ? { sanity: fiche.m } : {}),
+          ...(fiche.lc ? { backCode: fiche.lc, backKind: KIND_INDEX[fiche.lt ?? ""] ?? "story", backName: fiche.ln, ...(fiche.lh !== null && fiche.lh !== undefined && fiche.lh >= 0 ? { backHealth: fiche.lh } : {}) } : {}),
           ...(kind === "location" ? { clue: { value: 0, perInvestigator: false } } : {}),
         };
         state.extraDefs[code] = def;

@@ -8,6 +8,45 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Tous les jetons des cartes en chips** — demande de
+  l'utilisateur : « chaque jeton posé quelque part sur un objet (doom
+  sur agenda, indice sur lieu…) doit avoir ce type de bouton qui se
+  déploie ». Jusqu'ici deux rendus coexistaient : les **chips** (jauges
+  des ennemis / soutiens / uses, `.chips` en bas à droite) et les
+  **pions ronds** `.jeton` (indices, doom, ressources, générique ;
+  pastille + `.pmj` ± au survol sur les cartes joueur, rien sur les
+  autres — le menu ou le double-clic « prendre un indice »). Désormais
+  une seule fabrique `elChip` (`cartes.js`) rend tout jeton d'une carte
+  en chip, dans une pile unique `.chips` ancrée en bas à droite : les
+  jetons posés (`ORDRE_JETONS` : indices, doom, ressources, générique,
+  puis dégâts / horreur / uses hors jauge) au-dessus, les jauges
+  toujours visibles en dessous (elles gardent leur place quand un pion
+  arrive). Le jeton **générique** est un disque doré (`.chip-disque`)
+  sans image. `chipJauge` (sièges, board) s'appuie sur la même fabrique.
+  Sémantique : clic = +1, « − » au survol, sauf chips **inverses**
+  (`data-inverse`) — uses (déjà) et **indices d'un lieu**
+  (`data-prendre="clue"` : clic = `takeClue`, l'ancien double-clic ;
+  « + » au survol = en poser un). Gestes : `clicChip(ctx, carte, chip,
+  bouton)` partagé par `interactions.js` et `interactions-joueur.js`,
+  branche `.pmj` et double-clic sur `.jeton-clue` retirés ; le fantôme
+  du glisser cache `.chips`. CSS : règles `.jetons` / `.jeton` /
+  `.pmj` / pastille `.n` supprimées (`room.css`, `joueur.css`) — le
+  doom de l'agenda passe donc du bas gauche au bas droit, les jetons
+  des cartes de rencontre du haut gauche au bas droit (décision §1
+  révisée). Vérification (scripts autonomes, The Gathering + deck
+  Harrigan) : Study à 4 indices (chip inverse avec « + »), clic → 3 et
+  Alice à 1, survol → la pastille s'allonge à gauche, icône et nombre
+  fixes, « + » → 4 ; doom / ressource / générique sur le Study, doom 2
+  sur l'agenda (« − » → 1, clic → 2, « Doom en jeu » à jour), dégâts +
+  horreur en chips sur la carte d'enquêteur du siège, ennemi avec
+  indice + doom + dégâts ; board joueur : Venturer en jeu avec doom,
+  ressources, dégâts 0/2, horreur 0/2 et uses 3 empilés ; survol des
+  jauges des sièges et de l'entête toujours immobile ; zéro erreur
+  console ; `npm run check` zéro erreur ; régression `test_room.mjs`
+  (716 messages) OK ; `captures.py` : blocs Gathering (clic sur la chip
+  d'indices) et Devourer (`.chip-doom`) adaptés. `wrangler dev` mort
+  deux fois entre deux scripts (piège §5), relancé.
+
 - 2026-09-10 : **Le « − » des jauges hors carte se déploie sans rien
   déplacer** — retour de l'utilisateur : les jauges des cartes sont
   « parfaites » (au survol la pastille s'allonge vers la gauche pour

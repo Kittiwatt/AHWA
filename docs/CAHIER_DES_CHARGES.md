@@ -563,6 +563,20 @@ chaque enquêteur au setup) ; effets d'étape : `shuffleAside` accepte
 `{code, n}`, `spawnAside.ifAside` (silence si la carte n'est pas de
 côté). Campagne Brethren of Ash complète.
 
+**The Blob That Ate Everything (2026-09-10, premier scénario
+indépendant).** `pickRandom` : billets = exemplaires restants au pool,
+option `include` (cartes imposées mélangées avec les tirées) ; op
+`reveal` (lieu déjà en jeu) ; `place zone:"story"` pour une carte « à
+côté de l'agenda, à aucun lieu » (la colonne Histoire rend toute carte
+de la zone, avec chips et menu ; dépôt élargi) ; racine **`actCycle`**
+(le deck d'acte se réinitialise à l'acte 1 quand le dernier acte
+avance, effets `after:` et `act:1`, `counters.actCycles`) ; effets
+`shuffleAside.ifAside`, `addClues {trait, revealed, max:"printed"}`,
+`drawAside {codes, n?}`, `setAside` dit les dégâts retirés ; « Ressource »
+au menu de la carte de scénario (contremesures) ; vie et indices
+négatifs du dump (X, ✱) sans maximum ni seuil ; `guide` par scénario
+dans `library.json`.
+
 **River of Blood (2026-09-08).** `branch` accepte `on: "difficulty"`
 (cas `easy` / `standard` / `hard` / `expert`) — la ville de COB se joue
 côté Aube ou Crépuscule selon la difficulté, avec la Julia et les sets
