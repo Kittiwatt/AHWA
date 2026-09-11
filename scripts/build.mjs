@@ -240,7 +240,7 @@ async function buildScenario(fichierSrc) {
     ...(e.spawnAside ? (Array.isArray(e.spawnAside) ? e.spawnAside : [e.spawnAside]).flatMap((sa) => [sa.code, ...(Array.isArray(sa.at) ? sa.at : [sa.at])]) : []), e.randomKeyOn,
     ...(e.shuffleFromDiscard ?? []),
     ...(e.discardAside ?? []).map((d) => d.code), ...(e.setAside ?? []), ...(e.discardAt ?? []), ...(e.addClues ?? []).map((a) => a.code), ...(e.removeLocations?.codes ?? []),
-    ...(e.drawAside?.codes ?? []), e.moveTokens?.from, e.moveTokens?.to, ...(e.flip ?? []),
+    ...(e.drawAside?.codes ?? []), e.moveTokens?.from, e.moveTokens?.to, ...(e.flip ?? []), e.minisTo,
   ].filter(Boolean));
   for (const code of Object.keys(src.revealEffects ?? {})) if (!codes.has(code)) throw new Error(`${src.id} : revealEffects ${code} — code inconnu`);
   for (const e of effets) if (e.seatCounter && !(src.seatCounters ?? []).some((c) => c.key === e.seatCounter.key) && !["clues", "resources", "health", "sanity", "actions"].includes(e.seatCounter.key)) throw new Error(`${src.id} : effet seatCounter ${e.seatCounter.key} — compteur non déclaré`);

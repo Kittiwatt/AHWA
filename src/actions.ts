@@ -445,6 +445,15 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
         parties.push(`${n} indice${n > 1 ? "s" : ""}${ac.perInvestigator ? ` (${ac.n} par enquêteur)` : ""} posé${n > 1 ? "s" : ""} sur ${nomCarte(def, l)}`);
       }
     },
+    minisTo: () => {
+      // « Move each investigator to it » : tous les pions sur ce lieu du tapis, en ligne sur son bord haut comme au setup.
+      const lieu = surTapis(effet.minisTo!);
+      if (!lieu || lieu.kind !== "location") { parties.push(`${def.cards.find((d) => d.code === effet.minisTo)?.name ?? effet.minisTo} absent du tapis : pions à déplacer à la main`); return; }
+      const { x: lx, y: ly } = lieu.loc as { x: number; y: number };
+      const pions = Object.values(state.cards).filter((k) => k.kind === "mini").sort((a, b) => a.id.localeCompare(b.id));
+      pions.forEach((k, i) => { k.loc = { zone: "board", x: lx + 4 + i * MINI + i * 2, y: ly - MINI / 2, z: nextZ(state) }; });
+      if (pions.length) parties.push(`${pions.length > 1 ? `les ${pions.length} pions des enquêteurs sont posés` : "le pion de l'enquêteur est posé"} sur ${nomCarte(def, lieu)}`);
+    },
     flip: () => {
       // « Flip it over » : les cartes en jeu (histoire, tapis, sièges) de ces codes passent sur leur verso, face visible ; absentes → rien.
       const cartes = Object.values(state.cards).filter((c) => effet.flip!.includes(c.code) && "zone" in c.loc && c.loc.zone !== "aside" && c.loc.zone !== "victory");

@@ -141,6 +141,7 @@ export type StageEffects = {
   drawAside?: { codes: string[]; n?: number };                          // n (1) cartes tirées au hasard parmi celles de côté de ces codes entrent dans l'histoire, face visible recto (« draw a random set-aside story card »)
   seatCounter?: { key: string; n: number };                             // compteur `key` de chaque enquêteur ± n, dans les bornes déclarées (« raise each investigator's alarm level by 1 »)
   flip?: string[];                                                      // les cartes en jeu de ces codes passent sur leur verso, face visible (« Flip it over » : cartes histoire Plot / Machination à l'agenda 1b) ; absentes → rien
+  minisTo?: string;                                                     // tous les pions des enquêteurs sont posés sur ce lieu du tapis (« move each investigator to it » : Gondola de Carnevale of Horrors)
   moveTokens?: { from: string; to: string; token: "clue" | "doom" | "resource" | "generic" | "damage" | "horror" };   // tous les jetons de ce type passent de la carte `from` à la carte `to` (« move all clues from The Wellspring to Relic Room »)
   log?: string;
 };

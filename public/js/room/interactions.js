@@ -468,7 +468,8 @@ export function initInteractions(ctx) {
         const verso = def.backSubname ?? (def.backName === def.name ? (carte.kind === "location" ? "Spectral" : "verso") : def.backName);
         items.push(item(carte.side === "b" ? `Autre face (${recto})` : `Autre face (${verso})`, () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
       }
-      if (!carte.storyBack && carte.kind !== "investigator" && !deuxFaces) items.push(item("Retourner", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
+      // Une carte à deux faces de jeu posée face cachée (Innocent Reveler sous son masque de Carnevale-Goer) se retourne aussi.
+      if (!carte.storyBack && carte.kind !== "investigator" && (!deuxFaces || !carte.faceUp)) items.push(item("Retourner", () => ctx.envoyer({ t: "flipCard", id: carte.id })));
       if (carte.kind === "scenario" || carte.kind === "story") items.push(item("Autre face", () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
       // Dos « histoire » : face cachée, la carte se révèle seulement sur demande explicite (une carte l'indique) ;
       // face visible, son verso (histoire, ou ennemi lié) se lit de même par le menu, jamais par retournement.
@@ -478,7 +479,7 @@ export function initInteractions(ctx) {
         items.push(item(carte.side === "b" ? "Revenir au recto" : versoHistoire ? "Lire le côté histoire (quand une carte l'indique)" : `Autre face (${def.backSubname ?? def.backName ?? "verso"}, quand une carte l'indique)`, () => ctx.envoyer({ t: "toggleSide", id: carte.id })));
       }
       const jetons = carte.kind === "investigator" ? ["damage", "horror", "resource"]
-        : carte.kind === "location" ? ["clue", "doom", "generic"]
+        : carte.kind === "location" ? ["clue", "doom", "resource", "generic"]   // ressources = coups de rame sur Gondola (Carnevale)
         : carte.kind === "enemy" ? ["damage", "doom", "clue", "generic"]
         : carte.kind === "scenario" ? ["resource", "clue", "doom", "generic"]   // ressources = contremesures du Blob (« on the scenario reference card »)
         : carte.kind === "story" ? ["resource", "clue", "doom", "damage", "horror", "generic"]   // ressources = capacités déclenchées (A Noble Legacy), horreur (Personal Entanglement)

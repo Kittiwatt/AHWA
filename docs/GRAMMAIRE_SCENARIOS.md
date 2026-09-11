@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-11 (Machinations Through Time compris). Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-11 (Carnevale of Horrors compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -472,7 +472,9 @@ rendus pendant la partie.
   groupe Epic d'une autre ère) ; `flip: [codes]` (les cartes en jeu de
   ces codes passent sur leur verso, face visible — « Flip it over » des
   cartes histoire Plot / Machination au verso de l'agenda 1 ; absentes
-  → rien) ;
+  → rien) ; `minisTo: code` (tous les pions des enquêteurs posés sur ce
+  lieu du tapis — « move each investigator to it », Gondola ; lieu
+  absent → rappel) ;
   `randomKeyOn` (clé cachée au hasard posée dessus) ;
   `removeLocations {trait?, except?, codes?}` (comme `removeTrait`, ou
   « chaque lieu autre que… », ou ces seuls codes) ; `spreadPile {pile, positions, flood?}` (les
@@ -629,6 +631,15 @@ rendus pendant la partie.
   Histoire ; son menu offre ressources, indices, doom, dégâts, horreur
   et marqueur (« place a resource token over each ability when it is
   triggered »).
+- **Versos liés partagés** (Carnevale of Horrors : les sept Masked
+  Carnevale-Goers sont le verso 82017b de Don Lagorio, Elisabetta Magro,
+  Salvatore Neri, Savio Corvi et des trois Innocent Reveler) : posées
+  face cachée (`pickRandom faceUp:false`), les cartes montrent l'image
+  du verso lié, le journal les nomme par ce verso, aucune jauge ne
+  trahit le recto ; « Retourner » (menu, aussi pour un soutien lié de
+  même kind posé face cachée) révèle le recto. Un agenda dont le verso
+  est un ennemi (Baleful Reveler) ou un acte dont le verso est un lieu
+  (Gondola) entre en jeu à `backPlacement` quand il avance.
 - **Cartes « Key » de The Scarlet Keys** (type `key` du dump, ex. The
   Wellspring of Fortune 88045 ↔ 88045b) : kind `asset` au build (comme
   le générateur) — soutien à deux faces (« Autre face (Unstable) »),

@@ -1494,6 +1494,49 @@ with sync_playwright() as p:
     h28.mouse.move(420, 520); h28.wait_for_timeout(300)
     h28.screenshot(path=f"{OUT}/130_mtt_agenda2.png")
 
+    # ---- Carnevale of Horrors : cercle de huit lieux (Basilique en haut), sept masques face cachée (versos liés), Abbess, piles Sous
+    # l'agenda / Sous l'acte ; un masque retourné (Retourner au menu) ; acte 2 (Cnidathqua au centre) ----
+    code29, token29 = creer("sa_carnevale_of_horrors")
+    print("room Carnevale", code29)
+    h29 = page_pour(browser, "Hôte", host=True, code=code29, token=token29)
+    h29.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h29.get_by_role("button", name="Choisir un enquêteur").click(); h29.wait_for_selector("dialog.dialogue-inv[open]")
+    h29.fill("dialog .recherche", "roland"); h29.wait_for_timeout(300); h29.locator("dialog .inv").first.click()
+    h29.wait_for_selector(".siege-lobby.moi .fiche")
+    j29 = page_pour(browser, "Bob", code=code29, token=None)
+    j29.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j29.get_by_role("button", name="Choisir un enquêteur").click(); j29.wait_for_selector("dialog.dialogue-inv[open]")
+    j29.fill("dialog .recherche", "daisy"); j29.wait_for_timeout(300); j29.locator("dialog .inv").first.click()
+    j29.wait_for_selector(".siege-lobby.moi .fiche")
+    h29.wait_for_timeout(400)
+    h29.locator("input[name='q-mode'][value='standalone']").check(); h29.wait_for_timeout(150)
+    h29.get_by_role("button", name="Lancer la mise en place").click()
+    h29.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h29.wait_for_load_state("networkidle"); h29.wait_for_timeout(1500)
+    assert h29.locator("#plateau .carte.kind-location").count() == 8, "huit lieux en cercle"
+    assert h29.locator("#plateau .carte.kind-enemy").count() + h29.locator("#plateau .carte.kind-asset").count() == 8, "sept masques + Abbess"
+    masques = h29.locator("#plateau .carte:not(.kind-location):not(.kind-mini) img[src*='82017b']")
+    assert masques.count() == 7, "sept images de Masked Carnevale-Goer"
+    assert h29.locator("#pioches .pile[data-outil='pile:under_agenda']").count() == 1 and h29.locator("#pioches .pile[data-outil='pile:under_act']").count() == 1, "piles Sous l'agenda / Sous l'acte"
+    h29.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h29.mouse.move(420, 520); h29.wait_for_timeout(300)
+    h29.screenshot(path=f"{OUT}/131_carnevale_tapis.png")
+    # Menu d'un masque : Retourner (même pour un Innocent Reveler, carte à deux faces posée face cachée) → la face cachée apparaît.
+    masque = h29.locator("#plateau .carte:not(.kind-location):not(.kind-mini)").filter(has=h29.locator("img[src*='82017b']")).first
+    masque.dispatch_event("contextmenu"); h29.wait_for_timeout(300)
+    if h29.locator(".menu-carte").count() == 0:
+        masque.click(button="right"); h29.wait_for_timeout(300)
+    h29.screenshot(path=f"{OUT}/132_carnevale_menu_masque.png")
+    assert h29.locator(".menu-carte").get_by_role("button", name="Retourner").count() == 1, "Retourner au menu du masque"
+    h29.locator(".menu-carte").get_by_role("button", name="Retourner").click(); h29.wait_for_timeout(500)
+    assert h29.locator("#plateau .carte:not(.kind-location):not(.kind-mini) img[src*='82017b']").count() == 6, "un masque retourné"
+    # Acte 2 : Cnidathqua au centre du cercle.
+    h29.locator("#histoire").get_by_role("button", name="Avancer l'acte").click(); h29.wait_for_timeout(1000)
+    assert h29.locator("#plateau .carte[data-id='82027']").count() == 1, "Cnidathqua en jeu"
+    h29.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h29.mouse.move(420, 520); h29.wait_for_timeout(300)
+    h29.screenshot(path=f"{OUT}/133_carnevale_acte2.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

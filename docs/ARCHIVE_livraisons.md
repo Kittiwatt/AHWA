@@ -8,6 +8,56 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Fortune and Folly, Part II : The Heist** — la seconde
+  room du scénario, avec le setup « from Scratch » p. 23‑25 (celui qui
+  vaut après une pause ou quand la partie I a été sautée ; en room
+  séparée, il n'y a pas de reprise directe). Le **journal du
+  Checkpoint** (p. 17‑19, lu pour concevoir les questions) devient six
+  questions de lobby : mode (sac), partie I jouée / sautée, tâches de
+  The Stakeout (`multi`, six mentions — Isamara Crew et Cash Cart en
+  dépendent, les autres sont loggées pour la partie), rôles notés
+  Practiced (`multi` : chaque Role de côté côté a ou b par `when has`),
+  « need time to rest » (1 doom sur l'agenda 2 par `addDoom` après
+  `story`), indices restant sur le Wellspring (`number`, `addTokens
+  nFrom` ; sautée : 7 par enquêteur). Niveaux d'alerte et cartes
+  « Stashed » restent à la main (rappels). Nouveautés d'engine, toutes
+  petites : `place side:"b"` (+ `revealLocation` prend les indices du
+  verso `backClue`) pour Casino Floor / Lounge / High Roller's Table
+  côté **Busy Night** révélés et The Heist (verso de The Stakeout) dans
+  l'histoire ; `spawn side` (Isamara Crew à Casino Lounge) ; le
+  Wellspring **attaché à Relic Room** par un `spawn` sur le lieu non
+  révélé (il le suit) ; **`revealEffects`** (racine, mêmes StageEffects
+  appliqués quand un lieu est révélé en partie) : Staff Access Hallway →
+  `spawnAside side:"b"` d'Abarran Unleashed à Owner's Office +
+  `shuffleAside withDiscard` du set Fortune's Chosen ; Relic Room →
+  **`moveTokens`** (nouveau : tous les indices du Wellspring sur Relic
+  Room, après ses propres indices) ; effet **`seatCounter {key, n}`**
+  (« raise each investigator's alarm level by 1 » aux agendas 2b et 3b,
+  bornes respectées). Agenda 3 : `spawnAside` du Dimensional Shambler à
+  Roulette Wheel + `shuffleAside` des douze autres Plan in Shambles avec
+  la défausse ; agenda 4 : `drawAside` d'une Fortune's Disfavor (trois de
+  côté face cachée, `storyBack` : leur verso est l'effet) ; acte 2b
+  (Abarran à Relic Room ou test) en rappel. Diagramme p. 26 « juste
+  au-dessus du hub public » : hub restreint aux lignes 173 / 411 / 649
+  (Relic Room seule en haut), hub public aux lignes 887 / 1125 / 1363 —
+  six lignes, la vue se cadre toute seule. De côté : 28 cartes (roles,
+  Package Delivery côté b, Abarran côté b, trois Disfavor, récompenses,
+  les deux sets) — le rangement de la zone hors jeu reste le chantier
+  ouvert. Garde et patrouille « sortis de la pioche » par tirage
+  nominal + `spawn` sur slot, comme en Part I. Tests : bloc
+  `test_room.mjs` (jouée : positions des deux hubs, faces b et indices
+  du verso, Heist, Wellspring 9, Isamara Crew, Cash Cart, garde +
+  patrouille, 28 de côté avec faces, doom du repos, pioche 22, tâches
+  loggées ; révélation du Hallway → Abarran + 4 cultistes + défausse,
+  Relic Room → 2 + 9 indices, agenda 3 → Shambler + 12 + 1, alerte 2,
+  agenda 4 → Disfavor recto, alerte 3 ; sautée Expert solo : 7 indices,
+  Isamara et Cash Cart de côté, pas de doom, rôles Unpracticed, sac
+  Difficile) ; Playwright : questions du lobby, deux hubs, révélation
+  du Hallway au clic (Abarran), agenda 3 (Shambler, alerte 2), colonne
+  Histoire, zone de côté ; zéro erreur console ; `npm run check` zéro
+  erreur ; régression `test_room.mjs` (802 messages) OK. **Fortune and
+  Folly complet** (deux rooms).
+
 - 2026-09-10 : **Fortune and Folly, Part I : The Stakeout** (ahc71 v2,
   pack arkham.build `fof`, 88001‑88053). Livret (32 p.) lu en entier :
   un scénario en **deux parties**, « chacune un jeu à part entière avec

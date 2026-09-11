@@ -602,6 +602,11 @@ négatif (retrait) ; effet `flip [codes]` (cartes en jeu retournées sur
 leur verso) ; `spawnAside.ifAt` (seulement si le lieu est sur le
 tapis) ; menu des cartes histoire avec ressources, dégâts, horreur.
 
+**Carnevale of Horrors (2026-09-11).** Effet `minisTo` (tous les pions
+sur un lieu) ; « Retourner » au menu d'une carte liée de même kind
+posée face cachée ; ressources au menu des lieux ; versos liés partagés
+(sept masques) posés face cachée par `pickRandom`.
+
 **Curse of the Rougarou (2026-09-10).** Op **`pickGroups`** (piles de
 cartes tirées au sort entières : `groups {label, codes, positions}`,
 `remove`, `play`, `rest`, `slot`) ; effets `placeAt.ifAside` (silence si

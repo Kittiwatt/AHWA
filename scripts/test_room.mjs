@@ -4106,5 +4106,108 @@ const MTT_PAST = ["87007", "87008", "87009", "87010", "87011"], MTT_PRES = ["870
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+
+// Nom d'une carte de Carnevale par code (journal muet sur le lieu retiré).
+const CARNEVALE_DEF = await (await fetch(`${BASE}/scenarios/sa_carnevale_of_horrors.json`)).json();
+function def_nom(code) { return CARNEVALE_DEF.cards.find((c) => c.code === code)?.name ?? code; }
+// ============ Carnevale of Horrors (scénario indépendant) : cercle (Basilique en haut, Canal-side + six lieux tirés, un retiré), Abbess, sept
+// masques face cachée (versos liés), piles Sous l'agenda / Sous l'acte, cinq cartes de côté, sac à deux niveaux ; acte 2 (Cnidathqua au
+// centre), agenda 2 (Baleful Reveler, verso-ennemi), acte 3 (Gondola verso-lieu, minisTo, lieux Venice retirés) ============
+async function tableCarnevale({ joueurs = 2, difficulty, answers } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "sa_carnevale_of_horrors" }) });
+  assert.equal(r.status, 200, "Carnevale est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const CERCLE = ["1042,186", "1194,441", "1042,696", "674,801", "306,696", "154,441", "306,186"];
+const MASQUES = ["82017", "82018", "82019", "82020", "82021"];
+{ // Standard, 2 joueurs.
+  const { h } = await tableCarnevale({ joueurs: 2, answers: { mode: "standalone" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.deepEqual([...s.chaos.bag].sort(), ["+1", "0", "0", "0", "-1", "-1", "-1", "-2", "-3", "-4", "-6", "skull", "skull", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"].sort(), "sac Standard (encart)");
+  const basilique = cartes.find((c) => c.code === "82008");
+  assert.ok(basilique.loc.zone === "board" && basilique.loc.x === 674 && basilique.loc.y === 81 && basilique.faceUp, "Basilique en haut, révélée");
+  const lieux = cartes.filter((c) => c.kind === "location" && c.loc.zone === "board");
+  assert.equal(lieux.length, 8, "huit lieux en jeu");
+  const autres = lieux.filter((c) => c.code !== "82008");
+  assert.deepEqual(autres.map((c) => `${c.loc.x},${c.loc.y}`).sort(), [...CERCLE].sort(), "les sept autres aux sept positions du cercle");
+  assert.ok(autres.every((c) => !c.faceUp), "non révélés");
+  assert.ok(autres.some((c) => c.code === "82009"), "Canal-side toujours en jeu");
+  const retires = cartes.filter((c) => c.kind === "location" && c.loc.pile === "removed");
+  assert.equal(retires.length, 1, "un lieu retiré");
+  assert.ok(!["82008", "82009"].includes(retires[0].code), "ni la Basilique ni Canal-side");
+  assert.ok(!s.log.some((e) => e.kind === "setup" && new RegExp(def_nom(retires[0].code)).test(e.text)), "journal muet sur le lieu retiré");
+  const abbess = cartes.find((c) => c.code === "82022");
+  assert.ok(abbess.loc.zone === "board" && Math.abs(abbess.loc.x - 710) < 20 && Math.abs(abbess.loc.y - 127) < 20, "Abbess à la Basilique");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 674) < 130 && Math.abs(m.loc.y - 81) < 60), "pions à la Basilique");
+  const masques = cartes.filter((c) => MASQUES.includes(c.code) && c.loc.zone === "board");
+  assert.equal(masques.length, 7, "sept masques en jeu");
+  assert.ok(masques.every((c) => !c.faceUp), "face masque");
+  assert.deepEqual(masques.map((c) => `${c.loc.x - 36},${c.loc.y - 46}`).sort(), [...CERCLE].sort(), "un masque par lieu autre que la Basilique");
+  assert.equal(masques.filter((c) => c.code === "82021").length, 3, "trois Innocent Reveler parmi eux");
+  assert.deepEqual(cartes.filter((c) => c.loc.zone === "aside").map((c) => c.code).sort(), ["82023", "82024", "82025", "82026", "82027"], "cinq cartes de côté");
+  assert.equal(s.piles.encounter.length, 26, "pioche : 2 Poleman, 3 Sentinel, 3 Appendage, 18 traîtrises");
+  assert.ok("under_agenda" in s.piles && "under_act" in s.piles, "piles Sous l'agenda / Sous l'acte");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a");
+  assert.equal(s.cards[s.agendaId].code, "82002"); assert.equal(s.cards[s.actId].code, "82005");
+  // Retourner un masque (Innocent Reveler = carte liée de même kind, posée face cachée) : flipCard.
+  const reveler = masques.find((c) => c.code === "82021");
+  await h.action({ t: "flipCard", id: reveler.id });
+  assert.ok(h.state.cards[reveler.id].faceUp && h.state.cards[reveler.id].side === "a", "Innocent Reveler révélé");
+  await h.action({ t: "toPile", id: reveler.id, pile: "under_agenda" });
+  assert.equal(h.state.piles.under_agenda.length, 1, "Reveler sous l'agenda");
+  // Acte 1 → 2 : Cnidathqua au centre, à aucun lieu.
+  await h.action({ t: "advanceAct" });
+  let S = h.state;
+  assert.equal(S.cards[S.actId].code, "82006");
+  const cnid = Object.values(S.cards).find((c) => c.code === "82027");
+  assert.ok(cnid.loc.zone === "board" && cnid.loc.x === 674 && cnid.loc.y === 441 && cnid.faceUp, "Cnidathqua au centre du cercle");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'acte 1 : Cnidathqua est en jeu au centre/.test(e.text)));
+  // Agenda 1 → 2 : Baleful Reveler, verso-ennemi de l'agenda, entre en jeu au centre.
+  await h.action({ t: "advanceAgenda" });
+  S = h.state;
+  assert.equal(S.cards[S.agendaId].code, "82003");
+  const baleful = Object.values(S.cards).find((c) => c.code === "82002");
+  assert.ok(baleful.kind === "enemy" && baleful.side === "b" && baleful.faceUp && baleful.loc.zone === "board", "Baleful Reveler sur le tapis");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'agenda 1 : Baleful Reveler est entré en jeu/.test(e.text)));
+  // Acte 2 → 3 : Gondola (verso-lieu) en haut, pions dessus, les lieux Venice retirés (Gondola exceptée).
+  await h.action({ t: "advanceAct" });
+  S = h.state;
+  assert.equal(S.cards[S.actId].code, "82007");
+  const gondola = Object.values(S.cards).find((c) => c.code === "82006");
+  assert.ok(gondola.kind === "location" && gondola.loc.zone === "board" && gondola.loc.x === 674 && gondola.loc.y === 81, "Gondola en haut");
+  assert.deepEqual(Object.values(S.cards).filter((c) => c.kind === "location" && c.loc.zone === "board").map((c) => c.code), ["82006"], "seule Gondola reste");
+  assert.equal(Object.values(S.cards).filter((c) => c.kind === "location" && c.loc.pile === "removed").length, 9, "huit lieux retirés + celui du setup");
+  assert.ok(Object.values(S.cards).filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 674) < 130 && Math.abs(m.loc.y - 81) < 60), "pions sur Gondola");
+  assert.ok(S.log.some((e) => /Gondola : les 2 pions des enquêteurs sont posés sur Gondola ; lieux « Venice » : 8 retirés/.test(e.text)));
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Side-story, Expert, 1 joueur : sac Difficile, côté b, rappel du sac, un pion.
+  const { h } = await tableCarnevale({ joueurs: 1, difficulty: "expert", answers: { mode: "campaign" } });
+  const s = h.state;
+  assert.deepEqual([...s.chaos.bag].sort(), ["+1", "0", "0", "0", "-1", "-1", "-3", "-4", "-5", "-6", "-7", "skull", "skull", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"].sort(), "Expert joue le sac Difficile");
+  assert.ok(s.log.some((e) => /Expert joue le sac Difficile/.test(e.text)) && s.log.some((e) => e.kind === "reminder" && /^Side-story/.test(e.text)));
+  assert.equal(Object.values(s.cards).find((c) => c.kind === "scenario").side, "b");
+  assert.equal(Object.values(s.cards).filter((c) => c.kind === "mini").length, 1);
+  assert.equal(s.piles.encounter.length, 26);
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

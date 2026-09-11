@@ -1,0 +1,399 @@
+{
+  "_source": "Encart Carnevale of Horrors (FFG, 2016, 2 pages ; pas de PDF sur le site FFG — lu en entier sur la transcription Hall of Arkham carnevalerules.pdf, image de l'encart, texte et icônes identiques ; lien livret de la bibliothèque) : un seul scénario, deux façons de jouer (p. 1) — Standalone (sac ci-dessous, deux niveaux : Facile = Standard, Expert = Difficile, journal) ou side-story (sac de la campagne, 3 XP par enquêteur). Sac (p. 1, icônes lues à 600 dpi) : Standard +1 0 0 0 −1 −1 −1 −2 −3 −4 −6 crâne ×3 cultiste tablette ancien auto-fail elder sign ; Difficile +1 0 0 0 −1 −1 −3 −4 −5 −6 −7 crâne ×3 cultiste tablette ancien auto-fail elder sign. Carte de scénario 82001 : recto Easy/Standard, verso Hard/Expert. Set arkham.build `venice` (pack coh, 82001-82037) : l'agenda 1 (82002) a pour verso l'ennemi Baleful Reveler (82002b) → verso-ennemi qui entre en jeu quand l'agenda avance (backPlacement au centre, à déplacer : Spawn au lieu sans enquêteur le plus proche dans le sens antihoraire) ; l'acte 2 (82006) a pour verso le lieu Gondola (82006b) → verso-lieu (backPlacement en haut) ; les sept Masked Carnevale-Goers sont les versos liés (82017b, une seule image) de Don Lagorio, Elisabetta Magro, Salvatore Neri, Savio Corvi et des trois Innocent Reveler : posés face cachée, ils montrent le masque, le retournement révèle l'autre face. Setup p. 1 : un lieu retiré au hasard sauf San Marco Basilica et Canal-side (→ pickRandom n:6 parmi les sept autres, include Canal-side, le septième retiré) ; les huit lieux en cercle aléatoire (positions d'un octogone, la Basilique en haut, sens horaire = vers la droite depuis le haut) ; Abbess Allegria Di Biase à la Basilique, chacun y commence ; les sept masques mélangés, un sur chaque lieu autre que la Basilique, face masque (« ne regardez pas l'autre face » : journal muet) ; Cnidathqua, Pantalone, Medico Della Peste, Bauta, Gilded Volto de côté ; pioche = le reste (26 : 2 Poleman, 3 Carnevale Sentinel, 3 Writhing Appendage, 18 traîtrises). Règles p. 1 : connexions seulement dans le sens horaire, exceptions antihoraires, « across from » = le lieu le plus éloigné. Versos lus dans le dump pour les effets d'étape (jamais recopiés) : acte 1b (Cnidathqua entre en jeu au centre des lieux, à aucun lieu → placeAt au centre ; un masque retourné au choix → rappel), acte 2 (Forcé : un masque retourné à chaque début de phase du mythe → rappel ; objectif Canal-side), acte 2b = Gondola (tous les enquêteurs dessus → minisTo, nouveau ; les autres lieux retirés → removeLocations sauf Gondola ; ennemis et soutiens qui s'y trouvaient → rappel), acte 3 (pioche remplacée par les cinq premières cartes, appendices en jeu ; ressources sur Gondola → ressource au menu des lieux), agenda 2b (un masque retourné, Innocent Reveler sous l'agenda, l'agenda revient côté 2a s'il reste un masque → rappel, boucle à la main), agenda 3 (2 doom sur chaque appendice qui entre ; verso : Cnidathqua attaque tous, retour à 3a → rappel). Innocent Revelers « sous l'acte » / « sous l'agenda » = deux piles déclarées (leurs badges servent au crâne et à l'objectif de l'acte 1). Résolutions p. 2 non reportées.",
+  "id": "sa_carnevale_of_horrors",
+  "title": "Carnevale of Horrors",
+  "campaign": "Scénarios indépendants",
+  "campaignId": "standalone",
+  "order": 2,
+  "packs": [
+    "coh"
+  ],
+  "encounterSets": [
+    "venice"
+  ],
+  "extraCards": [],
+  "scenarioCard": "82001",
+  "scenarioCardSide": {
+    "easy": "a",
+    "standard": "a",
+    "hard": "b",
+    "expert": "b"
+  },
+  "agendaDeck": [
+    "82002",
+    "82003",
+    "82004"
+  ],
+  "actDeck": [
+    "82005",
+    "82006",
+    "82007"
+  ],
+  "startLocation": "82008",
+  "layout": [
+    {
+      "code": "82008",
+      "x": 674,
+      "y": 81
+    }
+  ],
+  "backPlacement": {
+    "82002": {
+      "x": 674,
+      "y": 441
+    },
+    "82006": {
+      "x": 674,
+      "y": 81
+    }
+  },
+  "storyBack": [],
+  "chaosBag": {
+    "easy": [
+      "+1",
+      "0",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-3",
+      "-4",
+      "-6",
+      "skull",
+      "skull",
+      "skull",
+      "cultist",
+      "tablet",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "standard": [
+      "+1",
+      "0",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-3",
+      "-4",
+      "-6",
+      "skull",
+      "skull",
+      "skull",
+      "cultist",
+      "tablet",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "hard": [
+      "+1",
+      "0",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-3",
+      "-4",
+      "-5",
+      "-6",
+      "-7",
+      "skull",
+      "skull",
+      "skull",
+      "cultist",
+      "tablet",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "expert": [
+      "+1",
+      "0",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-3",
+      "-4",
+      "-5",
+      "-6",
+      "-7",
+      "skull",
+      "skull",
+      "skull",
+      "cultist",
+      "tablet",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ]
+  },
+  "piles": [
+    {
+      "id": "under_agenda",
+      "label": "Sous l'agenda",
+      "menuFor": [
+        "asset"
+      ]
+    },
+    {
+      "id": "under_act",
+      "label": "Sous l'acte",
+      "menuFor": [
+        "asset"
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "mode",
+      "text": "Comment jouez-vous ce scénario ? (encart p. 1)",
+      "options": [
+        {
+          "id": "standalone",
+          "label": "Scénario indépendant : sac de l'encart (Standard ou Difficile)"
+        },
+        {
+          "id": "campaign",
+          "label": "Side-story dans une campagne (3 XP par enquêteur) : sac de votre campagne à reconstituer"
+        }
+      ]
+    }
+  ],
+  "setup": [
+    {
+      "op": "branch",
+      "on": "difficulty",
+      "cases": {
+        "easy": [
+          {
+            "op": "log",
+            "text": "Ce scénario n'a que deux niveaux de difficulté (encart p. 1) : Facile joue le sac Standard."
+          }
+        ],
+        "expert": [
+          {
+            "op": "log",
+            "text": "Ce scénario n'a que deux niveaux de difficulté (encart p. 1) : Expert joue le sac Difficile."
+          }
+        ]
+      }
+    },
+    {
+      "op": "when",
+      "cond": {
+        "q": "mode",
+        "is": "campaign"
+      },
+      "then": [
+        {
+          "op": "reminder",
+          "text": "Side-story (encart p. 1) : jouez avec le sac du chaos de votre campagne — celui de l'encart sert de point de départ, ajustez-le (clic droit sur le sac → Ajuster) ; faiblesses, traumatismes et soutiens d'histoire de la campagne suivent vos decks. Ce scénario coûte 3 XP par enquêteur."
+        }
+      ]
+    },
+    {
+      "op": "place",
+      "code": "82008",
+      "zone": "board",
+      "x": 674,
+      "y": 81,
+      "reveal": true,
+      "log": "San Marco Basilica est mise en jeu en haut du cercle, révélée : chaque enquêteur y commence la partie."
+    },
+    {
+      "op": "pickRandom",
+      "from": [
+        "82010",
+        "82011",
+        "82012",
+        "82013",
+        "82014",
+        "82015",
+        "82016"
+      ],
+      "n": 6,
+      "include": [
+        "82009"
+      ],
+      "zone": "board",
+      "positions": [
+        {
+          "x": 1042,
+          "y": 186
+        },
+        {
+          "x": 1194,
+          "y": 441
+        },
+        {
+          "x": 1042,
+          "y": 696
+        },
+        {
+          "x": 674,
+          "y": 801
+        },
+        {
+          "x": 306,
+          "y": 696
+        },
+        {
+          "x": 154,
+          "y": 441
+        },
+        {
+          "x": 306,
+          "y": 186
+        }
+      ],
+      "faceUp": false,
+      "log": "Un lieu est retiré de la partie au hasard (jamais San Marco Basilica ni Canal-side) ; Canal-side et les six autres, mélangés, complètent le cercle dans un ordre aléatoire, non révélés — le sens horaire va vers la droite depuis la Basilique."
+    },
+    {
+      "op": "spawn",
+      "code": "82022",
+      "at": "82008",
+      "log": "Abbess Allegria Di Biase est mise en jeu à San Marco Basilica."
+    },
+    {
+      "op": "minis",
+      "code": "82008"
+    },
+    {
+      "op": "pickRandom",
+      "from": [
+        "82017",
+        "82018",
+        "82019",
+        "82020",
+        "82021",
+        "82021",
+        "82021"
+      ],
+      "n": 7,
+      "zone": "board",
+      "positions": [
+        {
+          "x": 1078,
+          "y": 232
+        },
+        {
+          "x": 1230,
+          "y": 487
+        },
+        {
+          "x": 1078,
+          "y": 742
+        },
+        {
+          "x": 710,
+          "y": 847
+        },
+        {
+          "x": 342,
+          "y": 742
+        },
+        {
+          "x": 190,
+          "y": 487
+        },
+        {
+          "x": 342,
+          "y": 232
+        }
+      ],
+      "faceUp": false,
+      "rest": "keep",
+      "log": "Les sept Masked Carnevale-Goers, mélangés, sont posés face masque sur les sept lieux autres que la Basilique — ne regardez pas leur autre face."
+    },
+    {
+      "op": "aside",
+      "codes": [
+        "82027",
+        "82025",
+        "82024",
+        "82023",
+        "82026"
+      ],
+      "faceUp": true,
+      "log": "Cnidathqua, Pantalone, Medico Della Peste, Bauta et Gilded Volto sont mis de côté, hors jeu."
+    },
+    {
+      "op": "story",
+      "log": "Agenda 1 et acte 1 sont en place ; la carte de scénario montre la référence de votre difficulté (recto Easy/Standard, verso Hard/Expert)."
+    },
+    {
+      "op": "buildEncounter"
+    }
+  ],
+  "actEffects": {
+    "after:82005": {
+      "log": "Verso de l'acte 1 (acte 2)",
+      "placeAt": [
+        {
+          "code": "82027",
+          "x": 674,
+          "y": 441,
+          "faceUp": true
+        }
+      ]
+    },
+    "after:82006": {
+      "log": "Verso de l'acte 2 : Gondola",
+      "minisTo": "82006",
+      "removeLocations": {
+        "trait": "Venice",
+        "except": [
+          "82006"
+        ]
+      }
+    }
+  },
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    {
+      "when": "setup",
+      "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+    },
+    {
+      "when": "setup",
+      "text": "Cercle (encart p. 1) : chaque lieu n'est connecté qu'au lieu suivant dans le sens horaire — sur le tapis, depuis la Basilique en haut, vers la droite puis le bas puis la gauche ; enquêteurs et monstres n'avancent que dans ce sens (le plus proche se compte aussi ainsi), sauf quand une carte dit « counter-clockwise » ; « across from » = le lieu le plus éloigné, à égale distance dans les deux sens. Tracez les chemins si vous voulez les voir."
+    },
+    {
+      "when": "setup",
+      "text": "Masked Carnevale-Goers : sept masques face cachée, un par lieu (sauf la Basilique) — ne regardez pas leur autre face. Une carte qui dit de retourner un masque : menu du masque → Retourner (si c'est un ennemi, il attaque chaque enquêteur du lieu) ; l'acte 1 permet de regarder l'autre face contre 1 indice par enquêteur (Retourner, puis Retourner de nouveau). Un Innocent Reveler retourné se parlemente (menu → glissez-le sur votre siège) ; « sous l'acte » (Basilique) ou « sous l'agenda » (quand il serait défaussé, 1 horreur à chacun) = piles « Sous l'acte » / « Sous l'agenda » à côté de la pioche (menu de la carte → Placer dans…) ; leurs badges comptent pour le jeton crâne et l'objectif de l'acte 1 (3 Revelers sous les decks)."
+    },
+    {
+      "when": "mythos",
+      "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche). Acte 2 : au début de la phase du mythe, retournez un masque de votre choix. Acte 3 : à la place de piocher, regardez les 5 premières cartes (menu de la pioche → Regarder), mettez en jeu chaque Writhing Appendage engagé avec vous, défaussez le reste."
+    },
+    {
+      "when": "enemy",
+      "text": "Ennemis chasseurs : ils avancent dans le sens horaire seulement (Don Lagorio aussi dans l'autre sens ; Baleful Reveler relance son déplacement sur un symbole du sac, une fois par manche) ; Poleman traque qui contrôle le plus d'Innocent Revelers. Déplacez-les à la main. Cnidathqua n'est à aucun lieu : on le combat comme s'il était au sien, sans l'esquiver ; un test d'attaque raté fait sortir un Writhing Appendage de la pioche ou de la défausse (menu → Chercher)."
+    },
+    {
+      "when": "agenda:2",
+      "text": "Verso de l'agenda 1 : Baleful Reveler est entré en jeu au centre — déplacez-le au lieu sans enquêteur le plus proche du meneur dans le sens antihoraire. Agenda 2 (3 doom) : quand il doit avancer, lisez son verso par Retourner (menu) SANS avancer : le meneur retourne un masque ; si c'est un Innocent Reveler, placez-le sous l'agenda (pile) ; s'il reste un masque en jeu, revenez au recto (Retourner) et retirez son doom (menu → Doom −) ; sinon, Avancer l'agenda."
+    },
+    {
+      "when": "agenda:3",
+      "text": "Agenda 3 : 2 doom sur chaque Writhing Appendage qui entre en jeu (menu → Doom). Quand il doit avancer, lisez son verso par Retourner (menu) SANS avancer : Cnidathqua attaque chaque enquêteur (dégâts et horreur d'abord sur un Innocent Reveler), puis revenez au recto (Retourner) et retirez son doom. L'agenda 3 est le dernier."
+    },
+    {
+      "when": "act:2",
+      "text": "Verso de l'acte 1 : Cnidathqua est en jeu au centre des lieux, à aucun lieu (journal) ; le meneur retourne un masque de son choix. Acte 2 : chaque début de phase du mythe retourne un masque ; l'acte avance quand tous les enquêteurs non vaincus sont à Canal-side."
+    },
+    {
+      "when": "act:3",
+      "text": "Verso de l'acte 2 : Gondola est entrée en jeu, les pions y sont, les autres lieux ont quitté la partie (journal) — retirez aussi de la partie les ennemis et soutiens qui s'y trouvaient (menu → Retirer de la partie). Acte 3 : ramez (test, 1 ressource sur Gondola par réussite : menu de Gondola → Ressource) ; l'acte avance à 4 ressources par enquêteur ; la pioche est remplacée par « regarder les 5 premières » (rappel du mythe)."
+    }
+  ]
+}

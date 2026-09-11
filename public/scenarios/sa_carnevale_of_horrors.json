@@ -1,0 +1,963 @@
+{
+ "id": "sa_carnevale_of_horrors",
+ "title": "Carnevale of Horrors",
+ "campaign": "Scénarios indépendants",
+ "campaignId": "standalone",
+ "order": 2,
+ "packs": [
+  "coh"
+ ],
+ "encounterSets": [
+  "venice"
+ ],
+ "extraCards": [],
+ "scenarioCard": "82001",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "82002",
+  "82003",
+  "82004"
+ ],
+ "actDeck": [
+  "82005",
+  "82006",
+  "82007"
+ ],
+ "startLocation": "82008",
+ "layout": [
+  {
+   "code": "82008",
+   "x": 674,
+   "y": 81
+  }
+ ],
+ "backPlacement": {
+  "82002": {
+   "x": 674,
+   "y": 441
+  },
+  "82006": {
+   "x": 674,
+   "y": 81
+  }
+ },
+ "storyBack": [],
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-3",
+   "-4",
+   "-6",
+   "skull",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-3",
+   "-4",
+   "-6",
+   "skull",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-3",
+   "-4",
+   "-5",
+   "-6",
+   "-7",
+   "skull",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "+1",
+   "0",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-3",
+   "-4",
+   "-5",
+   "-6",
+   "-7",
+   "skull",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "piles": [
+  {
+   "id": "under_agenda",
+   "label": "Sous l'agenda",
+   "menuFor": [
+    "asset"
+   ]
+  },
+  {
+   "id": "under_act",
+   "label": "Sous l'acte",
+   "menuFor": [
+    "asset"
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Comment jouez-vous ce scénario ? (encart p. 1)",
+   "options": [
+    {
+     "id": "standalone",
+     "label": "Scénario indépendant : sac de l'encart (Standard ou Difficile)"
+    },
+    {
+     "id": "campaign",
+     "label": "Side-story dans une campagne (3 XP par enquêteur) : sac de votre campagne à reconstituer"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "branch",
+   "on": "difficulty",
+   "cases": {
+    "easy": [
+     {
+      "op": "log",
+      "text": "Ce scénario n'a que deux niveaux de difficulté (encart p. 1) : Facile joue le sac Standard."
+     }
+    ],
+    "expert": [
+     {
+      "op": "log",
+      "text": "Ce scénario n'a que deux niveaux de difficulté (encart p. 1) : Expert joue le sac Difficile."
+     }
+    ]
+   }
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "campaign"
+   },
+   "then": [
+    {
+     "op": "reminder",
+     "text": "Side-story (encart p. 1) : jouez avec le sac du chaos de votre campagne — celui de l'encart sert de point de départ, ajustez-le (clic droit sur le sac → Ajuster) ; faiblesses, traumatismes et soutiens d'histoire de la campagne suivent vos decks. Ce scénario coûte 3 XP par enquêteur."
+    }
+   ]
+  },
+  {
+   "op": "place",
+   "code": "82008",
+   "zone": "board",
+   "x": 674,
+   "y": 81,
+   "reveal": true,
+   "log": "San Marco Basilica est mise en jeu en haut du cercle, révélée : chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "82010",
+    "82011",
+    "82012",
+    "82013",
+    "82014",
+    "82015",
+    "82016"
+   ],
+   "n": 6,
+   "include": [
+    "82009"
+   ],
+   "zone": "board",
+   "positions": [
+    {
+     "x": 1042,
+     "y": 186
+    },
+    {
+     "x": 1194,
+     "y": 441
+    },
+    {
+     "x": 1042,
+     "y": 696
+    },
+    {
+     "x": 674,
+     "y": 801
+    },
+    {
+     "x": 306,
+     "y": 696
+    },
+    {
+     "x": 154,
+     "y": 441
+    },
+    {
+     "x": 306,
+     "y": 186
+    }
+   ],
+   "faceUp": false,
+   "log": "Un lieu est retiré de la partie au hasard (jamais San Marco Basilica ni Canal-side) ; Canal-side et les six autres, mélangés, complètent le cercle dans un ordre aléatoire, non révélés — le sens horaire va vers la droite depuis la Basilique."
+  },
+  {
+   "op": "spawn",
+   "code": "82022",
+   "at": "82008",
+   "log": "Abbess Allegria Di Biase est mise en jeu à San Marco Basilica."
+  },
+  {
+   "op": "minis",
+   "code": "82008"
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "82017",
+    "82018",
+    "82019",
+    "82020",
+    "82021",
+    "82021",
+    "82021"
+   ],
+   "n": 7,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 1078,
+     "y": 232
+    },
+    {
+     "x": 1230,
+     "y": 487
+    },
+    {
+     "x": 1078,
+     "y": 742
+    },
+    {
+     "x": 710,
+     "y": 847
+    },
+    {
+     "x": 342,
+     "y": 742
+    },
+    {
+     "x": 190,
+     "y": 487
+    },
+    {
+     "x": 342,
+     "y": 232
+    }
+   ],
+   "faceUp": false,
+   "rest": "keep",
+   "log": "Les sept Masked Carnevale-Goers, mélangés, sont posés face masque sur les sept lieux autres que la Basilique — ne regardez pas leur autre face."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "82027",
+    "82025",
+    "82024",
+    "82023",
+    "82026"
+   ],
+   "faceUp": true,
+   "log": "Cnidathqua, Pantalone, Medico Della Peste, Bauta et Gilded Volto sont mis de côté, hors jeu."
+  },
+  {
+   "op": "story",
+   "log": "Agenda 1 et acte 1 sont en place ; la carte de scénario montre la référence de votre difficulté (recto Easy/Standard, verso Hard/Expert)."
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "actEffects": {
+  "after:82005": {
+   "log": "Verso de l'acte 1 (acte 2)",
+   "placeAt": [
+    {
+     "code": "82027",
+     "x": 674,
+     "y": 441,
+     "faceUp": true
+    }
+   ]
+  },
+  "after:82006": {
+   "log": "Verso de l'acte 2 : Gondola",
+   "minisTo": "82006",
+   "removeLocations": {
+    "trait": "Venice",
+    "except": [
+     "82006"
+    ]
+   }
+  }
+ },
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Cercle (encart p. 1) : chaque lieu n'est connecté qu'au lieu suivant dans le sens horaire — sur le tapis, depuis la Basilique en haut, vers la droite puis le bas puis la gauche ; enquêteurs et monstres n'avancent que dans ce sens (le plus proche se compte aussi ainsi), sauf quand une carte dit « counter-clockwise » ; « across from » = le lieu le plus éloigné, à égale distance dans les deux sens. Tracez les chemins si vous voulez les voir."
+  },
+  {
+   "when": "setup",
+   "text": "Masked Carnevale-Goers : sept masques face cachée, un par lieu (sauf la Basilique) — ne regardez pas leur autre face. Une carte qui dit de retourner un masque : menu du masque → Retourner (si c'est un ennemi, il attaque chaque enquêteur du lieu) ; l'acte 1 permet de regarder l'autre face contre 1 indice par enquêteur (Retourner, puis Retourner de nouveau). Un Innocent Reveler retourné se parlemente (menu → glissez-le sur votre siège) ; « sous l'acte » (Basilique) ou « sous l'agenda » (quand il serait défaussé, 1 horreur à chacun) = piles « Sous l'acte » / « Sous l'agenda » à côté de la pioche (menu de la carte → Placer dans…) ; leurs badges comptent pour le jeton crâne et l'objectif de l'acte 1 (3 Revelers sous les decks)."
+  },
+  {
+   "when": "mythos",
+   "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche). Acte 2 : au début de la phase du mythe, retournez un masque de votre choix. Acte 3 : à la place de piocher, regardez les 5 premières cartes (menu de la pioche → Regarder), mettez en jeu chaque Writhing Appendage engagé avec vous, défaussez le reste."
+  },
+  {
+   "when": "enemy",
+   "text": "Ennemis chasseurs : ils avancent dans le sens horaire seulement (Don Lagorio aussi dans l'autre sens ; Baleful Reveler relance son déplacement sur un symbole du sac, une fois par manche) ; Poleman traque qui contrôle le plus d'Innocent Revelers. Déplacez-les à la main. Cnidathqua n'est à aucun lieu : on le combat comme s'il était au sien, sans l'esquiver ; un test d'attaque raté fait sortir un Writhing Appendage de la pioche ou de la défausse (menu → Chercher)."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 : Baleful Reveler est entré en jeu au centre — déplacez-le au lieu sans enquêteur le plus proche du meneur dans le sens antihoraire. Agenda 2 (3 doom) : quand il doit avancer, lisez son verso par Retourner (menu) SANS avancer : le meneur retourne un masque ; si c'est un Innocent Reveler, placez-le sous l'agenda (pile) ; s'il reste un masque en jeu, revenez au recto (Retourner) et retirez son doom (menu → Doom −) ; sinon, Avancer l'agenda."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Agenda 3 : 2 doom sur chaque Writhing Appendage qui entre en jeu (menu → Doom). Quand il doit avancer, lisez son verso par Retourner (menu) SANS avancer : Cnidathqua attaque chaque enquêteur (dégâts et horreur d'abord sur un Innocent Reveler), puis revenez au recto (Retourner) et retirez son doom. L'agenda 3 est le dernier."
+  },
+  {
+   "when": "act:2",
+   "text": "Verso de l'acte 1 : Cnidathqua est en jeu au centre des lieux, à aucun lieu (journal) ; le meneur retourne un masque de son choix. Acte 2 : chaque début de phase du mythe retourne un masque ; l'acte avance quand tous les enquêteurs non vaincus sont à Canal-side."
+  },
+  {
+   "when": "act:3",
+   "text": "Verso de l'acte 2 : Gondola est entrée en jeu, les pions y sont, les autres lieux ont quitté la partie (journal) — retirez aussi de la partie les ennemis et soutiens qui s'y trouvaient (menu → Retirer de la partie). Acte 3 : ramez (test, 1 ressource sur Gondola par réussite : menu de Gondola → Ressource) ; l'acte avance à 4 ressources par enquêteur ; la pioche est remplacée par « regarder les 5 premières » (rappel du mythe)."
+  }
+ ],
+ "builtAt": "2026-09-11",
+ "encounterSetNames": {
+  "venice": "Carnevale of Horrors"
+ },
+ "cards": [
+  {
+   "code": "82001",
+   "name": "Carnevale of Horrors",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "82002",
+   "name": "The Festivities Begin",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "backCode": "82002b",
+   "backKind": "enemy",
+   "backName": "Baleful Reveler",
+   "backSubname": "Spreading Chaos",
+   "backHealth": 5,
+   "backHealthPerInvestigator": true,
+   "backVictory": 2,
+   "doom": 8,
+   "stage": 1
+  },
+  {
+   "code": "82003",
+   "name": "The Shadow of the Eclipse",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "backName": "A Sacrifice To Be Made",
+   "doom": 3,
+   "stage": 2
+  },
+  {
+   "code": "82004",
+   "name": "Chaos at the Carnevale",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Cnidathqua Attacks!",
+   "doom": 3,
+   "stage": 3
+  },
+  {
+   "code": "82005",
+   "name": "The Carnevale Conspiracy",
+   "kind": "act",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "The Beast Emerges",
+   "stage": 1
+  },
+  {
+   "code": "82006",
+   "name": "Get to the Boats!",
+   "kind": "act",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backClue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backCode": "82006b",
+   "backKind": "location",
+   "backName": "Gondola",
+   "stage": 2
+  },
+  {
+   "code": "82007",
+   "name": "Row!",
+   "kind": "act",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "Blood of the Lagoon",
+   "stage": 3
+  },
+  {
+   "code": "82008",
+   "name": "San Marco Basilica",
+   "kind": "location",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Venice"
+   ]
+  },
+  {
+   "code": "82009",
+   "name": "Canal-side",
+   "kind": "location",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": false
+   },
+   "traits": [
+    "Venice"
+   ]
+  },
+  {
+   "code": "82010",
+   "name": "Streets of Venice",
+   "kind": "location",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": false
+   },
+   "traits": [
+    "Venice"
+   ]
+  },
+  {
+   "code": "82011",
+   "name": "Rialto Bridge",
+   "kind": "location",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": false
+   },
+   "traits": [
+    "Venice",
+    "Bridge"
+   ]
+  },
+  {
+   "code": "82012",
+   "name": "Venetian Garden",
+   "kind": "location",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Venice"
+   ]
+  },
+  {
+   "code": "82013",
+   "name": "Bridge of Sighs",
+   "kind": "location",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": false
+   },
+   "traits": [
+    "Venice",
+    "Bridge"
+   ]
+  },
+  {
+   "code": "82014",
+   "name": "Flooded Square",
+   "kind": "location",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Venice"
+   ]
+  },
+  {
+   "code": "82015",
+   "name": "Accademia Bridge",
+   "kind": "location",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Venice",
+    "Bridge"
+   ]
+  },
+  {
+   "code": "82016",
+   "name": "The Guardian",
+   "kind": "location",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Venice"
+   ]
+  },
+  {
+   "code": "82017",
+   "name": "Don Lagorio",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Secret Servant",
+   "traits": [
+    "Humanoid",
+    "Servitor",
+    "Elite"
+   ],
+   "backCode": "82017b",
+   "backKind": "asset",
+   "backName": "Masked Carnevale-Goer",
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "82018",
+   "name": "Elisabetta Magro",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "subname": "High Servant of the Order",
+   "traits": [
+    "Humanoid",
+    "Lodge",
+    "Elite"
+   ],
+   "backCode": "82017b",
+   "backKind": "asset",
+   "backName": "Masked Carnevale-Goer",
+   "health": 4,
+   "victory": 1
+  },
+  {
+   "code": "82019",
+   "name": "Salvatore Neri",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Master of Illusions",
+   "traits": [
+    "Humanoid",
+    "Sorcerer",
+    "Elite"
+   ],
+   "backCode": "82017b",
+   "backKind": "asset",
+   "backName": "Masked Carnevale-Goer",
+   "health": 3,
+   "victory": 1
+  },
+  {
+   "code": "82020",
+   "name": "Savio Corvi",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Dark Lurker",
+   "traits": [
+    "Humanoid",
+    "Cultist",
+    "Elite"
+   ],
+   "backCode": "82017b",
+   "backKind": "asset",
+   "backName": "Masked Carnevale-Goer",
+   "health": 5,
+   "victory": 1
+  },
+  {
+   "code": "82021",
+   "name": "Innocent Reveler",
+   "kind": "asset",
+   "qty": 3,
+   "set": "venice",
+   "back": "b",
+   "storyBack": false,
+   "traits": [
+    "Ally",
+    "Bystander",
+    "Carnevale"
+   ],
+   "backCode": "82017b",
+   "backKind": "asset",
+   "backName": "Masked Carnevale-Goer",
+   "health": 2,
+   "sanity": 2
+  },
+  {
+   "code": "82022",
+   "name": "Abbess Allegria Di Biase",
+   "kind": "asset",
+   "qty": 1,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Most Blessed",
+   "traits": [
+    "Ally",
+    "Believer"
+   ],
+   "health": 2,
+   "sanity": 2
+  },
+  {
+   "code": "82023",
+   "name": "Bauta",
+   "kind": "asset",
+   "qty": 1,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Mask"
+   ]
+  },
+  {
+   "code": "82024",
+   "name": "Medico Della Peste",
+   "kind": "asset",
+   "qty": 1,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Mask"
+   ]
+  },
+  {
+   "code": "82025",
+   "name": "Pantalone",
+   "kind": "asset",
+   "qty": 1,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Mask"
+   ]
+  },
+  {
+   "code": "82026",
+   "name": "Gilded Volto",
+   "kind": "asset",
+   "qty": 1,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Item",
+    "Mask"
+   ]
+  },
+  {
+   "code": "82027",
+   "name": "Cnidathqua",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "The Many-armed Beast",
+   "traits": [
+    "Monster",
+    "Ancient One",
+    "Elite"
+   ],
+   "health": 8,
+   "healthPerInvestigator": true
+  },
+  {
+   "code": "82028",
+   "name": "Poleman",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Deep One"
+   ],
+   "health": 4
+  },
+  {
+   "code": "82029",
+   "name": "Carnevale Sentinel",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Cultist"
+   ],
+   "health": 3
+  },
+  {
+   "code": "82030",
+   "name": "Writhing Appendage",
+   "kind": "enemy",
+   "qty": 3,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Tentacle"
+   ],
+   "health": 2
+  },
+  {
+   "code": "82031",
+   "name": "Mass Hysteria",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "82032",
+   "name": "Lost in Venice",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Blunder"
+   ]
+  },
+  {
+   "code": "82033",
+   "name": "Watchers' Gaze",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "82034",
+   "name": "Chaos in the Water",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "82035",
+   "name": "Mesmerize",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  },
+  {
+   "code": "82036",
+   "name": "Abduction",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "82037",
+   "name": "Acrid Miasma",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "venice",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  }
+ ]
+}

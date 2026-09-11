@@ -750,7 +750,8 @@
      "id": "sa_carnevale_of_horrors",
      "num": "2017",
      "title": "Carnevale of Horrors",
-     "status": "planned"
+     "status": "available",
+     "guide": "https://hallofarkham.com/wp-content/uploads/2021/01/carnevalerules.pdf"
     },
     {
      "id": "sa_the_labyrinths_of_lunacy",

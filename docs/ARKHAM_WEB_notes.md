@@ -31,6 +31,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 | Date | Livraison | À retenir |
 |---|---|---|
 | 2026-09-10 | Standalone — Curse of the Rougarou | livret (encart FFG 2016, transcription Hall of Arkham) lu en entier ; question `mode` (indépendant / side-story 1 XP), sac p. 1 à deux niveaux ; set Curse of the Rougarou de côté ; **`pickGroups`** (quatre piles de lieux par trait : 1 retirée, 1 en jeu, 2 de côté, `slot`) + `reveal`/`minis` sur le Bayou tiré ; disposition déduite des icônes (Bayou en carré) ; acte 2 : **`placeAt ifAside`** (six lieux de côté), **`spawnAside at` en liste** (Lady Esprit au Bayou), set + défausse mélangés ; agenda 3 : **`shuffleFromDiscard`** (On the Prowl) |
+| 2026-09-11 | Standalone — Carnevale of Horrors | encart 2016 (transcription Hall of Arkham) lu en entier ; question `mode` (indépendant / side-story 3 XP), sac à deux niveaux ; cercle de huit lieux (Basilique en haut, un lieu retiré au hasard par `pickRandom include`), sept masques = versos liés posés face cachée, piles « Sous l'agenda » / « Sous l'acte », Cnidathqua au centre à l'acte 2, Baleful Reveler (verso-ennemi), Gondola (verso-lieu) avec **`minisTo`** (nouveau) et `removeLocations except` ; « Retourner » pour un soutien lié posé face cachée ; ressources au menu des lieux |
 | 2026-09-11 | Standalone — Machinations Through Time | livret lu en entier : un scénario, trois façons (Single Group, Epic à trois groupes Passé / Présent / Futur, side-story) → une room, `mode` à cinq options + questions Machination / Plot (au hasard ou annoncée) ; Tindalos côté a / b, trois croix ou une ; textes de Setup des cartes histoire résolus par **`branch on:"slot:…"`** (nouveau), `spawn side b` d'Edwin soutien, `addTokens` négatif ; agenda 2 : **`flip`** (nouveau), `shuffleAside ifAside`, `spawnAside ifAt` (nouveau) ; menu ressources des cartes histoire ; sac à quatre niveaux |
 | 2026-09-10 | Standalone — Fortune and Folly, Part II : The Heist | setup « from Scratch » : journal du Checkpoint en questions (jouée / sautée, tâches `multi`, Practiced `multi`, repos, indices `number`), deux hubs superposés, `place side:"b"` + `reveal` (Busy Night, indices du verso), `spawn side` (Isamara Crew), Wellspring `spawn` sur Relic Room, **`revealEffects`** (Hallway → Abarran Unleashed + cultistes ; Relic Room → **`moveTokens`**), effet **`seatCounter`** (+1 alerte), agendas 3-4 (Shambler, Plan in Shambles, Disfavor `drawAside`) ; **Fortune and Folly complet** |
 | 2026-09-10 | Standalone — Fortune and Folly, Part I : The Stakeout | livret lu en entier : deux parties = **deux rooms** (bibliothèque scindée, Part II prévue) ; hub public en anneau, cartes liées Calm Night révélées, The Stakeout + Wellspring (Key → `asset`, `addTokens perInvestigator`) dans l'histoire, garde tiré par `spawn` sur slot, matériel de Part II retiré, **`seatCounters min/max` + icône en chemin** (niveau d'alerte 1‑10), **`discardTop`** (icônes de jeu, aperçu, remélange hors cartes défaussées) |
@@ -110,6 +111,51 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-11 : **Carnevale of Horrors** (scénario indépendant, pack
+  arkham.build `coh`, set `venice`, 82001‑82037). Comme le Rougarou,
+  **FFG ne publie pas l'encart** (2016, deux pages) : lu en entier sur la
+  transcription Hall of Arkham `carnevalerules.pdf` (image de l'encart ;
+  couche texte vide → pages rendues et lues, sac à 600 dpi : Standard
+  +1 0 0 0 −1 −1 −1 −2 −3 −4 −6 crâne ×3 cultiste tablette ancien
+  auto-fail elder sign ; Difficile +1 0 0 0 −1 −1 −3 −4 −5 −6 −7 + les
+  mêmes icônes) ; lien `guide` vers cette transcription. Un scénario,
+  deux façons (indépendant / side-story 3 XP) → question `mode`. Setup
+  p. 1 : un lieu retiré au hasard sauf la Basilique et Canal-side, les
+  huit autres « en cercle aléatoire » → la Basilique fixée en haut
+  (révélée, Abbess et pions), `pickRandom n:6 include:[Canal-side]`
+  parmi les sept autres aux sept positions d'un octogone (sens horaire =
+  vers la droite depuis le haut, rappel ; le septième retiré, journal
+  muet) ; **les sept Masked Carnevale-Goers sont un verso lié partagé**
+  (82017b, une seule image) de quatre ennemis et des trois Innocent
+  Reveler : `pickRandom n:7 faceUp:false` aux mêmes positions décalées
+  → ils montrent le masque, aucune jauge ne trahit le recto
+  (`faceVisible` lit le verso lié sans vie), « Retourner » révèle —
+  correction du menu : un soutien lié de même kind posé face cachée
+  (Innocent Reveler) n'avait pas de « Retourner » (`deuxFaces` ne
+  l'offrait que face visible) ; Cnidathqua et les quatre masques
+  (Mask) de côté ; pioche 26. Piles déclarées « Sous l'agenda » /
+  « Sous l'acte » (`menuFor` asset) pour les Innocent Revelers — leurs
+  badges servent au crâne et à l'objectif de l'acte 1. Versos lus dans
+  le dump : acte 1b → `placeAt` de Cnidathqua au centre du cercle (à
+  aucun lieu) ; agenda 1 = verso-ennemi (Baleful Reveler, `backPlacement`
+  au centre, à déplacer : Spawn antihoraire, rappel) ; acte 2 =
+  verso-lieu Gondola (`backPlacement` en haut) avec **`minisTo`**
+  (nouveau : tous les pions sur un lieu) et `removeLocations {trait:
+  "Venice", except: [Gondola]}` (ennemis et soutiens qui s'y trouvaient
+  en rappel) ; acte 3 : ressources sur Gondola → « Ressource » ajoutée au
+  menu des lieux ; agendas 2 et 3 « reviennent au recto » (boucles :
+  Retourner sans avancer, doom retiré à la main — rappels) ; acte 1
+  (regarder l'autre face contre des indices = Retourner deux fois) et
+  acte 2 (un masque retourné à chaque phase du mythe) en rappels. Tests :
+  bloc `test_room.mjs` (Standard 2 j. : sac, Basilique, sept positions,
+  Canal-side présent, un retiré ni Basilique ni Canal-side et journal
+  muet, Abbess, pions, sept masques face cachée dont trois Revelers, cinq
+  de côté, pioche 26, piles ; Reveler retourné puis sous l'agenda ; acte
+  2 → Cnidathqua au centre ; agenda 2 → Baleful Reveler sur le tapis ;
+  acte 3 → Gondola en haut, pions dessus, neuf lieux retirés ; side-story
+  Expert solo) ; Playwright : cercle, sept images de masque, menu
+  Retourner, masque révélé, acte 2 ; zéro erreur console ; `npm run
+  check` zéro erreur ; régression `test_room.mjs` (865 messages) OK.
 - 2026-09-11 : **Machinations Through Time** (scénario indépendant
   demandé par l'utilisateur hors de l'ordre de la tâche planifiée ; pack
   arkham.build `mtt`, 87001‑87057, sets `machinations_through_time`,
@@ -239,56 +285,9 @@ versement de son durable (format → grammaire, piège → §5, décision →
   lieux, Lady Esprit) ; zéro erreur console hors `ERR_CONNECTION_RESET`
   des ressources externes ; `npm run check` zéro erreur ; régression
   `test_room.mjs` complète (820 messages) OK.
-- 2026-09-10 : **Fortune and Folly, Part II : The Heist** — la seconde
-  room du scénario, avec le setup « from Scratch » p. 23‑25 (celui qui
-  vaut après une pause ou quand la partie I a été sautée ; en room
-  séparée, il n'y a pas de reprise directe). Le **journal du
-  Checkpoint** (p. 17‑19, lu pour concevoir les questions) devient six
-  questions de lobby : mode (sac), partie I jouée / sautée, tâches de
-  The Stakeout (`multi`, six mentions — Isamara Crew et Cash Cart en
-  dépendent, les autres sont loggées pour la partie), rôles notés
-  Practiced (`multi` : chaque Role de côté côté a ou b par `when has`),
-  « need time to rest » (1 doom sur l'agenda 2 par `addDoom` après
-  `story`), indices restant sur le Wellspring (`number`, `addTokens
-  nFrom` ; sautée : 7 par enquêteur). Niveaux d'alerte et cartes
-  « Stashed » restent à la main (rappels). Nouveautés d'engine, toutes
-  petites : `place side:"b"` (+ `revealLocation` prend les indices du
-  verso `backClue`) pour Casino Floor / Lounge / High Roller's Table
-  côté **Busy Night** révélés et The Heist (verso de The Stakeout) dans
-  l'histoire ; `spawn side` (Isamara Crew à Casino Lounge) ; le
-  Wellspring **attaché à Relic Room** par un `spawn` sur le lieu non
-  révélé (il le suit) ; **`revealEffects`** (racine, mêmes StageEffects
-  appliqués quand un lieu est révélé en partie) : Staff Access Hallway →
-  `spawnAside side:"b"` d'Abarran Unleashed à Owner's Office +
-  `shuffleAside withDiscard` du set Fortune's Chosen ; Relic Room →
-  **`moveTokens`** (nouveau : tous les indices du Wellspring sur Relic
-  Room, après ses propres indices) ; effet **`seatCounter {key, n}`**
-  (« raise each investigator's alarm level by 1 » aux agendas 2b et 3b,
-  bornes respectées). Agenda 3 : `spawnAside` du Dimensional Shambler à
-  Roulette Wheel + `shuffleAside` des douze autres Plan in Shambles avec
-  la défausse ; agenda 4 : `drawAside` d'une Fortune's Disfavor (trois de
-  côté face cachée, `storyBack` : leur verso est l'effet) ; acte 2b
-  (Abarran à Relic Room ou test) en rappel. Diagramme p. 26 « juste
-  au-dessus du hub public » : hub restreint aux lignes 173 / 411 / 649
-  (Relic Room seule en haut), hub public aux lignes 887 / 1125 / 1363 —
-  six lignes, la vue se cadre toute seule. De côté : 28 cartes (roles,
-  Package Delivery côté b, Abarran côté b, trois Disfavor, récompenses,
-  les deux sets) — le rangement de la zone hors jeu reste le chantier
-  ouvert. Garde et patrouille « sortis de la pioche » par tirage
-  nominal + `spawn` sur slot, comme en Part I. Tests : bloc
-  `test_room.mjs` (jouée : positions des deux hubs, faces b et indices
-  du verso, Heist, Wellspring 9, Isamara Crew, Cash Cart, garde +
-  patrouille, 28 de côté avec faces, doom du repos, pioche 22, tâches
-  loggées ; révélation du Hallway → Abarran + 4 cultistes + défausse,
-  Relic Room → 2 + 9 indices, agenda 3 → Shambler + 12 + 1, alerte 2,
-  agenda 4 → Disfavor recto, alerte 3 ; sautée Expert solo : 7 indices,
-  Isamara et Cash Cart de côté, pas de doom, rôles Unpracticed, sac
-  Difficile) ; Playwright : questions du lobby, deux hubs, révélation
-  du Hallway au clic (Abarran), agenda 3 (Shambler, alerte 2), colonne
-  Histoire, zone de côté ; zéro erreur console ; `npm run check` zéro
-  erreur ; régression `test_room.mjs` (802 messages) OK. **Fortune and
-  Folly complet** (deux rooms).
-- **Prochaine étape** : validation par l'utilisateur de **Machinations
+- **Prochaine étape** : validation par l'utilisateur de **Carnevale of
+  Horrors** (cercle, masques, piles sous les decks, boucles des agendas 2
+  et 3 en rappel, Gondola), de **Machinations
   Through Time** (mode à cinq options, cartes histoire et leurs textes de
   Setup, trois croix, agenda 2) et de **Curse of the
   Rougarou** (piles tirées au sort, disposition en carré déduite des
@@ -298,7 +297,8 @@ versement de son durable (format → grammaire, piège → §5, décision →
   par `discardTop`, Roles de côté ; Part II : questions du journal, deux
   hubs superposés, révélation du Hallway, Relic Room, agendas 3‑4), puis
   le **scénario indépendant suivant dans l'ordre de l'utilisateur**
-  (tâche planifiée, une room par jour) : Carnevale of Horrors, The
+  (tâche planifiée, une room par jour) — **Carnevale of Horrors est fait**
+  (2026-09-11, demandé par l'utilisateur) : The
   Labyrinths of Lunacy, Guardians of the Abyss (deux rooms déjà
   prévues), Murder at the Excelsior Hotel, War of the Outer Gods,
   Machinations Through Time, The Midwinter Gala, Film Fatale (pioche
@@ -855,10 +855,11 @@ histoire (ne pas montrer) ; pioche construite avec ordre imposé
 
 ## 5. Pièges connus (à enrichir)
 
-- **Livrets absents du site FFG** (Curse of the Rougarou, encart de
-  2016) : la page produit ne propose aucun PDF ; la transcription Hall
-  of Arkham (`hallofarkham.com/wp-content/uploads/2021/01/curserules.pdf`)
-  reprend texte et icônes de l'encart — lire le sac sur l'image à
+- **Livrets absents du site FFG** (Curse of the Rougarou et Carnevale of
+  Horrors, encarts de 2016) : la page produit ne propose aucun PDF ; la
+  transcription Hall of Arkham (`hallofarkham.com/wp-content/uploads/2021/01/curserules.pdf`,
+  `…/carnevalerules.pdf` — celle-ci est une image sans couche texte :
+  rendre les pages et les lire) reprend texte et icônes de l'encart — lire le sac sur l'image à
   600 dpi comme d'habitude ; BGG (fils « PDF rules ») répond 403 au
   bac à sable. Le lien `guide` pointe donc hors FFG : à remplacer si
   l'utilisateur fournit mieux.
