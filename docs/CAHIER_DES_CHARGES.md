@@ -595,6 +595,13 @@ révélé en partie) ; effets `seatCounter {key, n}` (compteur de chaque
 enquêteur, bornes déclarées) et `moveTokens {from, to, token}`.
 Fortune and Folly complet en deux rooms.
 
+**Machinations Through Time (2026-09-11).** `branch on:"slot:<nom>"`
+(cas keyés par le code tiré d'un `pickRandom` nominal : cartes histoire
+Machination / Plot dont le texte de Setup diffère) ; `addTokens` à `n`
+négatif (retrait) ; effet `flip [codes]` (cartes en jeu retournées sur
+leur verso) ; `spawnAside.ifAt` (seulement si le lieu est sur le
+tapis) ; menu des cartes histoire avec ressources, dégâts, horreur.
+
 **Curse of the Rougarou (2026-09-10).** Op **`pickGroups`** (piles de
 cartes tirées au sort entières : `groups {label, codes, positions}`,
 `remove`, `play`, `rest`, `slot`) ; effets `placeAt.ifAside` (silence si

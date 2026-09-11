@@ -1,0 +1,1816 @@
+{
+  "_source": "Livret Machinations Through Time (FFG ahc62, 2022, 24 p.), lu en entier (consigne standalone) : un seul scénario, trois façons de jouer (p. 2-3) — Single Group (1-4, les trois ères ensemble), Epic Multiplayer (trois groupes de 1-4 : Passé, Présent, Futur, chacun confiné à son ère ; le groupe Passé tire Machination et Plot au hasard et les ANNONCE aux autres, qui les mettent en jeu ; annonces p. 24 ; limite 180 min → agenda 2b ; valeurs globales p. 5) ou side-story (sac de la campagne, 2 XP) → une room, question `mode` à cinq options ; questions `machination` et `plot` (au hasard / la carte annoncée). Sac p. 2 (quatre niveaux, icônes à 600 dpi) : Facile +1 +1 +1 0 0 0 0 −1 −1 −1 −2 −2 crâne cultiste tablette ancien auto-fail elder sign ; Standard +1 0 0 −1 −1 −1 −2 −2 −3 −4 crâne ×2 cultiste tablette ancien auto-fail elder sign ; Difficile 0 0 −1 −1 −1 −2 −3 −4 −6 crâne ×2 cultiste tablette ancien ×2 auto-fail elder sign ; Expert 0 −1 −1 −2 −3 −4 −5 −6 −8 crâne ×2 cultiste tablette ancien ×2 auto-fail elder sign. Carte de scénario 87001 : recto Easy/Standard, verso Hard/Expert. Règles p. 3-6 : ères (un soutien Past / Present / Future non-Item ne quitte pas son ère), cartes histoire (texte de Setup résolu à la mise en place → automatisé, capacités par n'importe quel enquêteur, marqueurs ressource), annonces, enlevé / secouru (de côté, retour à Tindalos épuisé), Alert, Patrol, valeurs globales (Tyr'thrha vie ✱ = 6 par enquêteur tous groupes → jauge sans maximum). Setup p. 11-15 : sets machinations_through_time + single_group (Tindalos côté a 87005a, Edwin 87036a/b) ou epic_multiplayer (Tindalos côté b 87005b — même carte liée, `place side` —, Edwin 87037a/b), l'autre Edwin retiré ; Single : Corrigan Industries de côté, Tindalos + 14 lieux (diagrammes p. 16-18 : une croix par ère — haut Gazette / Advertiser, gauche River Docks, centre Tindalos, droite O'Malley / Tick-Tock, dessous Miskatonic University, bas Childhood Home / Ye Olde Magick Shoppe —, « ignoring the placement for Tindalos » : les trois croix côte à côte aux colonnes 179-551 / 737-1109 / 1295-1667, Tindalos au centre de l'ère Présent 923 × 411, les centres des deux autres croix vides) ; Epic : Tindalos + les lieux de l'ère (croix centrée 737 × 411), le reste retiré, Corrigan de côté pour le Futur ; A Noble Legacy (une par ère, les trois en Single) : texte de Setup résolu (Tesla aux River Docks du Passé, Ezra Graves à l'Advertiser du Présent, Dimensional Beam Machine de côté) puis carte retournée (`place zone story side b`) ; Machination et Plot : `pickRandom` nominal (au hasard, ou `from` réduit à la carte annoncée) puis `branch on:\"slot:…\"` (nouveau) qui résout le texte de Setup de la carte tirée (textes lus dans le dump, jamais recopiés) : A Bitter Rivalry (Thomas Past enlevé, Mary à la Gazette, Edwin ennemi de côté ; Présent / Futur : Thomas et Mary enlevés ; reste côté Setup, l'agenda 1b la retourne), Redeem a Former Colleague (Mary Past enlevée, Thomas à Childhood Home ; Présent : Thomas et Mary enlevés, Edwin ennemi apparaît à Miskatonic University ; Futur : enlevés ; retournée), Uneasy Alliance (Thomas à Childhood Home, Mary chez O'Malley, Edwin SOUTIEN — verso lié, `spawn side b` — à la Gazette avec 12 indices moins 3 par enquêteur ; Présent / Futur : enlevés ; retournée), Anomalies in Spacetime (1 horreur par enquêteur = anomalies sur chaque Miskatonic University, + Gazette / O'Malley ou Advertiser / Tick-Tock de l'ère en Epic ; Tyr'thrha, Sadie et les Gang retirés ; retournée), Mob Troubles (Sadie + 3 Gang de côté, Tyr'thrha retiré, +2 ressources aux enquêteurs du Présent ; reste côté Setup), Unspeakable Abomination (Tyr'thrha de côté, Sadie et Gang retirés ; reste côté Setup) ; doom sur l'agenda 1a selon la difficulté (0 / 1 / 2 / 3) ; pioche 33 (3 Ghastly Satyr, 4 Hound, Many-Angled Thing, Tindalos Alpha, 24 traîtrises). Agenda 1b (verso lu) : Anomalies → horreur sur un River Docks puis +1 partout (rappel) ; Mob Troubles → retournée, Gang dans la pioche (shuffleAside ifAside), Old Sadie au Tick-Tock du Présent s'il est en jeu (spawnAside ifAside + ifAt, nouveau) ; Unspeakable Abomination → retournée, Tyr'thrha à Tindalos (spawnAside) ; A Bitter Rivalry → retournée, Edwin ennemi au lieu du meneur dans le Passé (rappel) → effet `flip` (nouveau). Agenda 2b et acte 1b : fin (résolutions p. 19-21 non reportées). Variantes optionnelles p. 22 en rappel.",
+  "id": "sa_machinations_through_time",
+  "title": "Machinations Through Time",
+  "campaign": "Scénarios indépendants",
+  "campaignId": "standalone",
+  "order": 9,
+  "packs": [
+    "mtt"
+  ],
+  "encounterSets": [
+    "machinations_through_time",
+    "machinations_through_time_single_group",
+    "machinations_through_time_epic_multiplayer"
+  ],
+  "extraCards": [],
+  "scenarioCard": "87001",
+  "scenarioCardSide": {
+    "easy": "a",
+    "standard": "a",
+    "hard": "b",
+    "expert": "b"
+  },
+  "agendaDeck": [
+    "87002",
+    "87003"
+  ],
+  "actDeck": [
+    "87004"
+  ],
+  "startLocation": "87005a",
+  "layout": [
+    {
+      "code": "87005a",
+      "x": 923,
+      "y": 411
+    },
+    {
+      "code": "87007",
+      "x": 365,
+      "y": 173
+    },
+    {
+      "code": "87009",
+      "x": 179,
+      "y": 411
+    },
+    {
+      "code": "87008",
+      "x": 551,
+      "y": 411
+    },
+    {
+      "code": "87010",
+      "x": 365,
+      "y": 649
+    },
+    {
+      "code": "87011",
+      "x": 365,
+      "y": 887
+    },
+    {
+      "code": "87016",
+      "x": 923,
+      "y": 173
+    },
+    {
+      "code": "87018",
+      "x": 737,
+      "y": 411
+    },
+    {
+      "code": "87017",
+      "x": 1109,
+      "y": 411
+    },
+    {
+      "code": "87019",
+      "x": 923,
+      "y": 649
+    },
+    {
+      "code": "87020",
+      "x": 923,
+      "y": 887
+    },
+    {
+      "code": "87025",
+      "x": 1481,
+      "y": 173
+    },
+    {
+      "code": "87027",
+      "x": 1295,
+      "y": 411
+    },
+    {
+      "code": "87026",
+      "x": 1667,
+      "y": 411
+    },
+    {
+      "code": "87028",
+      "x": 1481,
+      "y": 649
+    }
+  ],
+  "storyBack": [],
+  "chaosBag": {
+    "easy": [
+      "+1",
+      "+1",
+      "+1",
+      "0",
+      "0",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-2",
+      "skull",
+      "cultist",
+      "tablet",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "standard": [
+      "+1",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-2",
+      "-3",
+      "-4",
+      "skull",
+      "skull",
+      "cultist",
+      "tablet",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "hard": [
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-3",
+      "-4",
+      "-6",
+      "skull",
+      "skull",
+      "cultist",
+      "tablet",
+      "elder_thing",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "expert": [
+      "0",
+      "-1",
+      "-1",
+      "-2",
+      "-3",
+      "-4",
+      "-5",
+      "-6",
+      "-8",
+      "skull",
+      "skull",
+      "cultist",
+      "tablet",
+      "elder_thing",
+      "elder_thing",
+      "auto_fail",
+      "elder_sign"
+    ]
+  },
+  "questions": [
+    {
+      "id": "mode",
+      "text": "Comment jouez-vous ce scénario ? (livret p. 2-3)",
+      "options": [
+        {
+          "id": "single",
+          "label": "Single Group — une seule table (1-4 enquêteurs), les trois ères ensemble"
+        },
+        {
+          "id": "epic_past",
+          "label": "Epic Multiplayer — cette table est le groupe Passé (il tire la Machination et le Plot et les annonce aux deux autres)"
+        },
+        {
+          "id": "epic_present",
+          "label": "Epic Multiplayer — cette table est le groupe Présent (Machination et Plot annoncés par le groupe Passé)"
+        },
+        {
+          "id": "epic_future",
+          "label": "Epic Multiplayer — cette table est le groupe Futur (Machination et Plot annoncés par le groupe Passé)"
+        },
+        {
+          "id": "campaign",
+          "label": "Side-story dans une campagne (2 XP par enquêteur) : mise en place Single Group, sac de votre campagne à reconstituer"
+        }
+      ]
+    },
+    {
+      "id": "machination",
+      "text": "Carte histoire Machination :",
+      "options": [
+        {
+          "id": "random",
+          "label": "Tirée au hasard (Single Group, side-story, groupe Passé)"
+        },
+        {
+          "id": "rivalry",
+          "label": "Annoncée par le groupe Passé : A Bitter Rivalry"
+        },
+        {
+          "id": "redeem",
+          "label": "Annoncée par le groupe Passé : Redeem a Former Colleague"
+        },
+        {
+          "id": "alliance",
+          "label": "Annoncée par le groupe Passé : Uneasy Alliance"
+        }
+      ]
+    },
+    {
+      "id": "plot",
+      "text": "Carte histoire Plot :",
+      "options": [
+        {
+          "id": "random",
+          "label": "Tirée au hasard (Single Group, side-story, groupe Passé)"
+        },
+        {
+          "id": "anomalies",
+          "label": "Annoncée par le groupe Passé : Anomalies in Spacetime"
+        },
+        {
+          "id": "mob",
+          "label": "Annoncée par le groupe Passé : Mob Troubles"
+        },
+        {
+          "id": "abomination",
+          "label": "Annoncée par le groupe Passé : Unspeakable Abomination"
+        }
+      ]
+    }
+  ],
+  "setup": [
+    {
+      "op": "when",
+      "cond": {
+        "q": "mode",
+        "is": "campaign"
+      },
+      "then": [
+        {
+          "op": "reminder",
+          "text": "Side-story (livret p. 3) : jouez avec le sac du chaos de votre campagne — celui du livret sert de point de départ, ajustez-le (clic droit sur le sac → Ajuster) ; faiblesses, traumatismes et soutiens d'histoire de la campagne suivent vos decks. Ce scénario coûte 2 XP par enquêteur."
+        }
+      ]
+    },
+    {
+      "op": "branch",
+      "on": "mode",
+      "cases": {
+        "epic_past": [
+          {
+            "op": "remove",
+            "codes": [
+              "87036a",
+              "87021",
+              "87022",
+              "87023",
+              "87030",
+              "87031",
+              "87032",
+              "87015",
+              "87024",
+              "87016",
+              "87017",
+              "87018",
+              "87019",
+              "87020",
+              "87025",
+              "87026",
+              "87027",
+              "87028",
+              "87029"
+            ],
+            "log": "Epic Multiplayer, groupe Passé (livret p. 12-13) : les cartes Single Group, les soutiens d'histoire et A Noble Legacy du Présent et du Futur, et les dix lieux des autres ères sont retirés de la partie."
+          },
+          {
+            "op": "place",
+            "code": "87005a",
+            "zone": "board",
+            "x": 737,
+            "y": 411,
+            "reveal": true,
+            "side": "b",
+            "log": "Tindalos est mis en jeu au centre, côté Epic Multiplayer (Maze of Infinite Depths), révélé : chaque enquêteur y commence la partie."
+          },
+          {
+            "op": "place",
+            "code": "87007",
+            "zone": "board",
+            "x": 737,
+            "y": 173,
+            "log": "Arkham Gazette est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87009",
+            "zone": "board",
+            "x": 551,
+            "y": 411,
+            "log": "River Docks (Past) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87008",
+            "zone": "board",
+            "x": 923,
+            "y": 411,
+            "log": "O'Malley's Watch Shop est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87010",
+            "zone": "board",
+            "x": 737,
+            "y": 649,
+            "log": "Miskatonic University (Past) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87011",
+            "zone": "board",
+            "x": 737,
+            "y": 887,
+            "log": "Childhood Home est mis en jeu, non révélé."
+          }
+        ],
+        "epic_present": [
+          {
+            "op": "remove",
+            "codes": [
+              "87036a",
+              "87012",
+              "87013",
+              "87014",
+              "87030",
+              "87031",
+              "87032",
+              "87006",
+              "87024",
+              "87007",
+              "87008",
+              "87009",
+              "87010",
+              "87011",
+              "87025",
+              "87026",
+              "87027",
+              "87028",
+              "87029"
+            ],
+            "log": "Epic Multiplayer, groupe Présent (livret p. 14) : les cartes Single Group, les soutiens d'histoire et A Noble Legacy du Passé et du Futur, et les dix lieux des autres ères sont retirés de la partie."
+          },
+          {
+            "op": "place",
+            "code": "87005a",
+            "zone": "board",
+            "x": 737,
+            "y": 411,
+            "reveal": true,
+            "side": "b",
+            "log": "Tindalos est mis en jeu au centre, côté Epic Multiplayer (Maze of Infinite Depths), révélé : chaque enquêteur y commence la partie."
+          },
+          {
+            "op": "place",
+            "code": "87016",
+            "zone": "board",
+            "x": 737,
+            "y": 173,
+            "log": "Arkham Advertiser (Present) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87018",
+            "zone": "board",
+            "x": 551,
+            "y": 411,
+            "log": "River Docks (Present) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87017",
+            "zone": "board",
+            "x": 923,
+            "y": 411,
+            "log": "Tick-Tock Club (Present) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87019",
+            "zone": "board",
+            "x": 737,
+            "y": 649,
+            "log": "Miskatonic University (Present) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87020",
+            "zone": "board",
+            "x": 737,
+            "y": 887,
+            "log": "Ye Olde Magick Shoppe est mis en jeu, non révélé."
+          }
+        ],
+        "epic_future": [
+          {
+            "op": "remove",
+            "codes": [
+              "87036a",
+              "87012",
+              "87013",
+              "87014",
+              "87021",
+              "87022",
+              "87023",
+              "87006",
+              "87015",
+              "87007",
+              "87008",
+              "87009",
+              "87010",
+              "87011",
+              "87016",
+              "87017",
+              "87018",
+              "87019",
+              "87020"
+            ],
+            "log": "Epic Multiplayer, groupe Futur (livret p. 15) : les cartes Single Group, les soutiens d'histoire et A Noble Legacy du Passé et du Présent, et les dix lieux des autres ères sont retirés de la partie."
+          },
+          {
+            "op": "place",
+            "code": "87005a",
+            "zone": "board",
+            "x": 737,
+            "y": 411,
+            "reveal": true,
+            "side": "b",
+            "log": "Tindalos est mis en jeu au centre, côté Epic Multiplayer (Maze of Infinite Depths), révélé : chaque enquêteur y commence la partie."
+          },
+          {
+            "op": "place",
+            "code": "87025",
+            "zone": "board",
+            "x": 737,
+            "y": 173,
+            "log": "Arkham Advertiser (Future) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87027",
+            "zone": "board",
+            "x": 551,
+            "y": 411,
+            "log": "River Docks (Future) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87026",
+            "zone": "board",
+            "x": 923,
+            "y": 411,
+            "log": "Tick-Tock Club (Future) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87028",
+            "zone": "board",
+            "x": 737,
+            "y": 649,
+            "log": "Miskatonic University (Future) est mis en jeu, non révélé."
+          },
+          {
+            "op": "aside",
+            "codes": [
+              "87029"
+            ],
+            "faceUp": true,
+            "log": "Corrigan Industries est mise de côté, hors jeu : elle entre en jeu sous Miskatonic University (737 × 887) quand « Corrigan Industries has been founded » est annoncé."
+          }
+        ],
+        "default": [
+          {
+            "op": "remove",
+            "codes": [
+              "87037a"
+            ],
+            "log": "Single Group (livret p. 11) : Edwin Bennet de la version Epic Multiplayer est retiré de la partie ; les trois ères se jouent ensemble."
+          },
+          {
+            "op": "place",
+            "code": "87005a",
+            "zone": "board",
+            "x": 923,
+            "y": 411,
+            "reveal": true,
+            "side": "a",
+            "log": "Tindalos est mis en jeu au centre de l'ère Présent, côté Single Group (Realm of Angular Time), révélé : chaque enquêteur y commence la partie. Il est connecté à tous les lieux Portal des trois ères."
+          },
+          {
+            "op": "place",
+            "code": "87007",
+            "zone": "board",
+            "x": 365,
+            "y": 173,
+            "log": "Arkham Gazette est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87008",
+            "zone": "board",
+            "x": 551,
+            "y": 411,
+            "log": "O'Malley's Watch Shop est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87009",
+            "zone": "board",
+            "x": 179,
+            "y": 411,
+            "log": "River Docks (Past) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87010",
+            "zone": "board",
+            "x": 365,
+            "y": 649,
+            "log": "Miskatonic University (Past) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87011",
+            "zone": "board",
+            "x": 365,
+            "y": 887,
+            "log": "Childhood Home est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87016",
+            "zone": "board",
+            "x": 923,
+            "y": 173,
+            "log": "Arkham Advertiser (Present) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87017",
+            "zone": "board",
+            "x": 1109,
+            "y": 411,
+            "log": "Tick-Tock Club (Present) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87018",
+            "zone": "board",
+            "x": 737,
+            "y": 411,
+            "log": "River Docks (Present) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87019",
+            "zone": "board",
+            "x": 923,
+            "y": 649,
+            "log": "Miskatonic University (Present) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87020",
+            "zone": "board",
+            "x": 923,
+            "y": 887,
+            "log": "Ye Olde Magick Shoppe est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87025",
+            "zone": "board",
+            "x": 1481,
+            "y": 173,
+            "log": "Arkham Advertiser (Future) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87026",
+            "zone": "board",
+            "x": 1667,
+            "y": 411,
+            "log": "Tick-Tock Club (Future) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87027",
+            "zone": "board",
+            "x": 1295,
+            "y": 411,
+            "log": "River Docks (Future) est mis en jeu, non révélé."
+          },
+          {
+            "op": "place",
+            "code": "87028",
+            "zone": "board",
+            "x": 1481,
+            "y": 649,
+            "log": "Miskatonic University (Future) est mis en jeu, non révélé."
+          },
+          {
+            "op": "aside",
+            "codes": [
+              "87029"
+            ],
+            "faceUp": true,
+            "log": "Corrigan Industries est mise de côté, hors jeu : elle entre en jeu dans l'ère Futur, sous Miskatonic University (1481 × 887), quand « Corrigan Industries has been founded » est annoncé."
+          }
+        ]
+      }
+    },
+    {
+      "op": "minis",
+      "code": "87005a"
+    },
+    {
+      "op": "when",
+      "cond": {
+        "any": [
+          {
+            "q": "mode",
+            "is": "single"
+          },
+          {
+            "q": "mode",
+            "is": "campaign"
+          },
+          {
+            "q": "mode",
+            "is": "epic_past"
+          }
+        ]
+      },
+      "then": [
+        {
+          "op": "place",
+          "code": "87006",
+          "zone": "story",
+          "x": 0,
+          "y": 0,
+          "faceUp": true,
+          "side": "b",
+          "log": "A Noble Legacy (Past) entre en jeu (colonne Histoire) ; son texte de Setup est résolu :"
+        },
+        {
+          "op": "spawn",
+          "code": "87014",
+          "at": "87009",
+          "log": "Nikola Tesla est placé aux River Docks du Passé ; la carte histoire est retournée sur ses capacités."
+        }
+      ]
+    },
+    {
+      "op": "when",
+      "cond": {
+        "any": [
+          {
+            "q": "mode",
+            "is": "single"
+          },
+          {
+            "q": "mode",
+            "is": "campaign"
+          },
+          {
+            "q": "mode",
+            "is": "epic_present"
+          }
+        ]
+      },
+      "then": [
+        {
+          "op": "place",
+          "code": "87015",
+          "zone": "story",
+          "x": 0,
+          "y": 0,
+          "faceUp": true,
+          "side": "b",
+          "log": "A Noble Legacy (Present) entre en jeu (colonne Histoire) ; son texte de Setup est résolu :"
+        },
+        {
+          "op": "spawn",
+          "code": "87023",
+          "at": "87016",
+          "log": "Ezra Graves est placé à l'Arkham Advertiser du Présent ; la carte histoire est retournée sur ses capacités."
+        }
+      ]
+    },
+    {
+      "op": "when",
+      "cond": {
+        "any": [
+          {
+            "q": "mode",
+            "is": "single"
+          },
+          {
+            "q": "mode",
+            "is": "campaign"
+          },
+          {
+            "q": "mode",
+            "is": "epic_future"
+          }
+        ]
+      },
+      "then": [
+        {
+          "op": "place",
+          "code": "87024",
+          "zone": "story",
+          "x": 0,
+          "y": 0,
+          "faceUp": true,
+          "side": "b",
+          "log": "A Noble Legacy (Future) entre en jeu (colonne Histoire) ; son texte de Setup est résolu :"
+        },
+        {
+          "op": "aside",
+          "codes": [
+            "87032"
+          ],
+          "faceUp": true,
+          "log": "Dimensional Beam Machine est mise de côté, hors jeu ; la carte histoire est retournée sur ses capacités."
+        }
+      ]
+    },
+    {
+      "op": "branch",
+      "on": "machination",
+      "cases": {
+        "rivalry": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "87033"
+            ],
+            "n": 1,
+            "slot": "machination",
+            "rest": "keep",
+            "log": "Machination annoncée par le groupe Passé : A Bitter Rivalry."
+          }
+        ],
+        "redeem": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "87034"
+            ],
+            "n": 1,
+            "slot": "machination",
+            "rest": "keep",
+            "log": "Machination annoncée par le groupe Passé : Redeem a Former Colleague."
+          }
+        ],
+        "alliance": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "87035"
+            ],
+            "n": 1,
+            "slot": "machination",
+            "rest": "keep",
+            "log": "Machination annoncée par le groupe Passé : Uneasy Alliance."
+          }
+        ],
+        "default": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "87033",
+              "87034",
+              "87035"
+            ],
+            "n": 1,
+            "slot": "machination",
+            "rest": "keep"
+          }
+        ]
+      }
+    },
+    {
+      "op": "when",
+      "cond": {
+        "not": {
+          "any": [
+            {
+              "q": "mode",
+              "is": "single"
+            },
+            {
+              "q": "mode",
+              "is": "campaign"
+            }
+          ]
+        }
+      },
+      "then": [
+        {
+          "op": "when",
+          "cond": {
+            "q": "machination",
+            "is": "random"
+          },
+          "then": [
+            {
+              "op": "log",
+              "text": "Epic Multiplayer, groupe Passé : annoncez le titre de la Machination tirée aux deux autres groupes (ils la choisiront au lobby de leur table)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "op": "branch",
+      "on": "slot:machination",
+      "cases": {
+        "87033": [
+          {
+            "op": "place",
+            "code": "87033",
+            "zone": "story",
+            "x": 0,
+            "y": 0,
+            "faceUp": true,
+            "log": "A Bitter Rivalry entre en jeu (colonne Histoire), côté Setup — l'agenda 1 la retournera ; son texte de Setup est résolu :"
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "single"
+                },
+                {
+                  "q": "mode",
+                  "is": "campaign"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_past"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "aside",
+                "codes": [
+                  "87012"
+                ],
+                "faceUp": true,
+                "log": "Passé : Thomas Corrigan (Physics Student) est enlevé — mis de côté, hors jeu."
+              },
+              {
+                "op": "spawn",
+                "code": "87013",
+                "at": "87007",
+                "log": "Passé : Mary Zielinski (Chemistry Student) est placée à l'Arkham Gazette."
+              },
+              {
+                "op": "branch",
+                "on": "mode",
+                "cases": {
+                  "epic_past": [
+                    {
+                      "op": "aside",
+                      "codes": [
+                        "87037a"
+                      ],
+                      "faceUp": true,
+                      "log": "Edwin Bennet (Envious Rival) est mis de côté, hors jeu."
+                    }
+                  ],
+                  "default": [
+                    {
+                      "op": "aside",
+                      "codes": [
+                        "87036a"
+                      ],
+                      "faceUp": true,
+                      "log": "Edwin Bennet (Bitter Adversary) est mis de côté, hors jeu."
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "single"
+                },
+                {
+                  "q": "mode",
+                  "is": "campaign"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_present"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "aside",
+                "codes": [
+                  "87021",
+                  "87022"
+                ],
+                "faceUp": true,
+                "log": "Présent : Thomas Corrigan et Mary Zielinski sont enlevés — mis de côté, hors jeu."
+              }
+            ]
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "single"
+                },
+                {
+                  "q": "mode",
+                  "is": "campaign"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_future"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "aside",
+                "codes": [
+                  "87030",
+                  "87031"
+                ],
+                "faceUp": true,
+                "log": "Futur : Thomas Corrigan et Mary Zielinski sont enlevés — mis de côté, hors jeu."
+              }
+            ]
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "epic_present"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_future"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "aside",
+                "codes": [
+                  "87037a"
+                ],
+                "faceUp": true,
+                "log": "Edwin Bennet (Envious Rival) est mis de côté, hors jeu (Epic Multiplayer)."
+              }
+            ]
+          }
+        ],
+        "87034": [
+          {
+            "op": "place",
+            "code": "87034",
+            "zone": "story",
+            "x": 0,
+            "y": 0,
+            "faceUp": true,
+            "side": "b",
+            "log": "Redeem a Former Colleague entre en jeu (colonne Histoire) ; son texte de Setup est résolu, puis la carte est retournée :"
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "single"
+                },
+                {
+                  "q": "mode",
+                  "is": "campaign"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_past"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "aside",
+                "codes": [
+                  "87013"
+                ],
+                "faceUp": true,
+                "log": "Passé : Mary Zielinski (Chemistry Student) est enlevée — mise de côté, hors jeu."
+              },
+              {
+                "op": "spawn",
+                "code": "87012",
+                "at": "87011",
+                "log": "Passé : Thomas Corrigan (Physics Student) est placé à Childhood Home."
+              },
+              {
+                "op": "when",
+                "cond": {
+                  "q": "mode",
+                  "is": "epic_past"
+                },
+                "then": [
+                  {
+                    "op": "aside",
+                    "codes": [
+                      "87037a"
+                    ],
+                    "faceUp": true,
+                    "log": "Edwin Bennet (Envious Rival) est mis de côté, hors jeu (Epic Multiplayer)."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "single"
+                },
+                {
+                  "q": "mode",
+                  "is": "campaign"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_present"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "aside",
+                "codes": [
+                  "87021",
+                  "87022"
+                ],
+                "faceUp": true,
+                "log": "Présent : Thomas Corrigan et Mary Zielinski sont enlevés — mis de côté, hors jeu."
+              },
+              {
+                "op": "branch",
+                "on": "mode",
+                "cases": {
+                  "epic_present": [
+                    {
+                      "op": "spawn",
+                      "code": "87037a",
+                      "at": "87019",
+                      "log": "Présent : Edwin Bennet (Envious Rival) apparaît à Miskatonic University."
+                    }
+                  ],
+                  "default": [
+                    {
+                      "op": "spawn",
+                      "code": "87036a",
+                      "at": "87019",
+                      "log": "Présent : Edwin Bennet (Bitter Adversary) apparaît à Miskatonic University du Présent."
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "single"
+                },
+                {
+                  "q": "mode",
+                  "is": "campaign"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_future"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "aside",
+                "codes": [
+                  "87030",
+                  "87031"
+                ],
+                "faceUp": true,
+                "log": "Futur : Thomas Corrigan et Mary Zielinski sont enlevés — mis de côté, hors jeu."
+              },
+              {
+                "op": "when",
+                "cond": {
+                  "q": "mode",
+                  "is": "epic_future"
+                },
+                "then": [
+                  {
+                    "op": "aside",
+                    "codes": [
+                      "87037a"
+                    ],
+                    "faceUp": true,
+                    "log": "Edwin Bennet (Envious Rival) est mis de côté, hors jeu (Epic Multiplayer)."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "87035": [
+          {
+            "op": "place",
+            "code": "87035",
+            "zone": "story",
+            "x": 0,
+            "y": 0,
+            "faceUp": true,
+            "side": "b",
+            "log": "Uneasy Alliance entre en jeu (colonne Histoire) ; son texte de Setup est résolu, puis la carte est retournée :"
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "single"
+                },
+                {
+                  "q": "mode",
+                  "is": "campaign"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_past"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "spawn",
+                "code": "87012",
+                "at": "87011",
+                "log": "Passé : Thomas Corrigan (Physics Student) est placé à Childhood Home."
+              },
+              {
+                "op": "spawn",
+                "code": "87013",
+                "at": "87008",
+                "log": "Passé : Mary Zielinski (Chemistry Student) est placée à O'Malley's Watch Shop."
+              },
+              {
+                "op": "branch",
+                "on": "mode",
+                "cases": {
+                  "epic_past": [
+                    {
+                      "op": "spawn",
+                      "code": "87037a",
+                      "at": "87007",
+                      "side": "b",
+                      "log": "Passé : Edwin Bennet (soutien, Esteemed Colleague) est placé à l'Arkham Gazette."
+                    }
+                  ],
+                  "default": [
+                    {
+                      "op": "spawn",
+                      "code": "87036a",
+                      "at": "87007",
+                      "side": "b",
+                      "log": "Passé : Edwin Bennet (soutien, Astute Associate) est placé à l'Arkham Gazette."
+                    }
+                  ]
+                }
+              },
+              {
+                "op": "branch",
+                "on": "mode",
+                "cases": {
+                  "epic_past": [
+                    {
+                      "op": "addTokens",
+                      "at": "87037a",
+                      "token": "clue",
+                      "n": 12,
+                      "log": "Indices posés sur Edwin Bennet"
+                    },
+                    {
+                      "op": "addTokens",
+                      "at": "87037a",
+                      "token": "clue",
+                      "n": -3,
+                      "perInvestigator": true,
+                      "log": "Indices retirés d'Edwin Bennet, 3 par enquêteur"
+                    }
+                  ],
+                  "default": [
+                    {
+                      "op": "addTokens",
+                      "at": "87036a",
+                      "token": "clue",
+                      "n": 12,
+                      "log": "Indices posés sur Edwin Bennet"
+                    },
+                    {
+                      "op": "addTokens",
+                      "at": "87036a",
+                      "token": "clue",
+                      "n": -3,
+                      "perInvestigator": true,
+                      "log": "Indices retirés d'Edwin Bennet, 3 par enquêteur"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "single"
+                },
+                {
+                  "q": "mode",
+                  "is": "campaign"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_present"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "aside",
+                "codes": [
+                  "87021",
+                  "87022"
+                ],
+                "faceUp": true,
+                "log": "Présent : Thomas Corrigan et Mary Zielinski sont enlevés — mis de côté, hors jeu."
+              }
+            ]
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "single"
+                },
+                {
+                  "q": "mode",
+                  "is": "campaign"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_future"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "aside",
+                "codes": [
+                  "87030",
+                  "87031"
+                ],
+                "faceUp": true,
+                "log": "Futur : Thomas Corrigan et Mary Zielinski sont enlevés — mis de côté, hors jeu."
+              }
+            ]
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "epic_present"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_future"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "aside",
+                "codes": [
+                  "87037a"
+                ],
+                "faceUp": true,
+                "side": "b",
+                "log": "Edwin Bennet (soutien, Esteemed Colleague) est mis de côté, hors jeu (Epic Multiplayer)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "op": "branch",
+      "on": "plot",
+      "cases": {
+        "anomalies": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "87038"
+            ],
+            "n": 1,
+            "slot": "plot",
+            "rest": "keep",
+            "log": "Plot annoncé par le groupe Passé : Anomalies in Spacetime."
+          }
+        ],
+        "mob": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "87039"
+            ],
+            "n": 1,
+            "slot": "plot",
+            "rest": "keep",
+            "log": "Plot annoncé par le groupe Passé : Mob Troubles."
+          }
+        ],
+        "abomination": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "87042"
+            ],
+            "n": 1,
+            "slot": "plot",
+            "rest": "keep",
+            "log": "Plot annoncé par le groupe Passé : Unspeakable Abomination."
+          }
+        ],
+        "default": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "87038",
+              "87039",
+              "87042"
+            ],
+            "n": 1,
+            "slot": "plot",
+            "rest": "keep"
+          }
+        ]
+      }
+    },
+    {
+      "op": "when",
+      "cond": {
+        "not": {
+          "any": [
+            {
+              "q": "mode",
+              "is": "single"
+            },
+            {
+              "q": "mode",
+              "is": "campaign"
+            }
+          ]
+        }
+      },
+      "then": [
+        {
+          "op": "when",
+          "cond": {
+            "q": "plot",
+            "is": "random"
+          },
+          "then": [
+            {
+              "op": "log",
+              "text": "Epic Multiplayer, groupe Passé : annoncez le titre du Plot tiré aux deux autres groupes."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "op": "branch",
+      "on": "slot:plot",
+      "cases": {
+        "87038": [
+          {
+            "op": "place",
+            "code": "87038",
+            "zone": "story",
+            "x": 0,
+            "y": 0,
+            "faceUp": true,
+            "side": "b",
+            "log": "Anomalies in Spacetime entre en jeu (colonne Histoire) ; son texte de Setup est résolu, puis la carte est retournée :"
+          },
+          {
+            "op": "branch",
+            "on": "mode",
+            "cases": {
+              "epic_past": [
+                {
+                  "op": "addTokens",
+                  "at": "87010",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Miskatonic University (Past)"
+                },
+                {
+                  "op": "addTokens",
+                  "at": "87007",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Arkham Gazette"
+                },
+                {
+                  "op": "addTokens",
+                  "at": "87008",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur O'Malley's Watch Shop"
+                }
+              ],
+              "epic_present": [
+                {
+                  "op": "addTokens",
+                  "at": "87019",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Miskatonic University (Present)"
+                },
+                {
+                  "op": "addTokens",
+                  "at": "87016",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Arkham Advertiser (Present)"
+                },
+                {
+                  "op": "addTokens",
+                  "at": "87017",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Tick-Tock Club (Present)"
+                }
+              ],
+              "epic_future": [
+                {
+                  "op": "addTokens",
+                  "at": "87028",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Miskatonic University (Future)"
+                },
+                {
+                  "op": "addTokens",
+                  "at": "87025",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Arkham Advertiser (Future)"
+                },
+                {
+                  "op": "addTokens",
+                  "at": "87026",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Tick-Tock Club (Future)"
+                }
+              ],
+              "default": [
+                {
+                  "op": "addTokens",
+                  "at": "87010",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Miskatonic University (Past)"
+                },
+                {
+                  "op": "addTokens",
+                  "at": "87019",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Miskatonic University (Present)"
+                },
+                {
+                  "op": "addTokens",
+                  "at": "87028",
+                  "token": "horror",
+                  "n": 1,
+                  "perInvestigator": true,
+                  "log": "Anomalies (horreur, 1 par enquêteur) sur Miskatonic University (Future)"
+                }
+              ]
+            }
+          },
+          {
+            "op": "remove",
+            "codes": [
+              "87043",
+              "87040",
+              "87041"
+            ],
+            "log": "Tyr'thrha, Old Sadie Sheldon et les trois Sheldon Gang sont retirés de la partie."
+          }
+        ],
+        "87039": [
+          {
+            "op": "place",
+            "code": "87039",
+            "zone": "story",
+            "x": 0,
+            "y": 0,
+            "faceUp": true,
+            "log": "Mob Troubles entre en jeu (colonne Histoire), côté Setup — l'agenda 1 la retournera ; son texte de Setup est résolu :"
+          },
+          {
+            "op": "aside",
+            "codes": [
+              "87040",
+              "87041",
+              "87041",
+              "87041"
+            ],
+            "faceUp": true,
+            "log": "Old Sadie Sheldon et les trois Sheldon Gang sont mis de côté, hors jeu."
+          },
+          {
+            "op": "remove",
+            "codes": [
+              "87043"
+            ],
+            "log": "Tyr'thrha est retiré de la partie."
+          },
+          {
+            "op": "when",
+            "cond": {
+              "any": [
+                {
+                  "q": "mode",
+                  "is": "single"
+                },
+                {
+                  "q": "mode",
+                  "is": "campaign"
+                },
+                {
+                  "q": "mode",
+                  "is": "epic_present"
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "seatCounter",
+                "key": "resources",
+                "n": 2,
+                "log": "Marché avec Old Sadie Sheldon : chaque enquêteur jouant le Présent gagne 2 ressources (chip Ressources)."
+              }
+            ],
+            "else": [
+              {
+                "op": "log",
+                "text": "Marché avec Old Sadie Sheldon : seuls les enquêteurs du groupe Présent gagnent 2 ressources — rien pour ce groupe."
+              }
+            ]
+          }
+        ],
+        "87042": [
+          {
+            "op": "place",
+            "code": "87042",
+            "zone": "story",
+            "x": 0,
+            "y": 0,
+            "faceUp": true,
+            "log": "Unspeakable Abomination entre en jeu (colonne Histoire), côté Setup — l'agenda 1 la retournera ; son texte de Setup est résolu :"
+          },
+          {
+            "op": "aside",
+            "codes": [
+              "87043"
+            ],
+            "faceUp": true,
+            "log": "Tyr'thrha est mis de côté, hors jeu (vie globale 6 par enquêteur, tous groupes : sa jauge compte les dégâts)."
+          },
+          {
+            "op": "remove",
+            "codes": [
+              "87040",
+              "87041"
+            ],
+            "log": "Old Sadie Sheldon et les trois Sheldon Gang sont retirés de la partie."
+          }
+        ]
+      }
+    },
+    {
+      "op": "story",
+      "log": "Agenda 1 et acte 1 sont en place ; la carte de scénario montre la référence de votre difficulté (recto Easy/Standard, verso Hard/Expert)."
+    },
+    {
+      "op": "branch",
+      "on": "difficulty",
+      "cases": {
+        "easy": [
+          {
+            "op": "log",
+            "text": "Facile : 1 doom sur l'agenda 1a, moins 1 — aucun doom."
+          }
+        ],
+        "standard": [
+          {
+            "op": "addDoom",
+            "n": 1,
+            "log": "Standard :"
+          }
+        ],
+        "hard": [
+          {
+            "op": "addDoom",
+            "n": 2,
+            "log": "Difficile (1 + 1) :"
+          }
+        ],
+        "expert": [
+          {
+            "op": "addDoom",
+            "n": 3,
+            "log": "Expert (1 + 2) :"
+          }
+        ]
+      }
+    },
+    {
+      "op": "buildEncounter"
+    },
+    {
+      "op": "when",
+      "cond": {
+        "not": {
+          "any": [
+            {
+              "q": "mode",
+              "is": "single"
+            },
+            {
+              "q": "mode",
+              "is": "campaign"
+            }
+          ]
+        }
+      },
+      "then": [
+        {
+          "op": "reminder",
+          "text": "Epic Multiplayer (livret p. 6) : cette table est un groupe, confiné à son ère ; les groupes jouent séparément, communiquent librement et n'attendent pas les autres pour avancer (variante p. 22 : fin de manche commune). Annoncez clairement chaque phrase clé aux deux autres groupes ; certaines capacités exigent qu'une annonce ait été faite. Valeurs globales (p. 5) : X = nombre total de joueurs, Tyr'thrha a 6 vie par enquêteur tous groupes confondus (jauge = dégâts de cette table, à cumuler entre groupes). Limite de temps par défaut 180 min : ensuite, passez à l'agenda 2b."
+        }
+      ]
+    }
+  ],
+  "agendaEffects": {
+    "2": {
+      "log": "Verso de l'agenda 1 (agenda 2)",
+      "flip": [
+        "87033",
+        "87039",
+        "87042"
+      ],
+      "shuffleAside": [
+        "87041"
+      ],
+      "ifAside": true,
+      "spawnAside": [
+        {
+          "code": "87040",
+          "at": "87017",
+          "ifAside": true,
+          "ifAt": true
+        },
+        {
+          "code": "87043",
+          "at": "87005a",
+          "ifAside": true
+        }
+      ]
+    }
+  },
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    {
+      "when": "setup",
+      "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+    },
+    {
+      "when": "setup",
+      "text": "Ères (livret p. 3) : un soutien Past ne peut pas entrer dans un lieu non-Past, un Present dans un non-Present, un Future non-Item dans un non-Future. Tindalos est connecté à tous les lieux Portal (tracez les chemins si besoin) ; Childhood Home, Ye Olde Magick Shoppe et Corrigan Industries ne sont reliés qu'à leur Miskatonic University. Single Group : quand deux Scientifiques du même nom sont ensemble à Tindalos, ils s'évanouissent (5 horreur chacun, livret p. 22)."
+    },
+    {
+      "when": "setup",
+      "text": "Cartes histoire (colonne Histoire) : leurs capacités sont utilisables par n'importe quel enquêteur ; posez une ressource (menu → Ressource) sur chaque capacité déclenchée — les annonces (livret p. 24 : « Thomas and Mary have met », « …inspired by Nikola Tesla », « funding for an observatory has begun », « the observatory is built », « teleportation research has begun », « Corrigan Industries has been founded », « …historic discovery », « …Nobel Prize », « a tree seed has been planted », « …married », « the debt has been paid ») se cochent sur la feuille du livret. Objectif de l'acte : Thomas et Mary hors de Tindalos dans les trois ères et plus aucune carte histoire en jeu (en zone de victoire)."
+    },
+    {
+      "when": "setup",
+      "text": "Enlevé / secouru (livret p. 4) : un Scientifique enlevé perd ses jetons et va de côté (menu → Mettre de côté) ; secouru, il revient à Tindalos épuisé (glissez-le depuis la zone de côté). Acte 1 : en vous déplaçant, emmenez les Scientifiques de votre lieu avec vous (glissez-les) ; l'agenda transforme leur défaite en enlèvement."
+    },
+    {
+      "when": "setup",
+      "text": "Corrigan Industries (de côté) entre en jeu dans l'ère Futur, sous Miskatonic University, quand « Corrigan Industries has been founded » est annoncé (glissez-la). Variantes optionnelles du livret (p. 22) : à la main."
+    },
+    {
+      "when": "mythos",
+      "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche). Fin de la phase du mythe : Edwin Bennet (ennemi) blesse un Scientifique à son lieu."
+    },
+    {
+      "when": "enemy",
+      "text": "Ennemis chasseurs et Patrol (Edwin Bennet, Tyr'thrha : vers le lieu le plus proche avec un Scientifique — au choix du meneur s'il y en a plusieurs) : déplacez-les à la main. Alert : un ennemi Alert attaque après chaque évasion ratée."
+    },
+    {
+      "when": "agenda:2",
+      "text": "Verso de l'agenda 1 appliqué par l'app selon la Machination et le Plot en jeu (journal) : cartes histoire retournées sur leurs capacités, Sheldon Gang dans la pioche et Old Sadie au Tick-Tock du Présent, ou Tyr'thrha à Tindalos. À la main : Anomalies in Spacetime → 1 horreur par enquêteur (anomalies) sur un River Docks, puis +1 anomalie sur chaque lieu qui en a ; A Bitter Rivalry dans le Passé → Edwin Bennet (ennemi, de côté) apparaît au lieu du meneur. L'agenda 2 est le dernier."
+    }
+  ]
+}

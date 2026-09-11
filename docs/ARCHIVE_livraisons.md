@@ -8,6 +8,68 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Fortune and Folly, Part I : The Stakeout** (ahc71 v2,
+  pack arkham.build `fof`, 88001‑88053). Livret (32 p.) lu en entier :
+  un scénario en **deux parties**, « chacune un jeu à part entière avec
+  sa mise en place et sa résolution » (Checkpoint p. 17‑19 : reprise
+  directe ou reprise après pause avec journal) → **deux rooms**,
+  bibliothèque scindée (`sa_fortune_and_folly_part_1` disponible,
+  `…_part_2` prévu, même livret en lien). Modes : indépendant (sac p. 2,
+  deux niveaux comme le Blob) ou side-story (3 XP ; The Scarlet Keys :
+  intro et récompenses sans changement de mise en place) → question
+  `mode`. Sac lu à 600 dpi (crâne ×2, cultiste, tablette, ancien,
+  auto-fail, elder sign). Particularités du pack : des **codes à lettre
+  pour des copies distinctes** (trois Casino Guard 88035a‑c, traîtrises
+  88038a‑d…) qui ne diffèrent que par leur **icône de jeu** (couleur,
+  enseigne, rang) ; les lieux Casino Floor / Casino Lounge / High
+  Roller's Table sont des cartes liées Calm Night (a) ↔ Busy Night (b,
+  Part II) posées **révélées** (`reveal:true`) ; The Wellspring of
+  Fortune est une carte **Key** de The Scarlet Keys (type `key` du dump,
+  kind `asset` désormais au build, comme le générateur), au texte
+  considéré vide, attachée à l'acte avec **7 indices par enquêteur**
+  (`addTokens perInvestigator`, nouvelle option) dans la colonne
+  Histoire, à côté de The Stakeout (liste des tâches ; verso The Heist
+  = Part II → `storyBack`). Mise en place p. 13‑15 : agenda 1 et acte 1
+  seuls ; Isamara (Lounge Singer) à Baccarat Table et Abarran (a) à
+  High Roller's Table par `spawn` ; **1 Casino Guard** à Roulette Wheel
+  : `pickRandom` nominal sur les trois codes + **`spawn` par slot**
+  (le `spawn` résout maintenant un slot de tirage nominal), If the
+  Uniform Fits… posée dessus (verso Package Delivery = Part II →
+  `storyBack`) ; les quatre Role de côté face visible (choix des joueurs,
+  deux en solo, rappel) ; **matériel de Part II retiré** de cette table
+  avec une ligne de journal (agendas 2‑4, actes 2‑3, sept lieux
+  Restricted, sets Fortune's Chosen et Plan in Shambles, trois Fortune's
+  Disfavor, Cash Cart, Deck of Possibilities, Torch Singer — aucune
+  carte de Part I ne les cite ; sinon `buildEncounter` aurait versé les
+  deux sets dans la pioche) ; pioche 23. **Niveau d'alerte** (p. 4) :
+  `seatCounters` avec `min`/`max` (nouveau : `setSeatCounter` borne
+  1‑10) et `icon` en chemin complet (`/img/tokens/tok_doom.png`).
+  **Icônes de jeu** (p. 6‑7) : nouvelle action `discardTop {n}` et
+  champ racine `discardTop: [1, 2, 3, 5]` (menu de la pioche « Défausser
+  les N premières (icônes de jeu) ») — cartes à la défausse face visible,
+  aperçu au demandeur (dialogue « Défausse — n cartes »), journal ;
+  pioche vide en cours de lecture : remélange de la défausse **hors** les
+  cartes tout juste défaussées, comme le livret. Patrouilles (p. 5,
+  sens horaire de l'anneau) et effets d'alerte en rappels ; résignation
+  et « stash » en rappels. Versos de l'agenda 1 et de l'acte 1 lus dans
+  le dump : résolution seulement, rien à automatiser (pas de rappel sur
+  le seuil de ressources, spoiler). Tests : bloc `test_room.mjs`
+  (positions de l'anneau, faces et indices, Isamara / Abarran / garde +
+  histoire, Wellspring 14, Roles, 35 retirées, pioche 23, alerte bornée
+  1‑10 sans toucher aux autres compteurs, `discardTop` ×5 avec aperçu
+  puis pioche vide → remélange hors 5 défaussées ; side-story Expert
+  solo : sac Difficile, côté b, 7 indices, Key → asset) ; Playwright :
+  anneau, chip d'alerte (« − » à 1 reste 1, clic → 2), colonne Histoire,
+  menu de la pioche, dialogue des cinq cartes ; zéro erreur console ;
+  `npm run check` zéro erreur ; régression `test_room.mjs` (797
+  messages) OK. **Part II** (room suivante, après validation) : setup
+  « from Scratch » p. 23‑25 avec les mentions du journal en questions
+  (tâches de The Stakeout, rôles et Practiced, niveaux d'alerte, indices
+  restant sur le Wellspring, cartes stash, repos, ou Part I sautée),
+  deux hubs (restreint au-dessus du public), Vault Door, Cash Cart
+  selon « cleaned out the house », Isamara Crew selon la tâche, Abarran
+  Unleashed de côté, garde + patrouille sortis de la pioche.
+
 - 2026-09-10 : **The Blob That Ate Everything — premier scénario
   indépendant** (ahc45, pack arkham.build `blob`, 85001‑85053). Consigne
   de l'utilisateur pour tous les standalone : lire le livret **en

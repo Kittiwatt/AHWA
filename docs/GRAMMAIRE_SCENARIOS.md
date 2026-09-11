@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-10 (Curse of the Rougarou compris). Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-11 (Machinations Through Time compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -105,8 +105,13 @@ composées), et les paramètres `nFrom:<id>` de `addDoom`, `addTokens`,
 
 - `{"op":"branch", "on":X, "cases":{...}, "log"?}` — `on` = id de
   question, ou `"players"` (clés `"1"`…`"4"`), ou `"difficulty"` (clés
-  `easy|standard|hard|expert`). Clé `"default"` possible ; cas absent =
-  rien. `log` s'écrit avant les sous-ops.
+  `easy|standard|hard|expert`), ou **`"slot:<nom>"`** (clés = codes :
+  le code tiré par un `pickRandom` nominal — cartes histoire tirées au
+  sort dont le texte de Setup diffère, Machination et Plot de
+  Machinations Through Time ; pour une carte annoncée plutôt que tirée,
+  un `pickRandom` dont `from` ne contient que ce code remplit le même
+  slot). Clé `"default"` possible ; cas absent = rien. `log` s'écrit
+  avant les sous-ops.
 - `{"op":"when", "cond":C, "then":[…], "else"?:[…]}` — condition
   composée : `{q,is}` (égalité, la réponse est comparée en chaîne),
   `{q,has}` (option cochée d'une `multi`), `{all:[C…]}`, `{any:[C…]}`,
@@ -313,7 +318,9 @@ donc pas ce qui est déjà posé.
   une carte en jeu (`at` = code ou slot). `token` : doom, clue, damage,
   horror, resource, generic, **flood** (0–2). `perInvestigator:true` :
   `n` par enquêteur (« place 7 [per_investigator] clues on The
-  Wellspring of Fortune »).
+  Wellspring of Fortune ») ; `n` négatif = retrait, jamais sous zéro
+  (« 12 clues, then remove 3 [per_investigator] clues » : Edwin Bennet
+  d'Uneasy Alliance).
 - `{"op":"addClues","code","n","log"?}` — indices fixes sur un lieu,
   révélé ou non (Desolate Coastline).
 - `{"op":"seatCounter","key","n","log"?}` — `n` de plus au compteur
@@ -455,11 +462,17 @@ rendus pendant la partie.
   `count` lieux avec les premières cartes de la pile, aux colonnes
   libres, non révélés) ; `removeTrait` (les lieux du trait quittent le
   tapis : victoire si Victory X sans indice, retirés sinon — ce qui s'y
-  trouvait est laissé, rappel) ; `spawnAside {code, at, side?, ifAside?}`
+  trouvait est laissé, rappel) ; `spawnAside {code, at, side?, ifAside?, ifAt?}`
   (une carte de côté **ou déjà en jeu** apparaît sur un lieu ; objet ou
   liste ; `ifAside:true` = seulement si une copie est de côté, sinon
   rien ni rappel — « if the Servant is set aside, spawn it » quand il a
-  pu être retiré au setup) ;
+  pu être retiré au setup ; `ifAt:true` = seulement si l'un des lieux
+  `at` est sur le tapis, sinon rien ni rappel — « if the Present
+  Tick-Tock Club is in play, spawn Old Sadie at it », absent pour un
+  groupe Epic d'une autre ère) ; `flip: [codes]` (les cartes en jeu de
+  ces codes passent sur leur verso, face visible — « Flip it over » des
+  cartes histoire Plot / Machination au verso de l'agenda 1 ; absentes
+  → rien) ;
   `randomKeyOn` (clé cachée au hasard posée dessus) ;
   `removeLocations {trait?, except?, codes?}` (comme `removeTrait`, ou
   « chaque lieu autre que… », ou ces seuls codes) ; `spreadPile {pile, positions, flood?}` (les
@@ -604,6 +617,18 @@ rendus pendant la partie.
   Geometry) n'a pas de côté b et entre révélé. `clues_fixed` des
   données → indices fixes ; sinon par enquêteur. Vérifier
   `health_per_investigator` sur la carte réelle en cas de doute.
+- **Cartes histoire à texte de Setup** (Machinations Through Time :
+  « Story cards are a cardtype in this scenario… resolve the Setup text
+  on each story card in play ») : la carte se pose dans l'histoire
+  (`place zone:"story"`, `side:"b"` si son texte dit « flip this card
+  over » à la fin du Setup, sinon côté a jusqu'à l'agenda qui la
+  retourne par `flip`), et l'app exécute son texte de Setup en ops
+  ordinaires (`spawn`, `aside`, `remove`, `addTokens`, `seatCounter`),
+  par ère quand le mode le demande (`when` sur la question `mode`).
+  Les capacités d'une carte histoire s'utilisent depuis la colonne
+  Histoire ; son menu offre ressources, indices, doom, dégâts, horreur
+  et marqueur (« place a resource token over each ability when it is
+  triggered »).
 - **Cartes « Key » de The Scarlet Keys** (type `key` du dump, ex. The
   Wellspring of Fortune 88045 ↔ 88045b) : kind `asset` au build (comme
   le générateur) — soutien à deux faces (« Autre face (Unstable) »),

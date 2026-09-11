@@ -366,6 +366,7 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
         // `at` en liste : le premier de ces lieux présent sur le tapis (« at a Bayou location » : celui de la pile tirée au setup).
         const cibles = Array.isArray(sa.at) ? sa.at : [sa.at];
         const lieu = cibles.map((code) => Object.values(state.cards).find((c) => c.code === code && c.kind === "location" && "zone" in c.loc && c.loc.zone === "board")).find(Boolean);
+        if (sa.ifAt && !lieu) continue;   // « if <lieu> is in play » : lieu absent (autre ère), rien à faire, en silence
         if (k && lieu) {
           const { x: lx, y: ly } = lieu.loc as { x: number; y: number };
           retirerDesPiles(state, k.id);
@@ -443,6 +444,12 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
         l.tokens.clue = (l.tokens.clue ?? 0) + n;
         parties.push(`${n} indice${n > 1 ? "s" : ""}${ac.perInvestigator ? ` (${ac.n} par enquêteur)` : ""} posé${n > 1 ? "s" : ""} sur ${nomCarte(def, l)}`);
       }
+    },
+    flip: () => {
+      // « Flip it over » : les cartes en jeu (histoire, tapis, sièges) de ces codes passent sur leur verso, face visible ; absentes → rien.
+      const cartes = Object.values(state.cards).filter((c) => effet.flip!.includes(c.code) && "zone" in c.loc && c.loc.zone !== "aside" && c.loc.zone !== "victory");
+      for (const k of cartes) { k.side = "b"; k.faceUp = true; }
+      if (cartes.length) parties.push(`${cartes.map((k) => nomCarte(def, k)).join(", ")} retourné${cartes.length > 1 ? "es sur leur verso" : "e sur son verso"}`);
     },
     seatCounter: () => {
       // « Raise each investigator's alarm level by 1 » : compteur de chaque siège occupé, dans ses bornes déclarées.

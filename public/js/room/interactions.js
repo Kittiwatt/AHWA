@@ -481,6 +481,7 @@ export function initInteractions(ctx) {
         : carte.kind === "location" ? ["clue", "doom", "generic"]
         : carte.kind === "enemy" ? ["damage", "doom", "clue", "generic"]
         : carte.kind === "scenario" ? ["resource", "clue", "doom", "generic"]   // ressources = contremesures du Blob (« on the scenario reference card »)
+        : carte.kind === "story" ? ["resource", "clue", "doom", "damage", "horror", "generic"]   // ressources = capacités déclenchées (A Noble Legacy), horreur (Personal Entanglement)
         : ["damage", "horror", "doom", "clue", "generic"];
       for (const t of jetons) items.push(jeton(t));
       if (rencontre) {

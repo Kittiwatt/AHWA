@@ -64,7 +64,7 @@ export type SetupStep =
     // The Vanishing of Elina Harper : un suspect et une cachette tirés au hasard vont face cachée dans la pile `secret`
     // (sous la carte de référence, sans être regardés) ; les autres forment la pile `pile` (Leads deck), mélangée
   | { op: "reminder"; text: string }                                    // encart éphémère + journal
-  | { op: "branch"; on: string; cases: Record<string, SetupStep[]>; log?: string }   // on = id de question ou "players"
+  | { op: "branch"; on: string; cases: Record<string, SetupStep[]>; log?: string }   // on = id de question, "players", "difficulty" ou "slot:<nom>" (code tiré par un pickRandom nominal : cas keyés par code — cartes histoire tirées au sort dont le texte de Setup diffère)
     | { op: "remove"; codes: string[]; n?: number; log?: string }   // retire de la partie — toutes les copies restantes de chaque code ; avec n (un seul code) : seulement n exemplaires (COB III : 2 des 6 Suspicious Guests)
   | { op: "toPile"; pile: string; set?: string; codes?: string[]; shuffle?: boolean; log?: string }
   | { op: "spawn"; code: string; at: string; side?: "a" | "b"; log?: string }   // code, ou slot d'un tirage nominal (« 1 copy of Casino Guard » tirée parmi trois codes) ; side "b" = verso lié (Isamara Crew)
@@ -140,10 +140,12 @@ export type StageEffects = {
     // n, ou n par enquêteur ; `max: "printed"` : sans dépasser la valeur d'indices imprimée du lieu (« to a maximum of its clue value »)
   drawAside?: { codes: string[]; n?: number };                          // n (1) cartes tirées au hasard parmi celles de côté de ces codes entrent dans l'histoire, face visible recto (« draw a random set-aside story card »)
   seatCounter?: { key: string; n: number };                             // compteur `key` de chaque enquêteur ± n, dans les bornes déclarées (« raise each investigator's alarm level by 1 »)
+  flip?: string[];                                                      // les cartes en jeu de ces codes passent sur leur verso, face visible (« Flip it over » : cartes histoire Plot / Machination à l'agenda 1b) ; absentes → rien
   moveTokens?: { from: string; to: string; token: "clue" | "doom" | "resource" | "generic" | "damage" | "horror" };   // tous les jetons de ce type passent de la carte `from` à la carte `to` (« move all clues from The Wellspring to Relic Room »)
   log?: string;
 };
-export type SpawnAside = { code: string; at: string | string[]; side?: "a" | "b"; ifAside?: true };   // ifAside : seulement si une copie est de côté (sinon rien, sans rappel — « if the Servant is set aside, spawn it ») ;
+export type SpawnAside = { code: string; at: string | string[]; side?: "a" | "b"; ifAside?: true; ifAt?: true };   // ifAside : seulement si une copie est de côté (sinon rien, sans rappel — « if the Servant is set aside, spawn it ») ;
+  // ifAt : seulement si l'un des lieux `at` est sur le tapis, sinon rien ni rappel (« if the Present Tick-Tock Club is in play, spawn Old Sadie at it » — un groupe Epic d'une autre ère) ;
   // `at` en liste : le premier de ces lieux présent sur le tapis (« at a Bayou location » quand le lieu en jeu dépend d'un tirage)
 
 export function evalCond(c: Cond, answers: Answers): boolean {

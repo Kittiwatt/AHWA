@@ -3975,5 +3975,136 @@ const POS_ROUGAROU = { "81007": "551,411", "81008": "365,411", "81009": "551,173
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ Machinations Through Time (scénario indépendant) : question mode (Single / trois groupes Epic / side-story), Tindalos côté a ou b,
+// trois croix ou une, A Noble Legacy résolues (Tesla, Ezra, machine de côté), Machination et Plot tirés au sort ou annoncés (pickRandom
+// nominal + branch on slot) avec leur texte de Setup, doom selon la difficulté, pioche 33 ; agenda 2 : flip, Gang dans la pioche, Sadie
+// (ifAt) ou Tyr'thrha ============
+async function tableMTT({ joueurs = 2, difficulty, answers } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "sa_machinations_through_time" }) });
+  assert.equal(r.status, 200, "Machinations est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const MTT_PAST = ["87007", "87008", "87009", "87010", "87011"], MTT_PRES = ["87016", "87017", "87018", "87019", "87020"], MTT_FUT = ["87025", "87026", "87027", "87028"];
+{ // Single Group, Standard, 2 joueurs, Uneasy Alliance + Mob Troubles annoncés (choix déterministe) : trois croix, Edwin soutien à la Gazette avec 6 indices, +2 ressources, agenda 2.
+  const { h } = await tableMTT({ joueurs: 2, answers: { mode: "single", machination: "alliance", plot: "mob" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const L = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  assert.deepEqual([...s.chaos.bag].sort(), ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"].sort(), "sac Standard p. 2");
+  assert.ok(L("87005a").faceUp && L("87005a").side === "a" && L("87005a").loc.x === 923 && L("87005a").loc.y === 411, "Tindalos côté Single Group au centre du Présent, révélé");
+  assert.deepEqual(MTT_PAST.map((c) => `${L(c).loc.x},${L(c).loc.y}`), ["365,173", "551,411", "179,411", "365,649", "365,887"], "croix du Passé p. 16");
+  assert.deepEqual(MTT_PRES.map((c) => `${L(c).loc.x},${L(c).loc.y}`), ["923,173", "1109,411", "737,411", "923,649", "923,887"], "croix du Présent p. 17");
+  assert.deepEqual(MTT_FUT.map((c) => `${L(c).loc.x},${L(c).loc.y}`), ["1481,173", "1667,411", "1295,411", "1481,649"], "croix du Futur p. 18");
+  assert.ok([...MTT_PAST, ...MTT_PRES, ...MTT_FUT].every((c) => !L(c).faceUp), "quatorze lieux non révélés");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 923) < 130 && Math.abs(m.loc.y - 411) < 60), "pions à Tindalos");
+  assert.equal(cartes.find((c) => c.code === "87029").loc.zone, "aside", "Corrigan Industries de côté");
+  const pres = (code, at) => { const k = cartes.find((c) => c.code === code); const l = L(at); return k.loc.zone === "board" && Math.abs(k.loc.x - l.loc.x - 36) < 20 && Math.abs(k.loc.y - l.loc.y - 46) < 20; };
+  assert.ok(pres("87014", "87009"), "Nikola Tesla aux River Docks du Passé (A Noble Legacy Past)");
+  assert.ok(pres("87023", "87016"), "Ezra Graves à l'Arkham Advertiser du Présent");
+  assert.equal(cartes.find((c) => c.code === "87032").loc.zone, "aside", "Dimensional Beam Machine de côté (Future)");
+  assert.ok(pres("87012", "87011") && pres("87013", "87008"), "Uneasy Alliance : Thomas à Childhood Home, Mary chez O'Malley");
+  const edwin = cartes.find((c) => c.code === "87036a");
+  assert.ok(pres("87036a", "87007") && edwin.side === "b" && edwin.tokens.clue === 6, "Edwin Bennet côté soutien à la Gazette, 12 − 3 × 2 indices");
+  assert.ok(["87021", "87022", "87030", "87031"].every((c) => cartes.find((k) => k.code === c).loc.zone === "aside"), "Thomas et Mary du Présent et du Futur enlevés (de côté)");
+  const story = cartes.filter((c) => c.loc.zone === "story" && c.kind === "story");
+  assert.deepEqual(story.map((c) => `${c.code}${c.side}`).sort(), ["87006b", "87015b", "87024b", "87035b", "87039a"], "cinq cartes histoire : Noble Legacy retournées, Uneasy Alliance retournée, Mob Troubles côté Setup");
+  assert.ok(story.every((c) => c.faceUp));
+  assert.equal(cartes.filter((c) => c.code === "87041" && c.loc.zone === "aside").length, 3, "trois Sheldon Gang de côté");
+  assert.equal(cartes.find((c) => c.code === "87040").loc.zone, "aside", "Old Sadie de côté");
+  assert.ok(["87043", "87033", "87034", "87038", "87042", "87037a"].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed"), "Tyr'thrha, autres Machination / Plot, Edwin Epic retirés");
+  assert.deepEqual(s.seats.slice(0, 2).map((se) => se.counters.resources), [2, 2], "marché avec Old Sadie : +2 ressources");
+  assert.equal(s.cards[s.agendaId].tokens.doom, 1, "Standard : 1 doom");
+  assert.equal(s.piles.encounter.length, 33, "pioche 33");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a");
+  // Agenda 2 : Mob Troubles retournée, Gang dans la pioche, Old Sadie au Tick-Tock du Présent (en jeu).
+  await h.action({ t: "advanceAgenda" });
+  const S = h.state;
+  assert.equal(S.cards[S.agendaId].code, "87003");
+  assert.equal(Object.values(S.cards).find((c) => c.code === "87039").side, "b", "Mob Troubles retournée");
+  assert.equal(S.piles.encounter.length, 36, "3 Sheldon Gang mélangés (sans la défausse)");
+  const sadie = Object.values(S.cards).find((c) => c.code === "87040");
+  assert.ok(sadie.loc.zone === "board" && Math.abs(sadie.loc.x - 1109 - 36) < 20, "Old Sadie au Tick-Tock du Présent");
+  assert.ok(S.log.some((e) => /Mob Troubles retournée sur son verso ; 3 cartes de côté \(Sheldon Gang\) mélangées/.test(e.text)));
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Epic, groupe Passé, Expert, 1 joueur, tirages au hasard : Tindalos côté b, croix du Passé seule, le reste retiré ; doom 3 ; sac Expert.
+  const { h } = await tableMTT({ joueurs: 1, difficulty: "expert", answers: { mode: "epic_past", machination: "random", plot: "random" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const L = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  assert.ok(L("87005a").side === "b" && L("87005a").faceUp && L("87005a").loc.x === 737, "Tindalos côté Epic Multiplayer au centre");
+  assert.deepEqual(MTT_PAST.map((c) => `${L(c).loc.x},${L(c).loc.y}`), ["737,173", "923,411", "551,411", "737,649", "737,887"], "croix du Passé centrée");
+  assert.ok([...MTT_PRES, ...MTT_FUT, "87029", "87021", "87022", "87023", "87030", "87031", "87032", "87015", "87024", "87036a"].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed"), "autres ères et Single retirés");
+  assert.equal(cartes.filter((c) => c.kind === "location" && c.loc.zone === "board").length, 6);
+  const story = cartes.filter((c) => c.loc.zone === "story" && c.kind === "story");
+  assert.equal(story.length, 3, "A Noble Legacy (Past), une Machination, un Plot");
+  assert.ok(story.some((c) => ["87033", "87034", "87035"].includes(c.code)) && story.some((c) => ["87038", "87039", "87042"].includes(c.code)));
+  assert.equal(cartes.filter((c) => ["87033", "87034", "87035", "87038", "87039", "87042"].includes(c.code) && c.loc.pile === "removed").length, 4, "les quatre autres retirées");
+  assert.equal(s.cards[s.agendaId].tokens.doom, 3, "Expert : 1 + 2 doom");
+  assert.equal(s.chaos.bag.filter((t) => t === "elder_thing").length, 2, "sac Expert : deux anciens");
+  assert.equal(s.chaos.bag.length, 17);
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "b");
+  assert.equal(s.piles.encounter.length, 33);
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /^Epic Multiplayer \(livret p\. 6\)/.test(e.text)), "rappel Epic");
+  assert.ok(s.log.some((e) => /groupe Passé : annoncez le titre de la Machination/.test(e.text)), "annonce demandée");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Epic, groupe Futur, Facile, 3 joueurs, Redeem + Unspeakable Abomination annoncés : Corrigan de côté, Thomas / Mary du Futur enlevés, Edwin Epic de côté, Tyr'thrha de côté ; aucun doom ; agenda 2 → Tyr'thrha à Tindalos, pas de Sadie.
+  const { h } = await tableMTT({ joueurs: 3, difficulty: "easy", answers: { mode: "epic_future", machination: "redeem", plot: "abomination" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(cartes.filter((c) => c.kind === "location" && c.loc.zone === "board").length, 5, "Tindalos + quatre lieux du Futur");
+  assert.equal(cartes.find((c) => c.code === "87029").loc.zone, "aside", "Corrigan Industries de côté");
+  assert.ok(["87030", "87031", "87032", "87037a", "87043"].every((c) => cartes.find((k) => k.code === c).loc.zone === "aside"), "Thomas, Mary, machine, Edwin Epic, Tyr'thrha de côté");
+  assert.ok(["87040", "87041", "87033", "87035", "87038", "87039"].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed"));
+  assert.deepEqual(cartes.filter((c) => c.loc.zone === "story" && c.kind === "story").map((c) => `${c.code}${c.side}`).sort(), ["87024b", "87034b", "87042a"]);
+  assert.equal(s.cards[s.agendaId].tokens.doom, 0, "Facile : aucun doom");
+  assert.equal(s.chaos.bag.length, 18, "sac Facile : 18 jetons");
+  assert.equal(cartes.filter((c) => c.kind === "mini").length, 3);
+  await h.action({ t: "advanceAgenda" });
+  const S = h.state;
+  const tyr = Object.values(S.cards).find((c) => c.code === "87043");
+  assert.ok(tyr.loc.zone === "board" && Math.abs(tyr.loc.x - 737 - 36) < 20 && Math.abs(tyr.loc.y - 411 - 46) < 20, "Tyr'thrha à Tindalos");
+  assert.equal(Object.values(S.cards).find((c) => c.code === "87042").side, "b", "Unspeakable Abomination retournée");
+  assert.equal(S.piles.encounter.length, 33, "rien d'autre dans la pioche");
+  assert.ok(!S.log.some((e) => /à faire à la main/.test(e.text) && e.kind === "reminder" && /agenda 1 \(agenda 2\)/.test(e.text)), "aucun « à faire à la main » (ifAside / ifAt)");
+  const r2 = await fetch(`${BASE}/scenarios/sa_machinations_through_time.json`);
+  const def = await r2.json();
+  assert.equal(def.cards.find((c) => c.code === "87043").health, undefined, "Tyr'thrha : vie ✱ sans maximum");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Epic, groupe Présent, Difficile, 2 joueurs, A Bitter Rivalry + Anomalies annoncés : anomalies sur MU, Advertiser, Tick-Tock ; Edwin Epic de côté ; doom 2 ; agenda 2 → Rivalry retournée seulement.
+  const { h } = await tableMTT({ joueurs: 2, difficulty: "hard", answers: { mode: "epic_present", machination: "rivalry", plot: "anomalies" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  const L = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  assert.deepEqual(["87019", "87016", "87017", "87018", "87020"].map((c) => L(c).tokens.horror ?? 0), [2, 2, 2, 0, 0], "anomalies : 1 par enquêteur sur MU, Advertiser, Tick-Tock");
+  assert.ok(["87021", "87022", "87037a"].every((c) => cartes.find((k) => k.code === c).loc.zone === "aside"), "Thomas, Mary enlevés, Edwin de côté");
+  assert.ok(["87040", "87041", "87043"].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed"), "Sadie, Gang, Tyr'thrha retirés");
+  assert.equal(s.cards[s.agendaId].tokens.doom, 2, "Difficile : 1 + 1 doom");
+  assert.deepEqual(cartes.filter((c) => c.loc.zone === "story" && c.kind === "story").map((c) => `${c.code}${c.side}`).sort(), ["87015b", "87033a", "87038b"]);
+  await h.action({ t: "advanceAgenda" });
+  const S = h.state;
+  assert.equal(Object.values(S.cards).find((c) => c.code === "87033").side, "b", "A Bitter Rivalry retournée à l'agenda 2");
+  assert.ok(S.log.some((e) => /Verso de l'agenda 1 \(agenda 2\) : A Bitter Rivalry retournée sur son verso\.$/.test(e.text)), "rien d'autre (Sadie / Tyr'thrha absents, en silence)");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

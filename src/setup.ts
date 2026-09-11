@@ -459,8 +459,12 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       case "addTokens": {
         const c = enJeu(step.at);
         const n = (step.nFrom !== undefined ? Number(answers[step.nFrom]) : step.n ?? 0) * (step.perInvestigator ? state.playerCount : 1);
-        if (n > 0) c.tokens[step.token] = (c.tokens[step.token] ?? 0) + n;
-        if (n > 0 || step.nFrom !== undefined) addLog(state, "setup", `${step.log ?? `Jetons ${step.token} sur ${nomVisible(def, c)}`} : ${n}.`);
+        // n négatif = retrait (« 12 clues, then remove 3 per investigator » : Edwin Bennet d'Uneasy Alliance), jamais sous zéro.
+        if (n !== 0) {
+          const v = Math.max(0, (c.tokens[step.token] ?? 0) + n);
+          if (v > 0) c.tokens[step.token] = v; else delete c.tokens[step.token];
+        }
+        if (n !== 0 || step.nFrom !== undefined) addLog(state, "setup", `${step.log ?? `Jetons ${step.token} sur ${nomVisible(def, c)}`} : ${n > 0 ? n : `${n} (reste ${c.tokens[step.token] ?? 0})`}.`);
         break;
       }
       case "emptySpace": {
@@ -535,7 +539,10 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         break;
       }
       case "branch": {
-        const cle = step.on === "players" ? String(state.playerCount) : step.on === "difficulty" ? state.difficulty : String(answers[step.on]);
+        // « slot:<nom> » : le code tiré par un pickRandom nominal (Machination / Plot de Machinations Through Time : chaque carte
+        // histoire tirée au sort a son propre texte de Setup) ; sinon la réponse à la question.
+        const cle = step.on === "players" ? String(state.playerCount) : step.on === "difficulty" ? state.difficulty
+          : step.on.startsWith("slot:") ? String(slots.get(step.on.slice(5)) ?? "") : String(answers[step.on]);
         const suite = step.cases[cle] ?? step.cases["default"] ?? [];
         if (step.log) addLog(state, "setup", step.log);
         for (const sub of suite) run(sub);

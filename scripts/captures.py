@@ -1454,6 +1454,46 @@ with sync_playwright() as p:
     h28.screenshot(path=f"{OUT}/130_rougarou_acte2.png")
     h28.locator("#histoire").screenshot(path=f"{OUT}/131_rougarou_histoire.png")
 
+    # ---- Machinations Through Time : Single Group (trois croix, Tindalos au centre du Présent), Uneasy Alliance annoncée (Edwin soutien à la
+    # Gazette avec ses indices), Mob Troubles (+2 ressources), cinq cartes histoire dans la colonne Histoire, agenda 2 (Sadie au Tick-Tock) ----
+    code28, token28 = creer("sa_machinations_through_time")
+    print("room Machinations", code28)
+    h28 = page_pour(browser, "Hôte", host=True, code=code28, token=token28)
+    h28.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h28.get_by_role("button", name="Choisir un enquêteur").click(); h28.wait_for_selector("dialog.dialogue-inv[open]")
+    h28.fill("dialog .recherche", "roland"); h28.wait_for_timeout(300); h28.locator("dialog .inv").first.click()
+    h28.wait_for_selector(".siege-lobby.moi .fiche")
+    j28 = page_pour(browser, "Bob", code=code28, token=None)
+    j28.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j28.get_by_role("button", name="Choisir un enquêteur").click(); j28.wait_for_selector("dialog.dialogue-inv[open]")
+    j28.fill("dialog .recherche", "daisy"); j28.wait_for_timeout(300); j28.locator("dialog .inv").first.click()
+    j28.wait_for_selector(".siege-lobby.moi .fiche")
+    h28.wait_for_timeout(400)
+    h28.locator("input[name='q-mode'][value='single']").check(); h28.wait_for_timeout(150)
+    h28.locator("input[name='q-machination'][value='alliance']").check(); h28.wait_for_timeout(150)
+    h28.locator("input[name='q-plot'][value='mob']").check(); h28.wait_for_timeout(150)
+    h28.locator(".reglage.questions").screenshot(path=f"{OUT}/127_mtt_lobby_questions.png")
+    h28.get_by_role("button", name="Lancer la mise en place").click()
+    h28.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h28.wait_for_load_state("networkidle"); h28.wait_for_timeout(1500)
+    assert h28.locator("#plateau .carte.kind-location").count() == 15, "Tindalos + 14 lieux"
+    assert h28.locator("#plateau .carte.kind-asset").count() == 4, "Tesla, Ezra, Thomas, Mary du Passé"
+    assert h28.locator("#plateau .carte.kind-enemy").count() == 1, "Edwin Bennet (face soutien)"
+    assert h28.locator("#plateau .carte.kind-enemy .chip-clue .chip-n").inner_text() == "6", "12 indices moins 3 × 2"
+    assert h28.locator("#histoire .carte.kind-story").count() == 5, "A Noble Legacy ×3, Uneasy Alliance, Mob Troubles"
+    assert h28.locator("#sieges .siege").nth(0).locator(".chip-resource .chip-n").inner_text() == "2", "+2 ressources (Mob Troubles)"
+    h28.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h28.mouse.move(420, 520); h28.wait_for_timeout(300)
+    h28.screenshot(path=f"{OUT}/128_mtt_tapis.png")
+    h28.locator("#histoire").screenshot(path=f"{OUT}/129_mtt_histoire.png")
+    # Agenda 2 : Mob Troubles retournée, Sheldon Gang dans la pioche, Old Sadie au Tick-Tock du Présent.
+    h28.locator("#histoire").get_by_role("button", name="Avancer l'agenda").click(); h28.wait_for_timeout(1000)
+    assert h28.locator("#plateau .carte.kind-enemy").count() == 2, "Old Sadie apparue"
+    assert h28.locator("#pioches .pile[data-outil='pioche'] .badge").inner_text() == "36", "3 Sheldon Gang dans la pioche"
+    h28.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h28.mouse.move(420, 520); h28.wait_for_timeout(300)
+    h28.screenshot(path=f"{OUT}/130_mtt_agenda2.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

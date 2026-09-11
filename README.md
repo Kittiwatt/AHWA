@@ -51,7 +51,10 @@ The Heist* (journal du Checkpoint au lobby, deux hubs, Abarran et les
 cultistes déclenchés par la révélation du couloir, indices du Wellspring
 déplacés sur Relic Room) et *Curse of the Rougarou* (piles de lieux
 tirées au sort par trait, le bayou en carré, Lady Esprit et les lieux
-de côté qui entrent en jeu avec l'acte 2) —, avec
+de côté qui entrent en jeu avec l'acte 2) et *Machinations Through Time*
+(Single Group ou l'un des trois groupes d'Epic Multiplayer, cartes
+histoire Machination et Plot tirées au sort ou annoncées, leurs mises en
+place résolues par l'app) —, avec
 les questions de journal au lobby, les tirages au hasard, les piles et
 les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » (n'importe quelle carte du jeu, ou une
 carte personnalisée à partir d'une image en lien) sur la table comme
