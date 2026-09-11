@@ -466,6 +466,10 @@ body.mode-lien #plateau .carte.kind-location { outline: 2px dashed var(--dorure-
 .reglage.questions input.nombre { width: 4.5rem; margin-left: 0.4rem; padding: 0.2rem 0.4rem; font: inherit; color: var(--papier); background: var(--nuit-2, #182028); border: 1px solid var(--zone-filet); border-radius: 4px; }
 .reglage.questions input.nombre:disabled { opacity: 0.6; }
 .pile .etiquette-pile { position: absolute; left: 0; right: 0; bottom: -1.1rem; text-align: center; font-size: 0.7rem; color: var(--papier-2); white-space: nowrap; pointer-events: none; }
+/* Étiquette cliquable sous une défausse (table et board) : rechercher dedans sans la mélanger */
+.pile .etiquette-pile.cliquable { pointer-events: auto; font: inherit; font-size: 0.7rem; padding: 0.05rem 0; border: 0; background: none; color: var(--papier-2); text-decoration: underline dotted; text-underline-offset: 0.15em; cursor: pointer; }
+.pile .etiquette-pile.cliquable:hover:not(:disabled) { color: var(--dorure-2); }
+.pile .etiquette-pile.cliquable:disabled { text-decoration: none; cursor: default; }
 .pioches { padding-bottom: 0.9rem; }
 
 /* Outil « Générer une carte » */

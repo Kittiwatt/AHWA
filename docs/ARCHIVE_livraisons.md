@@ -8,6 +8,51 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-11 : **Carnevale of Horrors** (scénario indépendant, pack
+  arkham.build `coh`, set `venice`, 82001‑82037). Comme le Rougarou,
+  **FFG ne publie pas l'encart** (2016, deux pages) : lu en entier sur la
+  transcription Hall of Arkham `carnevalerules.pdf` (image de l'encart ;
+  couche texte vide → pages rendues et lues, sac à 600 dpi : Standard
+  +1 0 0 0 −1 −1 −1 −2 −3 −4 −6 crâne ×3 cultiste tablette ancien
+  auto-fail elder sign ; Difficile +1 0 0 0 −1 −1 −3 −4 −5 −6 −7 + les
+  mêmes icônes) ; lien `guide` vers cette transcription. Un scénario,
+  deux façons (indépendant / side-story 3 XP) → question `mode`. Setup
+  p. 1 : un lieu retiré au hasard sauf la Basilique et Canal-side, les
+  huit autres « en cercle aléatoire » → la Basilique fixée en haut
+  (révélée, Abbess et pions), `pickRandom n:6 include:[Canal-side]`
+  parmi les sept autres aux sept positions d'un octogone (sens horaire =
+  vers la droite depuis le haut, rappel ; le septième retiré, journal
+  muet) ; **les sept Masked Carnevale-Goers sont un verso lié partagé**
+  (82017b, une seule image) de quatre ennemis et des trois Innocent
+  Reveler : `pickRandom n:7 faceUp:false` aux mêmes positions décalées
+  → ils montrent le masque, aucune jauge ne trahit le recto
+  (`faceVisible` lit le verso lié sans vie), « Retourner » révèle —
+  correction du menu : un soutien lié de même kind posé face cachée
+  (Innocent Reveler) n'avait pas de « Retourner » (`deuxFaces` ne
+  l'offrait que face visible) ; Cnidathqua et les quatre masques
+  (Mask) de côté ; pioche 26. Piles déclarées « Sous l'agenda » /
+  « Sous l'acte » (`menuFor` asset) pour les Innocent Revelers — leurs
+  badges servent au crâne et à l'objectif de l'acte 1. Versos lus dans
+  le dump : acte 1b → `placeAt` de Cnidathqua au centre du cercle (à
+  aucun lieu) ; agenda 1 = verso-ennemi (Baleful Reveler, `backPlacement`
+  au centre, à déplacer : Spawn antihoraire, rappel) ; acte 2 =
+  verso-lieu Gondola (`backPlacement` en haut) avec **`minisTo`**
+  (nouveau : tous les pions sur un lieu) et `removeLocations {trait:
+  "Venice", except: [Gondola]}` (ennemis et soutiens qui s'y trouvaient
+  en rappel) ; acte 3 : ressources sur Gondola → « Ressource » ajoutée au
+  menu des lieux ; agendas 2 et 3 « reviennent au recto » (boucles :
+  Retourner sans avancer, doom retiré à la main — rappels) ; acte 1
+  (regarder l'autre face contre des indices = Retourner deux fois) et
+  acte 2 (un masque retourné à chaque phase du mythe) en rappels. Tests :
+  bloc `test_room.mjs` (Standard 2 j. : sac, Basilique, sept positions,
+  Canal-side présent, un retiré ni Basilique ni Canal-side et journal
+  muet, Abbess, pions, sept masques face cachée dont trois Revelers, cinq
+  de côté, pioche 26, piles ; Reveler retourné puis sous l'agenda ; acte
+  2 → Cnidathqua au centre ; agenda 2 → Baleful Reveler sur le tapis ;
+  acte 3 → Gondola en haut, pions dessus, neuf lieux retirés ; side-story
+  Expert solo) ; Playwright : cercle, sept images de masque, menu
+  Retourner, masque révélé, acte 2 ; zéro erreur console ; `npm run
+  check` zéro erreur ; régression `test_room.mjs` (865 messages) OK.
 - 2026-09-11 : **Machinations Through Time** (scénario indépendant
   demandé par l'utilisateur hors de l'ordre de la tâche planifiée ; pack
   arkham.build `mtt`, 87001‑87057, sets `machinations_through_time`,

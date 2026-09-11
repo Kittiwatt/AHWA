@@ -15,23 +15,42 @@ function dialogue(titre, corps, boutons) {
   return d;
 }
 
-/** Cartes d'une pile (message « peek ») : la pioche est remélangée à la fermeture. */
+/** Cartes d'une pile (message « peek ») : une pioche est remélangée à la fermeture ; une défausse (rencontre ou seconde
+ *  défausse du scénario) se consulte sans mélange, avec les mêmes gestes carte par carte que la défausse du board joueur
+ *  (demande du 2026-09-11) : prendre en zone de menace, poser sur le tapis, remettre sur / sous la pioche ou la mélanger. */
 export function ouvrirDialogueCartes(ctx, pile, cartes) {
-  const pioche = pile !== "encounterDiscard";
-  const nomPile = pile === "encounter" ? "Pioche de rencontre" : pile === "encounterDiscard" ? "Défausse" : (ctx.scenario.piles?.find((p) => p.id === pile)?.label ?? pile);
+  const declaree = ctx.scenario.piles?.find((p) => p.id === pile);
+  const defausse = pile === "encounterDiscard" || Boolean(declaree?.isDiscard);
+  const pioche = !defausse;
+  // Pioche à laquelle une défausse renvoie ses cartes : la pioche de rencontre, ou celle du scénario dont c'est la défausse.
+  const piocheDe = pile === "encounterDiscard" ? { id: "encounter", label: "la pioche" } : (() => { const q = ctx.scenario.piles?.find((p) => p.discard === pile); return q ? { id: q.id, label: q.label } : null; })();
+  const nomPile = pile === "encounter" ? "Pioche de rencontre" : pile === "encounterDiscard" ? "Défausse" : (declaree?.label ?? pile);
   const moi = ctx.etat.moi.seat;
   const liste = el("div", { class: "grille-cartes" });
   const rendre = (restantes) => liste.replaceChildren(...restantes.map((c) => {
     const def = ctx.defs.get(c.code);
+    const agir = (msg) => { ctx.envoyer(msg); rendre(restantes.filter((x) => x.id !== c.id)); };
+    const boutons = [
+      ["Prendre", { t: "moveCard", id: c.id, zone: `seat${moi}`, x: 9999, y: 0 }, "Mettre dans votre zone de menace"],
+      ...(defausse ? [
+        ["Sur le tapis", null, "Poser au centre du tapis", () => { ctx.envoiSurTapis({ id: c.id }); rendre(restantes.filter((x) => x.id !== c.id)); }],
+        ...(piocheDe ? [
+          ["Sur la pioche", { t: "toPile", id: c.id, pile: piocheDe.id, top: true }, `Remettre sur ${piocheDe.label}`],
+          ["Sous la pioche", { t: "toPile", id: c.id, pile: piocheDe.id, top: false }, `Remettre sous ${piocheDe.label}`],
+          ["Mélanger", { t: "toPile", id: c.id, pile: piocheDe.id, shuffle: true }, `Mélanger dans ${piocheDe.label}`],
+        ] : []),
+      ] : []),
+    ];
     return el("figure", { class: "carte-peek" },
       el("img", { src: `${CDN}${c.code}.webp`, alt: def?.name ?? c.code, loading: "lazy" }),
       el("figcaption", {}, el("span", { text: def?.name ?? c.code }),
-        moi !== null ? el("button", { class: "lien-outil", type: "button", title: "Mettre dans votre zone de menace",
-          onclick: () => { ctx.envoyer({ t: "moveCard", id: c.id, zone: `seat${moi}`, x: 9999, y: 0 }); rendre(restantes.filter((x) => x.id !== c.id)); } }, "Prendre") : null),
+        moi !== null ? el("span", { class: "actions-peek" }, ...boutons.map(([lib, msg, titre, action]) =>
+          el("button", { class: "lien-outil", type: "button", title: titre, onclick: () => (action ? action() : agir(msg)) }, lib))) : null),
     );
   }));
   rendre(cartes);
-  const d = dialogue(pioche ? `${nomPile} — ${cartes.length} cartes (du dessus au dessous)` : `${nomPile} — ${cartes.length} cartes (la plus récente d'abord)`,
+  const nb = `${cartes.length} carte${cartes.length > 1 ? "s" : ""}`;
+  const d = dialogue(pioche ? `${nomPile} — ${nb} (du dessus au dessous)` : `${nomPile} — ${nb} (la plus récente d'abord, ordre conservé)`,
     cartes.length ? liste : el("p", { class: "vide", text: "Aucune carte." }),
     [el("button", { class: "bouton", type: "button", onclick: () => d.close() }, pioche ? "Fermer et mélanger" : "Fermer")]);
   if (pioche) d.addEventListener("close", () => ctx.envoyer({ t: "shufflePile", pile }), { once: true });

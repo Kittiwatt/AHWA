@@ -98,10 +98,8 @@
 .piles-joueur .badge { font-size: 0.95rem; width: 1.8rem; height: 1.8rem; }
 .dialogue .actions-peek .auto-pay { color: var(--dorure-2); font-weight: 700; }
 .piles-joueur .pile.hors-jeu .dos-bouton { width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
-/* Étiquette cliquable sous la défausse et la pile hors jeu : rechercher dedans */
-.piles-joueur .etiquette-pile.cliquable { pointer-events: auto; font: inherit; font-size: 0.75rem; padding: 0.05rem 0; border: 0; background: none; color: var(--papier-2); text-decoration: underline dotted; text-underline-offset: 0.15em; cursor: pointer; }
-.piles-joueur .etiquette-pile.cliquable:hover:not(:disabled) { color: var(--dorure-2); }
-.piles-joueur .etiquette-pile.cliquable:disabled { text-decoration: none; cursor: default; }
+/* Étiquette cliquable sous la défausse et la pile hors jeu (règle commune dans room.css) : un peu plus grande sur le board */
+.piles-joueur .etiquette-pile.cliquable { font-size: 0.75rem; }
 .piles-joueur .pile.hors-jeu .dos-bouton .carte { pointer-events: none; }
 .dos-pile.pioche-joueur { border-style: solid; }
 .jeu-joueur { display: grid; grid-template-rows: minmax(14rem, 1fr) auto; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); gap: 0.6rem 0.8rem; padding: 0.7rem 0.9rem; overflow: auto; }
@@ -145,7 +143,9 @@
 .eventail .carte.choisie { outline: 3px solid var(--dorure-2); outline-offset: 2px; transform: translateY(-8px); }
 .eventail .carte.choisie::after { content: "✓"; position: absolute; right: 4px; top: 4px; width: 1.3rem; height: 1.3rem; display: grid; place-items: center; font-weight: 700; color: var(--nuit); background: var(--dorure-2); border-radius: 50%; }
 .carte.revelee::before { content: "montrée"; position: absolute; left: 0; right: 0; bottom: 0; padding: 1px 0; text-align: center; font-size: 0.65rem; color: var(--nuit); background: var(--dorure-2); border-radius: 0 0 4px 4px; z-index: 2; }
-.carte-peek .actions-peek { display: flex; flex-wrap: wrap; gap: 0.2rem 0.5rem; justify-content: flex-end; }
+/* Consultation d'une pile : le nom sur sa ligne, les gestes carte par carte en dessous (lisible même à cinq gestes — 2026-09-11) */
+.carte-peek .actions-peek { display: flex; flex-wrap: wrap; gap: 0.2rem 0.6rem; }
+.dialogue .carte-peek figcaption:has(.actions-peek) { flex-direction: column; align-items: stretch; gap: 0.25rem; }
 .pile.depot-ok .dos-pile { outline: 2px solid var(--dorure-2); }
 .zone-jeu.depot-ok, .eventail.depot-ok { background: rgba(200, 162, 90, 0.12); }
 

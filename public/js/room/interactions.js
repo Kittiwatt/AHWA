@@ -249,7 +249,7 @@ export function initInteractions(ctx) {
     } else if (outil === "defausse") {
       const n = state.piles.encounterDiscard.length;
       items.push(el("p", { class: "titre-menu", text: `Défausse de rencontre — ${n}` }));
-      items.push(item("Consulter", () => ctx.envoyer({ t: "searchEncounter", pile: "encounterDiscard" }), { off: !n }));
+      items.push(item("Rechercher (sans mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: "encounterDiscard" }), { off: !n }));
       items.push(item("Remélanger dans la pioche", () => { if (confirm(`Remélanger les ${n} cartes de la défausse dans la pioche ?`)) ctx.envoyer({ t: "reshuffleDiscard" }); }, { off: !n }));
     } else if (outil.startsWith("pile:")) {
       const id = outil.slice(5);
@@ -263,7 +263,7 @@ export function initInteractions(ctx) {
       } else if (def?.isDiscard) {
         // Défausse d'une seconde pioche : consulter, remélanger dans sa pioche.
         const pioche = ctx.scenario.piles?.find((p) => p.discard === id);
-        items.push(item("Consulter", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
+        items.push(item("Rechercher (sans mélanger)", () => ctx.envoyer({ t: "searchEncounter", pile: id }), { off: !ids.length }));
         if (pioche) items.push(item(`Remélanger dans ${pioche.label}`, () => { if (confirm(`Remélanger les ${ids.length} cartes de ${def.label} dans ${pioche.label} ?`)) ctx.envoyer({ t: "reshuffleDiscard", deck: pioche.id }); }, { off: !ids.length }));
       } else {
         const defausse = def?.discard ? (state.piles[def.discard] ?? []) : [];

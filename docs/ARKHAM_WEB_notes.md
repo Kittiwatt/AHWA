@@ -30,6 +30,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 | Date | Livraison | À retenir |
 |---|---|---|
+| 2026-09-11 | Table : recherche dans la défausse de rencontre | étiquette « Défausse » cliquable sous la pile (et sous les secondes défausses), « Pioche » étiquetée ; fenêtre de consultation d'une défausse avec Prendre / Sur le tapis / Sur / Sous la pioche / Mélanger, sans mélange à la fermeture (les secondes défausses n'étaient plus mélangées à tort) ; légende des consultations en colonne |
 | 2026-09-10 | Standalone — Curse of the Rougarou | livret (encart FFG 2016, transcription Hall of Arkham) lu en entier ; question `mode` (indépendant / side-story 1 XP), sac p. 1 à deux niveaux ; set Curse of the Rougarou de côté ; **`pickGroups`** (quatre piles de lieux par trait : 1 retirée, 1 en jeu, 2 de côté, `slot`) + `reveal`/`minis` sur le Bayou tiré ; disposition déduite des icônes (Bayou en carré) ; acte 2 : **`placeAt ifAside`** (six lieux de côté), **`spawnAside at` en liste** (Lady Esprit au Bayou), set + défausse mélangés ; agenda 3 : **`shuffleFromDiscard`** (On the Prowl) |
 | 2026-09-11 | Standalone — The Midwinter Gala | livret lu en entier : un scénario, cinq factions alliées possibles et un rival (au hasard ou choisi, variante Best Guests) → questions `mode` / `faction` / `rival` ; rez-de-chaussée + étage en pile mélangée (`spreadPile` à l'acte 2), Guest deck (`toPile` + `fromPile`), Leader au siège 1, rival face cachée dans l'histoire puis `flip`, interlude The Fabled Jewel par **`byAnswer`** (nouveau : effets selon une réponse, `state.answers`), **`tokens`**, **`drawPileTo`**, **`note`**, `spawn`/`spawnAside` **`exhausted`**, `drawAside` en liste avec `side` ; trois niveaux (Facile = Standard) |
 | 2026-09-11 | Standalone — The Labyrinths of Lunacy | livret lu en entier : un scénario, deux modes (Single / Epic à trois groupes) et trois groupes A / B / C (+ variante The Shifting Labyrinth) → une room, questions `mode`, `group`, `jailor` ; deux sets par mode, `story` garde les versions présentes ; objectifs Timed en rappels ; **`enter:<code>`** (nouveau : effets de la carte qui devient courante → Act 2 Setup selon l'acte 2), **`minis randomTo`** (un enquêteur tiré au sort dans la Chamber of Rain), Chamber of Secrets sous la carte de scénario = pile **`hideEmpty`** (nouveau) alimentée par `toPile` sur slot ; sac à deux niveaux + deux jetons du groupe |
@@ -113,6 +114,31 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-11 : **Recherche dans la défausse de rencontre (table)** —
+  demande de l'utilisateur : la table n'offrait qu'un « Consulter » au
+  clic droit, avec un seul geste (« Prendre »), quand la défausse du
+  board joueur se cherche d'un clic sur son étiquette avec des gestes
+  carte par carte. Table alignée sur le board : l'étiquette
+  **« Défausse »** sous la pile est un bouton (`.etiquette-pile
+  .cliquable`, règle commune passée dans `room.css`, le board ne garde
+  que sa taille) → `searchEncounter encounterDiscard` ; la pioche reçoit
+  l'étiquette « Pioche » ; les secondes défausses du scénario
+  (`isDiscard`, ex. spectrale) ont la même étiquette cliquable ; le menu
+  dit « Rechercher (sans mélanger) ». `ouvrirDialogueCartes`
+  (`dialogues.js`) : une **défausse** (rencontre ou `isDiscard`)
+  propose sous chaque carte Prendre (zone de menace), Sur le tapis
+  (`envoiSurTapis`), Sur / Sous la pioche et Mélanger (`toPile` vers
+  la pioche de rencontre, ou vers la pioche dont c'est la défausse) ;
+  titre « la plus récente d'abord, ordre conservé », « Fermer » sans
+  mélange — au passage, une seconde défausse consultée était traitée
+  comme une pioche (« Fermer et mélanger » + `shufflePile`) : corrigé.
+  Légende des fenêtres de consultation (table et board) en colonne :
+  nom puis gestes (`figcaption:has(.actions-peek)`), lisible à cinq
+  gestes. Vérifié (Playwright) : étiquette inactive à vide, trois cartes
+  défaussées → fenêtre à cinq gestes, une carte sur la pioche (+1),
+  une sur le tapis, une prise en zone de menace, défausse à 0 sans
+  mélange ; `captures.py` adapté (bloc pioche / défausse) ; `npm run
+  check` zéro erreur ; régression `test_room.mjs` (738 messages) OK.
 - 2026-09-11 : **The Midwinter Gala** (scénario indépendant, pack
   arkham.build `tmg`, set `the_midwinter_gala`, 71001‑71062). Livret
   (24 p.) lu en entier : un scénario, indépendant (trois niveaux
@@ -235,52 +261,10 @@ versement de son durable (format → grammaire, piège → §5, décision →
   pile « Sous la carte de scénario », acte 2 (Halls, Hunger, Pet), groupe
   A sans pile ; zéro erreur console ; `npm run check` zéro erreur ;
   régression `test_room.mjs` (881 messages) OK.
-- 2026-09-11 : **Carnevale of Horrors** (scénario indépendant, pack
-  arkham.build `coh`, set `venice`, 82001‑82037). Comme le Rougarou,
-  **FFG ne publie pas l'encart** (2016, deux pages) : lu en entier sur la
-  transcription Hall of Arkham `carnevalerules.pdf` (image de l'encart ;
-  couche texte vide → pages rendues et lues, sac à 600 dpi : Standard
-  +1 0 0 0 −1 −1 −1 −2 −3 −4 −6 crâne ×3 cultiste tablette ancien
-  auto-fail elder sign ; Difficile +1 0 0 0 −1 −1 −3 −4 −5 −6 −7 + les
-  mêmes icônes) ; lien `guide` vers cette transcription. Un scénario,
-  deux façons (indépendant / side-story 3 XP) → question `mode`. Setup
-  p. 1 : un lieu retiré au hasard sauf la Basilique et Canal-side, les
-  huit autres « en cercle aléatoire » → la Basilique fixée en haut
-  (révélée, Abbess et pions), `pickRandom n:6 include:[Canal-side]`
-  parmi les sept autres aux sept positions d'un octogone (sens horaire =
-  vers la droite depuis le haut, rappel ; le septième retiré, journal
-  muet) ; **les sept Masked Carnevale-Goers sont un verso lié partagé**
-  (82017b, une seule image) de quatre ennemis et des trois Innocent
-  Reveler : `pickRandom n:7 faceUp:false` aux mêmes positions décalées
-  → ils montrent le masque, aucune jauge ne trahit le recto
-  (`faceVisible` lit le verso lié sans vie), « Retourner » révèle —
-  correction du menu : un soutien lié de même kind posé face cachée
-  (Innocent Reveler) n'avait pas de « Retourner » (`deuxFaces` ne
-  l'offrait que face visible) ; Cnidathqua et les quatre masques
-  (Mask) de côté ; pioche 26. Piles déclarées « Sous l'agenda » /
-  « Sous l'acte » (`menuFor` asset) pour les Innocent Revelers — leurs
-  badges servent au crâne et à l'objectif de l'acte 1. Versos lus dans
-  le dump : acte 1b → `placeAt` de Cnidathqua au centre du cercle (à
-  aucun lieu) ; agenda 1 = verso-ennemi (Baleful Reveler, `backPlacement`
-  au centre, à déplacer : Spawn antihoraire, rappel) ; acte 2 =
-  verso-lieu Gondola (`backPlacement` en haut) avec **`minisTo`**
-  (nouveau : tous les pions sur un lieu) et `removeLocations {trait:
-  "Venice", except: [Gondola]}` (ennemis et soutiens qui s'y trouvaient
-  en rappel) ; acte 3 : ressources sur Gondola → « Ressource » ajoutée au
-  menu des lieux ; agendas 2 et 3 « reviennent au recto » (boucles :
-  Retourner sans avancer, doom retiré à la main — rappels) ; acte 1
-  (regarder l'autre face contre des indices = Retourner deux fois) et
-  acte 2 (un masque retourné à chaque phase du mythe) en rappels. Tests :
-  bloc `test_room.mjs` (Standard 2 j. : sac, Basilique, sept positions,
-  Canal-side présent, un retiré ni Basilique ni Canal-side et journal
-  muet, Abbess, pions, sept masques face cachée dont trois Revelers, cinq
-  de côté, pioche 26, piles ; Reveler retourné puis sous l'agenda ; acte
-  2 → Cnidathqua au centre ; agenda 2 → Baleful Reveler sur le tapis ;
-  acte 3 → Gondola en haut, pions dessus, neuf lieux retirés ; side-story
-  Expert solo) ; Playwright : cercle, sept images de masque, menu
-  Retourner, masque révélé, acte 2 ; zéro erreur console ; `npm run
-  check` zéro erreur ; régression `test_room.mjs` (865 messages) OK.
-- **Prochaine étape** : validation par l'utilisateur de **The Midwinter
+- **Prochaine étape** : retours de l'utilisateur sur les retouches UX des
+  10 et 11 septembre (chips partout et bouton maintenu déployé, bandeau des
+  sièges, générateur sur le board et carte personnalisée en image,
+  recherche dans la défausse de rencontre) ; validation par l'utilisateur de **The Midwinter
   Gala** (faction et rival, Guest deck, étage à l'acte 2, interlude selon
   la faction), de **The Labyrinths
   of Lunacy** (mode / groupe / Jailor, chambres, Act 2 et Act 3 Setup,

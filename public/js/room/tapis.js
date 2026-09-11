@@ -404,10 +404,13 @@ function rendrePioches(ctx) {
         premiere?.faceUp ? carteEl(premiere, ctx)
           : pioche.length ? el("button", { class: "dos-bouton", type: "button", disabled: !peut, onclick: () => ctx.envoyer({ t: "drawEncounter" }) }, el("img", { src: "/img/dos-rencontre.svg", alt: "pioche de rencontre" }))
           : el("button", { class: "dos-bouton vide", type: "button", disabled: !peut || !defausse.length, title: defausse.length ? "Pioche vide : clic pour remélanger la défausse et piocher" : "Pioche et défausse vides", onclick: () => ctx.envoyer({ t: "drawEncounter" }) }, el("span", { class: "sous", text: "vide" }))),
-      el("span", { class: "badge", text: String(pioche.length) })),
-    el("div", { class: "pile", "data-drop": "pile:encounterDiscard", "data-outil": "defausse", title: "Déposez ici pour défausser. Clic droit : consulter, remélanger dans la pioche." },
+      el("span", { class: "badge", text: String(pioche.length) }), el("span", { class: "etiquette-pile", text: "Pioche" })),
+    el("div", { class: "pile", "data-drop": "pile:encounterDiscard", "data-outil": "defausse", title: "Déposez ici pour défausser. Clic sur « Défausse » : rechercher (sans mélanger) ; clic droit : rechercher, remélanger dans la pioche." },
       el("div", { class: `dos-pile defausse-rencontre${dessus ? "" : " vide"}` }, dessus ? carteEl(dessus, ctx) : el("span", { class: "sous", text: "défausse" })),
-      el("span", { class: "badge", text: String(defausse.length) })),
+      el("span", { class: "badge", text: String(defausse.length) }),
+      // L'étiquette est un bouton, comme sur le board joueur : rechercher dans la défausse sans la mélanger (demande du 2026-09-11).
+      el("button", { class: "etiquette-pile cliquable", type: "button", disabled: !peut || !defausse.length, title: "Rechercher dans la défausse (sans mélanger)",
+        onclick: () => ctx.envoyer({ t: "searchEncounter", pile: "encounterDiscard" }) }, "Défausse")),
     // Piles déclarées par le scénario (ex. « Cultist deck ») : mêmes gestes que la pioche. Une seconde pioche de
     // rencontre peut avoir sa défausse (pile `isDiscard`), rendue comme la défausse principale.
     ...(ctx.scenario.piles ?? []).map((p) => {
@@ -431,10 +434,11 @@ function rendrePioches(ctx) {
           el("span", { class: "etiquette-pile", text: p.label }));
       }
       if (p.isDiscard) {
-        return el("div", { class: "pile", "data-drop": `pile:${p.id}`, "data-outil": `pile:${p.id}`, title: `${p.label} — déposez ici pour défausser. Clic droit : consulter, remélanger.` },
+        return el("div", { class: "pile", "data-drop": `pile:${p.id}`, "data-outil": `pile:${p.id}`, title: `${p.label} — déposez ici pour défausser. Clic sur l'étiquette : rechercher (sans mélanger) ; clic droit : rechercher, remélanger.` },
           el("div", { class: `dos-pile defausse-rencontre${haut ? "" : " vide"}` }, haut ? carteEl(haut, ctx) : el("span", { class: "sous", text: "défausse" })),
           el("span", { class: "badge", text: String(ids.length) }),
-          el("span", { class: "etiquette-pile", text: p.label }));
+          el("button", { class: "etiquette-pile cliquable", type: "button", disabled: !peut || !ids.length, title: `Rechercher dans ${p.label} (sans mélanger)`,
+            onclick: () => ctx.envoyer({ t: "searchEncounter", pile: p.id }) }, p.label));
       }
       const defausse = p.discard ? (state.piles[p.discard] ?? []) : [];
       return el("div", { class: "pile", "data-drop": `pile:${p.id}`, "data-outil": `pile:${p.id}`, title: `${p.label} — clic : retourner la première carte ; clic droit : chercher, mélanger.` },

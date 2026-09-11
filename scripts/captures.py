@@ -281,9 +281,10 @@ with sync_playwright() as p:
     assert alice.locator("#pioches .defausse-rencontre .carte").count() == 1, "la carte du dessus de la défausse est visible"
     alice.locator("#pioches .pile").nth(1).dispatch_event("contextmenu")  # la défausse elle-même (sa carte du dessus a son propre menu)
     alice.wait_for_selector(".menu-carte")
-    alice.locator(".menu-carte").get_by_role("button", name="Consulter").click()
+    alice.locator(".menu-carte").get_by_role("button", name="Rechercher (sans mélanger)").click()
     alice.wait_for_selector("dialog.dialogue[open]")
     assert alice.locator("dialog .carte-peek").count() == 2
+    assert alice.locator("dialog .carte-peek").first.locator(".actions-peek button").count() == 5, "Prendre, Sur le tapis, Sur / Sous la pioche, Mélanger (2026-09-11)"
     alice.locator("dialog .carte-peek").first.get_by_role("button", name="Prendre").click()
     alice.locator("dialog header").get_by_role("button", name="Fermer", exact=True).click()
     alice.wait_for_timeout(400)
