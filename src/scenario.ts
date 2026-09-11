@@ -69,7 +69,8 @@ export type SetupStep =
   | { op: "toPile"; pile: string; set?: string; codes?: string[]; shuffle?: boolean; log?: string }
   | { op: "spawn"; code: string; at: string; side?: "a" | "b"; log?: string }   // code, ou slot d'un tirage nominal (« 1 copy of Casino Guard » tirée parmi trois codes) ; side "b" = verso lié (Isamara Crew)
   | { op: "setStart"; code: string; log?: string }
-  | { op: "minis"; code: string; log?: string }   // pions de tous les enquêteurs sur une carte en jeu : un lieu, ou un véhicule (Fishing Vessel)
+  | { op: "minis"; code: string; randomTo?: string; log?: string }   // pions de tous les enquêteurs sur une carte en jeu : un lieu, ou un véhicule (Fishing Vessel) ;
+    // randomTo : un enquêteur tiré au sort commence sur ce lieu-là, les autres sur `code` (« randomly choose an investigator to begin play in the Chamber of Rain »)
   | { op: "aside"; codes?: string[]; sets?: string[]; faceUp?: boolean; side?: "a" | "b"; log?: string }   // codes (répétés selon la quantité) ou sets entiers ; `side: "b"` = mise de côté sur son verso lié (Angry Mob)
   | { op: "barriers"; pairs: { a: string; b: string; n: number }[]; log?: string }   // barrières (jetons ressource) entre deux lieux adjacents (In Too Deep)
   | { op: "placeKey"; color: string; at?: string; atRandom?: string[]; faceUp?: boolean; log?: string }
@@ -194,7 +195,8 @@ export type ScenarioDef = {
   startLocation?: string;
   scenarioCardSide?: Record<Difficulty, "a" | "b">;   // face de la carte de scénario selon la difficulté (COB : référence Easy/Standard au recto, Hard/Expert au verso) ; défaut « b »
   extraCards?: string[];
-  piles?: { id: string; label: string; discard?: string; isDiscard?: boolean; trait?: string; gather?: { backName: string }; around?: boolean; menuFor?: CardKind[] }[];
+  piles?: { id: string; label: string; discard?: string; isDiscard?: boolean; trait?: string; gather?: { backName: string }; around?: boolean; menuFor?: CardKind[]; hideEmpty?: boolean }[];
+    // hideEmpty : la pile n'est pas rendue tant qu'elle est vide (pile propre à une variante du setup : Chamber of Secrets sous la carte de scénario du groupe C)
     // piles supplémentaires : pioche déclarée (ex. « Cultist deck »), ou seconde pioche de rencontre avec sa défausse
     // (`discard` = id de la défausse, `isDiscard` sur celle-ci) ; `trait` : les cartes portant ce trait vont dans
     // cette pioche/défausse par défaut (The Wages of Sin : pioche et défausse spectrales) ;
@@ -221,6 +223,7 @@ export type ScenarioDef = {
   actCycle?: boolean;       // le deck d'acte se réinitialise quand le dernier acte avance (« Reset the act deck to act 1a », The Blob) : tous les
                             // actes reviennent dans le deck dans l'ordre, l'acte 1 redevient courant, effets `after:<dernier>` et `act:1` appliqués
   agendaEffects?: Record<string, StageEffects>;   // clé "<stage>" : quand l'agenda `stage` devient courant ; clé "after:<code>" : quand la carte
+                                                   // de ce code quitte l'histoire ; clé "enter:<code>" : quand la carte de ce code devient courante
   actEffects?: Record<string, StageEffects>;      // <code> quitte l'histoire (son verso résolu) — utile quand deux versions d'un agenda diffèrent
   leads?: {
     pile: string; secret: string; shown: string;   // piles : Leads deck, cartes cachées sous la référence, pistes révélées par le Parley

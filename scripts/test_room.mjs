@@ -4209,5 +4209,147 @@ const MASQUES = ["82017", "82018", "82019", "82020", "82021"];
   h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ The Labyrinths of Lunacy (scénario indépendant) : questions mode / groupe / Jailor, sets Single ou Epic, actes et agendas par
+// version, chambres de départ par groupe (Chamber of Secrets tirée, un enquêteur tiré au sort dans la Chamber of Rain — minis randomTo —,
+// Chamber of Secrets sous la carte de scénario en pile masquée), jetons du groupe, Note au siège 1, Act 2 / Act 3 Setup par effets
+// enter:<acte> (Halls, chambres, Pet, Abductors + défausse, Jailor, Warehouse, minisTo, Eixodolon), variante Shifting ============
+async function tableLabyrinths({ joueurs = 2, difficulty, answers } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "sa_the_labyrinths_of_lunacy" }) });
+  assert.equal(r.status, 200, "Labyrinths est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const HALLS = ["70025", "70026", "70027"], SECRETS3 = ["70016", "70017", "70018"];
+{ // Single Group, groupe A, Standard, 2 joueurs : Chamber of Secrets tirée, Key of Mysteries dedans, deux Ancien au sac, acte / agenda Single ; agenda 2 + acte 2 (Act 2 Setup A), agenda 3 + acte 3 (Act 3 Setup).
+  const { h } = await tableLabyrinths({ joueurs: 2, answers: { mode: "single", group: "A", jailor: "no" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.length, 18, "16 jetons + 2 Ancien");
+  assert.equal(s.chaos.bag.filter((t) => t === "elder_thing").length, 2, "groupe A : deux Ancien");
+  assert.equal(s.chaos.bag.filter((t) => t === "skull").length, 2);
+  const secret = cartes.find((c) => SECRETS3.includes(c.code) && c.loc.zone === "board");
+  assert.ok(secret && secret.faceUp && secret.loc.x === 737 && secret.loc.y === 411 && secret.tokens.clue === 6, "Chamber of Secrets au centre, révélée, 3 indices × 2");
+  assert.equal(cartes.filter((c) => SECRETS3.includes(c.code) && c.loc.pile === "removed").length, 2, "les deux autres retirées");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 737) < 130 && Math.abs(m.loc.y - 411) < 60), "pions dans la chambre");
+  const key = cartes.find((c) => c.code === "70040");
+  assert.ok(key.loc.zone === "board" && Math.abs(key.loc.x - 773) < 20, "Key of Mysteries dans la chambre (Single Group)");
+  assert.equal(cartes.find((c) => c.code === "70039").loc.zone, "seat0", "Eixodolon's Note au siège 1");
+  assert.equal(s.cards[s.agendaId].code, "70003"); assert.deepEqual(s.piles.agendaDeck.map((id) => s.cards[id].code), ["70005", "70006"], "agendas Single");
+  assert.equal(s.cards[s.actId].code, "70007"); assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["70011", "70015"], "actes du groupe A puis The Escape Single");
+  assert.ok(["70002", "70004", "70009", "70014", "70049", "70051", "70033", "70008", "70010", "70012", "70013"].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed"), "set Epic et autres actes retirés");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.ok([...HALLS, "70028", "70029", "70030", "70031", "70032", "70041", "70048", "70050", "70043", "70045", "70047", "70019", "70021", "70023", "70024"].every((c) => cote.some((k) => k.code === c)), "Halls, chambres, entrepôt, Syringe, Eixodolon, Pet, diagrammes, chambres des autres groupes de côté");
+  assert.equal(cote.filter((c) => c.code === "70052").length, 2, "deux Faceless Abductor de côté");
+  assert.ok(cote.filter((c) => c.kind === "location").every((c) => !c.faceUp), "lieux de côté face non révélée");
+  assert.equal(s.piles.encounter.length, 24, "pioche 24");
+  assert.ok("secret" in s.piles && !s.piles.secret.length, "pile Sous la carte de scénario vide (masquée)");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a");
+  // Agenda 2 puis acte 2 : Act 2 Setup du groupe A.
+  await h.action({ t: "drawEncounter" }); await h.action({ t: "toPile", id: h.state.piles.encounter[0], pile: "encounterDiscard" });
+  await h.action({ t: "advanceAgenda" });
+  let S = h.state;
+  assert.equal(S.cards[S.agendaId].code, "70005");
+  assert.ok(S.log.some((e) => e.kind === "reminder" && /^Verso de l'agenda 1 : avancez maintenant l'acte/.test(e.text)));
+  await h.action({ t: "advanceAct" });
+  S = h.state;
+  assert.equal(S.cards[S.actId].code, "70011");
+  const L = (code) => Object.values(S.cards).find((c) => c.code === code && c.loc.zone === "board");
+  assert.deepEqual(HALLS.map((c) => `${L(c).loc.x},${L(c).loc.y}`), ["365,649", "737,649", "1109,649"], "trois Labyrinthine Halls en jeu");
+  assert.ok(L("70029") && L("70029").loc.y === 887 && !L("70029").faceUp, "Chamber of Decay en jeu, non révélée");
+  assert.equal(S.piles.encounter.length, 23 + 2 + 1, "Abductors + défausse dans la pioche");
+  assert.equal(S.piles.encounterDiscard.length, 0);
+  assert.ok(S.log.some((e) => /Act 2 Setup \(groupe A, livret p\. 11\)/.test(e.text)));
+  // Agenda 3 puis acte 3 : Act 3 Setup.
+  await h.action({ t: "advanceAgenda" }); await h.action({ t: "advanceAct" });
+  S = h.state;
+  assert.equal(S.cards[S.actId].code, "70015");
+  const wh = Object.values(S.cards).find((c) => c.code === "70032");
+  assert.ok(wh.loc.zone === "board" && wh.loc.x === 737 && wh.loc.y === 173, "Abandoned Warehouse en jeu");
+  const eix = Object.values(S.cards).find((c) => c.code === "70048");
+  assert.ok(eix.loc.zone === "board" && Math.abs(eix.loc.x - 773) < 20 && Math.abs(eix.loc.y - 219) < 20, "Eixodolon sur l'entrepôt");
+  assert.ok(Object.values(S.cards).filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 737) < 130 && Math.abs(m.loc.y - 173) < 60), "pions sur l'entrepôt");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Single Group, groupe B, Difficile, 3 joueurs : Rain et Sorrows révélées, un pion tiré au sort dans Rain, deux Tablette ; acte 2 B (Rot + Poison).
+  const { h } = await tableLabyrinths({ joueurs: 3, difficulty: "hard", answers: { mode: "single", group: "B", jailor: "no" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.filter((t) => t === "tablet").length, 2, "groupe B : deux Tablette");
+  assert.equal(s.chaos.bag.filter((t) => t === "-6").length, 1, "sac Difficile");
+  const rain = cartes.find((c) => c.code === "70019"), sorrows = cartes.find((c) => c.code === "70021");
+  assert.ok(rain.loc.zone === "board" && rain.faceUp && sorrows.loc.zone === "board" && sorrows.faceUp, "Rain et Sorrows révélées");
+  const minis = cartes.filter((c) => c.kind === "mini");
+  assert.equal(minis.filter((m) => Math.abs(m.loc.x - 551) < 130 && Math.abs(m.loc.y - 411) < 60).length, 1, "un pion dans la Chamber of Rain");
+  assert.equal(minis.filter((m) => Math.abs(m.loc.x - 923) < 130 && Math.abs(m.loc.y - 411) < 60).length, 2, "les deux autres dans la Chamber of Sorrows");
+  assert.ok(s.log.some((e) => /tiré au sort, commence sur Chamber of Rain/.test(e.text)));
+  assert.equal(cartes.find((c) => c.code === "70020").loc.pile, "removed", "Sorrows version Epic retirée");
+  assert.equal(s.cards[s.actId].code, "70008"); assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["70012", "70015"]);
+  await h.action({ t: "advanceAgenda" }); await h.action({ t: "advanceAct" });
+  const S = h.state;
+  assert.ok(["70030", "70031"].every((c) => Object.values(S.cards).find((k) => k.code === c).loc.zone === "board"), "Rot et Poison en jeu");
+  assert.ok(S.log.some((e) => /Act 2 Setup \(groupe B, livret p\. 14\)/.test(e.text)));
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Epic Multiplayer, groupe C, Standard, 1 joueur, The Jailor tiré ici : set Single retiré, versions Epic, cartes histoire de côté (dos histoire), Chamber of Secrets ×3 de côté, deux Cultiste ; acte 2 C (Hunger, Pet, Jailor dans la pioche).
+  const { h } = await tableLabyrinths({ joueurs: 1, answers: { mode: "epic", group: "C", jailor: "yes" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.filter((t) => t === "cultist").length, 2, "groupe C : deux Cultiste");
+  assert.equal(s.cards[s.agendaId].code, "70002"); assert.equal(s.cards[s.actId].code, "70009"); assert.deepEqual(s.piles.actDeck.map((id) => s.cards[id].code), ["70013", "70014"], "versions Epic");
+  assert.ok(["70003", "70010", "70015", "70021", "70023", "70050", "70060"].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed"), "set Single retiré");
+  const night = cartes.find((c) => c.code === "70022"), regret = cartes.find((c) => c.code === "70024");
+  assert.ok(night.loc.zone === "board" && night.faceUp && regret.loc.zone === "board" && !regret.faceUp, "Night révélée, Regret non révélée");
+  const cote = cartes.filter((c) => c.loc.zone === "aside");
+  assert.ok(["70033", "70034", "70035", "70036", "70037", "70038"].every((c) => { const k = cote.find((x) => x.code === c); return k && k.faceUp && k.side === "a" && k.storyBack; }), "six cartes histoire de côté, recto, dos histoire");
+  assert.equal(cote.filter((c) => SECRETS3.includes(c.code)).length, 3, "trois Chamber of Secrets de côté (Epic)");
+  assert.ok(cote.some((c) => c.code === "70051") && cote.some((c) => c.code === "70049"), "The Jailor et le Pet Epic de côté");
+  assert.equal(s.piles.encounter.length, 24);
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /^Epic Multiplayer \(livret p\. 6\)/.test(e.text)));
+  await h.action({ t: "advanceAgenda" }); await h.action({ t: "advanceAct" });
+  const S = h.state;
+  assert.equal(S.cards[S.actId].code, "70013");
+  const pet = Object.values(S.cards).find((c) => c.code === "70049");
+  assert.ok(pet.loc.zone === "board" && pet.faceUp && pet.loc.x === 923 && pet.loc.y === 905, "Eixodolon's Pet près de la Chamber of Hunger, à aucun lieu");
+  assert.ok(Object.values(S.cards).find((c) => c.code === "70028").loc.zone === "board", "Chamber of Hunger en jeu");
+  assert.equal(Object.values(S.cards).find((c) => c.code === "70051").loc.pile, "encounter", "The Jailor dans la pioche");
+  assert.equal(S.piles.encounter.length, 24 + 2 + 1, "Abductors + Jailor");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Single Group, groupe C, 2 joueurs : une Chamber of Secrets sous la carte de scénario (pile), les deux autres de côté ; variante Shifting : actes tirés, Act 2 Setup selon l'acte 2.
+  const { h } = await tableLabyrinths({ joueurs: 2, answers: { mode: "single", group: "C", jailor: "no" } });
+  const s = h.state;
+  assert.equal(s.piles.secret.length, 1, "Chamber of Secrets sous la carte de scénario");
+  assert.ok(SECRETS3.includes(s.cards[s.piles.secret[0]].code) && !s.cards[s.piles.secret[0]].faceUp);
+  assert.equal(Object.values(s.cards).filter((c) => SECRETS3.includes(c.code) && c.loc.zone === "aside").length, 2, "les deux autres de côté");
+  assert.ok(!s.log.some((e) => e.kind === "setup" && /Bloody|Mysterious Prison|Enshrouded/.test(e.text)), "journal muet sur laquelle");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+  const { h: h2 } = await tableLabyrinths({ joueurs: 2, answers: { mode: "single", group: "shifting", jailor: "no" } });
+  const s2 = h2.state;
+  const a1 = s2.cards[s2.actId].code, deck = s2.piles.actDeck.map((id) => s2.cards[id].code);
+  assert.ok(["70007", "70008", "70010"].includes(a1) && ["70011", "70012", "70013"].includes(deck[0]) && deck[1] === "70015", "acte 1 et acte 2 tirés, The Escape en dernier");
+  assert.equal(Object.values(s2.cards).filter((c) => ["70007", "70008", "70010", "70011", "70012", "70013"].includes(c.code) && c.loc.pile === "removed").length, 4, "les quatre autres versions retirées");
+  assert.ok(s2.log.some((e) => /The Shifting Labyrinth/.test(e.text)));
+  await h2.action({ t: "advanceAgenda" }); await h2.action({ t: "advanceAct" });
+  const S2 = h2.state;
+  const groupe2 = { "70011": "A", "70012": "B", "70013": "C" }[deck[0]];
+  assert.ok(S2.log.some((e) => new RegExp(`Act 2 Setup \\(groupe ${groupe2}`).test(e.text)), "Act 2 Setup du groupe de l'acte 2 tiré");
+  h2.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-11 (Carnevale of Horrors compris). Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-11 (The Labyrinths of Lunacy compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -171,10 +171,12 @@ donc pas ce qui est déjà posé.
   par leur icône de jeu (88035a‑c) — jamais le slot d'une carte déjà
   posée. Une carte histoire « attachée » à l'ennemi se `spawn` au même
   lieu (elle se pose dessus ; rappel : la déplacer avec lui).
-- `{"op":"minis","code","log"?}` — pions de tous les enquêteurs sur la
+- `{"op":"minis","code","randomTo"?,"log"?}` — pions de tous les enquêteurs sur la
   carte en jeu (rangée de 44 px à cheval sur le bord haut) : un lieu, ou
   un **véhicule** (Fishing Vessel : « chaque enquêteur commence dans le
-  navire »).
+  navire »). `randomTo` : un enquêteur tiré au sort commence sur ce
+  lieu-là, les autres sur `code` (« randomly choose an investigator to
+  begin play in the Chamber of Rain ») ; le journal le nomme.
 - `{"op":"setStart","code"}` — définit `slot:start` (référence pure,
   aucun effet visuel).
 - `{"op":"emptySpace","positions":[{x,y}…],"log"?}` — proxys « espace
@@ -292,7 +294,9 @@ donc pas ce qui est déjà posé.
   07062) — interdit sur une carte à simple face (image inexistante).
 - `{"op":"toPile","pile","set"?|"codes"?,"shuffle"?,"log"?}` — envoie
   dans une pile (créée au besoin) le set entier ou les codes (toutes les
-  copies restantes de chaque code) ; `shuffle` mélange **toute** la
+  copies restantes de chaque code ; un code peut être le slot d'un
+  tirage nominal : la Chamber of Secrets tirée au sort « sous la carte
+  de scénario », regardée par « Regarder la première ») ; `shuffle` mélange **toute** la
   pile, y compris son contenu antérieur — `"codes":[]` + `shuffle`
   mélange donc une pile déjà remplie (les Unfathomable Depths versées
   une à une par des `pickRandom rest:"pile"` : sans ce mélange, l'ordre
@@ -372,7 +376,10 @@ donc pas ce qui est déjà posé.
 Ces champs n'agissent pas au setup : ils activent des actions, menus et
 rendus pendant la partie.
 
-- **`piles`** : `[{id, label, discard?, isDiscard?, trait?, gather?, around?, menuFor?}]`.
+- **`piles`** : `[{id, label, discard?, isDiscard?, trait?, gather?, around?, menuFor?, hideEmpty?}]`
+  (`hideEmpty` : la pile n'est pas rendue tant qu'elle est vide — pile
+  propre à une variante du setup, Chamber of Secrets sous la carte de
+  scénario du seul groupe C).
   Toute pile déclarée existe dès le setup (même vide). `discard` = id de
   sa défausse (déclarée `isDiscard:true`) ; `trait` : les cartes portant
   ce trait vont dans cette pioche/défausse par défaut (pioche spectrale
@@ -439,11 +446,15 @@ rendus pendant la partie.
   `after:<dernier acte>` puis `"1"` s'appliquent, les rappels `act:1`
   aussi (ils ne se déclenchent donc qu'au retour, jamais au setup) ;
   `state.counters.actCycles` compte les tours, la ligne de journal aussi.
-- **`agendaEffects`** / **`actEffects`** : `{"<stage>" | "after:<code>": StageEffects}`
+- **`agendaEffects`** / **`actEffects`** : `{"<stage>" | "after:<code>" | "enter:<code>": StageEffects}`
   — clé `"<stage>"` : appliqués quand l'agenda (ou l'acte) `stage`
   devient courant ; clé `"after:<code>"` : quand la carte `code` quitte
   l'histoire (son verso résolu — utile quand deux versions d'un agenda
-  ont des versos différents, The Lair of Dagon). Les effets s'appliquent
+  ont des versos différents, The Lair of Dagon) ; clé `"enter:<code>"` :
+  quand la carte `code` devient courante (l'Act 2 Setup de The
+  Labyrinths of Lunacy dépend de la version de l'acte 2 qui entre — y
+  compris quand elle vient d'un autre groupe, variante The Shifting
+  Labyrinth). Les effets s'appliquent
   **dans l'ordre d'écriture des champs** (celui du verso de la carte) et
   sont **idempotents** (une carte déjà en jeu n'est pas reposée :
   l'acte et l'agenda peuvent déclarer les mêmes gestes quand les deux

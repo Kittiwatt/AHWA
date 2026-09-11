@@ -176,7 +176,10 @@ function avancer(state: RoomState, def: ScenarioDef, agenda: boolean, ancienneDe
   // inondation, mélange, révélation, lieux posés, rangées complétées, retrait par trait, apparition, clé — idempotents.
   const table = agenda ? def.agendaEffects : def.actEffects;
   const ancienCode = courantId ? state.cards[courantId]?.code : undefined;
-  for (const effet of [ancienCode ? table?.[`after:${ancienCode}`] : undefined, stage ? table?.[String(stage)] : undefined]) {
+  // « enter:<code> » : effets propres à la carte qui devient courante (les trois versions d'un acte 2 ont chacune leur Act 2
+  // Setup — Labyrinths of Lunacy, y compris la variante où l'acte 2 vient d'un autre groupe).
+  const nouveauCode = (agenda ? state.agendaId : state.actId) ? state.cards[(agenda ? state.agendaId : state.actId)!]?.code : undefined;
+  for (const effet of [ancienCode ? table?.[`after:${ancienCode}`] : undefined, stage ? table?.[String(stage)] : undefined, nouveauCode ? table?.[`enter:${nouveauCode}`] : undefined]) {
     if (!effet) continue;
     const parties = appliquerEffets(state, def, effet);
     if (parties.length) reminders.push(addLog(state, "reminder", `${effet.log ?? `${agenda ? "Agenda" : "Acte"} ${stage}`} : ${parties.join(" ; ")}.`));

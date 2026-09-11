@@ -197,7 +197,7 @@ async function buildScenario(fichierSrc) {
 
   // Contrôles de cohérence entre la source et ArkhamDB.
   const codes = new Set(cards.map((c) => c.code));
-  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), ...(s.include ?? []), s.at, ...(s.atRandom ?? []), ...(s.pool ?? []),
+  const citesDe = (steps) => steps.flatMap((s) => [s.code, ...(s.codes ?? []), ...(s.op === "pickRandomSet" ? [] : (s.from ?? [])), ...(s.include ?? []), s.at, s.randomTo, ...(s.atRandom ?? []), ...(s.pool ?? []),
     ...(s.op === "bury" ? [...(s.with ?? []), ...(s.fromPool ?? []), ...(s.under ?? [])] : []),
     ...(s.op === "pickGroups" ? s.groups.flatMap((g) => g.codes) : []),
     ...(s.cases ? Object.values(s.cases).flatMap(citesDe) : []), ...citesDe(s.then ?? []), ...citesDe(s.else ?? [])]).filter((c) => c && !String(c).startsWith("slot:"));

@@ -607,6 +607,12 @@ sur un lieu) ; « Retourner » au menu d'une carte liée de même kind
 posée face cachée ; ressources au menu des lieux ; versos liés partagés
 (sept masques) posés face cachée par `pickRandom`.
 
+**The Labyrinths of Lunacy (2026-09-11).** Clés `enter:<code>` des
+effets d'étape (carte qui devient courante) ; `minis randomTo` (un
+enquêteur tiré au sort commence ailleurs) ; piles déclarées `hideEmpty`
+(non rendues tant qu'elles sont vides) ; `toPile` résout les slots ;
+`place zone:"seat0"` pour une carte contrôlée par le meneur au setup.
+
 **Curse of the Rougarou (2026-09-10).** Op **`pickGroups`** (piles de
 cartes tirées au sort entières : `groups {label, codes, positions}`,
 `remove`, `play`, `rest`, `slot`) ; effets `placeAt.ifAside` (silence si

@@ -566,7 +566,8 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
       }
       case "toPile": {
         if (!(step.pile in state.piles)) state.piles[step.pile] = [];
-        const codes = step.codes ?? def.cards.filter((c) => c.set === step.set).map((c) => c.code);
+        // Un code peut être le slot d'un tirage nominal (la Chamber of Secrets tirée au sort, sous la carte de scénario).
+        const codes = (step.codes ?? def.cards.filter((c) => c.set === step.set).map((c) => c.code)).map(resoudre);
         const ids: CardId[] = [];
         for (const code of codes) {
           for (const id of pool.takeAll(code)) {
@@ -595,6 +596,15 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         break;
       }
       case "minis": {
+        if (step.randomTo) {
+          // Un enquêteur tiré au sort commence ailleurs (Chamber of Rain du groupe B), les autres sur `code`.
+          const elu = seated[Math.floor(rng() * seated.length)];
+          const lieuElu = enJeu(step.randomTo), lieu = enJeu(step.code);
+          placeMini(elu, lieuElu, 0);
+          seated.filter((s) => s !== elu).forEach((s, i) => placeMini(s, lieu, i));
+          addLog(state, "setup", step.log ?? `${elu.name || `Siège ${elu.index + 1}`}, tiré au sort, commence sur ${nomDe(def, lieuElu.code)} ; les autres pions sont posés sur ${nomDe(def, lieu.code)}.`);
+          break;
+        }
         placeMinis(step.code);
         addLog(state, "setup", step.log ?? `Les pions des enquêteurs sont posés sur ${nomDe(def, enJeu(step.code).code)}.`);
         break;

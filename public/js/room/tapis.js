@@ -412,6 +412,7 @@ function rendrePioches(ctx) {
     // rencontre peut avoir sa défausse (pile `isDiscard`), rendue comme la défausse principale.
     ...(ctx.scenario.piles ?? []).map((p) => {
       const ids = state.piles[p.id] ?? [];
+      if (p.hideEmpty && !ids.length) return null;   // pile propre à une variante du setup (Chamber of Secrets sous la carte de scénario, groupe C seul)
       const haut = ids.length ? state.cards[ids[0]] : null;
       const L = ctx.scenario.leads;
       if (L && p.id === L.shown) {

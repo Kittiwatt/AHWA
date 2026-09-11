@@ -1,0 +1,1095 @@
+{
+  "_source": "Livret The Labyrinths of Lunacy (FFG ahc18, 2018, 24 p.), lu en entier (consigne standalone) : un scénario unique, jamais side-story, deux façons de jouer (p. 2) — Single Group (1-4 : une partie comme groupe A, B ou C au choix, ou mini-campagne de trois parties, une par groupe, sans XP ni journal, decks échangeables) ou Epic Multiplayer (trois groupes A, B, C sur trois tables, sans communication hors cartes, fin de manche commune, 60 min par acte ; set Epic remplace le set Single) → une room, questions `mode` (Single / Epic), `group` (A / B / C / variante The Shifting Labyrinth p. 23 : acte 1 et acte 2 tirés au hasard) et `jailor` (Epic : ce groupe est-il celui, tiré au sort, qui mélange The Jailor à l'acte 2). Sac (p. 2, icônes à 600 dpi, deux niveaux → Facile = Standard, Expert = Difficile, journal) : Standard +1 0 0 0 −1 −1 −1 −2 −2 −3 −4 −5 crâne ×2 auto-fail elder sign ; Difficile +1 0 −1 −1 −1 −2 −2 −2 −3 −4 −5 −6 crâne ×2 auto-fail elder sign ; puis chaque groupe ajoute 2 jetons (p. 10 / 13 / 16 à 600 dpi) : A deux Ancien, B deux Tablette, C deux Cultiste (chaosAdd). Carte de scénario 70001 : recto Standard, verso Hard. Pack arkham.build `lol` : sets in_the_labyrinths_of_lunacy (commun), epic_multiplayer, single_group — les deux modes ont leurs propres versions des agendas 1-2, de The Levers (acte 1 C), de The Escape (acte 3), de Chamber of Sorrows, Chamber of Night, des diagrammes, d'Eixodolon's Pet et de Paradox Effect ; le mode non joué est retiré, agendaDeck et actDeck listent toutes les versions et `story` garde celles présentes. Règles p. 3-4 : objectifs Timed (l'acte n'avance pas seul : quand l'agenda avance, on avance l'acte et on lit son verso — succès ou mort — puis l'Act 2 / Act 3 Setup du livret) → rappels agenda:2 / agenda:3 et effets `enter:<acte>` (nouveau : effets d'une carte qui devient courante, nécessaire pour que l'Act 2 Setup suive la version de l'acte 2, variante comprise) ; cartes histoire (Epic) à double face « Deep Within the Labyrinth… » → storyBack, de côté recto visible ; échanges entre groupes. Setup (p. 10 / 13 / 16) : A — une Chamber of Secrets au hasard (les deux autres retirées), révélée, tous y commencent, Single : Key of Mysteries dedans ; B — Chamber of Rain et Chamber of Sorrows révélées, un enquêteur tiré au sort dans Rain (minis randomTo, nouveau), les autres dans Sorrows ; C — Chamber of Night révélée (tous) et Chamber of Regret non révélée ; Single : une Chamber of Secrets au hasard sous la carte de scénario face non révélée (colonne Histoire, `pickRandom zone:story faceUp:false`), les deux autres de côté ; Epic : les trois de côté (le mot se lit chez le groupe A). Commun : Key of Mysteries (sauf A Single), Mysterious Syringe, Eixodolon, Eixodolon's Pet, les trois diagrammes, les deux Faceless Abductor et tous les autres lieux de côté ; Epic : The Jailor (gardé si tiré au sort, sinon retiré) et les six cartes histoire de côté ; Eixodolon's Note au meneur (siège 1) ; pioche 24. Act 2 Setup (p. 11 / 14 / 17) → `enter:<acte 2>` : Abductors + défausse mélangés (et The Jailor s'il est de côté), les trois Labyrinthine Halls en jeu, puis A : Chamber of Decay ; B : Chamber of Rot et Chamber of Poison ; C : Chamber of Hunger et Eixodolon's Pet près d'elle, à aucun lieu (« locked away ») ; doom retiré par l'agenda. Act 3 Setup → `enter:<acte 3>` : Abandoned Warehouse en jeu, tous les pions dessus (minisTo ; désengager = rappel), Eixodolon dessus (spawnAside). Versos lus dans le dump (jamais recopiés) : agendas 1-2 (avancez l'acte), actes 1-2 (succès ou mort selon la condition Timed), acte 3 (Eixodolon sans vie restante → résolution ; Epic : dégâts transférables), agenda 3 (tous vaincus → R1). Résolutions p. 18-21 non reportées.",
+  "id": "sa_the_labyrinths_of_lunacy",
+  "title": "The Labyrinths of Lunacy",
+  "campaign": "Scénarios indépendants",
+  "campaignId": "standalone",
+  "order": 3,
+  "packs": [
+    "lol"
+  ],
+  "encounterSets": [
+    "in_the_labyrinths_of_lunacy",
+    "epic_multiplayer",
+    "single_group"
+  ],
+  "extraCards": [],
+  "scenarioCard": "70001",
+  "scenarioCardSide": {
+    "easy": "a",
+    "standard": "a",
+    "hard": "b",
+    "expert": "b"
+  },
+  "agendaDeck": [
+    "70002",
+    "70003",
+    "70004",
+    "70005",
+    "70006"
+  ],
+  "actDeck": [
+    "70007",
+    "70008",
+    "70009",
+    "70010",
+    "70011",
+    "70012",
+    "70013",
+    "70014",
+    "70015"
+  ],
+  "startLocation": "70016",
+  "layout": [
+    {
+      "code": "70016",
+      "x": 737,
+      "y": 411
+    },
+    {
+      "code": "70019",
+      "x": 551,
+      "y": 411
+    },
+    {
+      "code": "70021",
+      "x": 923,
+      "y": 411
+    },
+    {
+      "code": "70023",
+      "x": 551,
+      "y": 411
+    },
+    {
+      "code": "70024",
+      "x": 923,
+      "y": 411
+    }
+  ],
+  "storyBack": [
+    "70033",
+    "70034",
+    "70035",
+    "70036",
+    "70037",
+    "70038"
+  ],
+  "chaosBag": {
+    "easy": [
+      "+1",
+      "0",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-2",
+      "-3",
+      "-4",
+      "-5",
+      "skull",
+      "skull",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "standard": [
+      "+1",
+      "0",
+      "0",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-2",
+      "-3",
+      "-4",
+      "-5",
+      "skull",
+      "skull",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "hard": [
+      "+1",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-2",
+      "-2",
+      "-3",
+      "-4",
+      "-5",
+      "-6",
+      "skull",
+      "skull",
+      "auto_fail",
+      "elder_sign"
+    ],
+    "expert": [
+      "+1",
+      "0",
+      "-1",
+      "-1",
+      "-1",
+      "-2",
+      "-2",
+      "-2",
+      "-3",
+      "-4",
+      "-5",
+      "-6",
+      "skull",
+      "skull",
+      "auto_fail",
+      "elder_sign"
+    ]
+  },
+  "questions": [
+    {
+      "id": "mode",
+      "text": "Comment jouez-vous ce scénario ? (livret p. 2, 6-7 — jamais en side-story)",
+      "options": [
+        {
+          "id": "single",
+          "label": "Single Group — une seule table (1-4 enquêteurs), une partie comme un des trois groupes, ou mini-campagne de trois parties (une par groupe)"
+        },
+        {
+          "id": "epic",
+          "label": "Epic Multiplayer — cette table est l'un des trois groupes joués en même temps (set Epic, cartes histoire, The Jailor)"
+        }
+      ]
+    },
+    {
+      "id": "group",
+      "text": "Groupe de cette table :",
+      "options": [
+        {
+          "id": "A",
+          "label": "Groupe A — Chamber of Secrets (Sealed In, puis Distortions in Time)"
+        },
+        {
+          "id": "B",
+          "label": "Groupe B — Chamber of Rain et Chamber of Sorrows (Watery Grave, puis Seeping Death)"
+        },
+        {
+          "id": "C",
+          "label": "Groupe C — Chamber of Night et Chamber of Regret (The Levers, puis The Pet)"
+        },
+        {
+          "id": "shifting",
+          "label": "Variante The Shifting Labyrinth (livret p. 23) : acte 1 et acte 2 tirés au hasard parmi les trois groupes"
+        }
+      ]
+    },
+    {
+      "id": "jailor",
+      "text": "Epic Multiplayer seulement : ce groupe est-il celui tiré au sort (parmi les trois) qui mélange The Jailor dans sa pioche à l'acte 2 ?",
+      "options": [
+        {
+          "id": "no",
+          "label": "Non (ou Single Group)"
+        },
+        {
+          "id": "yes",
+          "label": "Oui — The Jailor reste de côté ici et rejoint la pioche à l'acte 2"
+        }
+      ]
+    }
+  ],
+  "setup": [
+    {
+      "op": "branch",
+      "on": "difficulty",
+      "cases": {
+        "easy": [
+          {
+            "op": "log",
+            "text": "Ce scénario n'a que deux niveaux de difficulté (livret p. 2) : Facile joue le sac Standard."
+          }
+        ],
+        "expert": [
+          {
+            "op": "log",
+            "text": "Ce scénario n'a que deux niveaux de difficulté (livret p. 2) : Expert joue le sac Difficile."
+          }
+        ]
+      }
+    },
+    {
+      "op": "branch",
+      "on": "mode",
+      "cases": {
+        "epic": [
+          {
+            "op": "remove",
+            "codes": [
+              "70003",
+              "70005",
+              "70010",
+              "70015",
+              "70021",
+              "70023",
+              "70043",
+              "70045",
+              "70047",
+              "70050",
+              "70060"
+            ],
+            "log": "Epic Multiplayer : le set Single Group est retiré de la partie (agendas 1-2, actes The Levers et The Escape, Chamber of Sorrows, Chamber of Night, diagrammes, Eixodolon's Pet et Paradox Effect de cette version)."
+          }
+        ],
+        "default": [
+          {
+            "op": "remove",
+            "codes": [
+              "70002",
+              "70004",
+              "70009",
+              "70014",
+              "70020",
+              "70022",
+              "70033",
+              "70034",
+              "70035",
+              "70036",
+              "70037",
+              "70038",
+              "70042",
+              "70044",
+              "70046",
+              "70049",
+              "70051",
+              "70059"
+            ],
+            "log": "Single Group : le set Epic Multiplayer est retiré de la partie (ses agendas 1-2, actes The Levers et The Escape, Chamber of Sorrows, Chamber of Night, diagrammes, Eixodolon's Pet, The Jailor, Paradox Effect et les six cartes histoire)."
+          }
+        ]
+      }
+    },
+    {
+      "op": "branch",
+      "on": "group",
+      "cases": {
+        "A": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "70007"
+            ],
+            "n": 1,
+            "slot": "act1",
+            "log": "Groupe A (livret p. 9-11) : acte 1 Sealed In (Group A)."
+          },
+          {
+            "op": "pickRandom",
+            "from": [
+              "70011"
+            ],
+            "n": 1,
+            "slot": "act2",
+            "log": "Acte 2 : Distortions in Time (Group A)."
+          },
+          {
+            "op": "remove",
+            "codes": [
+              "70008",
+              "70009",
+              "70010",
+              "70012",
+              "70013"
+            ],
+            "log": "Les actes 1 et 2 des groupes B et C sont retirés de la partie."
+          }
+        ],
+        "B": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "70008"
+            ],
+            "n": 1,
+            "slot": "act1",
+            "log": "Groupe B (livret p. 12-14) : acte 1 Watery Grave (Group B)."
+          },
+          {
+            "op": "pickRandom",
+            "from": [
+              "70012"
+            ],
+            "n": 1,
+            "slot": "act2",
+            "log": "Acte 2 : Seeping Death (Group B)."
+          },
+          {
+            "op": "remove",
+            "codes": [
+              "70007",
+              "70009",
+              "70010",
+              "70011",
+              "70013"
+            ],
+            "log": "Les actes 1 et 2 des groupes A et C sont retirés de la partie."
+          }
+        ],
+        "C": [
+          {
+            "op": "branch",
+            "on": "mode",
+            "cases": {
+              "epic": [
+                {
+                  "op": "pickRandom",
+                  "from": [
+                    "70009"
+                  ],
+                  "n": 1,
+                  "slot": "act1",
+                  "log": "Groupe C (livret p. 15-17) : acte 1 The Levers (Group C)."
+                }
+              ],
+              "default": [
+                {
+                  "op": "pickRandom",
+                  "from": [
+                    "70010"
+                  ],
+                  "n": 1,
+                  "slot": "act1",
+                  "log": "Groupe C (livret p. 15-17) : acte 1 The Levers (Group C)."
+                }
+              ]
+            }
+          },
+          {
+            "op": "pickRandom",
+            "from": [
+              "70013"
+            ],
+            "n": 1,
+            "slot": "act2",
+            "log": "Acte 2 : The Pet (Group C)."
+          },
+          {
+            "op": "remove",
+            "codes": [
+              "70007",
+              "70008",
+              "70011",
+              "70012"
+            ],
+            "log": "Les actes 1 et 2 des groupes A et B sont retirés de la partie."
+          }
+        ],
+        "shifting": [
+          {
+            "op": "branch",
+            "on": "mode",
+            "cases": {
+              "epic": [
+                {
+                  "op": "pickRandom",
+                  "from": [
+                    "70007",
+                    "70008",
+                    "70009"
+                  ],
+                  "n": 1,
+                  "slot": "act1"
+                }
+              ],
+              "default": [
+                {
+                  "op": "pickRandom",
+                  "from": [
+                    "70007",
+                    "70008",
+                    "70010"
+                  ],
+                  "n": 1,
+                  "slot": "act1"
+                }
+              ]
+            }
+          },
+          {
+            "op": "pickRandom",
+            "from": [
+              "70011",
+              "70012",
+              "70013"
+            ],
+            "n": 1,
+            "slot": "act2"
+          },
+          {
+            "op": "log",
+            "text": "The Shifting Labyrinth (variante, livret p. 23) : acte 1 et acte 2 tirés au hasard ci-dessus, les autres versions retirées de la partie — la mise en place suit le groupe de l'acte 1, l'Act 2 Setup suivra le groupe de l'acte 2 (l'app s'en charge). En Epic, l'organisateur distribue les actes sans doublon entre les tables : choisissez plutôt le groupe voulu au lobby."
+          }
+        ]
+      }
+    },
+    {
+      "op": "branch",
+      "on": "slot:act1",
+      "cases": {
+        "70007": [
+          {
+            "op": "pickRandom",
+            "from": [
+              "70016",
+              "70017",
+              "70018"
+            ],
+            "n": 1,
+            "slot": "secrets",
+            "zone": "board",
+            "x": 737,
+            "y": 411,
+            "reveal": true,
+            "log": "Une des trois Chamber of Secrets, tirée au hasard, est mise en jeu au centre, révélée : chaque enquêteur y commence la partie ; les deux autres sont retirées de la partie."
+          },
+          {
+            "op": "minis",
+            "code": "slot:secrets"
+          },
+          {
+            "op": "when",
+            "cond": {
+              "q": "mode",
+              "is": "single"
+            },
+            "then": [
+              {
+                "op": "spawn",
+                "code": "70040",
+                "at": "slot:secrets",
+                "log": "Single Group : Key of Mysteries est mise en jeu dans la Chamber of Secrets."
+              }
+            ],
+            "else": [
+              {
+                "op": "aside",
+                "codes": [
+                  "70040"
+                ],
+                "faceUp": true,
+                "log": "Key of Mysteries est mise de côté, hors jeu (Epic : une carte histoire peut la faire entrer en jeu)."
+              }
+            ]
+          },
+          {
+            "op": "chaosAdd",
+            "tokens": [
+              "elder_thing",
+              "elder_thing"
+            ],
+            "log": "Groupe A : deux jetons Ancien ajoutés au sac."
+          }
+        ],
+        "70008": [
+          {
+            "op": "place",
+            "code": "70019",
+            "zone": "board",
+            "x": 551,
+            "y": 411,
+            "reveal": true,
+            "log": "Chamber of Rain est mise en jeu, révélée."
+          },
+          {
+            "op": "branch",
+            "on": "mode",
+            "cases": {
+              "epic": [
+                {
+                  "op": "place",
+                  "code": "70020",
+                  "zone": "board",
+                  "x": 923,
+                  "y": 411,
+                  "reveal": true,
+                  "log": "Chamber of Sorrows est mise en jeu, révélée."
+                },
+                {
+                  "op": "minis",
+                  "code": "70020",
+                  "randomTo": "70019"
+                }
+              ],
+              "default": [
+                {
+                  "op": "place",
+                  "code": "70021",
+                  "zone": "board",
+                  "x": 923,
+                  "y": 411,
+                  "reveal": true,
+                  "log": "Chamber of Sorrows est mise en jeu, révélée."
+                },
+                {
+                  "op": "minis",
+                  "code": "70021",
+                  "randomTo": "70019"
+                }
+              ]
+            }
+          },
+          {
+            "op": "aside",
+            "codes": [
+              "70040"
+            ],
+            "faceUp": true,
+            "log": "Key of Mysteries est mise de côté, hors jeu."
+          },
+          {
+            "op": "chaosAdd",
+            "tokens": [
+              "tablet",
+              "tablet"
+            ],
+            "log": "Groupe B : deux jetons Tablette ajoutés au sac."
+          }
+        ],
+        "70009": [
+          {
+            "op": "place",
+            "code": "70022",
+            "zone": "board",
+            "x": 551,
+            "y": 411,
+            "reveal": true,
+            "log": "Chamber of Night est mise en jeu, révélée : chaque enquêteur y commence la partie."
+          },
+          {
+            "op": "place",
+            "code": "70024",
+            "zone": "board",
+            "x": 923,
+            "y": 411,
+            "log": "Chamber of Regret est mise en jeu, non révélée."
+          },
+          {
+            "op": "minis",
+            "code": "70022"
+          },
+          {
+            "op": "aside",
+            "codes": [
+              "70040"
+            ],
+            "faceUp": true,
+            "log": "Key of Mysteries est mise de côté, hors jeu."
+          },
+          {
+            "op": "aside",
+            "codes": [
+              "70016",
+              "70017",
+              "70018"
+            ],
+            "faceUp": false,
+            "log": "Les trois Chamber of Secrets sont mises de côté, face non révélée (Epic : le mot inscrit se lit dans celle du groupe A)."
+          },
+          {
+            "op": "chaosAdd",
+            "tokens": [
+              "cultist",
+              "cultist"
+            ],
+            "log": "Groupe C : deux jetons Cultiste ajoutés au sac."
+          }
+        ],
+        "70010": [
+          {
+            "op": "place",
+            "code": "70023",
+            "zone": "board",
+            "x": 551,
+            "y": 411,
+            "reveal": true,
+            "log": "Chamber of Night est mise en jeu, révélée : chaque enquêteur y commence la partie."
+          },
+          {
+            "op": "place",
+            "code": "70024",
+            "zone": "board",
+            "x": 923,
+            "y": 411,
+            "log": "Chamber of Regret est mise en jeu, non révélée."
+          },
+          {
+            "op": "minis",
+            "code": "70023"
+          },
+          {
+            "op": "aside",
+            "codes": [
+              "70040"
+            ],
+            "faceUp": true,
+            "log": "Key of Mysteries est mise de côté, hors jeu."
+          },
+          {
+            "op": "pickRandom",
+            "from": [
+              "70016",
+              "70017",
+              "70018"
+            ],
+            "n": 1,
+            "slot": "secret",
+            "rest": "aside",
+            "log": "Une des trois Chamber of Secrets est tirée au hasard ; les deux autres sont de côté, face non révélée."
+          },
+          {
+            "op": "toPile",
+            "codes": [
+              "slot:secret"
+            ],
+            "pile": "secret",
+            "log": "Elle est placée sous la carte de scénario (pile « Sous la carte de scénario ») sans regarder sa face révélée : Chamber of Night permet de la regarder (menu de la pile → Regarder la première)."
+          },
+          {
+            "op": "chaosAdd",
+            "tokens": [
+              "cultist",
+              "cultist"
+            ],
+            "log": "Groupe C : deux jetons Cultiste ajoutés au sac."
+          }
+        ]
+      }
+    },
+    {
+      "op": "aside",
+      "codes": [
+        "70041",
+        "70048",
+        "70052",
+        "70052"
+      ],
+      "faceUp": true,
+      "log": "Mysterious Syringe, Eixodolon et les deux Faceless Abductor sont mis de côté, hors jeu."
+    },
+    {
+      "op": "branch",
+      "on": "mode",
+      "cases": {
+        "epic": [
+          {
+            "op": "aside",
+            "codes": [
+              "70049",
+              "70042",
+              "70044",
+              "70046"
+            ],
+            "faceUp": true,
+            "log": "Eixodolon's Pet et les diagrammes Rot, Hunger et Decay (version Epic) sont mis de côté, hors jeu."
+          },
+          {
+            "op": "branch",
+            "on": "jailor",
+            "cases": {
+              "yes": [
+                {
+                  "op": "aside",
+                  "codes": [
+                    "70051"
+                  ],
+                  "faceUp": true,
+                  "log": "The Jailor est mis de côté : ce groupe a été tiré au sort pour le mélanger dans sa pioche à l'acte 2 (l'app s'en charge)."
+                }
+              ],
+              "default": [
+                {
+                  "op": "remove",
+                  "codes": [
+                    "70051"
+                  ],
+                  "log": "The Jailor va dans la pioche d'un autre groupe (tirage entre les trois tables) : retiré de cette table."
+                }
+              ]
+            }
+          },
+          {
+            "op": "aside",
+            "codes": [
+              "70033",
+              "70034",
+              "70035",
+              "70036",
+              "70037",
+              "70038"
+            ],
+            "faceUp": true,
+            "log": "Les six cartes histoire à double face (Arcane Runes, The Rift, The Vent — acte 1 ; The Rift, The Vent, The Dilemma, The Gate, Encrypted Glyphs — acte 2) sont de côté, recto visible : ne lisez leur verso « Deep Within the Labyrinth… » que lorsqu'une carte l'indique."
+          }
+        ],
+        "default": [
+          {
+            "op": "aside",
+            "codes": [
+              "70050",
+              "70043",
+              "70045",
+              "70047"
+            ],
+            "faceUp": true,
+            "log": "Eixodolon's Pet et les diagrammes Rot, Hunger et Decay sont mis de côté, hors jeu."
+          }
+        ]
+      }
+    },
+    {
+      "op": "aside",
+      "codes": [
+        "70025",
+        "70026",
+        "70027",
+        "70028",
+        "70029",
+        "70030",
+        "70031",
+        "70032"
+      ],
+      "faceUp": false,
+      "log": "Les trois Labyrinthine Halls, Chamber of Hunger, Chamber of Decay, Chamber of Rot, Chamber of Poison et Abandoned Warehouse sont de côté, face non révélée : ils entrent en jeu aux actes 2 et 3."
+    },
+    {
+      "op": "branch",
+      "on": "slot:act1",
+      "cases": {
+        "70007": [
+          {
+            "op": "branch",
+            "on": "mode",
+            "cases": {
+              "epic": [
+                {
+                  "op": "aside",
+                  "codes": [
+                    "70019",
+                    "70020",
+                    "70022",
+                    "70024"
+                  ],
+                  "faceUp": false,
+                  "log": "Chamber of Rain, Chamber of Sorrows, Chamber of Night et Chamber of Regret (autres groupes) sont de côté, face non révélée."
+                }
+              ],
+              "default": [
+                {
+                  "op": "aside",
+                  "codes": [
+                    "70019",
+                    "70021",
+                    "70023",
+                    "70024"
+                  ],
+                  "faceUp": false,
+                  "log": "Chamber of Rain, Chamber of Sorrows, Chamber of Night et Chamber of Regret (autres groupes) sont de côté, face non révélée."
+                }
+              ]
+            }
+          }
+        ],
+        "70008": [
+          {
+            "op": "branch",
+            "on": "mode",
+            "cases": {
+              "epic": [
+                {
+                  "op": "aside",
+                  "codes": [
+                    "70016",
+                    "70017",
+                    "70018",
+                    "70022",
+                    "70024"
+                  ],
+                  "faceUp": false,
+                  "log": "Les trois Chamber of Secrets, Chamber of Night et Chamber of Regret (autres groupes) sont de côté, face non révélée."
+                }
+              ],
+              "default": [
+                {
+                  "op": "aside",
+                  "codes": [
+                    "70016",
+                    "70017",
+                    "70018",
+                    "70023",
+                    "70024"
+                  ],
+                  "faceUp": false,
+                  "log": "Les trois Chamber of Secrets, Chamber of Night et Chamber of Regret (autres groupes) sont de côté, face non révélée."
+                }
+              ]
+            }
+          }
+        ],
+        "70009": [
+          {
+            "op": "aside",
+            "codes": [
+              "70019",
+              "70020"
+            ],
+            "faceUp": false,
+            "log": "Chamber of Rain et Chamber of Sorrows (autres groupes) sont de côté, face non révélée."
+          }
+        ],
+        "70010": [
+          {
+            "op": "aside",
+            "codes": [
+              "70019",
+              "70021"
+            ],
+            "faceUp": false,
+            "log": "Chamber of Rain et Chamber of Sorrows (autres groupes) sont de côté, face non révélée."
+          }
+        ]
+      }
+    },
+    {
+      "op": "place",
+      "code": "70039",
+      "zone": "seat0",
+      "x": 9999,
+      "y": 0,
+      "faceUp": true,
+      "log": "Eixodolon's Note est sous le contrôle de l'enquêteur principal (siège 1 — glissez-la sur le bon siège si le meneur est ailleurs)."
+    },
+    {
+      "op": "story",
+      "log": "Agenda 1 et acte 1 sont en place ; la carte de scénario montre la référence de votre difficulté (recto Standard, verso Difficile)."
+    },
+    {
+      "op": "buildEncounter"
+    },
+    {
+      "op": "when",
+      "cond": {
+        "q": "mode",
+        "is": "epic"
+      },
+      "then": [
+        {
+          "op": "reminder",
+          "text": "Epic Multiplayer (livret p. 6) : chaque groupe joue à part, sans communiquer ni regarder les autres tables, sauf quand une carte le permet ; en fin de manche, attendez que les trois groupes y soient, déclenchez alors les capacités « en fin de manche », puis passez à la suivante ensemble ; un groupe n'avance à l'acte et à l'agenda suivants que quand les trois sont prêts. Agendas 1 et 2, en fin de manche, s'il y a au moins 1 doom et qu'aucun groupe ne l'a encore fait : le meneur du groupe A tire au hasard une carte histoire de côté du bon acte, annonce son titre, chaque meneur prend la sienne (glissez-la de la zone de côté vers la colonne Histoire ou un lieu). Limite de temps par défaut : 60 min par acte, puis doom jusqu'au seuil et l'agenda avance. Cartes et jetons échangés entre groupes reviennent à leur propriétaire en fin de partie."
+        }
+      ]
+    }
+  ],
+  "actEffects": {
+    "enter:70011": {
+      "log": "Act 2 Setup (groupe A, livret p. 11)",
+      "shuffleAside": [
+        "70052",
+        "70051"
+      ],
+      "withDiscard": true,
+      "placeAt": [
+        {
+          "code": "70025",
+          "x": 365,
+          "y": 649,
+          "faceUp": false
+        },
+        {
+          "code": "70026",
+          "x": 737,
+          "y": 649,
+          "faceUp": false
+        },
+        {
+          "code": "70027",
+          "x": 1109,
+          "y": 649,
+          "faceUp": false
+        },
+        {
+          "code": "70029",
+          "x": 737,
+          "y": 887,
+          "faceUp": false
+        }
+      ]
+    },
+    "enter:70012": {
+      "log": "Act 2 Setup (groupe B, livret p. 14)",
+      "shuffleAside": [
+        "70052",
+        "70051"
+      ],
+      "withDiscard": true,
+      "placeAt": [
+        {
+          "code": "70025",
+          "x": 365,
+          "y": 649,
+          "faceUp": false
+        },
+        {
+          "code": "70026",
+          "x": 737,
+          "y": 649,
+          "faceUp": false
+        },
+        {
+          "code": "70027",
+          "x": 1109,
+          "y": 649,
+          "faceUp": false
+        },
+        {
+          "code": "70030",
+          "x": 551,
+          "y": 887,
+          "faceUp": false
+        },
+        {
+          "code": "70031",
+          "x": 923,
+          "y": 887,
+          "faceUp": false
+        }
+      ]
+    },
+    "enter:70013": {
+      "log": "Act 2 Setup (groupe C, livret p. 17)",
+      "shuffleAside": [
+        "70052",
+        "70051"
+      ],
+      "withDiscard": true,
+      "placeAt": [
+        {
+          "code": "70025",
+          "x": 365,
+          "y": 649,
+          "faceUp": false
+        },
+        {
+          "code": "70026",
+          "x": 737,
+          "y": 649,
+          "faceUp": false
+        },
+        {
+          "code": "70027",
+          "x": 1109,
+          "y": 649,
+          "faceUp": false
+        },
+        {
+          "code": "70028",
+          "x": 551,
+          "y": 887,
+          "faceUp": false
+        },
+        {
+          "code": "70050",
+          "x": 923,
+          "y": 905,
+          "faceUp": true,
+          "ifAside": true
+        },
+        {
+          "code": "70049",
+          "x": 923,
+          "y": 905,
+          "faceUp": true,
+          "ifAside": true
+        }
+      ]
+    },
+    "enter:70014": {
+      "log": "Act 3 Setup (livret p. 11 / 14 / 17)",
+      "placeAt": [
+        {
+          "code": "70032",
+          "x": 737,
+          "y": 173
+        }
+      ],
+      "minisTo": "70032",
+      "spawnAside": {
+        "code": "70048",
+        "at": "70032"
+      }
+    },
+    "enter:70015": {
+      "log": "Act 3 Setup (livret p. 11 / 14 / 17)",
+      "placeAt": [
+        {
+          "code": "70032",
+          "x": 737,
+          "y": 173
+        }
+      ],
+      "minisTo": "70032",
+      "spawnAside": {
+        "code": "70048",
+        "at": "70032"
+      }
+    }
+  },
+  "seatCounters": [],
+  "tableCounters": [],
+  "reminders": [
+    {
+      "when": "setup",
+      "text": "Hors application : decks construits avec les règles du mode indépendant (pas besoin de partir à 0 XP), 5 ressources, main de départ (mulligan possible), deck à portée (ou importé sur son board joueur). Mini-campagne Single Group : trois parties, une par groupe dans l'ordre de votre choix, sans XP ni journal, enquêteurs et decks échangeables entre les parties, les vaincus rejouent."
+    },
+    {
+      "when": "setup",
+      "text": "Objectifs Timed (livret p. 3) : l'acte n'avance jamais seul — quand l'agenda avance, avancez l'acte, lisez son verso (succès ou mort selon la condition) puis l'app applique l'Act 2 / Act 3 Setup du livret. Single Group : si votre tâche est finie avant l'heure, vous pouvez, lors du doom de la phase du mythe, poser du doom jusqu'au seuil de l'agenda."
+    },
+    {
+      "when": "setup",
+      "text": "Paradoxes (livret p. 3) : des textes peuvent sembler impossibles au premier abord — ce sont des énigmes. Eixodolon's Note est sous le contrôle du meneur (glissez-la sur son siège si ce n'est pas le siège 1). Les lieux de côté sont face non révélée : ils entrent en jeu aux actes 2 et 3 (l'app les pose)."
+    },
+    {
+      "when": "mythos",
+      "text": "Doom sur l'agenda, puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche). Single Group : doom supplémentaire possible jusqu'au seuil si l'objectif Timed est rempli (livret p. 3)."
+    },
+    {
+      "when": "enemy",
+      "text": "Ennemis chasseurs : déplacez-les à la main. Faceless Abductor emmène sa cible dans un lieu Prison après son attaque (déplacez le pion)."
+    },
+    {
+      "when": "agenda:2",
+      "text": "Verso de l'agenda 1 : avancez maintenant l'acte (« Avancer l'acte ») et lisez son verso — succès ou mort selon l'objectif Timed — puis l'app applique l'Act 2 Setup (Faceless Abductors et défausse dans la pioche, Labyrinthine Halls et chambre(s) de l'acte 2 en jeu). Tout le doom a été retiré."
+    },
+    {
+      "when": "agenda:3",
+      "text": "Verso de l'agenda 2 : avancez maintenant l'acte (« Avancer l'acte ») et lisez son verso, puis l'app applique l'Act 3 Setup (Abandoned Warehouse, pions dessus, Eixodolon). Désengagez tous les ennemis (glissez-les hors des zones de menace). Agenda 3 : chaque lieu Distortion gagne la capacité inscrite sur l'agenda ; si tous les enquêteurs sont vaincus, l'agenda avance."
+    },
+    {
+      "when": "act:2",
+      "text": "Acte 2 : l'Act 2 Setup a été appliqué (journal) — Faceless Abductors et défausse mélangés dans la pioche (The Jailor aussi, si ce groupe l'a), trois Labyrinthine Halls et la ou les chambres du groupe en jeu, non révélées ; groupe C : Eixodolon's Pet est posé près de la Chamber of Hunger, « locked away » (à aucun lieu, immunisé aux cartes joueur). Nouvel objectif Timed : lisez l'acte."
+    },
+    {
+      "when": "act:3",
+      "text": "Acte 3 : Abandoned Warehouse en jeu, tous les pions dessus, Eixodolon dessus (journal) — désengagez les ennemis engagés. Eixodolon a 6 vie + 6 par enquêteur et ne peut pas être vaincu par des dégâts : l'acte avance quand il n'a plus de vie restante (dégâts ≥ vie) ; Epic : ses dégâts en excès peuvent passer à la copie d'un autre groupe."
+    }
+  ],
+  "piles": [
+    {
+      "id": "secret",
+      "label": "Sous la carte de scénario",
+      "hideEmpty": true
+    }
+  ]
+}

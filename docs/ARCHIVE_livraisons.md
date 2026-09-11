@@ -8,6 +8,65 @@ chaque récit a été versé avant archivage (format → grammaire, pièges →
 mémo §5, décisions → §1, points ouverts → §7). À chaque rotation, le
 récit sortant s'ajoute **en tête** de ce fichier.
 
+- 2026-09-10 : **Curse of the Rougarou** (scénario indépendant, pack
+  arkham.build `cotr`, 81001‑81036, sets `bayou` — scénario, agendas,
+  actes, lieux, Lady Esprit, pièges, 18 cartes de rencontre — et
+  `rougarou` — le Rougarou, la faiblesse, Monstrous Transformation, 15
+  cartes de rencontre). Créé par la tâche planifiée « une room par jour »
+  (ordre de l'utilisateur : les indépendants d'abord). **FFG ne publie
+  pas ce livret** (page produit sans PDF) : lu en entier sur la
+  transcription Hall of Arkham `curserules.pdf` (2 pages, texte et
+  icônes de l'encart de 2016 ; lien `guide` de la bibliothèque, à
+  remplacer si l'utilisateur préfère une autre source). Deux modes
+  (p. 1) → question `mode` : Standalone (sac lu à 600 dpi, deux niveaux
+  → Facile = Standard, Expert = Difficile, journal comme le Blob) ou
+  side-story (1 XP, sac de campagne, rappel). Carte de scénario
+  Easy/Standard au recto (`scenarioCardSide`). Setup : set Curse of the
+  Rougarou de côté face visible (`aside sets`) ; **les douze lieux en
+  quatre piles par trait** (New Orleans, Riverside, Wilderness,
+  Unhallowed : un lieu Bayou + deux autres chacune) — une pile au
+  hasard retirée, une autre en jeu, les deux dernières de côté face non
+  révélée → nouvelle op **`pickGroups`** (`groups` avec `label`, `codes`,
+  `positions` par carte ; `remove`, `play`, `rest`, `slot` = première
+  carte du premier groupe joué ; le journal nomme les piles) ; le Bayou
+  de la pile en jeu révélé par `reveal slot:pile` + `minis` (0 indice
+  imprimé) ; Lady Esprit, Bear Trap, Fishing Net de côté ; pioche 18.
+  **Pas de diagramme** : icônes de connexion lues sur les images des
+  douze lieux — les quatre Bayou (carré, triangle, losange, sablier)
+  sont tous connectés entre eux, les deux satellites d'une pile ne le
+  sont qu'à leur Bayou et l'un à l'autre → Bayou en carré au centre
+  (551/923 × 411/649), satellites à côté et au‑dessus / en dessous ;
+  rappel `setup` (chemins à tracer). Versos lus dans le dump : acte 1b →
+  `actEffects "2"` : **`spawnAside at` en liste** (Lady Esprit « at a
+  Bayou location » : le premier des quatre Bayou présent sur le tapis =
+  celui du départ, déplaçable), **`placeAt ifAside`** (les douze codes
+  déclarés à leur position, les six de côté entrent non révélés, les
+  trois de la pile retirée ignorés sans rappel), `shuffleAside` des 15
+  cartes de rencontre du set `withDiscard` ; le Rougarou « à un lieu
+  non‑Bayou au choix » et la faiblesse « dans la zone de menace du
+  principal » restent des rappels (glisser depuis la zone de côté).
+  Agenda 1b → `shuffleAside: []` + `withDiscard` (défausse remélangée)
+  ; agenda 2b → nouvel effet **`shuffleFromDiscard`** (seules les On the
+  Prowl de la défausse reviennent dans la pioche) ; déplacement du
+  Rougarou vers le lieu non‑Bayou le moins pourvu en indices, doom
+  conditionnel, Forcé de l'agenda 3, objectifs et quatre conditions de
+  l'acte 2 (dont « strange doll » / « binding stone » à noter) en
+  rappels décrits sans recopier. Tests : bloc `test_room.mjs` (sac
+  Standard 24, pile complète en jeu à ses positions, Bayou révélé +
+  pions, pile retirée, 27 de côté avec faces, pioche 18 ; acte 2 → 9
+  lieux à leur position, Lady Esprit au Bayou, pioche 33, aucun « à la
+  main », de côté = Rougarou + faiblesse + Monstrous + pièges + acte 1 ;
+  agenda 2 → défausse remélangée ; agenda 3 → 2 On the Prowl repris,
+  l'autre carte reste ; side-story Expert solo : sac Difficile 25, côté
+  b, Rougarou 5 vie par enquêteur, acte 1 = 1 indice par enquêteur) ;
+  Playwright (bloc autonome extrait de `captures.py`, images CDN
+  injoignables du bac à sable → cartes vides, `networkidle` remplacé par
+  une attente fixe dans ce bloc) : bibliothèque (4 liens livret),
+  question du lobby, trois lieux + deux pions, 27 de côté, acte 2 (9
+  lieux, Lady Esprit) ; zéro erreur console hors `ERR_CONNECTION_RESET`
+  des ressources externes ; `npm run check` zéro erreur ; régression
+  `test_room.mjs` complète (820 messages) OK.
+
 - 2026-09-10 : **Fortune and Folly, Part II : The Heist** — la seconde
   room du scénario, avec le setup « from Scratch » p. 23‑25 (celui qui
   vaut après une pause ou quand la partie I a été sautée ; en room

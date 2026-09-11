@@ -56,7 +56,9 @@ de côté qui entrent en jeu avec l'acte 2) et *Machinations Through Time*
 histoire Machination et Plot tirées au sort ou annoncées, leurs mises en
 place résolues par l'app) et *Carnevale of Horrors* (cercle de lieux,
 masques à retourner, Innocent Revelers sous les decks, Cnidathqua au
-centre puis la gondole) —, avec
+centre puis la gondole) et *The Labyrinths of Lunacy* (Single Group ou
+Epic, groupe A, B ou C ou variante Shifting, mises en place des actes 2
+et 3 appliquées par l'app) —, avec
 les questions de journal au lobby, les tirages au hasard, les piles et
 les lieux qui se remplacent propres à chaque scénario. Outil « Générer une carte » (n'importe quelle carte du jeu, ou une
 carte personnalisée à partir d'une image en lien) sur la table comme

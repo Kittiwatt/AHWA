@@ -1537,6 +1537,57 @@ with sync_playwright() as p:
     h29.mouse.move(420, 520); h29.wait_for_timeout(300)
     h29.screenshot(path=f"{OUT}/133_carnevale_acte2.png")
 
+    # ---- The Labyrinths of Lunacy : Single Group, groupe C (Chamber of Night révélée, Regret non révélée, Chamber of Secrets sous la carte
+    # de scénario dans une pile masquée quand vide), Eixodolon's Note au siège 1 ; agenda 2 puis acte 2 (Act 2 Setup : Halls, Hunger, Pet) ----
+    code30, token30 = creer("sa_the_labyrinths_of_lunacy")
+    print("room Labyrinths", code30)
+    h30 = page_pour(browser, "Hôte", host=True, code=code30, token=token30)
+    h30.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h30.get_by_role("button", name="Choisir un enquêteur").click(); h30.wait_for_selector("dialog.dialogue-inv[open]")
+    h30.fill("dialog .recherche", "roland"); h30.wait_for_timeout(300); h30.locator("dialog .inv").first.click()
+    h30.wait_for_selector(".siege-lobby.moi .fiche")
+    j30 = page_pour(browser, "Bob", code=code30, token=None)
+    j30.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j30.get_by_role("button", name="Choisir un enquêteur").click(); j30.wait_for_selector("dialog.dialogue-inv[open]")
+    j30.fill("dialog .recherche", "daisy"); j30.wait_for_timeout(300); j30.locator("dialog .inv").first.click()
+    j30.wait_for_selector(".siege-lobby.moi .fiche")
+    h30.wait_for_timeout(400)
+    h30.locator("input[name='q-mode'][value='single']").check(); h30.wait_for_timeout(150)
+    h30.locator("input[name='q-group'][value='C']").check(); h30.wait_for_timeout(150)
+    h30.locator("input[name='q-jailor'][value='no']").check(); h30.wait_for_timeout(150)
+    h30.locator(".reglage.questions").screenshot(path=f"{OUT}/134_labyrinths_lobby.png")
+    h30.get_by_role("button", name="Lancer la mise en place").click()
+    h30.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h30.wait_for_load_state("networkidle"); h30.wait_for_timeout(1500)
+    assert h30.locator("#plateau .carte.kind-location").count() == 2, "Chamber of Night et Chamber of Regret"
+    assert h30.locator("#pioches .pile[data-outil='pile:secret'] .badge").inner_text() == "1", "Chamber of Secrets sous la carte de scénario"
+    assert h30.locator("#sieges .siege").nth(0).locator(".carte[data-id='70039']").count() == 1, "Eixodolon's Note au siège 1"
+    h30.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h30.mouse.move(420, 520); h30.wait_for_timeout(300)
+    h30.screenshot(path=f"{OUT}/135_labyrinths_tapis.png")
+    # Agenda 1 → 2, puis acte 1 → 2 : Act 2 Setup du groupe C.
+    h30.locator("#histoire").get_by_role("button", name="Avancer l'agenda").click(); h30.wait_for_timeout(800)
+    h30.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h30.locator("#histoire").get_by_role("button", name="Avancer l'acte").click(); h30.wait_for_timeout(1000)
+    assert h30.locator("#plateau .carte.kind-location").count() == 6, "trois Halls + Chamber of Hunger"
+    assert h30.locator("#plateau .carte.kind-enemy").count() == 1, "Eixodolon's Pet près de la Chamber of Hunger"
+    assert h30.locator("#pioches .pile[data-outil='pioche'] .badge").inner_text() == "26", "deux Faceless Abductor dans la pioche"
+    h30.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h30.mouse.move(420, 520); h30.wait_for_timeout(300)
+    h30.screenshot(path=f"{OUT}/136_labyrinths_acte2.png")
+    # Groupe A : la pile « Sous la carte de scénario » vide n'est pas rendue.
+    codeA, tokenA = creer("sa_the_labyrinths_of_lunacy")
+    hA = page_pour(browser, "Hôte", host=True, code=codeA, token=tokenA)
+    hA.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    hA.get_by_role("button", name="Choisir un enquêteur").click(); hA.wait_for_selector("dialog.dialogue-inv[open]")
+    hA.fill("dialog .recherche", "roland"); hA.wait_for_timeout(300); hA.locator("dialog .inv").first.click()
+    hA.wait_for_selector(".siege-lobby.moi .fiche"); hA.wait_for_timeout(300)
+    hA.locator("input[name='q-mode'][value='single']").check(); hA.locator("input[name='q-group'][value='A']").check(); hA.locator("input[name='q-jailor'][value='no']").check(); hA.wait_for_timeout(200)
+    hA.get_by_role("button", name="Lancer la mise en place").click()
+    hA.wait_for_selector("#tapis:not([hidden])", timeout=8000); hA.wait_for_timeout(1200)
+    assert hA.locator("#pioches .pile[data-outil='pile:secret']").count() == 0, "pile masquée quand vide"
+    assert hA.locator("#plateau .carte.kind-asset").count() == 1, "Key of Mysteries dans la Chamber of Secrets"
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

@@ -31,6 +31,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 | Date | Livraison | À retenir |
 |---|---|---|
 | 2026-09-10 | Standalone — Curse of the Rougarou | livret (encart FFG 2016, transcription Hall of Arkham) lu en entier ; question `mode` (indépendant / side-story 1 XP), sac p. 1 à deux niveaux ; set Curse of the Rougarou de côté ; **`pickGroups`** (quatre piles de lieux par trait : 1 retirée, 1 en jeu, 2 de côté, `slot`) + `reveal`/`minis` sur le Bayou tiré ; disposition déduite des icônes (Bayou en carré) ; acte 2 : **`placeAt ifAside`** (six lieux de côté), **`spawnAside at` en liste** (Lady Esprit au Bayou), set + défausse mélangés ; agenda 3 : **`shuffleFromDiscard`** (On the Prowl) |
+| 2026-09-11 | Standalone — The Labyrinths of Lunacy | livret lu en entier : un scénario, deux modes (Single / Epic à trois groupes) et trois groupes A / B / C (+ variante The Shifting Labyrinth) → une room, questions `mode`, `group`, `jailor` ; deux sets par mode, `story` garde les versions présentes ; objectifs Timed en rappels ; **`enter:<code>`** (nouveau : effets de la carte qui devient courante → Act 2 Setup selon l'acte 2), **`minis randomTo`** (un enquêteur tiré au sort dans la Chamber of Rain), Chamber of Secrets sous la carte de scénario = pile **`hideEmpty`** (nouveau) alimentée par `toPile` sur slot ; sac à deux niveaux + deux jetons du groupe |
 | 2026-09-11 | Standalone — Carnevale of Horrors | encart 2016 (transcription Hall of Arkham) lu en entier ; question `mode` (indépendant / side-story 3 XP), sac à deux niveaux ; cercle de huit lieux (Basilique en haut, un lieu retiré au hasard par `pickRandom include`), sept masques = versos liés posés face cachée, piles « Sous l'agenda » / « Sous l'acte », Cnidathqua au centre à l'acte 2, Baleful Reveler (verso-ennemi), Gondola (verso-lieu) avec **`minisTo`** (nouveau) et `removeLocations except` ; « Retourner » pour un soutien lié posé face cachée ; ressources au menu des lieux |
 | 2026-09-11 | Standalone — Machinations Through Time | livret lu en entier : un scénario, trois façons (Single Group, Epic à trois groupes Passé / Présent / Futur, side-story) → une room, `mode` à cinq options + questions Machination / Plot (au hasard ou annoncée) ; Tindalos côté a / b, trois croix ou une ; textes de Setup des cartes histoire résolus par **`branch on:"slot:…"`** (nouveau), `spawn side b` d'Edwin soutien, `addTokens` négatif ; agenda 2 : **`flip`** (nouveau), `shuffleAside ifAside`, `spawnAside ifAt` (nouveau) ; menu ressources des cartes histoire ; sac à quatre niveaux |
 | 2026-09-10 | Standalone — Fortune and Folly, Part II : The Heist | setup « from Scratch » : journal du Checkpoint en questions (jouée / sautée, tâches `multi`, Practiced `multi`, repos, indices `number`), deux hubs superposés, `place side:"b"` + `reveal` (Busy Night, indices du verso), `spawn side` (Isamara Crew), Wellspring `spawn` sur Relic Room, **`revealEffects`** (Hallway → Abarran Unleashed + cultistes ; Relic Room → **`moveTokens`**), effet **`seatCounter`** (+1 alerte), agendas 3-4 (Shambler, Plan in Shambles, Disfavor `drawAside`) ; **Fortune and Folly complet** |
@@ -111,6 +112,74 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-11 : **The Labyrinths of Lunacy** (scénario indépendant, pack
+  arkham.build `lol`, 70001‑70061, sets `in_the_labyrinths_of_lunacy`
+  commun, `epic_multiplayer` et `single_group` — chaque mode a ses
+  propres agendas 1‑2, The Levers, The Escape, Chamber of Sorrows,
+  Chamber of Night, diagrammes, Eixodolon's Pet et Paradox Effect).
+  Livret (24 p.) lu en entier : **un scénario, jamais side-story**, deux
+  modes (Single Group : une partie comme groupe A, B ou C, ou
+  mini-campagne de trois parties sans XP ; Epic : trois tables sans
+  communication, fin de manche commune, 60 min par acte) et trois
+  groupes aux setups et actes 1‑2 distincts, plus la variante The
+  Shifting Labyrinth (p. 23, acte 1 et acte 2 tirés au hasard) → **une
+  room**, questions `mode`, `group` (A / B / C / shifting) et `jailor`
+  (Epic : ce groupe est-il celui tiré au sort qui mélange The Jailor à
+  l'acte 2). Sac p. 2 à 600 dpi (deux niveaux : Facile = Standard,
+  Expert = Difficile ; crâne ×2, auto-fail, elder sign, sans cultiste ni
+  tablette ni ancien) puis **deux jetons du groupe** (p. 10 / 13 / 16 :
+  A deux Ancien, B deux Tablette, C deux Cultiste) par `chaosAdd`. Le
+  mode non joué est retiré ; `agendaDeck` et `actDeck` listent toutes
+  les versions, `story` garde les présentes ; les actes 1‑2 se tirent
+  par `pickRandom` nominal (`from` réduit au bon code, ou les trois
+  pour la variante — `rest` par défaut retire alors les non tirés ; pour
+  un groupe fixe les autres versions sont retirées explicitement, sinon
+  `story` les aurait toutes mises dans le deck : piège attrapé au test
+  de fumée) puis `branch on:"slot:act1"` pour la mise en place du
+  groupe : A — une Chamber of Secrets au hasard révélée (les deux autres
+  retirées), Key of Mysteries dedans en Single ; B — Chamber of Rain et
+  Chamber of Sorrows révélées, **`minis randomTo`** (nouveau : un
+  enquêteur tiré au sort commence ailleurs, journal nommé) ; C —
+  Chamber of Night révélée, Chamber of Regret non révélée, et en Single
+  une Chamber of Secrets tirée au sort « sous la carte de scénario » =
+  pile déclarée **`hideEmpty`** (nouveau : pile non rendue tant qu'elle
+  est vide, pour les autres groupes) remplie par `toPile` sur un slot
+  (`toPile` résout désormais les slots) — « Regarder la première » = la
+  regarder en privé ; les deux autres de côté face non révélée. Commun :
+  Syringe, Eixodolon, Pet, diagrammes, deux Abductors, tous les autres
+  lieux de côté face non révélée (Halls, Hunger, Decay, Rot, Poison,
+  Warehouse, chambres des autres groupes — nécessaires à la variante et
+  aux cartes histoire Epic) ; Epic : The Jailor gardé de côté si tiré
+  ici sinon retiré, six cartes histoire de côté recto visible (`storyBack`
+  : verso « Deep Within the Labyrinth… ») ; Eixodolon's Note posée dans
+  la zone du siège 1 (`place zone:"seat0"`) ; pioche 24. **Objectifs
+  Timed** (p. 3) : l'acte n'avance pas seul → rappels agenda:2 /
+  agenda:3 (« avancez l'acte, lisez son verso ») et **`enter:<code>`**
+  (nouveau : effets de la carte qui devient courante) pour l'Act 2 Setup
+  de chaque version de l'acte 2 (Abductors + défausse + Jailor s'il est
+  de côté `shuffleAside withDiscard`, `placeAt faceUp:false` des trois
+  Halls et des chambres — piège : `placeAt` révèle par défaut — et du
+  Pet près de la Chamber of Hunger, « locked away ») et l'Act 3 Setup
+  (Warehouse révélé, `minisTo`, Eixodolon par `spawnAside`) —
+  la variante Shifting suit ainsi le groupe de l'acte 2 sans rien de
+  plus. Rappels : mini-campagne, Timed et doom volontaire en Single,
+  paradoxes, Epic (annonces des cartes histoire par le meneur du groupe A
+  en fin de manche, 60 min, échanges), agendas 2‑3, actes 2‑3 (Pet locked
+  away, Eixodolon 6 + 6 par enquêteur non vaincu par les dégâts).
+  Tests : bloc `test_room.mjs` (A Single 2 j. : sac 18 avec deux
+  Ancien, chambre révélée 6 indices, Key dedans, Note au siège 1, decks
+  par version, retraits, mises de côté, pioche 24, pile masquée ;
+  agenda 2 + acte 2 → Halls, Decay non révélée, Abductors + défausse ;
+  agenda 3 + acte 3 → Warehouse, Eixodolon, pions ; B Single Difficile
+  3 j. : Tablette ×2, un pion tiré au sort dans Rain, Rot + Poison à
+  l'acte 2 ; C Epic solo avec Jailor : versions Epic, cartes histoire
+  dos histoire, trois Secrets de côté, Pet à côté de Hunger, Jailor dans
+  la pioche ; C Single : pile secret à 1, journal muet ; Shifting :
+  actes tirés, quatre autres retirées, Act 2 Setup du groupe de l'acte
+  2) ; Playwright : lobby à trois questions, tapis du groupe C avec la
+  pile « Sous la carte de scénario », acte 2 (Halls, Hunger, Pet), groupe
+  A sans pile ; zéro erreur console ; `npm run check` zéro erreur ;
+  régression `test_room.mjs` (881 messages) OK.
 - 2026-09-11 : **Carnevale of Horrors** (scénario indépendant, pack
   arkham.build `coh`, set `venice`, 82001‑82037). Comme le Rougarou,
   **FFG ne publie pas l'encart** (2016, deux pages) : lu en entier sur la
@@ -227,65 +296,9 @@ versement de son durable (format → grammaire, piège → §5, décision →
   trois croix, colonne Histoire à cinq cartes, agenda 2 (Sadie, pioche
   36) ; zéro erreur console ; `npm run check` zéro erreur ; régression
   `test_room.mjs` (845 messages) OK.
-- 2026-09-10 : **Curse of the Rougarou** (scénario indépendant, pack
-  arkham.build `cotr`, 81001‑81036, sets `bayou` — scénario, agendas,
-  actes, lieux, Lady Esprit, pièges, 18 cartes de rencontre — et
-  `rougarou` — le Rougarou, la faiblesse, Monstrous Transformation, 15
-  cartes de rencontre). Créé par la tâche planifiée « une room par jour »
-  (ordre de l'utilisateur : les indépendants d'abord). **FFG ne publie
-  pas ce livret** (page produit sans PDF) : lu en entier sur la
-  transcription Hall of Arkham `curserules.pdf` (2 pages, texte et
-  icônes de l'encart de 2016 ; lien `guide` de la bibliothèque, à
-  remplacer si l'utilisateur préfère une autre source). Deux modes
-  (p. 1) → question `mode` : Standalone (sac lu à 600 dpi, deux niveaux
-  → Facile = Standard, Expert = Difficile, journal comme le Blob) ou
-  side-story (1 XP, sac de campagne, rappel). Carte de scénario
-  Easy/Standard au recto (`scenarioCardSide`). Setup : set Curse of the
-  Rougarou de côté face visible (`aside sets`) ; **les douze lieux en
-  quatre piles par trait** (New Orleans, Riverside, Wilderness,
-  Unhallowed : un lieu Bayou + deux autres chacune) — une pile au
-  hasard retirée, une autre en jeu, les deux dernières de côté face non
-  révélée → nouvelle op **`pickGroups`** (`groups` avec `label`, `codes`,
-  `positions` par carte ; `remove`, `play`, `rest`, `slot` = première
-  carte du premier groupe joué ; le journal nomme les piles) ; le Bayou
-  de la pile en jeu révélé par `reveal slot:pile` + `minis` (0 indice
-  imprimé) ; Lady Esprit, Bear Trap, Fishing Net de côté ; pioche 18.
-  **Pas de diagramme** : icônes de connexion lues sur les images des
-  douze lieux — les quatre Bayou (carré, triangle, losange, sablier)
-  sont tous connectés entre eux, les deux satellites d'une pile ne le
-  sont qu'à leur Bayou et l'un à l'autre → Bayou en carré au centre
-  (551/923 × 411/649), satellites à côté et au‑dessus / en dessous ;
-  rappel `setup` (chemins à tracer). Versos lus dans le dump : acte 1b →
-  `actEffects "2"` : **`spawnAside at` en liste** (Lady Esprit « at a
-  Bayou location » : le premier des quatre Bayou présent sur le tapis =
-  celui du départ, déplaçable), **`placeAt ifAside`** (les douze codes
-  déclarés à leur position, les six de côté entrent non révélés, les
-  trois de la pile retirée ignorés sans rappel), `shuffleAside` des 15
-  cartes de rencontre du set `withDiscard` ; le Rougarou « à un lieu
-  non‑Bayou au choix » et la faiblesse « dans la zone de menace du
-  principal » restent des rappels (glisser depuis la zone de côté).
-  Agenda 1b → `shuffleAside: []` + `withDiscard` (défausse remélangée)
-  ; agenda 2b → nouvel effet **`shuffleFromDiscard`** (seules les On the
-  Prowl de la défausse reviennent dans la pioche) ; déplacement du
-  Rougarou vers le lieu non‑Bayou le moins pourvu en indices, doom
-  conditionnel, Forcé de l'agenda 3, objectifs et quatre conditions de
-  l'acte 2 (dont « strange doll » / « binding stone » à noter) en
-  rappels décrits sans recopier. Tests : bloc `test_room.mjs` (sac
-  Standard 24, pile complète en jeu à ses positions, Bayou révélé +
-  pions, pile retirée, 27 de côté avec faces, pioche 18 ; acte 2 → 9
-  lieux à leur position, Lady Esprit au Bayou, pioche 33, aucun « à la
-  main », de côté = Rougarou + faiblesse + Monstrous + pièges + acte 1 ;
-  agenda 2 → défausse remélangée ; agenda 3 → 2 On the Prowl repris,
-  l'autre carte reste ; side-story Expert solo : sac Difficile 25, côté
-  b, Rougarou 5 vie par enquêteur, acte 1 = 1 indice par enquêteur) ;
-  Playwright (bloc autonome extrait de `captures.py`, images CDN
-  injoignables du bac à sable → cartes vides, `networkidle` remplacé par
-  une attente fixe dans ce bloc) : bibliothèque (4 liens livret),
-  question du lobby, trois lieux + deux pions, 27 de côté, acte 2 (9
-  lieux, Lady Esprit) ; zéro erreur console hors `ERR_CONNECTION_RESET`
-  des ressources externes ; `npm run check` zéro erreur ; régression
-  `test_room.mjs` complète (820 messages) OK.
-- **Prochaine étape** : validation par l'utilisateur de **Carnevale of
+- **Prochaine étape** : validation par l'utilisateur de **The Labyrinths
+  of Lunacy** (mode / groupe / Jailor, chambres, Act 2 et Act 3 Setup,
+  variante Shifting), de **Carnevale of
   Horrors** (cercle, masques, piles sous les decks, boucles des agendas 2
   et 3 en rappel, Gondola), de **Machinations
   Through Time** (mode à cinq options, cartes histoire et leurs textes de
@@ -297,9 +310,9 @@ versement de son durable (format → grammaire, piège → §5, décision →
   par `discardTop`, Roles de côté ; Part II : questions du journal, deux
   hubs superposés, révélation du Hallway, Relic Room, agendas 3‑4), puis
   le **scénario indépendant suivant dans l'ordre de l'utilisateur**
-  (tâche planifiée, une room par jour) — **Carnevale of Horrors est fait**
-  (2026-09-11, demandé par l'utilisateur) : The
-  Labyrinths of Lunacy, Guardians of the Abyss (deux rooms déjà
+  (tâche planifiée, une room par jour) — **Carnevale of Horrors et The
+  Labyrinths of Lunacy sont faits** (2026-09-11, demandés par
+  l'utilisateur) : Guardians of the Abyss (deux rooms déjà
   prévues), Murder at the Excelsior Hotel, War of the Outer Gods,
   Machinations Through Time, The Midwinter Gala, Film Fatale (pioche
   Reel, v2) — **Machinations Through Time est fait** (2026-09-11, demandé
