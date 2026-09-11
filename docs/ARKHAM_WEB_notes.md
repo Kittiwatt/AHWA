@@ -31,6 +31,7 @@ versement de son durable (format → grammaire, piège → §5, décision →
 | Date | Livraison | À retenir |
 |---|---|---|
 | 2026-09-10 | Standalone — Curse of the Rougarou | livret (encart FFG 2016, transcription Hall of Arkham) lu en entier ; question `mode` (indépendant / side-story 1 XP), sac p. 1 à deux niveaux ; set Curse of the Rougarou de côté ; **`pickGroups`** (quatre piles de lieux par trait : 1 retirée, 1 en jeu, 2 de côté, `slot`) + `reveal`/`minis` sur le Bayou tiré ; disposition déduite des icônes (Bayou en carré) ; acte 2 : **`placeAt ifAside`** (six lieux de côté), **`spawnAside at` en liste** (Lady Esprit au Bayou), set + défausse mélangés ; agenda 3 : **`shuffleFromDiscard`** (On the Prowl) |
+| 2026-09-11 | Standalone — The Midwinter Gala | livret lu en entier : un scénario, cinq factions alliées possibles et un rival (au hasard ou choisi, variante Best Guests) → questions `mode` / `faction` / `rival` ; rez-de-chaussée + étage en pile mélangée (`spreadPile` à l'acte 2), Guest deck (`toPile` + `fromPile`), Leader au siège 1, rival face cachée dans l'histoire puis `flip`, interlude The Fabled Jewel par **`byAnswer`** (nouveau : effets selon une réponse, `state.answers`), **`tokens`**, **`drawPileTo`**, **`note`**, `spawn`/`spawnAside` **`exhausted`**, `drawAside` en liste avec `side` ; trois niveaux (Facile = Standard) |
 | 2026-09-11 | Standalone — The Labyrinths of Lunacy | livret lu en entier : un scénario, deux modes (Single / Epic à trois groupes) et trois groupes A / B / C (+ variante The Shifting Labyrinth) → une room, questions `mode`, `group`, `jailor` ; deux sets par mode, `story` garde les versions présentes ; objectifs Timed en rappels ; **`enter:<code>`** (nouveau : effets de la carte qui devient courante → Act 2 Setup selon l'acte 2), **`minis randomTo`** (un enquêteur tiré au sort dans la Chamber of Rain), Chamber of Secrets sous la carte de scénario = pile **`hideEmpty`** (nouveau) alimentée par `toPile` sur slot ; sac à deux niveaux + deux jetons du groupe |
 | 2026-09-11 | Standalone — Carnevale of Horrors | encart 2016 (transcription Hall of Arkham) lu en entier ; question `mode` (indépendant / side-story 3 XP), sac à deux niveaux ; cercle de huit lieux (Basilique en haut, un lieu retiré au hasard par `pickRandom include`), sept masques = versos liés posés face cachée, piles « Sous l'agenda » / « Sous l'acte », Cnidathqua au centre à l'acte 2, Baleful Reveler (verso-ennemi), Gondola (verso-lieu) avec **`minisTo`** (nouveau) et `removeLocations except` ; « Retourner » pour un soutien lié posé face cachée ; ressources au menu des lieux |
 | 2026-09-11 | Standalone — Machinations Through Time | livret lu en entier : un scénario, trois façons (Single Group, Epic à trois groupes Passé / Présent / Futur, side-story) → une room, `mode` à cinq options + questions Machination / Plot (au hasard ou annoncée) ; Tindalos côté a / b, trois croix ou une ; textes de Setup des cartes histoire résolus par **`branch on:"slot:…"`** (nouveau), `spawn side b` d'Edwin soutien, `addTokens` négatif ; agenda 2 : **`flip`** (nouveau), `shuffleAside ifAside`, `spawnAside ifAt` (nouveau) ; menu ressources des cartes histoire ; sac à quatre niveaux |
@@ -112,6 +113,60 @@ versement de son durable (format → grammaire, piège → §5, décision →
 
 ### Derniers récits
 
+- 2026-09-11 : **The Midwinter Gala** (scénario indépendant, pack
+  arkham.build `tmg`, set `the_midwinter_gala`, 71001‑71062). Livret
+  (24 p.) lu en entier : un scénario, indépendant (trois niveaux
+  Standard / Difficile / Expert → Facile joue Standard, journal ; sac
+  p. 2 à 600 dpi identique à celui de Machinations) ou side-story
+  (2 XP) ; **cinq contacts** (p. 7‑10 : Foundation, Miskatonic,
+  Syndicate, Lodge, Locals) dont l'un est la faction alliée, un autre le
+  rival tiré au hasard — ou choisi dans la variante Best Guests (p. 20‑21,
+  plusieurs groupes en compétition) → questions `mode`, `faction`,
+  `rival` (au hasard / une faction). Chaque faction = carte histoire à
+  deux faces (Allied a / Rival b), Leader lié (soutien a / ennemi Rival
+  b), trois invités simple face, une carte Rival (Rookie Cop ou une
+  traîtrise). Setup p. 11‑12 : Lobby révélé (pions), trois Ground-Floor
+  Rooms en ligne au hasard non révélées (dos « Ground-Floor Room »),
+  Lantern Chamber au sous-sol, Second-Floor Rooms en **pile mélangée**
+  `hideEmpty` (`toPile shuffle`) pour le `spreadPile` de l'acte 2 (une
+  au-dessus du Lobby, deux à droite) ; alliée : histoire de côté
+  (Allied), Leader `place zone:"seat0"` (à donner), invités par
+  `pickRandom` un par salle, carte Rival retirée ; rival : sa carte
+  histoire posée **face cachée dans l'histoire** (`storyBack`, l'acte 2
+  la `flip` côté Rival — plus simple que de distinguer deux cartes de
+  côté), Leader de côté côté ennemi, carte Rival de côté, invités
+  retirés ; les trois autres factions retirées ; Guest deck = `toPile`
+  des quinze invités (il n'en reste neuf) mélangé, puis `fromPile n:3`
+  face visible aux salles ; The Bloodless Man `spawn exhausted`
+  (nouvelle option) avec la lanterne posée sur lui ; Monstres, Vicious
+  Ambush, Declan, Jewel de côté ; pioche 23. Versos lus dans le dump :
+  agenda 1b → `shuffleAside withDiscard` (Monstres + Ambush) ; agenda 2b
+  → `flip` de The Bloodless Man (Silent Lurker → Unleashed), soin sinon
+  en rappel ; acte 1b → `enter:71006` : `spreadPile` de l'étage, `flip`
+  des cinq cartes histoire (seule celle du rival est en jeu),
+  `shuffleAside` des cinq cartes Rival (seule celle du rival est de
+  côté), `drawAside {side:"a"}` de l'alliée (seule de côté → sans hasard,
+  `drawAside` accepte désormais une liste et `side`), Leader ennemi du
+  rival au lieu du meneur en rappel, puis l'**interlude The Fabled Jewel
+  par `byAnswer`** (nouveau : variante d'effets selon une réponse du
+  lobby — les réponses sont conservées dans `state.answers`) : Foundation
+  → `spawnAside exhausted` de Declan + `note` pour le Jewel ; Miskatonic,
+  Syndicate, Lodge → `note` (placements au choix, mystères, manipulation
+  de la pioche) ; Locals → Declan et Jewel à la Lantern Chamber,
+  **`tokens`** (nouveau : 1 dégât, 1 doom sur le Jewel), **`drawPileTo`**
+  (nouveau : première carte du Guest deck au Lobby). Spellbound
+  (Retourner + jetons), invités (parley → siège), score p. 24 en
+  rappels. Tests : bloc `test_room.mjs` (Foundation 2 j. : sac,
+  disposition, alliés et rival, invités, retraits, Guest deck 6 + 3 en
+  jeu, Bloodless Man épuisé, 23 ; agenda 2 → 30 ; acte 2 → étage non
+  révélé, rival retourné, carte Rival dans la pioche, alliée Allied,
+  Declan épuisé, Jewel de côté, note ; agenda 3 → Unleashed ; Locals
+  Expert solo rival Lodge : jetons du Jewel, invité au Lobby, Ward dans
+  la pioche ; Syndicate Difficile 3 j. : note seule) ; Playwright :
+  lobby, tapis, acte 2 (étage, deux cartes histoire, pile Second Floor
+  masquée, Guest deck 5, Declan et Jewel), colonne Histoire ; zéro
+  erreur console ; `npm run check` zéro erreur ; régression
+  `test_room.mjs` (908 messages) OK.
 - 2026-09-11 : **The Labyrinths of Lunacy** (scénario indépendant, pack
   arkham.build `lol`, 70001‑70061, sets `in_the_labyrinths_of_lunacy`
   commun, `epic_multiplayer` et `single_group` — chaque mode a ses
@@ -225,78 +280,9 @@ versement de son durable (format → grammaire, piège → §5, décision →
   Expert solo) ; Playwright : cercle, sept images de masque, menu
   Retourner, masque révélé, acte 2 ; zéro erreur console ; `npm run
   check` zéro erreur ; régression `test_room.mjs` (865 messages) OK.
-- 2026-09-11 : **Machinations Through Time** (scénario indépendant
-  demandé par l'utilisateur hors de l'ordre de la tâche planifiée ; pack
-  arkham.build `mtt`, 87001‑87057, sets `machinations_through_time`,
-  `…_single_group` — face a de Tindalos 87005a et Edwin 87036a/b —,
-  `…_epic_multiplayer` — face b de Tindalos 87005b, même carte liée, et
-  Edwin 87037a/b). Livret (24 p.) lu en entier : **un scénario, trois
-  façons de jouer** (p. 2‑3) → une room, question `mode` à cinq
-  options : Single Group (les trois ères ensemble), Epic groupe Passé /
-  Présent / Futur (chaque table confinée à son ère ; le groupe Passé tire
-  Machination et Plot au hasard et les **annonce**, les deux autres les
-  choisissent au lobby → questions `machination` et `plot` « au hasard /
-  annoncée »), side-story (2 XP). Sac p. 2 à **quatre niveaux** (icônes à
-  600 dpi : Facile 18 jetons avec un seul crâne, Difficile / Expert deux
-  anciens) ; carte de scénario recto Easy/Standard. Mise en place
-  p. 11‑15 et diagrammes p. 16‑18 : une croix par ère (haut Gazette /
-  Advertiser, gauche River Docks, centre Tindalos, droite O'Malley /
-  Tick-Tock, dessous Miskatonic University, bas Childhood Home / Ye Olde
-  Magick Shoppe) — en Single, « ignoring the placement for Tindalos » :
-  les trois croix côte à côte (colonnes 179‑551 / 737‑1109 / 1295‑1667),
-  Tindalos au centre du Présent, les deux autres centres vides ; en Epic
-  la croix de l'ère centrée sur Tindalos côté b (`place side:"b"
-  reveal`), le reste retiré ; Corrigan Industries de côté (entre en jeu
-  sous la MU du Futur quand annoncé, rappel). **Cartes histoire à texte
-  de Setup** (règle p. 4) : A Noble Legacy (une par ère) posées dans
-  l'histoire déjà retournées (`place zone:"story" side:"b"`) après
-  exécution de leur Setup (Tesla aux Docks du Passé, Ezra à l'Advertiser
-  du Présent, Dimensional Beam Machine de côté) ; Machination et Plot :
-  `pickRandom` nominal (au hasard, ou `from` réduit à la carte annoncée)
-  puis **`branch on:"slot:…"`** (nouveau) qui exécute le Setup de la carte
-  tirée (versos lus dans le dump, jamais recopiés) : A Bitter Rivalry
-  (Thomas Past enlevé = de côté, Mary à la Gazette, Edwin ennemi de côté ;
-  autres ères enlevées ; reste côté Setup), Redeem a Former Colleague
-  (Mary enlevée, Thomas à Childhood Home ; Présent : Edwin ennemi apparaît
-  à la MU ; retournée), Uneasy Alliance (Thomas et Mary placés, **Edwin
-  soutien** = `spawn side:"b"` du verso lié, 12 indices moins 3 par
-  enquêteur → `addTokens` **négatif** désormais admis, jamais sous zéro ;
-  retournée), Anomalies in Spacetime (1 horreur par enquêteur = anomalies
-  sur chaque MU, + Gazette / O'Malley ou Advertiser / Tick-Tock de l'ère
-  en Epic ; Tyr'thrha, Sadie et Gang retirés ; retournée), Mob Troubles
-  (Sadie + 3 Gang de côté, Tyr'thrha retiré, `seatCounter resources +2`
-  pour les enquêteurs du Présent ; côté Setup), Unspeakable Abomination
-  (Tyr'thrha de côté — vie ✱ = 6 par enquêteur tous groupes, jauge sans
-  maximum ; côté Setup) ; les deux autres Machination / Plot retirées
-  implicitement en fin de setup ; doom sur l'agenda 1a par
-  `branch on:"difficulty"` (0 / 1 / 2 / 3) ; pioche 33. Agenda 1b (verso
-  lu) → `agendaEffects["2"]` : **`flip`** (nouveau : les cartes en jeu de
-  ces codes passent sur leur verso) des cartes histoire restées côté
-  Setup, `shuffleAside ifAside` des trois Gang (sans la défausse),
-  `spawnAside` d'Old Sadie au Tick-Tock du Présent avec **`ifAt`**
-  (nouveau : seulement si le lieu est sur le tapis — un groupe Epic d'une
-  autre ère ne le voit pas) et de Tyr'thrha à Tindalos (`ifAside`) ; les
-  anomalies sur un River Docks et Edwin au lieu du meneur restent en
-  rappel. Front : le menu des cartes histoire offre les ressources (et
-  dégâts / horreur) — marqueurs des capacités déclenchées. Rappels : ères
-  et connexions de Tindalos, cartes histoire et annonces p. 24, enlevé /
-  secouru, Corrigan, Epic (annonces, valeurs globales, 180 min),
-  patrouilles et Alert, agenda 2. Tests : bloc `test_room.mjs` (Single
-  2 j. Uneasy Alliance + Mob Troubles : trois croix, Tesla / Ezra /
-  machine, Edwin soutien 6 indices, enlevés de côté, cinq cartes histoire
-  et leurs faces, Gang et Sadie de côté, retraits, +2 ressources, doom 1,
-  pioche 33, agenda 2 → Mob Troubles retournée, 36 cartes, Sadie au
-  Tick-Tock ; Epic Passé Expert solo au hasard : Tindalos côté b, croix
-  centrée, tout le reste retiré, trois cartes histoire, doom 3, sac
-  Expert, annonce demandée ; Epic Futur Facile 3 j. Redeem + Abomination :
-  Corrigan de côté, Tyr'thrha de côté puis à Tindalos à l'agenda 2, aucun
-  doom, sac de 18, aucun « à faire à la main » ; Epic Présent Difficile
-  2 j. Rivalry + Anomalies : anomalies 2 / 2 / 2 / 0 / 0, doom 2, agenda 2
-  = Rivalry retournée seulement) ; Playwright : lobby (trois questions),
-  trois croix, colonne Histoire à cinq cartes, agenda 2 (Sadie, pioche
-  36) ; zéro erreur console ; `npm run check` zéro erreur ; régression
-  `test_room.mjs` (845 messages) OK.
-- **Prochaine étape** : validation par l'utilisateur de **The Labyrinths
+- **Prochaine étape** : validation par l'utilisateur de **The Midwinter
+  Gala** (faction et rival, Guest deck, étage à l'acte 2, interlude selon
+  la faction), de **The Labyrinths
   of Lunacy** (mode / groupe / Jailor, chambres, Act 2 et Act 3 Setup,
   variante Shifting), de **Carnevale of
   Horrors** (cercle, masques, piles sous les decks, boucles des agendas 2
@@ -310,9 +296,9 @@ versement de son durable (format → grammaire, piège → §5, décision →
   par `discardTop`, Roles de côté ; Part II : questions du journal, deux
   hubs superposés, révélation du Hallway, Relic Room, agendas 3‑4), puis
   le **scénario indépendant suivant dans l'ordre de l'utilisateur**
-  (tâche planifiée, une room par jour) — **Carnevale of Horrors et The
-  Labyrinths of Lunacy sont faits** (2026-09-11, demandés par
-  l'utilisateur) : Guardians of the Abyss (deux rooms déjà
+  (tâche planifiée, une room par jour) — **Carnevale of Horrors, The
+  Labyrinths of Lunacy et The Midwinter Gala sont faits** (2026-09-11,
+  demandés par l'utilisateur) : Guardians of the Abyss (deux rooms déjà
   prévues), Murder at the Excelsior Hotel, War of the Outer Gods,
   Machinations Through Time, The Midwinter Gala, Film Fatale (pioche
   Reel, v2) — **Machinations Through Time est fait** (2026-09-11, demandé

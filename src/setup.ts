@@ -589,6 +589,7 @@ export function runSetup(state: RoomState, def: ScenarioDef, rng: Rng = Math.ran
         const code = resoudre(step.code);
         poser(code, "board", lx + 36 + deja * 18, ly + 46 + deja * 18, true, false,
           step.log ?? `${pool.def(code).name} apparaît à ${nomDe(def, lieu.code)}.`, step.side);
+        if (step.exhausted) { const k = Object.values(state.cards).filter((c) => c.code === code && "zone" in c.loc && c.loc.zone === "board").pop(); if (k) k.exhausted = true; }
         break;
       }
       case "setStart": {

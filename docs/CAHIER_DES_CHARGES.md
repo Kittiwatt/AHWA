@@ -613,6 +613,11 @@ enquêteur tiré au sort commence ailleurs) ; piles déclarées `hideEmpty`
 (non rendues tant qu'elles sont vides) ; `toPile` résout les slots ;
 `place zone:"seat0"` pour une carte contrôlée par le meneur au setup.
 
+**The Midwinter Gala (2026-09-11).** Réponses du lobby conservées
+(`state.answers`) et effet `byAnswer {q, cases}` ; effets `tokens`,
+`drawPileTo`, `note` ; `drawAside` en liste avec `side` ;
+`spawn` / `spawnAside` `exhausted`.
+
 **Curse of the Rougarou (2026-09-10).** Op **`pickGroups`** (piles de
 cartes tirées au sort entières : `groups {label, codes, positions}`,
 `remove`, `play`, `rest`, `slot`) ; effets `placeAt.ifAside` (silence si

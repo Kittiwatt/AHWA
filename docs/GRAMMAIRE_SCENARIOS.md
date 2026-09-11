@@ -3,7 +3,7 @@
 **Ce document fait foi pour le format des scénarios.** Il décrit tout ce
 que le moteur sait faire ; il est établi d'après le code réel
 (`src/scenario.ts`, `src/setup.ts`, `src/actions.ts`, `scripts/build.mjs`)
-au 2026-09-11 (The Labyrinths of Lunacy compris). Règle de maintenance : **toute nouvelle op, tout nouveau
+au 2026-09-11 (The Midwinter Gala compris). Règle de maintenance : **toute nouvelle op, tout nouveau
 champ, toute nouvelle option se documente ICI à sa livraison** — l'entrée
 « État d'avancement » du mémo raconte le scénario, ce document décrit le
 format. À lire avant d'écrire ou de modifier un `*.src.json` ; il évite
@@ -161,11 +161,12 @@ donc pas ce qui est déjà posé.
   ou slot) : indices selon les enquêteurs, marée ; sans effet s'il l'est
   déjà. Pour le lieu de départ posé non révélé par un tirage (Temporary
   HQ, tiré avec `include` parmi l'anneau intérieur du Blob).
-- `{"op":"spawn","code","at","side"?,"log"?}` — pose révélée sur la carte `at`
+- `{"op":"spawn","code","at","side"?,"exhausted"?,"log"?}` — pose révélée sur la carte `at`
   (code ou slot) avec décalage automatique (36/46 px + 18 par carte déjà
   présente). Pour les ennemis « mis en jeu à » un lieu ; `side:"b"` =
   verso lié (Isamara Crew). Sert aussi à **attacher** une carte à un
-  lieu (The Wellspring of Fortune sur Relic Room). `code` peut être
+  lieu (The Wellspring of Fortune sur Relic Room) ; `exhausted:true` :
+  entre en jeu épuisé (The Bloodless Man). `code` peut être
   le slot d'un **tirage nominal** (`pickRandom` sans zone, `rest:"keep"`) :
   « spawn 1 copy of Casino Guard » parmi trois codes qui ne diffèrent que
   par leur icône de jeu (88035a‑c) — jamais le slot d'une carte déjà
@@ -528,10 +529,22 @@ rendus pendant la partie.
   dépasser sa valeur d'indices imprimée par enquêteur si `max` :
   « place 1 [per_investigator] clues on each revealed Oozified location,
   to a maximum of its clue value » ; la ligne détaille avant → après) ;
-  `drawAside {codes, n?}` (`n` (1) cartes tirées au hasard parmi celles
-  de côté de ces codes entrent dans l'histoire face visible recto —
-  « draw a random set-aside story card » ; les autres restent de côté
-  sans être regardées ; plus rien de côté → « à faire à la main ») ;
+  `drawAside {codes, n?, side?}` — objet ou liste — (`n` (1) cartes
+  tirées au hasard parmi celles de côté de ces codes entrent dans
+  l'histoire face visible, recto ou `side` — « draw a random set-aside
+  story card » ; les autres restent de côté sans être regardées ; plus
+  rien de côté → « à faire à la main » ; quand une seule copie est de
+  côté, c'est elle, sans hasard : la carte histoire alliée du Gala) ;
+  `byAnswer {q, cases}` (variante selon la réponse à une question du
+  lobby, clé `default` possible — les réponses sont conservées dans
+  l'état ; l'interlude The Fabled Jewel selon la faction) ;
+  `tokens [{code, token, n}]` (n jetons sur une carte en jeu : « place 1
+  damage and 1 doom on that asset ») ; `drawPileTo {pile, at, n?}` (les
+  n premières cartes d'une pile entrent en jeu face visible sur un
+  lieu : « reveal the top card of the Guest deck and put it into play at
+  the Lobby ») ; `note` (un rappel textuel joint aux effets : la part
+  manuelle d'un interlude) ; `spawnAside.exhausted` (entre en jeu
+  épuisé) ;
   `setAside` dit le total de dégâts retirés (« X is the amount of damage
   removed ») ; `seatCounter {key, n}` (compteur de chaque enquêteur
   ± n dans ses bornes déclarées : « raise each investigator's alarm

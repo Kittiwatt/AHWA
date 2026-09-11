@@ -4351,5 +4351,134 @@ const HALLS = ["70025", "70026", "70027"], SECRETS3 = ["70016", "70017", "70018"
   h2.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
 }
 
+// ============ The Midwinter Gala (scénario indépendant) : questions mode / faction / rival, rez-de-chaussée (Lobby révélé, trois salles au
+// hasard, Lantern Chamber), Second Floor en pile mélangée (hideEmpty), faction alliée (histoire de côté, Leader au siège 1, invités aux
+// salles, carte Rival retirée), rival (histoire face cachée dans l'histoire, Leader côté ennemi et carte Rival de côté, invités retirés),
+// autres factions retirées, Guest deck de 9 dont 3 en jeu (fromPile), Bloodless Man épuisé + lanterne, mises de côté, pioche 23 ;
+// agenda 2 (Monstres + Ambush + défausse), acte 2 (spreadPile, flip du rival, shuffleAside de sa carte, drawAside de l'alliée,
+// interlude byAnswer : spawnAside exhausted, tokens, drawPileTo, note), agenda 3 (flip du Bloodless Man) ============
+async function tableGala({ joueurs = 2, difficulty, answers } = {}) {
+  const r = await fetch(`${BASE}/api/rooms`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ scenarioId: "sa_the_midwinter_gala" }) });
+  assert.equal(r.status, 200, "Gala est au registre");
+  const { code, hostToken } = await r.json();
+  const h = client(code, { hostToken, seat: 0, name: "Hôte" });
+  await h.attendre((m) => m.t === "welcome");
+  await h.action({ t: "chooseInvestigator", code: "01001" });
+  for (let i = 1; i < joueurs; i++) {
+    const c = client(code, { seat: i, name: `J${i + 1}` });
+    await c.attendre((m) => m.t === "welcome");
+    await c.action({ t: "chooseInvestigator", code: ["01001", "01002", "01003", "01004"][i] });
+  }
+  if (joueurs > 1) await h.attendre((m) => m.t === "delta" && m.rev === joueurs);
+  if (difficulty) await h.action({ t: "setDifficulty", d: difficulty });
+  const rev0 = h.state.rev;
+  h.envoyer({ t: "startSetup", answers });
+  const d = await h.attendre((m) => (m.t === "delta" && m.rev === rev0 + 1) || m.t === "nack");
+  assert.equal(d.t, "delta", `mise en place acceptée (${d.reason ?? ""})`);
+  await new Promise((r) => setTimeout(r, 200));
+  return { h };
+}
+const GALA_STORIES = ["71015", "71021", "71027", "71033", "71039"], GALA_ROOMS = ["71009", "71010", "71011"], GALA_SECOND = ["71012", "71013", "71014"];
+{ // Standard, 2 joueurs, Foundation alliée, rival au hasard.
+  const { h } = await tableGala({ joueurs: 2, answers: { mode: "standalone", faction: "foundation", rival: "random" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.deepEqual([...s.chaos.bag].sort(), ["+1", "0", "0", "-1", "-1", "-1", "-2", "-2", "-3", "-4", "skull", "skull", "cultist", "tablet", "elder_thing", "auto_fail", "elder_sign"].sort(), "sac Standard p. 2");
+  const L = (code) => cartes.find((c) => c.code === code && c.loc.zone === "board");
+  assert.ok(L("71007").faceUp && L("71007").loc.x === 365 && L("71007").loc.y === 411, "Lobby révélé");
+  assert.deepEqual(GALA_ROOMS.map((c) => `${L(c).loc.y}`), ["411", "411", "411"], "trois salles en ligne");
+  assert.deepEqual(GALA_ROOMS.map((c) => L(c).loc.x).sort((a, b) => a - b), [551, 737, 923]);
+  assert.ok(GALA_ROOMS.every((c) => !L(c).faceUp), "salles non révélées");
+  assert.ok(L("71008") && L("71008").loc.y === 649 && !L("71008").faceUp, "Lantern Chamber au sous-sol");
+  assert.equal(s.piles.second_floor.length, 3, "Second Floor en pile");
+  assert.ok(cartes.filter((c) => c.kind === "mini").every((m) => Math.abs(m.loc.x - 365) < 130 && Math.abs(m.loc.y - 411) < 60), "pions au Lobby");
+  assert.equal(cartes.find((c) => c.code === "71015").loc.zone, "aside", "carte histoire alliée de côté");
+  assert.equal(cartes.find((c) => c.code === "71016").loc.zone, "seat0", "Valeriya au siège 1");
+  const allies = ["71017", "71018", "71019"].map((c) => cartes.find((k) => k.code === c));
+  assert.ok(allies.every((k) => k.loc.zone === "board" && k.faceUp), "trois invités alliés en jeu");
+  assert.deepEqual(allies.map((k) => k.loc.x).sort((a, b) => a - b), [587, 773, 959], "un par salle");
+  assert.equal(cartes.find((c) => c.code === "71020").loc.pile, "removed", "Rookie Cop (carte Rival de l'alliée) retiré");
+  const rival = cartes.find((c) => GALA_STORIES.includes(c.code) && c.loc.zone === "story");
+  assert.ok(rival && !rival.faceUp && rival.storyBack && rival.code !== "71015", "carte histoire du rival face cachée dans l'histoire");
+  const rivalIdx = GALA_STORIES.indexOf(rival.code);
+  const leaders = ["71016", "71022", "71028", "71034", "71040"], rivalCards = ["71020", "71026", "71032", "71038", "71044"];
+  const guests = [["71017", "71018", "71019"], ["71023", "71024", "71025"], ["71029", "71030", "71031"], ["71035", "71036", "71037"], ["71041", "71042", "71043"]];
+  const rl = cartes.find((c) => c.code === leaders[rivalIdx]);
+  assert.ok(rl.loc.zone === "aside" && rl.side === "b", "Leader du rival de côté, côté ennemi");
+  assert.equal(cartes.find((c) => c.code === rivalCards[rivalIdx]).loc.zone, "aside", "carte Rival du rival de côté");
+  assert.ok(guests[rivalIdx].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed"), "invités du rival retirés");
+  const autres = [1, 2, 3, 4].filter((i) => i !== rivalIdx);
+  assert.ok(autres.every((i) => [GALA_STORIES[i], leaders[i], rivalCards[i]].every((c) => cartes.find((k) => k.code === c).loc.pile === "removed")), "trois autres factions retirées");
+  assert.equal(s.piles.guests.length, 6, "Guest deck : 9 moins 3 en jeu");
+  const surTapis = cartes.filter((c) => autres.some((i) => guests[i].includes(c.code)) && c.loc.zone === "board");
+  assert.equal(surTapis.length, 3, "trois invités du Guest deck en jeu");
+  assert.ok(surTapis.every((k) => k.faceUp));
+  const bm = cartes.find((c) => c.code === "71045");
+  assert.ok(bm.loc.zone === "board" && bm.exhausted && Math.abs(bm.loc.x - 401) < 20 && Math.abs(bm.loc.y - 695) < 20, "The Bloodless Man épuisé à la Lantern Chamber");
+  assert.ok(cartes.find((c) => c.code === "71046").loc.zone === "board" && cartes.find((c) => c.code === "71046").side === "a", "The Pale Lantern sur lui, côté Hypnotic Glow");
+  assert.deepEqual(cartes.filter((c) => c.loc.zone === "aside" && ["71047", "71048", "71049", "71050", "71051", "71052"].includes(c.code)).map((c) => c.code).sort(), ["71047", "71047", "71048", "71048", "71049", "71050", "71050", "71051", "71052"], "Monstres, Ambush, Declan, Jewel de côté");
+  assert.equal(s.piles.encounter.length, 23, "pioche 23");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "a");
+  // Agenda 2 : Monstres + Ambush + défausse.
+  await h.action({ t: "drawEncounter" }); await h.action({ t: "toPile", id: h.state.piles.encounter[0], pile: "encounterDiscard" });
+  await h.action({ t: "advanceAgenda" });
+  let S = h.state;
+  assert.equal(S.piles.encounter.length, 22 + 7 + 1, "7 cartes de côté et la défausse mélangées");
+  // Acte 2 : étage, rival retourné et sa carte dans la pioche, alliée côté Allied, interlude Foundation (Declan épuisé, note).
+  await h.action({ t: "advanceAct" });
+  S = h.state;
+  assert.equal(S.cards[S.actId].code, "71006");
+  const L2 = (code) => Object.values(S.cards).find((c) => c.code === code && c.loc.zone === "board");
+  assert.deepEqual(GALA_SECOND.map((c) => L2(c).loc.y), [173, 173, 173], "trois Second-Floor Rooms en jeu");
+  assert.ok(GALA_SECOND.every((c) => !L2(c).faceUp), "non révélées");
+  assert.equal(S.piles.second_floor.length, 0);
+  assert.ok(S.cards[rival.id].faceUp && S.cards[rival.id].side === "b", "carte du rival côté Rival");
+  const allied = Object.values(S.cards).find((c) => c.code === "71015");
+  assert.ok(allied.loc.zone === "story" && allied.faceUp && allied.side === "a", "carte alliée côté Allied dans l'histoire");
+  assert.equal(Object.values(S.cards).find((c) => c.code === rivalCards[rivalIdx]).loc.pile, "encounter", "carte Rival du rival dans la pioche");
+  assert.equal(S.piles.encounter.length, 31);
+  const declan = Object.values(S.cards).find((c) => c.code === "71051");
+  assert.ok(declan.loc.zone === "board" && declan.exhausted && Math.abs(declan.loc.y - 695) < 40, "Declan Pearce épuisé à la Lantern Chamber (Foundation)");
+  assert.equal(Object.values(S.cards).find((c) => c.code === "71052").loc.zone, "aside", "Jewel encore de côté (note)");
+  assert.ok(S.log.some((e) => /Foundation : attachez le Jewel of Sarnath/.test(e.text)), "note de l'interlude");
+  // Agenda 3 : The Bloodless Man retourné côté Unleashed.
+  await h.action({ t: "advanceAgenda" });
+  S = h.state;
+  assert.equal(S.cards[bm.id].side, "b", "The Bloodless Man Unleashed");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Side-story, Expert, 1 joueur, Locals alliés, rival Lodge (Best Guests) : interlude Locals (Declan + Jewel avec jetons, invité au Lobby).
+  const { h } = await tableGala({ joueurs: 1, difficulty: "expert", answers: { mode: "campaign", faction: "locals", rival: "lodge" } });
+  const s = h.state;
+  const cartes = Object.values(s.cards);
+  assert.equal(s.chaos.bag.filter((t) => t === "elder_thing").length, 2, "sac Expert : deux Anciens");
+  assert.equal(cartes.find((c) => c.kind === "scenario").side, "b");
+  assert.ok(s.log.some((e) => e.kind === "reminder" && /^Side-story/.test(e.text)));
+  assert.ok(cartes.find((c) => c.code === "71033").loc.zone === "story" && !cartes.find((c) => c.code === "71033").faceUp, "rival Lodge face cachée");
+  assert.ok(cartes.find((c) => c.code === "71034").loc.zone === "aside" && cartes.find((c) => c.code === "71034").side === "b", "Carl Sanford de côté, ennemi");
+  assert.equal(cartes.find((c) => c.code === "71040").loc.zone, "seat0", "William Bain au siège 1");
+  await h.action({ t: "advanceAgenda" }); await h.action({ t: "advanceAct" });
+  const S = h.state;
+  const jewel = Object.values(S.cards).find((c) => c.code === "71052"), declan = Object.values(S.cards).find((c) => c.code === "71051");
+  assert.ok(declan.loc.zone === "board" && !declan.exhausted && jewel.loc.zone === "board", "Declan et le Jewel à la Lantern Chamber");
+  assert.deepEqual(jewel.tokens, { damage: 1, doom: 1 }, "1 dégât et 1 doom sur le Jewel");
+  assert.equal(S.piles.guests.length, 5, "première carte du Guest deck au Lobby");
+  assert.ok(Object.values(S.cards).some((c) => c.kind === "asset" && c.loc.zone === "board" && Math.abs(c.loc.x - 401) < 40 && Math.abs(c.loc.y - 457) < 40), "un invité au Lobby");
+  assert.equal(Object.values(S.cards).find((c) => c.code === "71038").loc.pile, "encounter", "Ward of Preservation dans la pioche");
+  assert.equal(Object.values(S.cards).find((c) => c.code === "71039").loc.zone, "story", "Locals of Kingsport côté Allied dans l'histoire");
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+{ // Difficile, 3 joueurs, Syndicate, rival au hasard : sac Difficile, interlude en note seulement (Declan et Jewel restent de côté).
+  const { h } = await tableGala({ joueurs: 3, difficulty: "hard", answers: { mode: "standalone", faction: "syndicate", rival: "random" } });
+  const s = h.state;
+  assert.equal(s.chaos.bag.filter((t) => t === "-6").length, 1);
+  assert.equal(Object.values(s.cards).find((c) => c.code === "71028").loc.zone, "seat0", "Johnny Valone au siège 1");
+  await h.action({ t: "advanceAgenda" }); await h.action({ t: "advanceAct" });
+  const S = h.state;
+  assert.equal(Object.values(S.cards).find((c) => c.code === "71051").loc.zone, "aside");
+  assert.ok(S.log.some((e) => /The Syndicate : mélangez la première carte de la pioche/.test(e.text)));
+  h.envoyer({ t: "deleteRoom" }); await new Promise((r) => setTimeout(r, 300));
+}
+
 console.log(`OK — ${messagesEntrants} messages entrants envoyés par le test`);
 process.exit(0);

@@ -67,7 +67,7 @@ export type SetupStep =
   | { op: "branch"; on: string; cases: Record<string, SetupStep[]>; log?: string }   // on = id de question, "players", "difficulty" ou "slot:<nom>" (code tiré par un pickRandom nominal : cas keyés par code — cartes histoire tirées au sort dont le texte de Setup diffère)
     | { op: "remove"; codes: string[]; n?: number; log?: string }   // retire de la partie — toutes les copies restantes de chaque code ; avec n (un seul code) : seulement n exemplaires (COB III : 2 des 6 Suspicious Guests)
   | { op: "toPile"; pile: string; set?: string; codes?: string[]; shuffle?: boolean; log?: string }
-  | { op: "spawn"; code: string; at: string; side?: "a" | "b"; log?: string }   // code, ou slot d'un tirage nominal (« 1 copy of Casino Guard » tirée parmi trois codes) ; side "b" = verso lié (Isamara Crew)
+  | { op: "spawn"; code: string; at: string; side?: "a" | "b"; exhausted?: true; log?: string }   // code, ou slot d'un tirage nominal (« 1 copy of Casino Guard » tirée parmi trois codes) ; side "b" = verso lié (Isamara Crew)
   | { op: "setStart"; code: string; log?: string }
   | { op: "minis"; code: string; randomTo?: string; log?: string }   // pions de tous les enquêteurs sur une carte en jeu : un lieu, ou un véhicule (Fishing Vessel) ;
     // randomTo : un enquêteur tiré au sort commence sur ce lieu-là, les autres sur `code` (« randomly choose an investigator to begin play in the Chamber of Rain »)
@@ -139,14 +139,19 @@ export type StageEffects = {
   addClues?: { code?: string; trait?: string; revealed?: boolean; n: number; perInvestigator?: boolean; max?: "printed" }[];
     // indices posés sur un lieu du tapis (code), ou sur chaque lieu du tapis portant `trait` (révélés seulement si `revealed`) ;
     // n, ou n par enquêteur ; `max: "printed"` : sans dépasser la valeur d'indices imprimée du lieu (« to a maximum of its clue value »)
-  drawAside?: { codes: string[]; n?: number };                          // n (1) cartes tirées au hasard parmi celles de côté de ces codes entrent dans l'histoire, face visible recto (« draw a random set-aside story card »)
+  drawAside?: DrawAside | DrawAside[];                                  // n (1) cartes tirées au hasard parmi celles de côté de ces codes entrent dans l'histoire, face visible (recto, ou `side`) (« draw a random set-aside story card »)
+  byAnswer?: { q: string; cases: Record<string, StageEffects> };        // variante selon la réponse à une question du lobby (interlude du Midwinter Gala selon la faction alliée), clé "default" possible
+  tokens?: { code: string; token: "clue" | "doom" | "resource" | "generic" | "damage" | "horror"; n: number }[];   // n jetons posés sur une carte en jeu (« place 1 damage and 1 doom on that asset »)
+  drawPileTo?: { pile: string; at: string; n?: number };                // les n (1) premières cartes d'une pile entrent en jeu face visible sur un lieu (« reveal the top card of the Guest deck and put it into play at the Lobby »)
+  note?: string;                                                        // rappel textuel joint aux effets (la part manuelle d'un interlude selon la faction)
   seatCounter?: { key: string; n: number };                             // compteur `key` de chaque enquêteur ± n, dans les bornes déclarées (« raise each investigator's alarm level by 1 »)
   flip?: string[];                                                      // les cartes en jeu de ces codes passent sur leur verso, face visible (« Flip it over » : cartes histoire Plot / Machination à l'agenda 1b) ; absentes → rien
   minisTo?: string;                                                     // tous les pions des enquêteurs sont posés sur ce lieu du tapis (« move each investigator to it » : Gondola de Carnevale of Horrors)
   moveTokens?: { from: string; to: string; token: "clue" | "doom" | "resource" | "generic" | "damage" | "horror" };   // tous les jetons de ce type passent de la carte `from` à la carte `to` (« move all clues from The Wellspring to Relic Room »)
   log?: string;
 };
-export type SpawnAside = { code: string; at: string | string[]; side?: "a" | "b"; ifAside?: true; ifAt?: true };   // ifAside : seulement si une copie est de côté (sinon rien, sans rappel — « if the Servant is set aside, spawn it ») ;
+export type DrawAside = { codes: string[]; n?: number; side?: "a" | "b" };
+export type SpawnAside = { code: string; at: string | string[]; side?: "a" | "b"; ifAside?: true; ifAt?: true; exhausted?: true };   // exhausted : entre en jeu épuisé   // ifAside : seulement si une copie est de côté (sinon rien, sans rappel — « if the Servant is set aside, spawn it ») ;
   // ifAt : seulement si l'un des lieux `at` est sur le tapis, sinon rien ni rappel (« if the Present Tick-Tock Club is in play, spawn Old Sadie at it » — un groupe Epic d'une autre ère) ;
   // `at` en liste : le premier de ces lieux présent sur le tapis (« at a Bayou location » quand le lieu en jeu dépend d'un tirage)
 

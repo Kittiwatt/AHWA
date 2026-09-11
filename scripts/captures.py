@@ -1588,6 +1588,50 @@ with sync_playwright() as p:
     assert hA.locator("#pioches .pile[data-outil='pile:secret']").count() == 0, "pile masquée quand vide"
     assert hA.locator("#plateau .carte.kind-asset").count() == 1, "Key of Mysteries dans la Chamber of Secrets"
 
+    # ---- The Midwinter Gala : questions (mode, faction, rival), rez-de-chaussée (Lobby, trois salles, Lantern Chamber), invités alliés et du
+    # Guest deck, Leader au siège 1, Bloodless Man épuisé avec la lanterne, piles Guest deck / Second Floor ; acte 2 (étage, rival, interlude) ----
+    code31, token31 = creer("sa_the_midwinter_gala")
+    print("room Gala", code31)
+    h31 = page_pour(browser, "Hôte", host=True, code=code31, token=token31)
+    h31.locator(".siege-lobby").nth(0).get_by_role("button", name="S'asseoir ici").click()
+    h31.get_by_role("button", name="Choisir un enquêteur").click(); h31.wait_for_selector("dialog.dialogue-inv[open]")
+    h31.fill("dialog .recherche", "roland"); h31.wait_for_timeout(300); h31.locator("dialog .inv").first.click()
+    h31.wait_for_selector(".siege-lobby.moi .fiche")
+    j31 = page_pour(browser, "Bob", code=code31, token=None)
+    j31.locator(".siege-lobby").nth(1).get_by_role("button", name="S'asseoir ici").click()
+    j31.get_by_role("button", name="Choisir un enquêteur").click(); j31.wait_for_selector("dialog.dialogue-inv[open]")
+    j31.fill("dialog .recherche", "daisy"); j31.wait_for_timeout(300); j31.locator("dialog .inv").first.click()
+    j31.wait_for_selector(".siege-lobby.moi .fiche")
+    h31.wait_for_timeout(400)
+    h31.locator("input[name='q-mode'][value='standalone']").check(); h31.wait_for_timeout(150)
+    h31.locator("input[name='q-faction'][value='locals']").check(); h31.wait_for_timeout(150)
+    h31.locator("input[name='q-rival'][value='random']").check(); h31.wait_for_timeout(150)
+    h31.locator(".reglage.questions").screenshot(path=f"{OUT}/137_gala_lobby.png")
+    h31.get_by_role("button", name="Lancer la mise en place").click()
+    h31.wait_for_selector("#tapis:not([hidden])", timeout=8000)
+    h31.wait_for_load_state("networkidle"); h31.wait_for_timeout(1500)
+    assert h31.locator("#plateau .carte.kind-location").count() == 5, "Lobby, trois salles, Lantern Chamber"
+    assert h31.locator("#plateau .carte.kind-asset").count() == 7, "six invités + la lanterne"
+    assert h31.locator("#plateau .carte.kind-enemy.epuisee, #plateau .carte.kind-enemy.exhausted").count() + h31.locator("#plateau .carte.kind-enemy").count() >= 1, "The Bloodless Man"
+    assert h31.locator("#sieges .siege").nth(0).locator(".carte[data-id='71040']").count() == 1, "William Bain au siège 1"
+    assert h31.locator("#pioches .pile[data-outil='pile:guests'] .badge").inner_text() == "6", "Guest deck : 6"
+    assert h31.locator("#pioches .pile[data-outil='pile:second_floor'] .badge").inner_text() == "3", "Second Floor : 3"
+    assert h31.locator("#histoire .carte.kind-story").count() == 1, "carte histoire du rival face cachée dans l'histoire"
+    h31.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h31.mouse.move(420, 520); h31.wait_for_timeout(300)
+    h31.screenshot(path=f"{OUT}/138_gala_tapis.png")
+    # Acte 2 : étage, cartes histoire (rival côté Rival, alliée côté Allied), interlude Locals (Declan + Jewel, invité au Lobby).
+    h31.locator("#histoire").get_by_role("button", name="Avancer l'acte").click(); h31.wait_for_timeout(1000)
+    assert h31.locator("#plateau .carte.kind-location").count() == 8, "trois Second-Floor Rooms en jeu"
+    assert h31.locator("#histoire .carte.kind-story").count() == 2, "deux cartes histoire dans l'histoire"
+    assert h31.locator("#pioches .pile[data-outil='pile:second_floor']").count() == 0, "pile Second Floor vidée, masquée"
+    assert h31.locator("#pioches .pile[data-outil='pile:guests'] .badge").inner_text() == "5", "un invité tiré au Lobby"
+    assert h31.locator("#plateau .carte[data-id='71051']").count() == 1 and h31.locator("#plateau .carte[data-id='71052']").count() == 1, "Declan Pearce et le Jewel en jeu"
+    h31.evaluate("document.querySelectorAll('#rappels .encart').forEach((e) => e.remove())")
+    h31.mouse.move(420, 520); h31.wait_for_timeout(300)
+    h31.screenshot(path=f"{OUT}/139_gala_acte2.png")
+    h31.locator("#histoire").screenshot(path=f"{OUT}/140_gala_histoire.png")
+
     # ---- Enquêteur personnalisé (hors ArkhamDB) sur At Death's Doorstep : entrée « Hors collection », formulaire, lobby, tapis, sans image ----
     code12, token12 = creer("tcu_at_deaths_doorstep")
     print("room Doorstep (custom)", code12)

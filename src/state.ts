@@ -120,6 +120,7 @@ export type RoomState = {
   barriers?: { a: CardId; b: CardId; n: number }[];    // barrières (jetons ressource) entre deux lieux adjacents (In Too Deep)
   extraDefs: Record<string, unknown>;                  // définitions des cartes générées (outil « Générer une carte »)
   chaos: ChaosState;
+  answers?: Record<string, string | string[]>;   // réponses aux questions du lobby (effets d'étape `byAnswer` : interlude selon la faction alliée du Midwinter Gala)
   counters: Record<string, number>;
   agendaId: CardId | null;
   actId: CardId | null;

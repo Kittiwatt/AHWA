@@ -369,6 +369,7 @@ export class Room extends Server<Env> {
           const tirees: string[] = [];
           for (const x of decks) while (x.deck!.weaknessPending > 0) tirees.push(`${this.nomSiege(x.index)} : ${index!.get(resoudreFaiblesse(x.deck!, index!, "random", Math.random, solo))?.n}`);
           const reminders = runSetup(state, def, Math.random, answers);
+          state.answers = answers;
           if (tirees.length) addLog(state, "setup", `Faiblesse de base tirée au hasard au lancement — ${tirees.join(" ; ")}.`);
           if (index) creerDecks(state, index, INVESTIGATORS, Math.random, () => nextZ(state));
           this.commit(before, reminders);

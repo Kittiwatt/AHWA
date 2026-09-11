@@ -816,7 +816,8 @@
      "id": "sa_the_midwinter_gala",
      "num": "2024",
      "title": "The Midwinter Gala",
-     "status": "planned"
+     "status": "available",
+     "guide": "https://images-cdn.fantasyflightgames.com/filer_public/d2/14/d2144b64-6fa6-456f-9268-2685f49310b9/ahc80_rulebook-web.pdf"
     },
     {
      "id": "film_fatale",

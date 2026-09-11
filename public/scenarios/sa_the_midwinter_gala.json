@@ -1,0 +1,2990 @@
+{
+ "id": "sa_the_midwinter_gala",
+ "title": "The Midwinter Gala",
+ "campaign": "Scénarios indépendants",
+ "campaignId": "standalone",
+ "order": 12,
+ "packs": [
+  "tmg"
+ ],
+ "encounterSets": [
+  "the_midwinter_gala"
+ ],
+ "extraCards": [],
+ "scenarioCard": "71001",
+ "scenarioCardSide": {
+  "easy": "a",
+  "standard": "a",
+  "hard": "b",
+  "expert": "b"
+ },
+ "agendaDeck": [
+  "71002",
+  "71003",
+  "71004"
+ ],
+ "actDeck": [
+  "71005",
+  "71006"
+ ],
+ "startLocation": "71007",
+ "layout": [
+  {
+   "code": "71007",
+   "x": 365,
+   "y": 411
+  },
+  {
+   "code": "71008",
+   "x": 365,
+   "y": 649
+  }
+ ],
+ "storyBack": [
+  "71015",
+  "71021",
+  "71027",
+  "71033",
+  "71039"
+ ],
+ "chaosBag": {
+  "easy": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "standard": [
+   "+1",
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-2",
+   "-3",
+   "-4",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "hard": [
+   "0",
+   "0",
+   "-1",
+   "-1",
+   "-1",
+   "-2",
+   "-3",
+   "-4",
+   "-6",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ],
+  "expert": [
+   "0",
+   "-1",
+   "-1",
+   "-2",
+   "-3",
+   "-4",
+   "-5",
+   "-6",
+   "-8",
+   "skull",
+   "skull",
+   "cultist",
+   "tablet",
+   "elder_thing",
+   "elder_thing",
+   "auto_fail",
+   "elder_sign"
+  ]
+ },
+ "piles": [
+  {
+   "id": "guests",
+   "label": "Guest deck"
+  },
+  {
+   "id": "second_floor",
+   "label": "Second Floor",
+   "hideEmpty": true
+  }
+ ],
+ "questions": [
+  {
+   "id": "mode",
+   "text": "Comment jouez-vous ce scénario ? (livret p. 2)",
+   "options": [
+    {
+     "id": "standalone",
+     "label": "Scénario indépendant : sac du livret (Standard, Difficile ou Expert)"
+    },
+    {
+     "id": "campaign",
+     "label": "Side-story dans une campagne (2 XP par enquêteur) : sac de votre campagne à reconstituer"
+    }
+   ]
+  },
+  {
+   "id": "faction",
+   "text": "Qui est votre mystérieux contact ? (livret p. 7 — la faction alliée fixe vos objectifs)",
+   "options": [
+    {
+     "id": "foundation",
+     "label": "The Foundation — l'agent Valeriya Antonova"
+    },
+    {
+     "id": "miskatonic",
+     "label": "Miskatonic University — le doyen Caldwell Philips"
+    },
+    {
+     "id": "syndicate",
+     "label": "The Syndicate — Johnny Valone"
+    },
+    {
+     "id": "lodge",
+     "label": "The Silver Twilight Lodge — Carl Sanford"
+    },
+    {
+     "id": "locals",
+     "label": "Locals of Kingsport — le capitaine William Bain"
+    }
+   ]
+  },
+  {
+   "id": "rival",
+   "text": "Faction rivale :",
+   "options": [
+    {
+     "id": "random",
+     "label": "Tirée au hasard parmi les quatre autres (règle normale)"
+    },
+    {
+     "id": "foundation",
+     "label": "Variante Best Guests (livret p. 20) : The Foundation"
+    },
+    {
+     "id": "miskatonic",
+     "label": "Variante Best Guests : Miskatonic University"
+    },
+    {
+     "id": "syndicate",
+     "label": "Variante Best Guests : The Syndicate"
+    },
+    {
+     "id": "lodge",
+     "label": "Variante Best Guests : The Silver Twilight Lodge"
+    },
+    {
+     "id": "locals",
+     "label": "Variante Best Guests : Locals of Kingsport"
+    }
+   ]
+  }
+ ],
+ "setup": [
+  {
+   "op": "branch",
+   "on": "difficulty",
+   "cases": {
+    "easy": [
+     {
+      "op": "log",
+      "text": "Ce scénario n'a que trois niveaux de difficulté (livret p. 2) : Facile joue le sac Standard."
+     }
+    ]
+   }
+  },
+  {
+   "op": "when",
+   "cond": {
+    "q": "mode",
+    "is": "campaign"
+   },
+   "then": [
+    {
+     "op": "reminder",
+     "text": "Side-story (livret p. 2) : jouez avec le sac du chaos de votre campagne — celui du livret sert de point de départ, ajustez-le (clic droit sur le sac → Ajuster) ; faiblesses, traumatismes et soutiens d'histoire de la campagne suivent vos decks. Ce scénario coûte 2 XP par enquêteur."
+    }
+   ]
+  },
+  {
+   "op": "place",
+   "code": "71007",
+   "zone": "board",
+   "x": 365,
+   "y": 411,
+   "reveal": true,
+   "log": "Lobby est mis en jeu, révélé : chaque enquêteur y commence la partie."
+  },
+  {
+   "op": "pickRandom",
+   "from": [
+    "71009",
+    "71010",
+    "71011"
+   ],
+   "n": 3,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 551,
+     "y": 411
+    },
+    {
+     "x": 737,
+     "y": 411
+    },
+    {
+     "x": 923,
+     "y": 411
+    }
+   ],
+   "faceUp": false,
+   "rest": "keep",
+   "log": "Les trois Ground-Floor Rooms sont mises en jeu en ligne à droite du Lobby, dans un ordre aléatoire, non révélées."
+  },
+  {
+   "op": "place",
+   "code": "71008",
+   "zone": "board",
+   "x": 365,
+   "y": 649,
+   "log": "Lantern Chamber est mise en jeu sous le Lobby (sous-sol), non révélée."
+  },
+  {
+   "op": "toPile",
+   "codes": [
+    "71012",
+    "71013",
+    "71014"
+   ],
+   "pile": "second_floor",
+   "shuffle": true,
+   "log": "Les trois Second-Floor Rooms sont mises de côté, mélangées face cachée (pile « Second Floor ») : l'acte 2 les mettra en jeu."
+  },
+  {
+   "op": "minis",
+   "code": "71007"
+  },
+  {
+   "op": "branch",
+   "on": "faction",
+   "cases": {
+    "foundation": [
+     {
+      "op": "aside",
+      "codes": [
+       "71015"
+      ],
+      "faceUp": true,
+      "log": "Faction alliée : The Foundation — sa carte histoire est mise de côté, côté Allied (elle entrera en jeu à l'acte 2)."
+     },
+     {
+      "op": "place",
+      "code": "71016",
+      "zone": "seat0",
+      "x": 9999,
+      "y": 0,
+      "faceUp": true,
+      "log": "Valeriya Antonova (Leader, côté soutien) entre en jeu sous le contrôle d'un enquêteur — posée au siège 1, glissez-la sur le siège de votre choix."
+     },
+     {
+      "op": "pickRandom",
+      "from": [
+       "71017",
+       "71018",
+       "71019"
+      ],
+      "n": 3,
+      "zone": "board",
+      "positions": [
+       {
+        "x": 587,
+        "y": 457
+       },
+       {
+        "x": 773,
+        "y": 457
+       },
+       {
+        "x": 959,
+        "y": 457
+       }
+      ],
+      "faceUp": true,
+      "rest": "keep",
+      "log": "Les trois invités de The Foundation entrent en jeu face visible, un à chaque Ground-Floor Room, au hasard."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "71020"
+      ],
+      "log": "La carte Rival de The Foundation (Rookie Cop) est retirée de la partie."
+     },
+     {
+      "op": "branch",
+      "on": "rival",
+      "cases": {
+       "miskatonic": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71021"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : Miskatonic University."
+        }
+       ],
+       "syndicate": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71027"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Syndicate."
+        }
+       ],
+       "lodge": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71033"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Silver Twilight Lodge."
+        }
+       ],
+       "locals": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71039"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : Locals of Kingsport."
+        }
+       ],
+       "default": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71021",
+          "71027",
+          "71033",
+          "71039"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep"
+        }
+       ]
+      }
+     },
+     {
+      "op": "branch",
+      "on": "slot:rival",
+      "cases": {
+       "71021": [
+        {
+         "op": "place",
+         "code": "71021",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : Miskatonic University — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71022"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Caldwell Philips (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71026"
+         ],
+         "faceUp": true,
+         "log": "Confusion (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71023",
+          "71024",
+          "71025"
+         ],
+         "log": "Les trois invités de Miskatonic University sont retirés de la partie."
+        }
+       ],
+       "71027": [
+        {
+         "op": "place",
+         "code": "71027",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Syndicate — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71028"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Johnny Valone (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71032"
+         ],
+         "faceUp": true,
+         "log": "Cold Streak (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71029",
+          "71030",
+          "71031"
+         ],
+         "log": "Les trois invités de The Syndicate sont retirés de la partie."
+        }
+       ],
+       "71033": [
+        {
+         "op": "place",
+         "code": "71033",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Silver Twilight Lodge — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71034"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Carl Sanford (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71038"
+         ],
+         "faceUp": true,
+         "log": "Ward of Preservation (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71035",
+          "71036",
+          "71037"
+         ],
+         "log": "Les trois invités de The Silver Twilight Lodge sont retirés de la partie."
+        }
+       ],
+       "71039": [
+        {
+         "op": "place",
+         "code": "71039",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : Locals of Kingsport — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71040"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "William Bain (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71044"
+         ],
+         "faceUp": true,
+         "log": "Unlucky (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71041",
+          "71042",
+          "71043"
+         ],
+         "log": "Les trois invités de Locals of Kingsport sont retirés de la partie."
+        }
+       ]
+      }
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "71021",
+       "71022",
+       "71026",
+       "71027",
+       "71028",
+       "71032",
+       "71033",
+       "71034",
+       "71038",
+       "71039",
+       "71040",
+       "71044"
+      ],
+      "log": "Les trois factions restantes : carte histoire, Leader et carte Rival retirés de la partie (leurs invités forment le Guest deck)."
+     }
+    ],
+    "miskatonic": [
+     {
+      "op": "aside",
+      "codes": [
+       "71021"
+      ],
+      "faceUp": true,
+      "log": "Faction alliée : Miskatonic University — sa carte histoire est mise de côté, côté Allied (elle entrera en jeu à l'acte 2)."
+     },
+     {
+      "op": "place",
+      "code": "71022",
+      "zone": "seat0",
+      "x": 9999,
+      "y": 0,
+      "faceUp": true,
+      "log": "Caldwell Philips (Leader, côté soutien) entre en jeu sous le contrôle d'un enquêteur — posée au siège 1, glissez-la sur le siège de votre choix."
+     },
+     {
+      "op": "pickRandom",
+      "from": [
+       "71023",
+       "71024",
+       "71025"
+      ],
+      "n": 3,
+      "zone": "board",
+      "positions": [
+       {
+        "x": 587,
+        "y": 457
+       },
+       {
+        "x": 773,
+        "y": 457
+       },
+       {
+        "x": 959,
+        "y": 457
+       }
+      ],
+      "faceUp": true,
+      "rest": "keep",
+      "log": "Les trois invités de Miskatonic University entrent en jeu face visible, un à chaque Ground-Floor Room, au hasard."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "71026"
+      ],
+      "log": "La carte Rival de Miskatonic University (Confusion) est retirée de la partie."
+     },
+     {
+      "op": "branch",
+      "on": "rival",
+      "cases": {
+       "foundation": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71015"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Foundation."
+        }
+       ],
+       "syndicate": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71027"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Syndicate."
+        }
+       ],
+       "lodge": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71033"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Silver Twilight Lodge."
+        }
+       ],
+       "locals": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71039"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : Locals of Kingsport."
+        }
+       ],
+       "default": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71015",
+          "71027",
+          "71033",
+          "71039"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep"
+        }
+       ]
+      }
+     },
+     {
+      "op": "branch",
+      "on": "slot:rival",
+      "cases": {
+       "71015": [
+        {
+         "op": "place",
+         "code": "71015",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Foundation — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71016"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Valeriya Antonova (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71020"
+         ],
+         "faceUp": true,
+         "log": "Rookie Cop (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71017",
+          "71018",
+          "71019"
+         ],
+         "log": "Les trois invités de The Foundation sont retirés de la partie."
+        }
+       ],
+       "71027": [
+        {
+         "op": "place",
+         "code": "71027",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Syndicate — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71028"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Johnny Valone (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71032"
+         ],
+         "faceUp": true,
+         "log": "Cold Streak (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71029",
+          "71030",
+          "71031"
+         ],
+         "log": "Les trois invités de The Syndicate sont retirés de la partie."
+        }
+       ],
+       "71033": [
+        {
+         "op": "place",
+         "code": "71033",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Silver Twilight Lodge — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71034"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Carl Sanford (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71038"
+         ],
+         "faceUp": true,
+         "log": "Ward of Preservation (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71035",
+          "71036",
+          "71037"
+         ],
+         "log": "Les trois invités de The Silver Twilight Lodge sont retirés de la partie."
+        }
+       ],
+       "71039": [
+        {
+         "op": "place",
+         "code": "71039",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : Locals of Kingsport — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71040"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "William Bain (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71044"
+         ],
+         "faceUp": true,
+         "log": "Unlucky (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71041",
+          "71042",
+          "71043"
+         ],
+         "log": "Les trois invités de Locals of Kingsport sont retirés de la partie."
+        }
+       ]
+      }
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "71015",
+       "71016",
+       "71020",
+       "71027",
+       "71028",
+       "71032",
+       "71033",
+       "71034",
+       "71038",
+       "71039",
+       "71040",
+       "71044"
+      ],
+      "log": "Les trois factions restantes : carte histoire, Leader et carte Rival retirés de la partie (leurs invités forment le Guest deck)."
+     }
+    ],
+    "syndicate": [
+     {
+      "op": "aside",
+      "codes": [
+       "71027"
+      ],
+      "faceUp": true,
+      "log": "Faction alliée : The Syndicate — sa carte histoire est mise de côté, côté Allied (elle entrera en jeu à l'acte 2)."
+     },
+     {
+      "op": "place",
+      "code": "71028",
+      "zone": "seat0",
+      "x": 9999,
+      "y": 0,
+      "faceUp": true,
+      "log": "Johnny Valone (Leader, côté soutien) entre en jeu sous le contrôle d'un enquêteur — posée au siège 1, glissez-la sur le siège de votre choix."
+     },
+     {
+      "op": "pickRandom",
+      "from": [
+       "71029",
+       "71030",
+       "71031"
+      ],
+      "n": 3,
+      "zone": "board",
+      "positions": [
+       {
+        "x": 587,
+        "y": 457
+       },
+       {
+        "x": 773,
+        "y": 457
+       },
+       {
+        "x": 959,
+        "y": 457
+       }
+      ],
+      "faceUp": true,
+      "rest": "keep",
+      "log": "Les trois invités de The Syndicate entrent en jeu face visible, un à chaque Ground-Floor Room, au hasard."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "71032"
+      ],
+      "log": "La carte Rival de The Syndicate (Cold Streak) est retirée de la partie."
+     },
+     {
+      "op": "branch",
+      "on": "rival",
+      "cases": {
+       "foundation": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71015"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Foundation."
+        }
+       ],
+       "miskatonic": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71021"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : Miskatonic University."
+        }
+       ],
+       "lodge": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71033"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Silver Twilight Lodge."
+        }
+       ],
+       "locals": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71039"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : Locals of Kingsport."
+        }
+       ],
+       "default": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71015",
+          "71021",
+          "71033",
+          "71039"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep"
+        }
+       ]
+      }
+     },
+     {
+      "op": "branch",
+      "on": "slot:rival",
+      "cases": {
+       "71015": [
+        {
+         "op": "place",
+         "code": "71015",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Foundation — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71016"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Valeriya Antonova (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71020"
+         ],
+         "faceUp": true,
+         "log": "Rookie Cop (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71017",
+          "71018",
+          "71019"
+         ],
+         "log": "Les trois invités de The Foundation sont retirés de la partie."
+        }
+       ],
+       "71021": [
+        {
+         "op": "place",
+         "code": "71021",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : Miskatonic University — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71022"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Caldwell Philips (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71026"
+         ],
+         "faceUp": true,
+         "log": "Confusion (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71023",
+          "71024",
+          "71025"
+         ],
+         "log": "Les trois invités de Miskatonic University sont retirés de la partie."
+        }
+       ],
+       "71033": [
+        {
+         "op": "place",
+         "code": "71033",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Silver Twilight Lodge — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71034"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Carl Sanford (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71038"
+         ],
+         "faceUp": true,
+         "log": "Ward of Preservation (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71035",
+          "71036",
+          "71037"
+         ],
+         "log": "Les trois invités de The Silver Twilight Lodge sont retirés de la partie."
+        }
+       ],
+       "71039": [
+        {
+         "op": "place",
+         "code": "71039",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : Locals of Kingsport — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71040"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "William Bain (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71044"
+         ],
+         "faceUp": true,
+         "log": "Unlucky (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71041",
+          "71042",
+          "71043"
+         ],
+         "log": "Les trois invités de Locals of Kingsport sont retirés de la partie."
+        }
+       ]
+      }
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "71015",
+       "71016",
+       "71020",
+       "71021",
+       "71022",
+       "71026",
+       "71033",
+       "71034",
+       "71038",
+       "71039",
+       "71040",
+       "71044"
+      ],
+      "log": "Les trois factions restantes : carte histoire, Leader et carte Rival retirés de la partie (leurs invités forment le Guest deck)."
+     }
+    ],
+    "lodge": [
+     {
+      "op": "aside",
+      "codes": [
+       "71033"
+      ],
+      "faceUp": true,
+      "log": "Faction alliée : The Silver Twilight Lodge — sa carte histoire est mise de côté, côté Allied (elle entrera en jeu à l'acte 2)."
+     },
+     {
+      "op": "place",
+      "code": "71034",
+      "zone": "seat0",
+      "x": 9999,
+      "y": 0,
+      "faceUp": true,
+      "log": "Carl Sanford (Leader, côté soutien) entre en jeu sous le contrôle d'un enquêteur — posée au siège 1, glissez-la sur le siège de votre choix."
+     },
+     {
+      "op": "pickRandom",
+      "from": [
+       "71035",
+       "71036",
+       "71037"
+      ],
+      "n": 3,
+      "zone": "board",
+      "positions": [
+       {
+        "x": 587,
+        "y": 457
+       },
+       {
+        "x": 773,
+        "y": 457
+       },
+       {
+        "x": 959,
+        "y": 457
+       }
+      ],
+      "faceUp": true,
+      "rest": "keep",
+      "log": "Les trois invités de The Silver Twilight Lodge entrent en jeu face visible, un à chaque Ground-Floor Room, au hasard."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "71038"
+      ],
+      "log": "La carte Rival de The Silver Twilight Lodge (Ward of Preservation) est retirée de la partie."
+     },
+     {
+      "op": "branch",
+      "on": "rival",
+      "cases": {
+       "foundation": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71015"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Foundation."
+        }
+       ],
+       "miskatonic": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71021"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : Miskatonic University."
+        }
+       ],
+       "syndicate": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71027"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Syndicate."
+        }
+       ],
+       "locals": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71039"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : Locals of Kingsport."
+        }
+       ],
+       "default": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71015",
+          "71021",
+          "71027",
+          "71039"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep"
+        }
+       ]
+      }
+     },
+     {
+      "op": "branch",
+      "on": "slot:rival",
+      "cases": {
+       "71015": [
+        {
+         "op": "place",
+         "code": "71015",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Foundation — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71016"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Valeriya Antonova (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71020"
+         ],
+         "faceUp": true,
+         "log": "Rookie Cop (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71017",
+          "71018",
+          "71019"
+         ],
+         "log": "Les trois invités de The Foundation sont retirés de la partie."
+        }
+       ],
+       "71021": [
+        {
+         "op": "place",
+         "code": "71021",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : Miskatonic University — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71022"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Caldwell Philips (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71026"
+         ],
+         "faceUp": true,
+         "log": "Confusion (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71023",
+          "71024",
+          "71025"
+         ],
+         "log": "Les trois invités de Miskatonic University sont retirés de la partie."
+        }
+       ],
+       "71027": [
+        {
+         "op": "place",
+         "code": "71027",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Syndicate — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71028"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Johnny Valone (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71032"
+         ],
+         "faceUp": true,
+         "log": "Cold Streak (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71029",
+          "71030",
+          "71031"
+         ],
+         "log": "Les trois invités de The Syndicate sont retirés de la partie."
+        }
+       ],
+       "71039": [
+        {
+         "op": "place",
+         "code": "71039",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : Locals of Kingsport — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71040"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "William Bain (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71044"
+         ],
+         "faceUp": true,
+         "log": "Unlucky (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71041",
+          "71042",
+          "71043"
+         ],
+         "log": "Les trois invités de Locals of Kingsport sont retirés de la partie."
+        }
+       ]
+      }
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "71015",
+       "71016",
+       "71020",
+       "71021",
+       "71022",
+       "71026",
+       "71027",
+       "71028",
+       "71032",
+       "71039",
+       "71040",
+       "71044"
+      ],
+      "log": "Les trois factions restantes : carte histoire, Leader et carte Rival retirés de la partie (leurs invités forment le Guest deck)."
+     }
+    ],
+    "locals": [
+     {
+      "op": "aside",
+      "codes": [
+       "71039"
+      ],
+      "faceUp": true,
+      "log": "Faction alliée : Locals of Kingsport — sa carte histoire est mise de côté, côté Allied (elle entrera en jeu à l'acte 2)."
+     },
+     {
+      "op": "place",
+      "code": "71040",
+      "zone": "seat0",
+      "x": 9999,
+      "y": 0,
+      "faceUp": true,
+      "log": "William Bain (Leader, côté soutien) entre en jeu sous le contrôle d'un enquêteur — posée au siège 1, glissez-la sur le siège de votre choix."
+     },
+     {
+      "op": "pickRandom",
+      "from": [
+       "71041",
+       "71042",
+       "71043"
+      ],
+      "n": 3,
+      "zone": "board",
+      "positions": [
+       {
+        "x": 587,
+        "y": 457
+       },
+       {
+        "x": 773,
+        "y": 457
+       },
+       {
+        "x": 959,
+        "y": 457
+       }
+      ],
+      "faceUp": true,
+      "rest": "keep",
+      "log": "Les trois invités de Locals of Kingsport entrent en jeu face visible, un à chaque Ground-Floor Room, au hasard."
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "71044"
+      ],
+      "log": "La carte Rival de Locals of Kingsport (Unlucky) est retirée de la partie."
+     },
+     {
+      "op": "branch",
+      "on": "rival",
+      "cases": {
+       "foundation": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71015"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Foundation."
+        }
+       ],
+       "miskatonic": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71021"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : Miskatonic University."
+        }
+       ],
+       "syndicate": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71027"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Syndicate."
+        }
+       ],
+       "lodge": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71033"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep",
+         "log": "Faction rivale (variante Best Guests) : The Silver Twilight Lodge."
+        }
+       ],
+       "default": [
+        {
+         "op": "pickRandom",
+         "from": [
+          "71015",
+          "71021",
+          "71027",
+          "71033"
+         ],
+         "n": 1,
+         "slot": "rival",
+         "rest": "keep"
+        }
+       ]
+      }
+     },
+     {
+      "op": "branch",
+      "on": "slot:rival",
+      "cases": {
+       "71015": [
+        {
+         "op": "place",
+         "code": "71015",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Foundation — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71016"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Valeriya Antonova (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71020"
+         ],
+         "faceUp": true,
+         "log": "Rookie Cop (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71017",
+          "71018",
+          "71019"
+         ],
+         "log": "Les trois invités de The Foundation sont retirés de la partie."
+        }
+       ],
+       "71021": [
+        {
+         "op": "place",
+         "code": "71021",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : Miskatonic University — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71022"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Caldwell Philips (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71026"
+         ],
+         "faceUp": true,
+         "log": "Confusion (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71023",
+          "71024",
+          "71025"
+         ],
+         "log": "Les trois invités de Miskatonic University sont retirés de la partie."
+        }
+       ],
+       "71027": [
+        {
+         "op": "place",
+         "code": "71027",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Syndicate — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71028"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Johnny Valone (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71032"
+         ],
+         "faceUp": true,
+         "log": "Cold Streak (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71029",
+          "71030",
+          "71031"
+         ],
+         "log": "Les trois invités de The Syndicate sont retirés de la partie."
+        }
+       ],
+       "71033": [
+        {
+         "op": "place",
+         "code": "71033",
+         "zone": "story",
+         "x": 0,
+         "y": 0,
+         "faceUp": false,
+         "log": "Faction rivale : The Silver Twilight Lodge — sa carte histoire attend, face cachée, à côté de l'agenda (l'acte 2 la retournera côté Rival)."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71034"
+         ],
+         "faceUp": true,
+         "side": "b",
+         "log": "Carl Sanford (Leader du rival) est mise de côté, côté ennemi."
+        },
+        {
+         "op": "aside",
+         "codes": [
+          "71038"
+         ],
+         "faceUp": true,
+         "log": "Ward of Preservation (carte Rival) est mise de côté, hors jeu."
+        },
+        {
+         "op": "remove",
+         "codes": [
+          "71035",
+          "71036",
+          "71037"
+         ],
+         "log": "Les trois invités de The Silver Twilight Lodge sont retirés de la partie."
+        }
+       ]
+      }
+     },
+     {
+      "op": "remove",
+      "codes": [
+       "71015",
+       "71016",
+       "71020",
+       "71021",
+       "71022",
+       "71026",
+       "71027",
+       "71028",
+       "71032",
+       "71033",
+       "71034",
+       "71038"
+      ],
+      "log": "Les trois factions restantes : carte histoire, Leader et carte Rival retirés de la partie (leurs invités forment le Guest deck)."
+     }
+    ]
+   }
+  },
+  {
+   "op": "toPile",
+   "codes": [
+    "71017",
+    "71018",
+    "71019",
+    "71023",
+    "71024",
+    "71025",
+    "71029",
+    "71030",
+    "71031",
+    "71035",
+    "71036",
+    "71037",
+    "71041",
+    "71042",
+    "71043"
+   ],
+   "pile": "guests",
+   "shuffle": true,
+   "log": "Les 9 invités restants, mélangés face cachée, forment le Guest deck (pile à côté de la pioche)."
+  },
+  {
+   "op": "fromPile",
+   "pile": "guests",
+   "n": 3,
+   "zone": "board",
+   "positions": [
+    {
+     "x": 605,
+     "y": 475
+    },
+    {
+     "x": 791,
+     "y": 475
+    },
+    {
+     "x": 977,
+     "y": 475
+    }
+   ],
+   "faceUp": true,
+   "log": "Les 3 premières cartes du Guest deck entrent en jeu face visible, une à chaque Ground-Floor Room."
+  },
+  {
+   "op": "spawn",
+   "code": "71045",
+   "at": "71008",
+   "exhausted": true,
+   "log": "The Bloodless Man (Silent Lurker) entre en jeu à la Lantern Chamber, épuisé."
+  },
+  {
+   "op": "spawn",
+   "code": "71046",
+   "at": "71008",
+   "log": "The Pale Lantern (Hypnotic Glow) lui est attachée (posée sur lui : elle le suit quand il patrouille)."
+  },
+  {
+   "op": "aside",
+   "codes": [
+    "71047",
+    "71047",
+    "71048",
+    "71048",
+    "71049",
+    "71050",
+    "71050",
+    "71051",
+    "71052"
+   ],
+   "faceUp": true,
+   "log": "Les Monstres (Enraged Gug ×2, Abhorrent Moon-Beast ×2, Savage Shantak), les deux Vicious Ambush, Declan Pearce et le Jewel of Sarnath sont mis de côté, hors jeu."
+  },
+  {
+   "op": "story",
+   "log": "Agenda 1 et acte 1 sont en place ; la carte de scénario montre la référence de votre difficulté (recto Easy/Standard, verso Hard/Expert)."
+  },
+  {
+   "op": "buildEncounter"
+  }
+ ],
+ "agendaEffects": {
+  "2": {
+   "log": "Verso de l'agenda 1 (agenda 2)",
+   "shuffleAside": [
+    "71047",
+    "71048",
+    "71049",
+    "71050"
+   ],
+   "withDiscard": true
+  },
+  "3": {
+   "log": "Verso de l'agenda 2 (agenda 3)",
+   "flip": [
+    "71045"
+   ]
+  }
+ },
+ "actEffects": {
+  "enter:71006": {
+   "log": "Verso de l'acte 1 et interlude The Fabled Jewel (livret p. 13-14)",
+   "spreadPile": {
+    "pile": "second_floor",
+    "positions": [
+     {
+      "x": 365,
+      "y": 173
+     },
+     {
+      "x": 551,
+      "y": 173
+     },
+     {
+      "x": 737,
+      "y": 173
+     }
+    ]
+   },
+   "flip": [
+    "71015",
+    "71021",
+    "71027",
+    "71033",
+    "71039"
+   ],
+   "shuffleAside": [
+    "71020",
+    "71026",
+    "71032",
+    "71038",
+    "71044"
+   ],
+   "drawAside": {
+    "codes": [
+     "71015",
+     "71021",
+     "71027",
+     "71033",
+     "71039"
+    ],
+    "side": "a"
+   },
+   "byAnswer": {
+    "q": "faction",
+    "cases": {
+     "foundation": {
+      "spawnAside": {
+       "code": "71051",
+       "at": "71008",
+       "exhausted": true
+      },
+      "note": "Foundation : attachez le Jewel of Sarnath (de côté) à The Bloodless Man en ignorant sa Révélation — glissez-le sur lui ; s'il n'est pas en jeu, attachez-le à la Lantern Chamber"
+     },
+     "miskatonic": {
+      "note": "Miskatonic University : mettez Declan Pearce (de côté) en jeu au lieu Second Floor le plus à droite et attachez-lui le Jewel of Sarnath en ignorant sa Révélation (glissez les deux cartes)"
+     },
+     "syndicate": {
+      "note": "The Syndicate : mélangez la première carte de la pioche, le Jewel of Sarnath et Declan Pearce (de côté), puis posez-en une face cachée sous chaque lieu Second Floor comme « mystère » (glissez-les, Retourner pour les cacher)"
+     },
+     "lodge": {
+      "note": "The Silver Twilight Lodge : remélangez la défausse dans la pioche (menu de la défausse), prenez les 7 premières cartes de la pioche, mélangez-y le Jewel of Sarnath et Declan Pearce (de côté), placez ces 9 cartes sous la pioche ; à 2 enquêteurs non vaincus, défaussez ensuite les 6 premières cartes ; à 1, les 12 premières"
+     },
+     "locals": {
+      "spawnAside": [
+       {
+        "code": "71051",
+        "at": "71008"
+       },
+       {
+        "code": "71052",
+        "at": "71008"
+       }
+      ],
+      "tokens": [
+       {
+        "code": "71052",
+        "token": "damage",
+        "n": 1
+       },
+       {
+        "code": "71052",
+        "token": "doom",
+        "n": 1
+       }
+      ],
+      "drawPileTo": {
+       "pile": "guests",
+       "at": "71007"
+      },
+      "note": "Locals of Kingsport : le Jewel est attaché à Declan Pearce (posé sur lui), Révélation ignorée"
+     }
+    }
+   }
+  }
+ },
+ "seatCounters": [],
+ "tableCounters": [],
+ "reminders": [
+  {
+   "when": "setup",
+   "text": "Hors application : chaque joueur prend ses 5 ressources, pioche sa main de départ (mulligan possible) et garde son deck à portée (ou importe son deck sur son board joueur)."
+  },
+  {
+   "when": "setup",
+   "text": "Invités (livret p. 3) : on prend le contrôle d'un Guest par un parley de l'acte (glissez-le sur votre siège) ; leurs capacités ne sont utilisables que par qui les contrôle ; ils ne prennent pas d'emplacement d'allié. Le Leader allié est au siège 1 : donnez-le à qui vous voulez. Guest deck (pile à côté de la pioche) : « Piocher » retourne la première carte, glissez-la au Lobby (capacité du Lobby aux agendas 2 et 3)."
+  },
+  {
+   "when": "setup",
+   "text": "Spellbound (livret p. 3-4) : un invité ensorcelé est retourné face cachée (menu → Retourner), on en perd le contrôle (glissez-le sur son lieu) et ses dégâts et horreur sont retirés (ses autres jetons restent) ; un Leader qui le deviendrait est retiré de la partie à la place ; retourné face visible, il est prêt et libéré. Les agendas ensorcellent tout invité simple face qui quitterait le jeu."
+  },
+  {
+   "when": "setup",
+   "text": "Score (livret p. 24) : 1 point par lieu Manor révélé sans indice, 1 par invité contrôlé, 4 si aucune carte ensorcelée, 5 si l'agenda 1a ou 2a est en jeu, 4 / 3 / 3 / 4 pour The Bloodless Man, The Pale Lantern, Declan Pearce, une carte histoire Rival en zone de victoire, 3 + 3 si personne n'a été vaincu avec au plus 2 dégâts et 2 horreur en tout, 3 en Difficile, 6 en Expert, plus les points de votre carte histoire alliée. Battez votre record !"
+  },
+  {
+   "when": "mythos",
+   "text": "Doom sur l'agenda (il ne s'en retire pas par effet de carte), puis chaque enquêteur pioche 1 carte rencontre (menu de la pioche). Fin de la phase des enquêteurs : The Bloodless Man prêt inflige 1 horreur à chacun à son lieu et, avec la lanterne, ensorcelle les invités qui s'y trouvent."
+  },
+  {
+   "when": "enemy",
+   "text": "Patrol (The Bloodless Man : vers le lieu le plus proche avec un invité) et chasseurs : déplacez-les à la main ; Alert : un ennemi Alert attaque après chaque évasion ratée. The Bloodless Man vaincu côté Silent Lurker : Autre face (Unleashed), épuisé, tous ses dégâts sauf 3 par enquêteur retirés."
+  },
+  {
+   "when": "agenda:2",
+   "text": "Verso de l'agenda 1 appliqué par l'app (journal) : Monstres, Vicious Ambush et défausse mélangés dans la pioche. Agendas 2 et 3 : les parleys des ennemis Lantern Club ne se déclenchent plus ; l'acte 1 peut avancer quand chaque enquêteur non vaincu contrôle un invité (indices requis)."
+  },
+  {
+   "when": "agenda:3",
+   "text": "Verso de l'agenda 2 : si The Bloodless Man (Silent Lurker) était en jeu, l'app l'a retourné côté Unleashed ; sinon, chaque enquêteur peut soigner 1 horreur d'un enquêteur ou d'un invité à son lieu. L'agenda 3 est le dernier."
+  },
+  {
+   "when": "act:2",
+   "text": "Verso de l'acte 1 appliqué par l'app (journal) : les Second-Floor Rooms sont en jeu (celle au-dessus du Lobby lui est connectée — tracez le chemin), la carte histoire du rival est retournée côté Rival et sa carte Rival mélangée dans la pioche ; mettez son Leader (de côté, côté ennemi) en jeu au lieu du meneur ; votre carte histoire alliée est à côté de l'acte, côté Allied. Interlude The Fabled Jewel : ce que l'app a fait est au journal, le reste (selon votre faction) est en note. Acte 2 : remplissez l'objectif de votre carte histoire alliée et accomplissez le plus de tâches possible."
+  }
+ ],
+ "builtAt": "2026-09-11",
+ "encounterSetNames": {
+  "the_midwinter_gala": "The Midwinter Gala"
+ },
+ "cards": [
+  {
+   "code": "71001",
+   "name": "The Midwinter Gala",
+   "kind": "scenario",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false
+  },
+  {
+   "code": "71002",
+   "name": "Masked Revelers",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Who Let the Gugs Out?",
+   "doom": 4,
+   "stage": 1
+  },
+  {
+   "code": "71003",
+   "name": "Unexpected Guests",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "backName": "Mayhem Ensues",
+   "doom": 6,
+   "stage": 2
+  },
+  {
+   "code": "71004",
+   "name": "A Killer Party",
+   "kind": "agenda",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "backName": "A Kingsport Goodbye",
+   "doom": 6,
+   "stage": 3
+  },
+  {
+   "code": "71005",
+   "name": "Meet and Greet",
+   "kind": "act",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "backName": "Contacts Acquired",
+   "stage": 1
+  },
+  {
+   "code": "71006",
+   "name": "Finding the Jewel",
+   "kind": "act",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 0,
+    "perInvestigator": true
+   },
+   "backName": "The Party's Over",
+   "stage": 2
+  },
+  {
+   "code": "71007",
+   "name": "Lobby",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Manor",
+    "Ground Floor"
+   ]
+  },
+  {
+   "code": "71008",
+   "name": "Lantern Chamber",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Manor",
+    "Private",
+    "Basement"
+   ],
+   "victory": 1
+  },
+  {
+   "code": "71009",
+   "name": "Art Gallery",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Manor",
+    "Ground Floor"
+   ],
+   "backName": "Ground-Floor Room"
+  },
+  {
+   "code": "71010",
+   "name": "Ballroom",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 1,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Manor",
+    "Ground Floor"
+   ],
+   "backName": "Ground-Floor Room"
+  },
+  {
+   "code": "71011",
+   "name": "Barroom",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Manor",
+    "Ground Floor"
+   ],
+   "backName": "Ground-Floor Room"
+  },
+  {
+   "code": "71012",
+   "name": "Bedroom",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 2,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Manor",
+    "Private",
+    "Second Floor"
+   ],
+   "backName": "Second-Floor Room"
+  },
+  {
+   "code": "71013",
+   "name": "Library",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Manor",
+    "Private",
+    "Second Floor"
+   ],
+   "backName": "Second-Floor Room",
+   "victory": 1
+  },
+  {
+   "code": "71014",
+   "name": "Parlor",
+   "kind": "location",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "clue": {
+    "value": 3,
+    "perInvestigator": true
+   },
+   "traits": [
+    "Manor",
+    "Private",
+    "Second Floor"
+   ],
+   "backName": "Second-Floor Room",
+   "victory": 1
+  },
+  {
+   "code": "71015",
+   "name": "The Foundation [guardian]",
+   "kind": "story",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Allied"
+   ],
+   "backCode": "71015b",
+   "backKind": "story",
+   "backName": "The Foundation [guardian]"
+  },
+  {
+   "code": "71016",
+   "name": "Valeriya Antonova",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Wants Out of Here",
+   "traits": [
+    "Leader",
+    "Guest",
+    "Agency"
+   ],
+   "backCode": "71016b",
+   "backKind": "enemy",
+   "backName": "Valeriya Antonova",
+   "backSubname": "Don't Mess With Her",
+   "health": 2,
+   "sanity": 3
+  },
+  {
+   "code": "71017",
+   "name": "Archibald Hudson",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Astute Agent",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Agency"
+   ],
+   "health": 2,
+   "sanity": 2
+  },
+  {
+   "code": "71018",
+   "name": "Special Agent Callahan",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Weapons Expert",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Agency"
+   ],
+   "health": 3,
+   "sanity": 1
+  },
+  {
+   "code": "71019",
+   "name": "Horacio Martinez",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Brash Bodyguard",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Agency"
+   ],
+   "health": 4,
+   "sanity": 1
+  },
+  {
+   "code": "71020",
+   "name": "Rookie Cop",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Police",
+    "Rival"
+   ],
+   "health": 2
+  },
+  {
+   "code": "71021",
+   "name": "Miskatonic University [seeker]",
+   "kind": "story",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Allied"
+   ],
+   "backCode": "71021b",
+   "backKind": "story",
+   "backName": "Miskatonic University [seeker]"
+  },
+  {
+   "code": "71022",
+   "name": "Caldwell Philips",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Enthralled by Legends",
+   "traits": [
+    "Leader",
+    "Guest",
+    "Miskatonic"
+   ],
+   "backCode": "71022b",
+   "backKind": "enemy",
+   "backName": "Caldwell Philips",
+   "backSubname": "Compelled by Dreams",
+   "health": 2,
+   "sanity": 3
+  },
+  {
+   "code": "71023",
+   "name": "Dr. Mya Badry",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Medical Examiner",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Miskatonic"
+   ],
+   "health": 2,
+   "sanity": 2
+  },
+  {
+   "code": "71024",
+   "name": "Lucas Tetlow",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Faculty Curator",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Miskatonic"
+   ],
+   "health": 3,
+   "sanity": 1
+  },
+  {
+   "code": "71025",
+   "name": "Elizabeth Conrad",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Completely Zozzled",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Miskatonic"
+   ],
+   "health": 1,
+   "sanity": 3
+  },
+  {
+   "code": "71026",
+   "name": "Confusion",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Blunder",
+    "Rival"
+   ]
+  },
+  {
+   "code": "71027",
+   "name": "The Syndicate [rogue]",
+   "kind": "story",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Allied"
+   ],
+   "backCode": "71027b",
+   "backKind": "story",
+   "backName": "The Syndicate [rogue]"
+  },
+  {
+   "code": "71028",
+   "name": "Johnny Valone",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Ready to Make a Deal",
+   "traits": [
+    "Leader",
+    "Guest",
+    "Syndicate"
+   ],
+   "backCode": "71028b",
+   "backKind": "enemy",
+   "backName": "Johnny Valone",
+   "backSubname": "Here to Collect",
+   "health": 3,
+   "sanity": 2
+  },
+  {
+   "code": "71029",
+   "name": "Miranda Keeper",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Antiquities \"Trader\"",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Syndicate"
+   ],
+   "health": 2,
+   "sanity": 2
+  },
+  {
+   "code": "71030",
+   "name": "Arsène Renard",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Gentleman Thief",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Syndicate"
+   ],
+   "health": 1,
+   "sanity": 3
+  },
+  {
+   "code": "71031",
+   "name": "Nova Malone",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Commanding Gangster",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Syndicate"
+   ],
+   "health": 3,
+   "sanity": 1
+  },
+  {
+   "code": "71032",
+   "name": "Cold Streak",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Misfortune",
+    "Rival"
+   ]
+  },
+  {
+   "code": "71033",
+   "name": "Silver Twilight Lodge [mystic]",
+   "kind": "story",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Allied"
+   ],
+   "backCode": "71033b",
+   "backKind": "story",
+   "backName": "Silver Twilight Lodge [mystic]"
+  },
+  {
+   "code": "71034",
+   "name": "Carl Sanford",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Lusting for Power",
+   "traits": [
+    "Leader",
+    "Guest",
+    "Silver Twilight"
+   ],
+   "backCode": "71034b",
+   "backKind": "enemy",
+   "backName": "Carl Sanford",
+   "backSubname": "Intimidating Presence",
+   "health": 3,
+   "sanity": 3
+  },
+  {
+   "code": "71035",
+   "name": "Prudence Douglas",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Pragmatic Occultist",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Sorcerer",
+    "Silver Twilight"
+   ],
+   "health": 2,
+   "sanity": 2
+  },
+  {
+   "code": "71036",
+   "name": "Sarah Van Shaw",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Lodge Warden",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Silver Twilight"
+   ],
+   "health": 3,
+   "sanity": 1
+  },
+  {
+   "code": "71037",
+   "name": "Raymond Loggins",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Mysterious Benefactor",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Sorcerer",
+    "Silver Twilight"
+   ],
+   "health": 1,
+   "sanity": 2
+  },
+  {
+   "code": "71038",
+   "name": "Ward of Preservation",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Spell",
+    "Rival"
+   ]
+  },
+  {
+   "code": "71039",
+   "name": "Locals of Kingsport [survivor]",
+   "kind": "story",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": true,
+   "traits": [
+    "Allied"
+   ],
+   "backCode": "71039b",
+   "backKind": "story",
+   "backName": "Locals of Kingsport [survivor]"
+  },
+  {
+   "code": "71040",
+   "name": "William Bain",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Looking for Those Lost",
+   "traits": [
+    "Leader",
+    "Guest",
+    "Kingsport"
+   ],
+   "backCode": "71040b",
+   "backKind": "enemy",
+   "backName": "William Bain",
+   "backSubname": "Defiant to the Last",
+   "health": 4,
+   "sanity": 4
+  },
+  {
+   "code": "71041",
+   "name": "Delores Gadling",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Lantern Club Infiltrator",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Kingsport"
+   ],
+   "health": 1,
+   "sanity": 3
+  },
+  {
+   "code": "71042",
+   "name": "Thomas Olney",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Inquisitive Adventurer",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Wayfarer"
+   ],
+   "health": 3,
+   "sanity": 1
+  },
+  {
+   "code": "71043",
+   "name": "Claire Wilson",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Entirely Unimpressed",
+   "traits": [
+    "Ally",
+    "Guest",
+    "Kingsport"
+   ],
+   "health": 2,
+   "sanity": 2
+  },
+  {
+   "code": "71044",
+   "name": "Unlucky",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Misfortune",
+    "Rival"
+   ]
+  },
+  {
+   "code": "71045",
+   "name": "The Bloodless Man",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Silent Lurker",
+   "traits": [
+    "Humanoid",
+    "Lantern Club",
+    "Elite"
+   ],
+   "backCode": "71045b",
+   "backKind": "enemy",
+   "backName": "The Bloodless Man",
+   "backSubname": "Unleashed",
+   "backHealth": 6,
+   "backHealthPerInvestigator": true,
+   "backVictory": 1,
+   "health": 3,
+   "healthPerInvestigator": true
+  },
+  {
+   "code": "71046",
+   "name": "The Pale Lantern",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "b",
+   "storyBack": false,
+   "subname": "Hypnotic Glow",
+   "traits": [
+    "Item",
+    "Relic"
+   ],
+   "backCode": "71046b",
+   "backKind": "asset",
+   "backName": "The Pale Lantern",
+   "backSubname": "Beguiling Aura",
+   "backVictory": 1
+  },
+  {
+   "code": "71047",
+   "name": "Enraged Gug",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Dreamlands",
+    "Gug"
+   ],
+   "health": 3
+  },
+  {
+   "code": "71048",
+   "name": "Abhorrent Moon-Beast",
+   "kind": "enemy",
+   "qty": 2,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Dreamlands",
+    "Servitor"
+   ],
+   "health": 3
+  },
+  {
+   "code": "71049",
+   "name": "Savage Shantak",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Monster",
+    "Dreamlands",
+    "Shantak"
+   ],
+   "health": 4
+  },
+  {
+   "code": "71050",
+   "name": "Vicious Ambush",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Scheme"
+   ]
+  },
+  {
+   "code": "71051",
+   "name": "Declan Pearce",
+   "kind": "enemy",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Lantern Club Nomarch",
+   "traits": [
+    "Humanoid",
+    "Lantern Club",
+    "Elite"
+   ],
+   "health": 2
+  },
+  {
+   "code": "71052",
+   "name": "Jewel of Sarnath",
+   "kind": "asset",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "subname": "Turning Dreams into Reality",
+   "traits": [
+    "Item",
+    "Relic"
+   ]
+  },
+  {
+   "code": "71053",
+   "name": "Lantern Club Member",
+   "kind": "enemy",
+   "qty": 4,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Humanoid",
+    "Lantern Club"
+   ],
+   "health": 2
+  },
+  {
+   "code": "71054",
+   "name": "Bleeding Walls",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "71055",
+   "name": "Entrap",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "71056",
+   "name": "Inexplicable Cold",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "71057",
+   "name": "Mind Extraction",
+   "kind": "treachery",
+   "qty": 3,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Power"
+   ]
+  },
+  {
+   "code": "71058",
+   "name": "Noxious Fumes",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hazard"
+   ]
+  },
+  {
+   "code": "71059",
+   "name": "Pushed into the Beyond",
+   "kind": "treachery",
+   "qty": 1,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Hex"
+   ]
+  },
+  {
+   "code": "71060",
+   "name": "Secret Door",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Obstacle"
+   ]
+  },
+  {
+   "code": "71061",
+   "name": "Terror Gate",
+   "kind": "treachery",
+   "qty": 4,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  },
+  {
+   "code": "71062",
+   "name": "Violent Commands",
+   "kind": "treachery",
+   "qty": 2,
+   "set": "the_midwinter_gala",
+   "back": "encounter",
+   "storyBack": false,
+   "traits": [
+    "Terror"
+   ]
+  }
+ ]
+}

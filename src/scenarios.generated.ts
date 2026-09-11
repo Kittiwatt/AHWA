@@ -16,22 +16,23 @@ import s12 from "../public/scenarios/sa_fortune_and_folly_part_2.json";
 import s13 from "../public/scenarios/sa_machinations_through_time.json";
 import s14 from "../public/scenarios/sa_the_blob_that_ate_everything.json";
 import s15 from "../public/scenarios/sa_the_labyrinths_of_lunacy.json";
-import s16 from "../public/scenarios/tcu_at_deaths_doorstep.json";
-import s17 from "../public/scenarios/tcu_before_the_black_throne.json";
-import s18 from "../public/scenarios/tcu_for_the_greater_good.json";
-import s19 from "../public/scenarios/tcu_in_the_clutches_of_chaos.json";
-import s20 from "../public/scenarios/tcu_secret_name.json";
-import s21 from "../public/scenarios/tcu_union_and_disillusion.json";
-import s22 from "../public/scenarios/tcu_wages_of_sin.json";
-import s23 from "../public/scenarios/tcu_witching_hour.json";
-import s24 from "../public/scenarios/tic_a_light_in_the_fog.json";
-import s25 from "../public/scenarios/tic_devil_reef.json";
-import s26 from "../public/scenarios/tic_horror_in_high_gear.json";
-import s27 from "../public/scenarios/tic_in_too_deep.json";
-import s28 from "../public/scenarios/tic_into_the_maelstrom.json";
-import s29 from "../public/scenarios/tic_the_lair_of_dagon.json";
-import s30 from "../public/scenarios/tic_the_pit_of_despair.json";
-import s31 from "../public/scenarios/tic_the_vanishing_of_elina_harper.json";
+import s16 from "../public/scenarios/sa_the_midwinter_gala.json";
+import s17 from "../public/scenarios/tcu_at_deaths_doorstep.json";
+import s18 from "../public/scenarios/tcu_before_the_black_throne.json";
+import s19 from "../public/scenarios/tcu_for_the_greater_good.json";
+import s20 from "../public/scenarios/tcu_in_the_clutches_of_chaos.json";
+import s21 from "../public/scenarios/tcu_secret_name.json";
+import s22 from "../public/scenarios/tcu_union_and_disillusion.json";
+import s23 from "../public/scenarios/tcu_wages_of_sin.json";
+import s24 from "../public/scenarios/tcu_witching_hour.json";
+import s25 from "../public/scenarios/tic_a_light_in_the_fog.json";
+import s26 from "../public/scenarios/tic_devil_reef.json";
+import s27 from "../public/scenarios/tic_horror_in_high_gear.json";
+import s28 from "../public/scenarios/tic_in_too_deep.json";
+import s29 from "../public/scenarios/tic_into_the_maelstrom.json";
+import s30 from "../public/scenarios/tic_the_lair_of_dagon.json";
+import s31 from "../public/scenarios/tic_the_pit_of_despair.json";
+import s32 from "../public/scenarios/tic_the_vanishing_of_elina_harper.json";
 
 export const SCENARIOS = {
   "boa_queen_of_ash": s0,
@@ -50,22 +51,23 @@ export const SCENARIOS = {
   "sa_machinations_through_time": s13,
   "sa_the_blob_that_ate_everything": s14,
   "sa_the_labyrinths_of_lunacy": s15,
-  "tcu_at_deaths_doorstep": s16,
-  "tcu_before_the_black_throne": s17,
-  "tcu_for_the_greater_good": s18,
-  "tcu_in_the_clutches_of_chaos": s19,
-  "tcu_secret_name": s20,
-  "tcu_union_and_disillusion": s21,
-  "tcu_wages_of_sin": s22,
-  "tcu_witching_hour": s23,
-  "tic_a_light_in_the_fog": s24,
-  "tic_devil_reef": s25,
-  "tic_horror_in_high_gear": s26,
-  "tic_in_too_deep": s27,
-  "tic_into_the_maelstrom": s28,
-  "tic_the_lair_of_dagon": s29,
-  "tic_the_pit_of_despair": s30,
-  "tic_the_vanishing_of_elina_harper": s31,
+  "sa_the_midwinter_gala": s16,
+  "tcu_at_deaths_doorstep": s17,
+  "tcu_before_the_black_throne": s18,
+  "tcu_for_the_greater_good": s19,
+  "tcu_in_the_clutches_of_chaos": s20,
+  "tcu_secret_name": s21,
+  "tcu_union_and_disillusion": s22,
+  "tcu_wages_of_sin": s23,
+  "tcu_witching_hour": s24,
+  "tic_a_light_in_the_fog": s25,
+  "tic_devil_reef": s26,
+  "tic_horror_in_high_gear": s27,
+  "tic_in_too_deep": s28,
+  "tic_into_the_maelstrom": s29,
+  "tic_the_lair_of_dagon": s30,
+  "tic_the_pit_of_despair": s31,
+  "tic_the_vanishing_of_elina_harper": s32,
 } as const;
 
 export type ScenarioId = keyof typeof SCENARIOS;

@@ -374,8 +374,8 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
           const { x: lx, y: ly } = lieu.loc as { x: number; y: number };
           retirerDesPiles(state, k.id);
           k.loc = { zone: "board", x: lx + 36, y: ly + 46, z: nextZ(state) };
-          k.faceUp = true; k.side = sa.side ?? k.side; k.exhausted = false;
-          parties.push(`${nomCarte(def, k)} apparaît à ${nomCarte(def, lieu)}`);
+          k.faceUp = true; k.side = sa.side ?? k.side; k.exhausted = Boolean(sa.exhausted);
+          parties.push(`${nomCarte(def, k)} apparaît à ${nomCarte(def, lieu)}${sa.exhausted ? ", épuisé" : ""}`);
         } else parties.push(`${def.cards.find((d) => d.code === sa.code)?.name ?? sa.code} introuvable (ou lieu absent) : à faire à la main`);
       }
     },
@@ -482,18 +482,53 @@ function appliquerEffets(state: RoomState, def: ScenarioDef, effet: StageEffects
     },
     drawAside: () => {
       // « The lead investigator chooses a random set-aside story card and draws it » : n cartes tirées au hasard parmi celles de côté
-      // (codes listés) entrent dans l'histoire face visible, côté recto ; les autres restent de côté sans être regardées.
-      const { codes, n = 1 } = effet.drawAside!;
-      const deCote = Object.values(state.cards).filter((k) => codes.includes(k.code) && "zone" in k.loc && k.loc.zone === "aside");
-      const tirees = shuffle([...deCote], Math.random).slice(0, n);
-      for (const k of tirees) {
-        k.loc = { zone: "story", x: 0, y: 0, z: nextZ(state) };
-        k.faceUp = true; k.side = "a"; k.exhausted = false; k.tokens = {};
+      // (codes listés) entrent dans l'histoire face visible, côté recto (ou `side`) ; les autres restent de côté sans être regardées.
+      for (const da of Array.isArray(effet.drawAside) ? effet.drawAside : [effet.drawAside!]) {
+        const { codes, n = 1, side = "a" } = da;
+        const deCote = Object.values(state.cards).filter((k) => codes.includes(k.code) && "zone" in k.loc && k.loc.zone === "aside");
+        const tirees = shuffle([...deCote], Math.random).slice(0, n);
+        for (const k of tirees) {
+          k.loc = { zone: "story", x: 0, y: 0, z: nextZ(state) };
+          k.faceUp = true; k.side = side; k.exhausted = false; k.tokens = {};
+        }
+        parties.push(tirees.length
+          ? `${tirees.length > 1 ? `${tirees.length} cartes tirées` : "carte tirée"}${deCote.length > tirees.length ? ` au hasard parmi les ${deCote.length} de côté` : " de côté"} : ${tirees.map((k) => nomCarte(def, k)).join(", ")} (colonne Histoire, ${side === "b" ? "verso" : "recto"})`
+          : "plus aucune carte de côté à tirer : à faire à la main");
       }
-      parties.push(tirees.length
-        ? `${tirees.length > 1 ? `${tirees.length} cartes tirées` : "carte tirée"} au hasard parmi les ${deCote.length} de côté : ${tirees.map((k) => nomCarte(def, k)).join(", ")} (colonne Histoire, recto)`
-        : "plus aucune carte de côté à tirer : à faire à la main");
     },
+    byAnswer: () => {
+      // Variante selon la réponse du lobby (interlude du Midwinter Gala selon la faction alliée), appliquée à sa place dans l'ordre.
+      const { q, cases } = effet.byAnswer!;
+      const rep = String(state.answers?.[q] ?? "");
+      const v = cases[rep] ?? cases["default"];
+      if (v) parties.push(...appliquerEffets(state, def, v));
+    },
+    tokens: () => {
+      for (const t of effet.tokens!) {
+        const k = Object.values(state.cards).find((c) => c.code === t.code && "zone" in c.loc);
+        if (!k) { parties.push(`${def.cards.find((d) => d.code === t.code)?.name ?? t.code} absent du jeu : jetons à poser à la main`); continue; }
+        k.tokens[t.token] = (k.tokens[t.token] ?? 0) + t.n;
+        parties.push(`${t.n} ${t.token === "clue" ? "indice" : t.token === "damage" ? "dégât" : t.token === "horror" ? "horreur" : t.token}${t.n > 1 && t.token !== "horror" ? "s" : ""} sur ${nomCarte(def, k)}`);
+      }
+    },
+    drawPileTo: () => {
+      // « Reveal the top card of the Guest deck and put it into play at the Lobby » : les n premières cartes d'une pile, face visible, sur un lieu.
+      const { pile, at, n = 1 } = effet.drawPileTo!;
+      const lieu = surTapis(at);
+      if (!lieu || lieu.kind !== "location") { parties.push(`${def.cards.find((d) => d.code === at)?.name ?? at} absent du tapis : à faire à la main`); return; }
+      const ids = (state.piles[pile] ?? []).slice(0, n);
+      if (!ids.length) { parties.push(`${nomPile(def, pile)} vide : rien à mettre en jeu`); return; }
+      const { x: lx, y: ly } = lieu.loc as { x: number; y: number };
+      for (const id of ids) {
+        const k = state.cards[id];
+        retirerDesPiles(state, k.id);
+        const deja = Object.values(state.cards).filter((c) => c.kind !== "mini" && c.kind !== "location" && "zone" in c.loc && c.loc.zone === "board" && Math.abs(c.loc.x - lx) < CARD_W && Math.abs(c.loc.y - ly) < CARD_H).length;
+        k.loc = { zone: "board", x: lx + 36 + deja * 18, y: ly + 46 + deja * 18, z: nextZ(state) };
+        k.faceUp = true; k.side = "a"; k.exhausted = false;
+      }
+      parties.push(`${ids.map((id) => nomCarte(def, state.cards[id])).join(", ")} (dessus de ${nomPile(def, pile)}) entre en jeu à ${nomCarte(def, lieu)}`);
+    },
+    note: () => { parties.push(effet.note!); },
     randomKeyOn: () => {
       const cible = surTapis(effet.randomKeyOn!);
       const cachees = Object.values(state.cards).filter((k) => k.kind === "key" && !k.faceUp && "zone" in k.loc && k.loc.zone === "aside");
